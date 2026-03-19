@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ec5b13;
+  --color-background-light: #f8f6f6;
+  --color-background-dark: #120d0b;
+  --color-accent-teal: #2DD4BF;
+  
+  --color-brand-charcoal: #0F1115;
+  --color-brand-navy: #161B22;
+  --color-brand-teal: #2DD4BF;
+  --color-brand-accent: #334155;
+
+  --font-display: "Public Sans", sans-serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .glass-modal {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .glass-sidebar {
+    background: rgba(15, 17, 21, 0.8);
+    backdrop-filter: blur(8px);
+  }
+  .teal-glow {
+    box-shadow: 0 0 15px rgba(45, 212, 191, 0.3);
+  }
+  .pulse-teal {
+    box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.4);
+    animation: pulse 2s infinite;
+  }
+  .animate-pulse-dots {
+    animation: pulse-custom 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(45, 212, 191, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+}
+
+@keyframes pulse-custom {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
