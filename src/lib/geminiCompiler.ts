@@ -37,7 +37,8 @@ ${rawData}
 
 ================
 Now, execute the compilation. Output the finalized HTML code enclosed in \`\`\`html ... \`\`\` formatting. 
-Make sure ALL {{PLACEHOLDERS}} like {{BRAND_NAME}}, {{S01_TITLE}}, {{S13_MSG1}}, etc. are replaced with high-quality content derived from the raw data.
+Make sure ALL {{PLACEHOLDERS}} are replaced with high-quality content derived from the raw data.
+This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND the new Brand Fact Book slides ({{SF01_TITLE}}, {{SF01_KPI1_LABEL}}, {{SF02_TITLE}}, {{SF02_TIMELINE_CONTENT}}, {{SF03_TITLE}}, {{SF03_BESTSELL_QUOTE}}, etc.).
 `;
 
   const chat = ai.chats.create({
