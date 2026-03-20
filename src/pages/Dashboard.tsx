@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [manualInput, setManualInput] = useState('');
   const [pressureError, setPressureError] = useState('');
   const [importHtmlInput, setImportHtmlInput] = useState('');
+  const [showFullscreenViewer, setShowFullscreenViewer] = useState(false);
 
   const saveSettings = () => {
     setApiKey(tempKey);
@@ -40,7 +41,7 @@ export default function Dashboard() {
     if (!apiKey) {
       // API Key가 없으면 수동 브리핑 모드(시니어 플래너 모드)로 전환
       setIsManualMode(true);
-      setCurrentStep(1);
+      setCurrentStep(0);
       setReportData('');
       return;
     }
@@ -49,7 +50,7 @@ export default function Dashboard() {
     setIsProcessing(true);
     setReportData('');
     setCompiledHtml('');
-    setCurrentStep(1);
+    setCurrentStep(0);
     let accumulatedReport = '';
     
     try {
@@ -123,7 +124,8 @@ ${reportData}
 
 ================
 Now, execute the compilation. Output the finalized HTML code enclosed in \`\`\`html ... \`\`\` formatting. 
-Make sure ALL {{PLACEHOLDERS}} like {{BRAND_NAME}}, {{S01_TITLE}}, {{S13_MSG1}}, etc. are replaced with high-quality content derived from the raw data.
+Make sure ALL {{PLACEHOLDERS}} are replaced with high-quality content.
+This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND the new Brand Fact Book slides ({{SF01_TITLE}}, {{SF02_TITLE}}, {{SF03_TITLE}}, etc.).
 `;
       await navigator.clipboard.writeText(promptText);
       
@@ -173,11 +175,7 @@ Make sure ALL {{PLACEHOLDERS}} like {{BRAND_NAME}}, {{S01_TITLE}}, {{S13_MSG1}},
                         const finalHtml = await compileReportToHTML(reportData || '', apiKey);
                         setCompiledHtml(finalHtml);
                         setCurrentStep(7);
-                        const newWin = window.open('', '_blank');
-                        if (newWin) {
-                          newWin.document.write(finalHtml);
-                          newWin.document.close();
-                        }
+                        setShowFullscreenViewer(true);
                       } catch (e: any) {
                         setErrorText('컴파일 중 오류: ' + e.message);
                       } finally {
@@ -225,17 +223,13 @@ Make sure ALL {{PLACEHOLDERS}} like {{BRAND_NAME}}, {{S01_TITLE}}, {{S13_MSG1}},
                      
                      setCompiledHtml(html);
                      setCurrentStep(7);
-                     const newWin = window.open('', '_blank');
-                     if (newWin) {
-                       newWin.document.write(html);
-                       newWin.document.close();
-                     }
+                     setShowFullscreenViewer(true);
                    }}
                    disabled={!importHtmlInput.trim()}
                    className="w-full mt-2 py-2 bg-[#2DD4BF] text-[#120d0b] font-bold rounded-lg hover:brightness-110 text-sm disabled:opacity-50 transition shadow-lg flex items-center justify-center gap-2"
                  >
                    <span className="material-symbols-outlined text-sm">unarchive</span>
-                   결과물 뷰어에 렌더링하기 (새 창 열기)
+                   결과물 뷰어에 렌더링하기
                  </button>
                </div>
             </div>
@@ -354,6 +348,10 @@ Make sure ALL {{PLACEHOLDERS}} like {{BRAND_NAME}}, {{S01_TITLE}}, {{S13_MSG1}},
           <div className="flex items-center gap-6">
             <button 
               onClick={() => {
+                if (showFullscreenViewer) {
+                  const overlay = document.getElementById('fullscreen-viewer-iframe') as HTMLIFrameElement;
+                  if (overlay?.contentWindow) { overlay.contentWindow.print(); return; }
+                }
                 const iframe = document.querySelector('iframe');
                 if (iframe && iframe.contentWindow) {
                   iframe.contentWindow.print();
@@ -520,6 +518,61 @@ Make sure ALL {{PLACEHOLDERS}} like {{BRAND_NAME}}, {{S01_TITLE}}, {{S13_MSG1}},
               <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 rounded-lg font-medium text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">Cancel</button>
               <button onClick={saveSettings} className="px-6 py-2 rounded-lg font-medium bg-[#ec5b13] text-white hover:opacity-90">Save Changes</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 풀스크린 렌더링 뷰어 오버레이 */}
+      {showFullscreenViewer && compiledHtml && (
+        <div className="fixed inset-0 z-[100] bg-[#120d0b] flex flex-col animate-fade-in">
+          {/* 오버레이 헤더 */}
+          <div className="h-14 px-6 flex items-center justify-between bg-[#1a1412] border-b border-slate-800 shrink-0">
+            <button
+              onClick={() => {
+                setShowFullscreenViewer(false);
+                setCurrentStep(6);
+              }}
+              className="flex items-center gap-2 text-slate-300 hover:text-[#2DD4BF] transition-colors font-medium text-sm"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              Phase 6으로 돌아가기
+            </button>
+            <div className="flex items-center gap-3">
+              <span className="text-[#2DD4BF] text-xs font-bold uppercase tracking-widest">Report Viewer</span>
+              <button
+                onClick={() => {
+                  const iframe = document.getElementById('fullscreen-viewer-iframe') as HTMLIFrameElement;
+                  if (iframe?.contentWindow) iframe.contentWindow.print();
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-[#2DD4BF] text-[#120d0b] font-bold text-xs rounded-lg hover:brightness-110 transition-all"
+              >
+                <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+                Export PDF
+              </button>
+              <button
+                onClick={() => setShowFullscreenViewer(false)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+          </div>
+          {/* 오버레이 본문: 보고서 iframe */}
+          <div className="flex-1 overflow-hidden">
+            <iframe
+              id="fullscreen-viewer-iframe"
+              srcDoc={compiledHtml}
+              title="Consulting Report Fullscreen"
+              className="w-full h-full border-none bg-white"
+              onLoad={(e) => {
+                // PDF 출력 시 파일명에 브랜드명이 포함되도록 iframe 내부 title 설정
+                const iframe = e.target as HTMLIFrameElement;
+                if (iframe.contentDocument) {
+                  const year = new Date().getFullYear();
+                  iframe.contentDocument.title = `${year} ${brandName || 'Brand'} Strategic Consulting`;
+                }
+              }}
+            />
           </div>
         </div>
       )}
