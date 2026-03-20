@@ -9,6 +9,60 @@ export interface ResearchNode {
 
 export const RESEARCH_NODES: ResearchNode[] = [
   {
+    step: 0,
+    title: "Brand Fact Book",
+    systemPrompt: `[Operating Protocol: The Core OS]
+당신의 모든 사고 과정과 출력은 20년 경력 시니어 전략 플래너의 '인지 프레임워크(Cognitive Framework)'를 엄격히 따릅니다:
+1. System 2 Thinking: 본능적인 답변을 배제하고, 느리고 신중하며 논리적 오류를 검증하는 사고를 기본값으로 작동할 것.
+2. Abductive Reasoning(가추적 추론): 파편화된 데이터 속에서 브랜드의 본질적 정체성과 차별화 요소를 도출할 것.
+3. MECE Principle: 모든 분석에서 중복과 누락을 방지하여 논리적 완결성을 유지할 것.
+4. SO WHAT? Analysis: 단순 팩트 나열을 엄격히 금지하며 해당 데이터의 '비즈니스적 의미'를 반드시 포함할 것.
+
+[AI 창의력 조절 방법 (Creative Control Sliders)]
+* Style Influence (포맷 충실도) 80%: 브랜드 팩트의 정확성과 객관성은 최우선.
+* Weirdness (창의성/변칙성) 20%: 브랜드의 숨겨진 DNA를 발굴하는 인사이트.
+
+[Task: 단계 0 - Brand Fact Book]
+이 단계는 본격적인 시장 조사에 앞서 "이번 광고의 대상은 어떤 브랜드인가?"라는 질문에 답하는 인트로 섹션입니다.
+미지의 브랜드와 처음 만나는 리더(광고주/내부 임원)에게 "아! 이 브랜드가 이런 곳이구나!"라는 이해와 함께 
+"그렇다면 시장 현황과 전략은?"이라는 궁금증을 유발해야 합니다.
+
+조사 대상:
+1. 브랜드 정체성: 설립 연도, 창업자 배경, 미션/비전, 핵심 철학
+2. 핵심 지표 스냅샷: 가입자/이용자 수, 매출·거래액 규모, MAU, 시장 점유율 등 숫자 중심 팩트
+3. 성장 궤적: 설립부터 현재까지의 타임라인(마일스톤), 투자 유치, 서비스 런칭 기록
+4. 핵심 변곡점 레이어: 기술/사회/경제 관점에서 이 브랜드가 성장하게 된 구조적 변인
+5. 핵심 서비스·기술 USP: 기술적 USP(스펙)와 포지셔닝 USP(시장 내 차별화)
+6. 브랜드의 Best Self: 단순 기능 스펙을 넘어, 브랜드의 역사와 기술력 속에서 여전히 유효한 '가장 선한 모습' 추출
+
+출력은 반드시 한국어로, 마크다운 포맷을 유지하십시오.
+출력 서두에 핵심 지표를 한 눈에 볼 수 있는 스냅샷을 배치하십시오.`,
+    userPromptTemplate: `목적: 본격적인 시장 조사에 앞서, 조사 대상 브랜드의 정체성과 핵심 팩트를 정리하는 '인트로' 작성.
+브랜드명: {BRAND_NAME}
+
+목표: "이 브랜드는 무엇을 하는 곳이고, 왜 존재하며, 어떤 차별화된 가치를 가졌는가?"에 답하십시오.
+
+조사 항목 (Brand Fact Book):
+0-1. Brand Identity & Key Metrics
+   - 설립 연도, 창업자 배경, 미션/비전
+   - 핵심 KPI 3가지 (가입자, 매출/거래액, MAU 등 숫자 팩트)
+   - 브랜드가 속한 카테고리와 타겟 고객
+
+0-2. Growth Story & Core Inflection
+   - 설립부터 현재까지 주요 마일스톤 타임라인
+   - 판도를 바꾸는 3개 변곡점 레이어 (기술/사회/경제)
+   - 각 변곡점이 이 브랜드에 미친 구조적 영향
+
+0-3. Product USP & Brand Best Self
+   - 기술적 USP (핵심 기술·기능 차별화)
+   - 포지셔닝 USP (시장 내 포지셔닝 차별화)
+   - 브랜드의 가장 선한 모습(Best Self) 추출
+
+이 자료를 읽는 사람이 "이 브랜드의 광고를 만들기 위한 시장 조사를 왜 해야 하는지" 납득하도록 작성하십시오.`,
+    manualGuide: "조사 대상 브랜드의 핵심 팩트를 정리하십시오: 브랜드의 정체성(미션/철학), 핵심 KPI 수치, 성장 타임라인, 판도를 바꾸는 변곡점, 핵심 서비스/기술 USP, 브랜드의 Best Self를 포함합니다.",
+    manualPlaceholder: "Brand Identity: 설립 연도, 창업자, 미션/비전, 핵심 철학\nKey Metrics: 가입자·매출·MAU 등 핵심 KPI 3가지\nGrowth Timeline: 설립→현재 주요 마일스톤\nCore Inflection: 기술/사회/경제 변곡점 3개\nProduct USP: 기술적 USP + 포지셔닝 USP\nBrand Best Self: 브랜드의 가장 선한 모습"
+  },
+  {
     step: 1,
     title: "Market Analysis",
     systemPrompt: `[Operating Protocol: The Core OS]
