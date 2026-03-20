@@ -1,19 +1,3 @@
-<!DOCTYPE html> to `` inside a code block. STOP.
-
-3. Part 2 Output: Output from to inside a code block. STOP.
-
-4. Part 3 Output: Output from `` to </html> inside a code block.
-
-
-
-[Immutable Master HTML Code]
-
-(Copy EXACTLY. Replace {{PLACEHOLDERS}} with High-Density Content.)
-
-
-
-## PART 1 CODE (Head ~ Slide 05)
-
 <!DOCTYPE html>
 
 <html lang="ko">
@@ -34,33 +18,57 @@
 
     /* [STYLE LAYOUT: WIDE FORMAT OPTIMIZED] */
 
-    :root { --primary: #004d40; --secondary: #0f766e; --bg-gray: #f8fafc; --text-main: #1e293b; --nav-w: 260px; --slide-w: 1280px; --slide-h: 720px; }
+    :root { 
+      --primary: #0a2540; --secondary: #0f766e; --accent: #00d4aa; 
+      --bg-gray: #f8fafc; --text-main: #1e293b; --text-sub: #475569;
+      --nav-w: 240px; 
+      /* A4 Landscape Pixel Equiv (96dpi): 1122.5px x 793.7px */
+      --slide-w: 1122px; --slide-h: 794px; 
+      --border: #e2e8f0; --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
 
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; }
 
     body { margin: 0; padding: 0; background-color: #52525b; font-family: 'Noto Sans KR', sans-serif; overflow-x: hidden; }
 
-    nav { position: fixed; top: 0; left: 0; width: var(--nav-w); height: 100vh; background: white; border-right: 1px solid #e2e8f0; padding: 30px 20px; z-index: 9999; overflow-y: auto; }
+    nav { 
+      position: fixed; top: 0; left: 0; width: var(--nav-w); height: 100vh; 
+      background: var(--primary); color: white;
+      border-right: none; padding: 24px 16px; z-index: 9999; overflow-y: auto;
+    }
 
-    .brand { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 900; color: var(--primary); margin-bottom: 40px; letter-spacing: -1px; }
+    .brand { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; color: white; margin-bottom: 30px; letter-spacing: -1px; }
 
-    .brand span { color: var(--secondary); }
+    .brand span { color: var(--accent); }
 
     .nav-group { margin-bottom: 30px; }
 
-    .nav-title { font-size: 12px; font-weight: 700; color: #94a3b8; margin-bottom: 10px; letter-spacing: 1px; }
+    .nav-title { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4); margin-bottom: 8px; letter-spacing: 1.5px; }
 
-    .nav-item { display: flex; align-items: center; gap: 10px; color: #64748b; text-decoration: none; padding: 8px 10px; border-radius: 6px; font-size: 14px; transition: all 0.2s; }
+    .nav-item { 
+      display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); 
+      text-decoration: none; padding: 6px 10px; border-radius: 6px; 
+      font-size: 13px; transition: all 0.2s;
+    }
 
-    .nav-item:hover, .nav-item.active { background: #f1f5f9; color: var(--primary); font-weight: 600; }
+    .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: #00d4aa; font-weight: 600; }
 
     .nav-item i { width: 20px; text-align: center; }
 
-    main#content { margin-left: var(--nav-w); width: calc(100% - var(--nav-w)); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px; transform-origin: top center; }
+    main#content { margin-left: var(--nav-w); width: calc(100% - var(--nav-w)); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 0; transform-origin: top center; }
 
-    .slide-wrapper { width: var(--slide-w); height: var(--slide-h); margin-bottom: 50px; position: relative; transform-origin: top center; }
+    .slide-wrapper { 
+      width: var(--slide-w); height: var(--slide-h); 
+      margin-bottom: 40px; position: relative; transform-origin: top center; 
+      flex-shrink: 0;
+    }
 
-    .slide { width: 100%; height: 100%; background: white; padding: 40px 60px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); display: flex; flex-direction: column; position: relative; overflow: hidden; padding-bottom: 90px; }
+    .slide { 
+      width: 100%; height: 100%; background: white; 
+      padding: 40px 60px 85px; box-shadow: var(--shadow); 
+      display: flex; flex-direction: column; position: relative; 
+      overflow: hidden; border-radius: 4px;
+    }
 
     .slide.slide-full { padding-bottom: 30px !important; }
 
@@ -70,27 +78,45 @@
 
     .title-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
 
-    .title { font-size: 28px; font-weight: 900; color: var(--text-main); line-height: 1.2; margin: 0; flex-grow: 1; }
+    .title { 
+      font-size: 26px; font-weight: 900; color: var(--primary); 
+      line-height: 1.2; margin: 0; flex-grow: 1; letter-spacing: -0.5px;
+    }
 
     .slide-badge { background: var(--primary); color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; white-space: nowrap; margin-left: 20px; }
 
     .slide-body { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 5px; }
 
-    .governing-msg { background: #f0fdfa; padding: 12px 20px; margin-bottom: 15px; border-radius: 8px; font-size: 16px; font-weight: 600; color: var(--primary); line-height: 1.4; text-align: center; border: 1px solid rgba(15, 118, 110, 0.2); flex-shrink: 0; }
+    .governing-msg { 
+      background: linear-gradient(135deg, #f0fdfa, #ecfdf5); 
+      padding: 12px 20px; margin-bottom: 14px; border-radius: 6px; 
+      font-size: 15px; font-weight: 700; color: var(--primary); 
+      line-height: 1.5; text-align: center; 
+      border: 1px solid rgba(15, 118, 110, 0.15); 
+      border-left: 4px solid var(--accent); flex-shrink: 0;
+    }
 
     .highlight { background: rgba(15, 118, 110, 0.1); padding: 0 4px; color: var(--secondary); font-weight: 800; }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: stretch; height: 100%; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; height: auto; }
 
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; align-items: stretch; height: 100%; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; height: auto; }
 
-    .box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; background: white; display: flex; flex-direction: column; height: 100%; position: relative; }
+    .box { 
+      border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; 
+      background: white; display: flex; flex-direction: column; 
+      height: auto; min-height: 0; position: relative;
+    }
 
     .box.compact-box, .box.tight-box { padding: 12px 15px !important; }
 
-    .box-title { font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; flex-shrink: 0; }
+    .box-title { 
+      font-size: 14px; font-weight: 800; color: var(--primary); 
+      margin-bottom: 10px; border-bottom: 2px solid var(--accent); 
+      padding-bottom: 6px; flex-shrink: 0; letter-spacing: -0.3px;
+    }
 
-    .box-content { flex-grow: 1; overflow: hidden; }
+    .box-content { flex-grow: 1; overflow: visible; }
 
     .box.emphasis-risk { border-left: 4px solid #ef4444; border-right: 4px solid #ef4444; background: #fffcfc; }
 
@@ -98,11 +124,18 @@
 
     dl { margin: 0; }
 
-    .consumer-list dt, .compact-list dt, dl dt { font-weight: 800; color: var(--text-main); margin-top: 12px; margin-bottom: 4px; font-size: 14px; display: block; }
+    .consumer-list dt, .compact-list dt, dl dt { 
+      font-weight: 800; color: var(--primary); margin-top: 10px; 
+      margin-bottom: 3px; font-size: 13px; display: block; 
+      letter-spacing: -0.2px;
+    }
 
     .consumer-list dt:first-child, .compact-list dt:first-child, dl dt:first-child { margin-top: 0; }
 
-    .consumer-list dd, .compact-list dd, dl dd { margin: 0 0 6px 0; padding-left: 10px; position: relative; color: #475569; font-size: 13px; line-height: 1.4; display: block; }
+    .consumer-list dd, .compact-list dd, dl dd { 
+      margin: 0 0 4px 0; padding-left: 12px; position: relative; 
+      color: var(--text-sub); font-size: 12px; line-height: 1.5; display: block;
+    }
 
     .consumer-list dd::before, .compact-list dd::before, dl dd::before { content: '•'; position: absolute; left: 0; top: 0; color: var(--secondary); font-weight: bold; }
 
@@ -116,7 +149,15 @@
 
     .badge-neg { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
-    .implication-bar { position: absolute; bottom: 30px; left: 60px; right: 60px; height: 45px; background: var(--text-main); color: white; display: flex; align-items: center; gap: 15px; padding: 0 20px; border-radius: 8px; z-index: 100; box-shadow: 0 -5px 20px rgba(255,255,255,0.9); }
+    .implication-bar { 
+      position: absolute; bottom: 20px; left: 48px; right: 48px; 
+      height: auto; min-height: 40px; padding: 10px 18px;
+      background: var(--primary); color: white; 
+      display: flex; align-items: center; gap: 12px; 
+      border-radius: 6px; z-index: 100; 
+      box-shadow: 0 -4px 16px rgba(255,255,255,0.6);
+      font-size: 13px; line-height: 1.4;
+    }
 
     .stat-box { display: flex; align-items: baseline; gap: 8px; margin-top: 5px; margin-bottom: 8px; }
 
@@ -168,144 +209,126 @@
 
     
 
-@media print {
 
-        @page { 
-
-            size: 338.67mm 190.5mm; 
-
-            margin: 0 !important; 
-
-        }
-
-
-
-        html, body { 
-
-            width: 338.67mm !important; 
-
-            /* 높이 고정 제거: 컨텐츠 길이에 따라 늘어나게 함 */
-
-            height: auto !important; 
-
-            min-height: 100% !important;
-
-            margin: 0 !important; 
-
-            padding: 0 !important; 
-
-            background: white; 
-
-            /* 스크롤바는 없애되 내용은 보이게 설정 */
-
-            overflow: visible !important; 
-
-        }
-
-
-
-        nav { display: none !important; }
-
-
-
-        main#content { 
-
-            margin: 0 !important; 
-
-            padding: 0 !important; 
-
-            width: 100% !important; 
-
-            height: auto !important; 
-
-            background: white; 
-
-            transform: none !important; 
-
-            left: 0 !important;
-
-            top: 0 !important;
-
-            display: block !important; /* Flex 해제하여 블록 쌓기 */
-
-        }
-
-
-
-        .slide-wrapper { 
-
-            width: 338.67mm !important; 
-
-            height: 190.5mm !important; 
-
-            margin: 0 !important; 
-
-            padding: 0 !important;
-
-            /* 페이지 강제 나눔 */
-
-            page-break-after: always !important; 
-
-            break-after: page !important;
-
-            transform: none !important; 
-
-            position: relative !important;
-
-            left: 0 !important;
-
-            top: 0 !important;
-
-            display: block !important;
-
-            margin-bottom: 0 !important; /* 인쇄 시 하단 여백 제거 */
-
-        }
-
-
-
-        /* 마지막 페이지 뒤에는 빈 페이지가 생기지 않도록 설정 */
-
-        .slide-wrapper:last-child {
-
-            page-break-after: auto !important;
-
-            break-after: auto !important;
-
-        }
-
-
-
-        .slide { 
-
-            width: 100% !important; 
-
-            height: 100% !important; 
-
-            box-shadow: none !important; 
-
-            border: none !important; 
-
-            padding: 40px 60px !important;
-
-            -webkit-print-color-adjust: exact !important; 
-
-            print-color-adjust: exact !important;
-
-        }
-
-        
-
-        body {
-
-            transform: scale(1);
-
-            transform-origin: top left;
-
-        }
-
+    /* 포지셔닝 맵 AS-IS → TO-BE 화살표 */
+    .pos-map::after {
+      content: '→';
+      position: absolute; top: 35%; left: 38%; 
+      font-size: 48px; font-weight: 900; color: var(--accent);
+      z-index: 15; text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      animation: none;
     }
 
+    /* 슬라이드 헤더 개선 */
+    .slide-header { 
+      margin-bottom: 14px; border-bottom: 3px solid var(--primary); 
+      padding-bottom: 10px; flex-shrink: 0; 
+    }
+    .breadcrumb { 
+      font-size: 11px; font-weight: 700; color: var(--secondary); 
+      text-transform: uppercase; margin-bottom: 2px; letter-spacing: 1.5px;
+    }
+    .slide-badge { 
+      background: var(--primary); color: white; padding: 4px 12px; 
+      border-radius: 4px; font-size: 10px; font-weight: 800; 
+      text-transform: uppercase; white-space: nowrap; margin-left: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    /* 강조 박스 개선 */
+    .box.emphasis-risk { 
+      border-left: 4px solid #ef4444; border-right: none; 
+      background: linear-gradient(135deg, #fff5f5, #fef2f2); 
+    }
+    .box.emphasis-opp { 
+      border-left: 4px solid var(--accent); border-right: none; 
+      background: linear-gradient(135deg, #f0fdfa, #ecfdf5); 
+    }
+
+    /* 하이라이트 텍스트 */
+    .highlight { 
+      background: rgba(0, 212, 170, 0.15); padding: 1px 6px; 
+      color: var(--primary); font-weight: 800; border-radius: 3px;
+    }
+
+    @media print {
+      @page { 
+        size: A4 landscape !important;
+        margin: 0;
+      }
+
+      html, body { 
+        width: 297mm !important; 
+        height: 209.5mm !important;
+        margin: 0 !important; 
+        padding: 0 !important; 
+        background: white !important;
+        overflow: visible !important;
+      }
+
+      nav { display: none !important; }
+
+      main#content { 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        width: 297mm !important; 
+        height: 209.5mm !important;
+        background: white; 
+        transform: none !important;
+        display: block !important;
+      }
+
+      .slide-wrapper { 
+        width: 297mm !important; 
+        height: 209.5mm !important;
+        margin: 0 !important; 
+        padding: 0 !important;
+        page-break-after: always !important; 
+        break-after: page !important;
+        transform: none !important;
+        position: relative !important;
+        box-shadow: none !important;
+        overflow: hidden !important;
+      }
+
+      .slide { 
+        width: 297mm !important; 
+        height: 209.5mm !important;
+        box-shadow: none !important; 
+        border: none !important;
+        padding: 40px 60px 85px !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .implication-bar {
+        position: absolute !important;
+        bottom: 15px !important; 
+        left: 60px !important; 
+        right: 60px !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+
+      .pos-map { height: 300px !important; }
+      .pos-bubble { transform: scale(0.9); }
+
+      .grid-2, .grid-3 { height: auto !important; }
+      .box { height: auto !important; min-height: auto !important; }
+
+      .print-guide { display: none !important; }
+
+      body { transform: none !important; }
+
+      /* 인쇄 시 폰트 가독성 보정 */
+      .title { font-size: 28px !important; }
+      .governing-msg { font-size: 16px !important; }
+      .box-content dd { font-size: 13px !important; }
+    }
+  
 </style>
 
 <script>
@@ -350,7 +373,7 @@
 
         const availableWidth = window.innerWidth - 300; 
 
-        const baseWidth = 1280;
+        const baseWidth = 1122;
 
         let scale = availableWidth / baseWidth;
 
@@ -360,7 +383,8 @@
 
             el.style.transform = `scale(${scale})`;
 
-            el.style.marginBottom = `-${720 * (1 - scale) - 50}px`; 
+            const h = el.getBoundingClientRect().height / scale;
+            el.style.marginBottom = `-${h * (1 - scale) - 40}px`; 
 
         });
 
@@ -415,6 +439,18 @@
     <div class="brand">{{BRAND_NAME}} <span>{{YEAR}}</span></div>
 
     <div class="nav-group">
+
+        <div class="nav-title">0. BRAND FACT BOOK</div>
+
+        <a href="#slide-f01" class="nav-item"><i class="fas fa-id-badge"></i> Brand Identity</a>
+
+        <a href="#slide-f02" class="nav-item"><i class="fas fa-rocket"></i> Growth & Inflection</a>
+
+        <a href="#slide-f03" class="nav-item"><i class="fas fa-gem"></i> USP & Best Self</a>
+
+    </div>
+
+        <div class="nav-group">
 
         <div class="nav-title">I. MARKET ANALYSIS</div>
 
@@ -511,6 +547,152 @@
                 <div style="font-size: 14px; opacity: 0.7;">Confidential Document</div>
 
             </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ========== SECTION 0: BRAND FACT BOOK ========== -->
+
+    <div class="slide-wrapper" id="wrap-slide-f01">
+
+        <div class="slide" id="slide-f01">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">0. Brand Fact Book > Identity</div>
+
+                <div class="title-row"><h2 class="title">{{SF01_TITLE}}</h2><span class="slide-badge">Brand Profile</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{SF01_MSG}}</div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px;">
+
+                    <div style="background: var(--primary); color: white; border-radius: 8px; padding: 18px; text-align: center;">
+                        <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">{{SF01_KPI1_LABEL}}</div>
+                        <div style="font-size: 28px; font-weight: 900; color: var(--accent);">{{SF01_KPI1_VALUE}}</div>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 4px;">{{SF01_KPI1_NOTE}}</div>
+                    </div>
+
+                    <div style="background: var(--primary); color: white; border-radius: 8px; padding: 18px; text-align: center;">
+                        <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">{{SF01_KPI2_LABEL}}</div>
+                        <div style="font-size: 28px; font-weight: 900; color: var(--accent);">{{SF01_KPI2_VALUE}}</div>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 4px;">{{SF01_KPI2_NOTE}}</div>
+                    </div>
+
+                    <div style="background: var(--primary); color: white; border-radius: 8px; padding: 18px; text-align: center;">
+                        <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">{{SF01_KPI3_LABEL}}</div>
+                        <div style="font-size: 28px; font-weight: 900; color: var(--accent);">{{SF01_KPI3_VALUE}}</div>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 4px;">{{SF01_KPI3_NOTE}}</div>
+                    </div>
+
+                </div>
+
+                <div class="grid-2">
+
+                    <div class="box emphasis-opp"><div class="box-title"><i class="fas fa-building" style="margin-right:8px;"></i>{{SF01_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF01_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box"><div class="box-title"><i class="fas fa-bullseye" style="margin-right:8px;"></i>{{SF01_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF01_BOX2_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-fingerprint" style="color:#00d4aa;"></i><div style="font-size: 14px; font-weight: 600;">{{SF01_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-f02">
+
+        <div class="slide" id="slide-f02">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">0. Brand Fact Book > Growth Story</div>
+
+                <div class="title-row"><h2 class="title">{{SF02_TITLE}}</h2><span class="slide-badge">Growth Trajectory</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{SF02_MSG}}</div>
+
+                <div class="box" style="margin-bottom: 16px; padding: 18px;">
+
+                    <div class="box-title"><i class="fas fa-chart-line" style="margin-right:8px;"></i>성장 궤적 (Growth Timeline)</div>
+
+                    <div class="box-content consumer-list"><dl>{{SF02_TIMELINE_CONTENT}}</dl></div>
+
+                </div>
+
+                <div class="grid-3">
+
+                    <div class="box" style="border-top: 4px solid #3b82f6;"><div class="box-title" style="color: #1d4ed8;"><i class="fas fa-microchip" style="margin-right:8px;"></i>{{SF02_INF1_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF02_INF1_CONTENT}}</dl></div></div>
+
+                    <div class="box" style="border-top: 4px solid #f59e0b;"><div class="box-title" style="color: #d97706;"><i class="fas fa-users" style="margin-right:8px;"></i>{{SF02_INF2_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF02_INF2_CONTENT}}</dl></div></div>
+
+                    <div class="box" style="border-top: 4px solid #ef4444;"><div class="box-title" style="color: #dc2626;"><i class="fas fa-coins" style="margin-right:8px;"></i>{{SF02_INF3_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF02_INF3_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-bolt" style="color:#fbbf24;"></i><div style="font-size: 14px; font-weight: 600;">{{SF02_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-f03">
+
+        <div class="slide" id="slide-f03">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">0. Brand Fact Book > Best Self</div>
+
+                <div class="title-row"><h2 class="title">{{SF03_TITLE}}</h2><span class="slide-badge">Brand DNA</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{SF03_MSG}}</div>
+
+                <div class="grid-2">
+
+                    <div class="box" style="background: #f0fdfa; border: 2px solid var(--secondary);"><div class="box-title" style="border-bottom-color: rgba(15,118,110,0.2);"><i class="fas fa-cogs" style="margin-right:10px;"></i>{{SF03_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF03_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box" style="background: #ffffff;"><div class="box-title"><i class="fas fa-crosshairs" style="margin-right:10px; color: #7c3aed;"></i>{{SF03_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF03_BOX2_CONTENT}}</dl></div></div>
+
+                </div>
+
+                <div class="box" style="margin-top: 14px; background: var(--primary); color: white; border: none; padding: 16px 20px;">
+
+                    <div style="font-size: 11px; opacity: 0.6; font-weight: 700; margin-bottom: 6px; letter-spacing: 1px;">BRAND BEST SELF</div>
+
+                    <div style="font-size: 16px; font-weight: 700; line-height: 1.6; color: var(--accent);">{{SF03_BESTSELL_QUOTE}}</div>
+
+                    <div style="font-size: 13px; opacity: 0.8; margin-top: 8px; line-height: 1.5;">{{SF03_BESTSELL_DESC}}</div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-star" style="color:#fbbf24;"></i><div style="font-size: 14px; font-weight: 600;">{{SF03_IMPLICATION}}</div></div>
 
         </div>
 
@@ -749,8 +931,6 @@
     </div>
 
 
-
-## PART 2 CODE (Slide 06 ~ Slide 12)
 
 <div class="slide-wrapper" id="wrap-slide-06">
 
@@ -1037,10 +1217,6 @@
         </div>
 
     </div>
-
-
-
-## PART 3 CODE (Slide 13 ~ End)
 
 
 
@@ -1439,6 +1615,17 @@
     </div>
 
 
+
+    <!-- 인쇄 설정 가이드 (웹에서만 보임) -->
+    <div class="print-guide" style="position: fixed; bottom: 25px; right: 25px; background: rgba(10, 37, 64, 0.95); color: white; padding: 14px 20px; border-radius: 12px; font-size: 13px; z-index: 100000; box-shadow: 0 8px 32px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; pointer-events: none; transition: all 0.3s; backdrop-filter: blur(8px);">
+        <div style="background: var(--accent); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <i class="fas fa-print"></i>
+        </div>
+        <div>
+            <div style="font-weight: 800; margin-bottom: 2px; color: var(--accent);">PDF 인쇄 최적화 팁</div>
+            <div style="opacity: 0.9;">설정에서 <b>여백: 없음 (None)</b>을 권장합니다.</div>
+        </div>
+    </div>
 
 </main>
 
