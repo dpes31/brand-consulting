@@ -3,7 +3,7 @@
 /* Tailwind v4: dark: prefix를 항상 활성화 (forced dark) */
 @variant dark (&);
 
-
+@theme {
   --color-primary: #ec5b13;
   --color-background-light: #f8f6f6;
   --color-background-dark: #120d0b;
