@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-/* Tailwind v4: dark: prefix를 항상 활성화 (forced dark) */
-@variant dark { & }
+/* Tailwind v4: forced dark mode via html.dark class */
 
 @theme {
   --color-primary: #ec5b13;
