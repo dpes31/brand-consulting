@@ -1,14 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Markdown from 'react-markdown';
 import { useAppContext } from '../context/AppContext';
 import { RESEARCH_NODES } from '../lib/prompts';
 import { runResearchNode } from '../lib/gemini';
 import { compileReportToHTML } from '../lib/geminiCompiler';
+import { useProjects } from '../hooks/useProjects';
+
+/**
+ * 단계별로 선택 입력값을 프롬프트에 주입하는 헬퍼 함수.
+ * - step 0(Fact Book) & 1(Market): 첨부 파일 참고 지침 삽입
+ * - step 2(Competitor): 필수 경쟁사 목록 삽입
+ * - step 5(Strategy): 광고주 핵심 니즈 삽입
+ */
+function buildPromptWithContext(
+  basePrompt: string,
+  step: number,
+  opts: { mustHaveCompetitors: string; clientNeeds: string; referenceNote: string }
+): string {
+  let prompt = basePrompt;
+
+  // 참고자료 첨부 지침: 조사 첫 두 단계에 삽입
+  if ((step === 0 || step === 1) && opts.referenceNote.trim()) {
+    prompt += `
+
+[첨부 참고자료 활용 지침]
+아래 메모를 참고하십시오. 만약 외부 AI 도구에서 이 프롬프트를 실행하면서 첨부한 파일(PDF, 문서 등)이 있다면,
+해당 파일의 내용을 우선적으로 학습하고 조사에 반드시 반영하십시오.
+참고자료 메모: ${opts.referenceNote.trim()}`;
+  }
+
+  // 필수 경쟁사: Step 2 Competitor 프롬프트에만 주입
+  if (step === 2 && opts.mustHaveCompetitors.trim()) {
+    prompt += `
+
+[필수 포함 경쟁사 — 광고주 지정 (Zero Skip Rule)]
+아래 경쟁사는 광고주가 반드시 분석에 포함할 것을 요청한 업체입니다. 누락 없이 Direct 또는 Indirect 섹션에 포함하십시오:
+${opts.mustHaveCompetitors.trim()}`;
+  }
+
+  // 광고주 핵심 니즈: Step 5 Strategy 프롬프트에만 주입
+  if (step === 5 && opts.clientNeeds.trim()) {
+    prompt += `
+
+[광고주 핵심 니즈 / 캠페인 필수 방향]
+아래 사항은 광고주가 이번 캠페인에서 반드시 반영을 요청한 핵심 니즈 및 방향성입니다.
+전략 제안 시 최우선 Constraint로 적용하고, 제안 방향이 이 니즈에 부합하는지 검증하십시오:
+${opts.clientNeeds.trim()}`;
+  }
+
+  return prompt;
+}
 
 export default function Dashboard() {
   const { 
     apiKey, setApiKey, 
-    brandName, setBrandName, 
+    brandName, setBrandName,
+    mustHaveCompetitors, setMustHaveCompetitors,
+    clientNeeds, setClientNeeds,
+    referenceNote, setReferenceNote,
     isProcessing, setIsProcessing,
     currentStep, setCurrentStep,
     reportData, setReportData,
@@ -18,6 +67,7 @@ export default function Dashboard() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [tempKey, setTempKey] = useState(apiKey);
   const [errorText, setErrorText] = useState('');
+  const [isContextOpen, setIsContextOpen] = useState(false); // 전략 세팅 패널 토글
   
   // 수동 가이드 관련 상태
   const [isManualMode, setIsManualMode] = useState(false);
@@ -25,6 +75,23 @@ export default function Dashboard() {
   const [pressureError, setPressureError] = useState('');
   const [importHtmlInput, setImportHtmlInput] = useState('');
   const [showFullscreenViewer, setShowFullscreenViewer] = useState(false);
+
+  // 프로젝트 저장 훅
+  const { projects, saveProject, loadProjectHtml, renameProject, deleteProject } = useProjects();
+  // 프로젝트명 인라인 편집 중인 항목 ID
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+
+  // buildPromptWithContext에 전달할 옵션 객체
+  const contextOpts = { mustHaveCompetitors, clientNeeds, referenceNote };
+
+  // compiledHtml이 완성되면 자동 저장
+  useEffect(() => {
+    if (compiledHtml && brandName.trim()) {
+      saveProject(brandName.trim(), compiledHtml);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compiledHtml]);
 
   const saveSettings = () => {
     setApiKey(tempKey);
@@ -39,14 +106,17 @@ export default function Dashboard() {
     setErrorText('');
 
     if (!apiKey) {
-      // API Key가 없으면 수동 브리핑 모드(시니어 플래너 모드)로 전환
+      // API Key가 없으면 수동 브리핑 모드로 전환
       setIsManualMode(true);
       setCurrentStep(0);
       setReportData('');
+      // 조사 시작 시 전략 세팅 패널 자동 접기
+      setIsContextOpen(false);
       return;
     }
     
-    // API 연동 모드 실행
+    // API 연동 모드 실행 — 조사 시작 시 전략 세팅 자동 접기
+    setIsContextOpen(false);
     setIsProcessing(true);
     setReportData('');
     setCompiledHtml('');
@@ -56,7 +126,9 @@ export default function Dashboard() {
     try {
       for (const node of RESEARCH_NODES) {
         setCurrentStep(node.step);
-        const prompt = node.userPromptTemplate.replace('{BRAND_NAME}', brandName);
+        // 기본 프롬프트에 단계별 선택 입력값을 외과적으로 주입
+        const basePrompt = node.userPromptTemplate.replace('{BRAND_NAME}', brandName);
+        const prompt = buildPromptWithContext(basePrompt, node.step, contextOpts);
         const result = await runResearchNode(apiKey, node.systemPrompt, prompt);
         
         accumulatedReport += `\n\n## 0${node.step}. ${node.title}\n` + result;
@@ -95,9 +167,22 @@ export default function Dashboard() {
 
   const handleCopyPrompt = () => {
     const currentNode = RESEARCH_NODES.find(n => n.step === currentStep);
-    const text = currentNode?.userPromptTemplate.replace('{BRAND_NAME}', brandName) || '';
+    if (!currentNode) return;
+    // 선택 입력값(경쟁사, 니즈, 참고자료)을 해당 단계에 맞게 주입한 프롬프트 복사
+    const basePrompt = currentNode.userPromptTemplate.replace('{BRAND_NAME}', brandName);
+    const text = buildPromptWithContext(basePrompt, currentNode.step, contextOpts);
     navigator.clipboard.writeText(text);
-    alert('프롬프트가 복사되었습니다. 외부 AI에서 실행 후 결과를 텍스트 박스에 붙여넣으세요.');
+
+    const hasContext = [
+      currentNode.step <= 1 && referenceNote.trim(),
+      currentNode.step === 2 && mustHaveCompetitors.trim(),
+      currentNode.step === 5 && clientNeeds.trim(),
+    ].some(Boolean);
+    alert(
+      hasContext
+        ? '✅ 프롬프트가 복사되었습니다. (전략 세팅값 자동 반영됨)\n외부 AI에서 실행 후 결과를 텍스트 박스에 붙여넣으세요.'
+        : '프롬프트가 복사되었습니다. 외부 AI에서 실행 후 결과를 텍스트 박스에 붙여넣으세요.'
+    );
   };
 
   const handleExportPrompt = async () => {
@@ -236,7 +321,13 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
           </div>
           
           <button 
-            onClick={() => { setIsManualMode(false); setCurrentStep(0); setCompiledHtml(''); setImportHtmlInput(''); }}
+            onClick={() => {
+              setIsManualMode(false);
+              setCurrentStep(0);
+              setCompiledHtml('');
+              setImportHtmlInput('');
+              // 선택 입력값은 초기화하지 않음 — 같은 광고주 연속 작업 시 재사용 편의
+            }}
             className="text-slate-500 text-xs hover:text-white underline"
           >
             새 브랜드 분석하기 / 초기화
@@ -308,24 +399,95 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#f8f6f6] dark:bg-[#120d0b] font-display text-slate-900 dark:text-slate-100 overflow-hidden relative">
-      <aside className="w-[260px] border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-[#120d0b]/50">
-        <div className="p-6 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800">
+    <div className="flex h-screen w-full bg-[#120d0b] font-display text-slate-100 overflow-hidden relative">
+      <aside className="w-[260px] border-r border-slate-800 flex flex-col bg-[#1a1412]/80">
+        <div className="p-6 flex items-center gap-3 border-b border-slate-800">
           <div className="h-8 w-8 bg-[#ec5b13] rounded-lg flex items-center justify-center text-white">
             <span className="material-symbols-outlined text-xl">insights</span>
           </div>
           <h2 className="text-xl font-bold tracking-tight">Brand Consulting</h2>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Active Projects</p>
-            <div className="space-y-1">
-              <div className="flex items-center gap-3 px-3 py-2.5 bg-[#ec5b13]/10 text-[#ec5b13] rounded-xl cursor-pointer">
-                <span className="material-symbols-outlined text-xl">biotech</span>
-                <span className="text-sm font-medium">Auto API Intelligence</span>
-              </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {/* 섹션 헤더 */}
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest px-2 pt-2">Saved Projects</p>
+
+          {projects.length === 0 ? (
+            <div className="px-3 py-6 text-center text-slate-600 text-xs">
+              <span className="material-symbols-outlined text-2xl block mb-2 opacity-40">folder_open</span>
+              저장된 프로젝트가 없습니다.<br/>조사 완료 시 자동 저장됩니다.
             </div>
-          </div>
+          ) : (
+            <div className="space-y-1">
+              {projects.map(proj => (
+                <div
+                  key={proj.id}
+                  className="group flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer"
+                >
+                  {editingId === proj.id ? (
+                    /* 인라인 이름 편집 모드 */
+                    <input
+                      autoFocus
+                      value={editingName}
+                      onChange={e => setEditingName(e.target.value)}
+                      onBlur={() => {
+                        if (editingName.trim()) renameProject(proj.id, editingName.trim());
+                        setEditingId(null);
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          if (editingName.trim()) renameProject(proj.id, editingName.trim());
+                          setEditingId(null);
+                        }
+                        if (e.key === 'Escape') setEditingId(null);
+                      }}
+                      className="flex-1 bg-transparent border-b border-[#2DD4BF] text-sm outline-none text-white"
+                    />
+                  ) : (
+                    <>
+                      {/* 프로젝트 열기 */}
+                      <button
+                        className="flex-1 flex items-center gap-2 text-left min-w-0"
+                        onClick={() => {
+                          const html = loadProjectHtml(proj.id);
+                          if (html) {
+                            setCompiledHtml(html);
+                            setShowFullscreenViewer(true);
+                          }
+                        }}
+                      >
+                        <span className="material-symbols-outlined text-base text-[#ec5b13] shrink-0">description</span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate text-slate-200">{proj.name}</p>
+                          <p className="text-[10px] text-slate-600 truncate">
+                            {new Date(proj.createdAt).toLocaleDateString('ko-KR')}
+                          </p>
+                        </div>
+                      </button>
+                      {/* 편집/삭제 버튼 — 호버 시만 표시 */}
+                      <div className="hidden group-hover:flex items-center gap-1 shrink-0">
+                        <button
+                          title="이름 수정"
+                          onClick={() => { setEditingId(proj.id); setEditingName(proj.name); }}
+                          className="p-1 rounded hover:text-[#2DD4BF] text-slate-500 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[14px]">edit</span>
+                        </button>
+                        <button
+                          title="삭제"
+                          onClick={() => {
+                            if (confirm(`"${proj.name}" 프로젝트를 삭제하시겠습니까?`)) deleteProject(proj.id);
+                          }}
+                          className="p-1 rounded hover:text-red-400 text-slate-500 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[14px]">delete</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="p-4 border-t border-slate-200 dark:border-slate-800">
           <button onClick={() => setIsSettingsOpen(true)} className="w-full flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors">
@@ -335,8 +497,8 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
         </div>
       </aside>
       
-      <main className="flex-1 flex flex-col overflow-hidden bg-[#f8f6f6] dark:bg-[#120d0b]">
-        <header className="h-20 px-8 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 glass">
+      <main className="flex-1 flex flex-col overflow-hidden bg-[#120d0b]">
+        <header className="h-16 px-8 flex items-center justify-between border-b border-slate-800 bg-[#1a1412]/60 backdrop-blur-sm">
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-semibold">Research Hub</h1>
             {apiKey ? (
@@ -367,20 +529,21 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8 flex gap-8">
-          <div className="flex-[1.5] flex flex-col gap-8">
+        <div className="flex-1 overflow-y-auto p-6 flex gap-5">
+          <div className="flex-[1.5] flex flex-col gap-6">
             {!isManualMode ? (
               <>
                 <section className="space-y-4">
                   <h3 className="text-xl font-bold tracking-tight">New Strategy Initiation</h3>
-                  <div className="glass p-6 rounded-xl space-y-6">
+                  <div className="glass p-6 rounded-xl space-y-4">
+                    {/* ── 브랜드명 입력 ── */}
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">Brand Intelligence Target</label>
                       <div className="relative flex gap-2">
                         <div className="relative flex-1">
                           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
                           <input 
-                            className="w-full pl-12 pr-4 py-4 bg-white/5 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#ec5b13] focus:border-transparent outline-none transition-all placeholder:text-slate-500 text-lg font-medium" 
+                            className="w-full pl-12 pr-4 py-3 bg-white/5 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#ec5b13] focus:border-transparent outline-none transition-all placeholder:text-slate-500 text-base font-medium" 
                             placeholder="Enter brand name for deep-dive analysis..." 
                             type="text"
                             value={brandName}
@@ -391,7 +554,7 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
                         <button 
                           onClick={handleStartEngine}
                           disabled={isProcessing}
-                          className="px-8 py-4 bg-[#ec5b13] text-white font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
+                          className="px-8 py-3 bg-[#ec5b13] text-white font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
                         >
                           {isProcessing ? 'Processing AI...' : 'Start Engine'}
                         </button>
@@ -404,10 +567,86 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
                         </p>
                       )}
                     </div>
+
+                    {/* ── 전략 세팅 (선택적 구조화 입력) ── */}
+                    <div className="border-t border-white/10 pt-4">
+                      <button
+                        onClick={() => setIsContextOpen(v => !v)}
+                        className="w-full flex items-center justify-between text-left group"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-[16px] text-[#2DD4BF]">tune</span>
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-[#2DD4BF] transition-colors">
+                            전략 세팅 <span className="text-slate-600 font-normal normal-case tracking-normal">(선택 — 입력 시 해당 단계 프롬프트에 자동 반영)</span>
+                          </span>
+                        </div>
+                        <span className="material-symbols-outlined text-slate-500 text-sm transition-transform duration-200" style={{ transform: isContextOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                          expand_more
+                        </span>
+                      </button>
+
+                      {isContextOpen && (
+                        <div className="mt-4 space-y-4 animate-fade-in">
+
+                          {/* 필수 포함 경쟁사 → Step 2 Competitor */}
+                          <div className="space-y-1.5">
+                            <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                              <span className="h-4 w-4 bg-red-500/20 text-red-400 rounded text-[9px] flex items-center justify-center font-black">2</span>
+                              필수 포함 경쟁사
+                              <span className="text-slate-600 font-normal normal-case">— Competitor 단계에 주입</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={mustHaveCompetitors}
+                              onChange={e => setMustHaveCompetitors(e.target.value)}
+                              className="w-full px-3 py-2.5 bg-white/5 border border-slate-700 rounded-lg text-sm outline-none focus:border-red-400/50 placeholder:text-slate-600 transition-colors"
+                              placeholder="예: 삼성카드, 현대카드, 토스뱅크 (쉼표로 구분)"
+                            />
+                          </div>
+
+                          {/* 광고주 핵심 니즈 → Step 5 Strategy */}
+                          <div className="space-y-1.5">
+                            <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                              <span className="h-4 w-4 bg-purple-500/20 text-purple-400 rounded text-[9px] flex items-center justify-center font-black">5</span>
+                              광고주 핵심 니즈 / 캠페인 방향
+                              <span className="text-slate-600 font-normal normal-case">— Strategy 단계에 주입</span>
+                            </label>
+                            <textarea
+                              value={clientNeeds}
+                              onChange={e => setClientNeeds(e.target.value)}
+                              rows={2}
+                              className="w-full px-3 py-2.5 bg-white/5 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-400/50 placeholder:text-slate-600 resize-none transition-colors"
+                              placeholder="예: TV CF 중심 매스 캠페인, MZ 타겟 집중, 글로벌 확장 대비 브랜딩 강화"
+                            />
+                          </div>
+
+                          {/* 참고자료 첨부 안내 → Step 0 & 1 */}
+                          <div className="space-y-1.5">
+                            <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                              <span className="h-4 w-4 bg-[#2DD4BF]/20 text-[#2DD4BF] rounded text-[9px] flex items-center justify-center font-black">0</span>
+                              첨부 참고자료 안내
+                              <span className="text-slate-600 font-normal normal-case">— Fact Book·Market 단계에 파일 첨부 지침 삽입</span>
+                            </label>
+                            <textarea
+                              value={referenceNote}
+                              onChange={e => setReferenceNote(e.target.value)}
+                              rows={2}
+                              className="w-full px-3 py-2.5 bg-white/5 border border-[#2DD4BF]/30 rounded-lg text-sm outline-none focus:border-[#2DD4BF]/60 placeholder:text-slate-600 resize-none transition-colors"
+                              placeholder="예: RFP 문서를 함께 첨부합니다. 해당 파일의 광고주 요구사항을 조사 시 우선 반영해 주세요."
+                            />
+                            <p className="text-[10px] text-slate-600 px-1">
+                              💡 외부 AI(제미나이 웹)에서 프롬프트 복사 후, 파일을 직접 첨부하면 위 메모가 참고 지침으로 포함됩니다.
+                            </p>
+                          </div>
+
+                        </div>
+                      )}
+                    </div>
+
                   </div>
                 </section>
                 
-                <section className="space-y-6">
+                <section className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-bold tracking-tight">Research Pipeline</h3>
                     {isProcessing && (
@@ -424,7 +663,7 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
                       const isCurrent = currentStep === node.step;
                       
                       return (
-                        <div key={node.step} className={`relative flex flex-col items-center gap-3 z-10 w-32 ${!isCurrent && !isPast ? 'opacity-40' : ''}`}>
+                        <div key={node.step} className={`relative flex flex-col items-center gap-3 z-10 w-26 ${!isCurrent && !isPast ? 'opacity-40' : ''}`}>
                           <div className={`h-10 w-10 rounded-full flex items-center justify-center 
                             ${isPast ? 'bg-[#ec5b13] text-white shadow-lg shadow-[#ec5b13]/20' : 
                               isCurrent ? 'bg-[#2DD4BF] text-[#120d0b] pulse-teal' : 
@@ -439,7 +678,7 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
                     })}
 
                     {/* 컴파일러 단계 시각화 */}
-                    <div className={`relative flex flex-col items-center gap-3 z-10 w-32 ${currentStep < 6 ? 'opacity-40' : ''}`}>
+                    <div className={`relative flex flex-col items-center gap-3 z-10 w-26 ${currentStep < 6 ? 'opacity-40' : ''}`}>
                       <div className={`h-10 w-10 rounded-full flex items-center justify-center 
                         ${currentStep > 6 ? 'bg-[#ec5b13] text-white shadow-lg shadow-[#ec5b13]/20' : 
                           currentStep === 6 ? 'bg-[#2DD4BF] text-[#120d0b] pulse-teal' : 
@@ -455,13 +694,62 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
               </>
             ) : (
               // 수동 가이드 브리핑 렌더링
-              <section className="h-full flex flex-col justify-center">
+              <section className="h-full flex flex-col gap-6">
+
+                {/* ── Research Pipeline — 브리핑 헤더 상단 ── */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Research Pipeline</span>
+                    {isProcessing && (
+                      <div className="flex items-center gap-2 text-[#2DD4BF] text-xs font-semibold">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#2DD4BF] animate-pulse"></span>
+                        Live Engine Processing
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative flex justify-between">
+                    <div className="absolute top-5 left-0 w-full h-0.5 bg-slate-800 -z-0"></div>
+                    {RESEARCH_NODES.map((node) => {
+                      const isPast = currentStep > node.step;
+                      const isCurrent = currentStep === node.step;
+                      return (
+                        <div key={node.step} className={`relative flex flex-col items-center gap-2 z-10 w-20 ${!isCurrent && !isPast ? 'opacity-30' : ''}`}>
+                          <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold
+                            ${isPast ? 'bg-[#ec5b13] text-white' :
+                              isCurrent ? 'bg-[#2DD4BF] text-[#120d0b] pulse-teal' :
+                              'bg-slate-800 text-slate-500'}`}>
+                            {isPast ? <span className="material-symbols-outlined text-sm">check</span> : <span>{node.step}</span>}
+                          </div>
+                          <p className={`text-[9px] font-bold text-center uppercase tracking-tighter leading-tight ${isCurrent ? 'text-[#2DD4BF]' : 'text-slate-600'}`}>
+                            {node.title}
+                          </p>
+                        </div>
+                      );
+                    })}
+                    {/* 컴파일러 단계 */}
+                    <div className={`relative flex flex-col items-center gap-2 z-10 w-20 ${currentStep < 6 ? 'opacity-30' : ''}`}>
+                      <div className={`h-8 w-8 rounded-full flex items-center justify-center
+                        ${currentStep > 6 ? 'bg-[#ec5b13] text-white' :
+                          currentStep === 6 ? 'bg-[#2DD4BF] text-[#120d0b] pulse-teal' :
+                          'bg-slate-800 text-slate-500'}`}>
+                        {currentStep > 6
+                          ? <span className="material-symbols-outlined text-sm">check</span>
+                          : <span className="material-symbols-outlined text-sm">hardware</span>}
+                      </div>
+                      <p className={`text-[9px] font-bold text-center uppercase tracking-tighter leading-tight ${currentStep === 6 ? 'text-[#2DD4BF]' : 'text-slate-600'}`}>
+                        Compiler
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── 브리핑 본문 ── */}
                 {renderManualBoard()}
               </section>
             )}
           </div>
 
-          <div className="flex-1 flex flex-col gap-6">
+          <div className="flex-1 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold tracking-tight">Live Insights Preview</h3>
             </div>

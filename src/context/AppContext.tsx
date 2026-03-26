@@ -5,6 +5,16 @@ interface AppState {
   setApiKey: (key: string) => void;
   brandName: string;
   setBrandName: (name: string) => void;
+  // [선택 입력] 필수 포함 경쟁사 (Step 2 Competitor 프롬프트에 주입)
+  mustHaveCompetitors: string;
+  setMustHaveCompetitors: (val: string) => void;
+  // [선택 입력] 광고주 핵심 니즈 / 캠페인 방향 (Step 5 Strategy 프롬프트에 주입)
+  clientNeeds: string;
+  setClientNeeds: (val: string) => void;
+  // [선택 입력] 첨부 참고자료 안내 메모 (Step 0/1 프롬프트에 첨부 지침으로 삽입)
+  referenceNote: string;
+  setReferenceNote: (val: string) => void;
+  /** @deprecated referenceData는 하위호환용으로 유지 */
   referenceData: string;
   setReferenceData: (data: string) => void;
   isProcessing: boolean;
@@ -22,6 +32,9 @@ const AppContext = createContext<AppState | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || '');
   const [brandName, setBrandName] = useState('');
+  const [mustHaveCompetitors, setMustHaveCompetitors] = useState('');
+  const [clientNeeds, setClientNeeds] = useState('');
+  const [referenceNote, setReferenceNote] = useState('');
   const [referenceData, setReferenceData] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -37,6 +50,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       apiKey, setApiKey: handleSetApiKey,
       brandName, setBrandName,
+      mustHaveCompetitors, setMustHaveCompetitors,
+      clientNeeds, setClientNeeds,
+      referenceNote, setReferenceNote,
       referenceData, setReferenceData,
       isProcessing, setIsProcessing,
       currentStep, setCurrentStep,

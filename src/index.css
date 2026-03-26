@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
-@theme {
+/* Tailwind v4: dark: prefix를 항상 활성화 (forced dark) */
+@variant dark (&);
+
+
   --color-primary: #ec5b13;
   --color-background-light: #f8f6f6;
   --color-background-dark: #120d0b;
@@ -59,4 +62,21 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* 다크모드 강제 적용 — 라이트모드 의도치 않은 폴백 방지 */
+  background-color: #120d0b;
+  color: #f1f5f9;
+}
+
+/* Tailwind dark: prefix를 위해 html에 dark 클래스 강제 주입 */
+html {
+  color-scheme: dark;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out forwards;
 }
