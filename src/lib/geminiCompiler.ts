@@ -42,7 +42,7 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
 `;
 
   const chat = ai.chats.create({
-    model: 'gemini-2.5-pro',
+    model: 'gemini-2.0-flash',
     config: {
       systemInstruction,
       temperature: 0.2, // Low temperature for consistent formatting

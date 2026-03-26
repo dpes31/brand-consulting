@@ -19,7 +19,7 @@ export async function runResearchNode(
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-pro', // Using the latest Pro model for best reasoning
+      model: 'gemini-1.5-pro', // Using the latest Pro model for best reasoning
       contents: userPrompt,
       config: {
         systemInstruction: systemInstruction,
