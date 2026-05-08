@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>STRATOS | Research Strategy Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec5b13",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#120d0b",
+                        "accent-teal": "#2DD4BF",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .teal-glow {
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.3);
+        }
+        .pulse-teal {
+            box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(45, 212, 191, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- Left Sidebar -->
+<aside class="w-72 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/50">
+<div class="p-6 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">insights</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">STRATOS</h2>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-6">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Active Projects</p>
+<div class="space-y-1">
+<div class="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-xl cursor-pointer">
+<span class="material-symbols-outlined text-xl">biotech</span>
+<span class="text-sm font-medium">Luxe Global 2024</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl">analytics</span>
+<span class="text-sm font-medium">Urban Mobility X</span>
+</div>
+</div>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Recent Reports</p>
+<div class="space-y-1">
+<div class="flex items-center gap-3 px-3 py-2.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl">description</span>
+<span class="text-sm font-medium">Fintech Landscape Q3</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl">description</span>
+<span class="text-sm font-medium">Gen Z Apparel Trends</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl">description</span>
+<span class="text-sm font-medium">SaaS Growth Strategy</span>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Dashboard Settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="flex-1 flex flex-col overflow-hidden bg-background-light dark:bg-background-dark">
+<!-- Top Header -->
+<header class="h-20 px-8 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 glass">
+<div class="flex items-center gap-4">
+<h1 class="text-lg font-semibold">Research Hub</h1>
+<span class="px-3 py-1 bg-accent-teal/10 text-accent-teal text-[10px] font-bold uppercase tracking-wider rounded-full">Premium Access</span>
+</div>
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-accent-teal text-background-dark font-bold text-sm rounded-xl teal-glow hover:brightness-110 transition-all">
+<span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+                        Export PDF
+                    </button>
+<div class="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-800">
+<div class="text-right">
+<p class="text-sm font-bold leading-none">Julian Stratos</p>
+<p class="text-[11px] text-slate-500 mt-1">Senior Partner</p>
+</div>
+<div class="size-10 rounded-full bg-slate-200 dark:bg-slate-800 bg-cover bg-center ring-2 ring-primary/20" data-alt="Corporate professional headshot avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBJ_8Ju5xw_Dj294yVybLRZWX6CSzIgDgDgXY1aWQbvEa9ctoVzLkK2R08ixR7eN9YvYgPzUEMDrJ09ytOREeixBRQGzpMN054YuKIGr_IPkYOMj14fY9mm6awinEUARXakF-QCqfwwcd0mPmwxSXgeenYfvPgflUi8obVxjE3aqcs0bUDGY85BJoBv2uNDsKp1q2jjQniEpap3vXaJ9ogEQuWQqukXyHYNwuAfuQzxiF-OGMOzvTxA-35Ec04MLUNp5SV0nsSViHE')"></div>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="flex-1 overflow-y-auto p-8 flex gap-8">
+<!-- Center Area: Input & Progress -->
+<div class="flex-[1.5] flex flex-col gap-8">
+<!-- Input Section -->
+<section class="space-y-4">
+<h3 class="text-xl font-bold tracking-tight">New Strategy Initiation</h3>
+<div class="glass p-6 rounded-xl space-y-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">Brand Intelligence Target</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full pl-12 pr-4 py-4 bg-white/5 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-500 text-lg font-medium" placeholder="Enter brand name for deep-dive analysis..." type="text"/>
+</div>
+</div>
+<div class="group border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-primary/50 rounded-xl py-12 px-6 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all bg-white/5">
+<div class="size-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">upload_file</span>
+</div>
+<div class="text-center">
+<p class="font-bold">Drop existing market research or brand assets</p>
+<p class="text-sm text-slate-500 mt-1">XLSX, PDF, or PPTX up to 50MB</p>
+</div>
+<button class="mt-2 px-6 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Browse Files</button>
+</div>
+</div>
+</section>
+<!-- Active Research Stepper -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-bold tracking-tight">Research Pipeline</h3>
+<div class="flex items-center gap-2 text-accent-teal text-sm font-semibold">
+<span class="size-2 rounded-full bg-accent-teal animate-pulse"></span>
+                                Live Engine Processing
+                            </div>
+</div>
+<div class="relative flex justify-between">
+<!-- Progress Line Background -->
+<div class="absolute top-5 left-0 w-full h-0.5 bg-slate-200 dark:bg-slate-800 -z-0"></div>
+<!-- Steps -->
+<div class="relative flex flex-col items-center gap-3 z-10 w-32">
+<div class="size-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">check</span>
+</div>
+<p class="text-[11px] font-bold text-slate-500 text-center uppercase tracking-tighter">Market Landscape</p>
+</div>
+<div class="relative flex flex-col items-center gap-3 z-10 w-32">
+<div class="size-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">check</span>
+</div>
+<p class="text-[11px] font-bold text-slate-500 text-center uppercase tracking-tighter">Competitor Audit</p>
+</div>
+<div class="relative flex flex-col items-center gap-3 z-10 w-32">
+<div class="size-10 rounded-full bg-accent-teal text-background-dark flex items-center justify-center pulse-teal">
+<span class="material-symbols-outlined text-lg">neurology</span>
+</div>
+<p class="text-[11px] font-bold text-accent-teal text-center uppercase tracking-tighter">Analyzing Consumer...</p>
+</div>
+<div class="relative flex flex-col items-center gap-3 z-10 w-32 opacity-40">
+<div class="size-10 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-400 flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">palette</span>
+</div>
+<p class="text-[11px] font-bold text-slate-500 text-center uppercase tracking-tighter">Creative Strategy</p>
+</div>
+<div class="relative flex flex-col items-center gap-3 z-10 w-32 opacity-40">
+<div class="size-10 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-400 flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">lightbulb</span>
+</div>
+<p class="text-[11px] font-bold text-slate-500 text-center uppercase tracking-tighter">Strategic Insight</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Section: Live Preview -->
+<div class="flex-1 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-bold tracking-tight">Live Slide Preview</h3>
+<div class="flex gap-2">
+<button class="p-2 glass rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-sm">fullscreen</span>
+</button>
+<button class="p-2 glass rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-sm">refresh</span>
+</button>
+</div>
+</div>
+<!-- Slide Container 16:9 -->
+<div class="aspect-video w-full glass rounded-2xl overflow-hidden relative border border-white/10 shadow-2xl bg-[#0a0706]">
+<!-- Slide Content -->
+<div class="absolute inset-0 p-8 flex flex-col">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-primary text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Module 03 // Growth Projection</p>
+<h4 class="text-white text-2xl font-bold">Growth Potential Index</h4>
+</div>
+<div class="bg-white/10 px-3 py-1.5 rounded text-[10px] font-mono text-slate-400">INDEX_ID: STRAT-240</div>
+</div>
+<!-- Mock Complex Bar Chart -->
+<div class="flex-1 mt-10 flex items-end gap-3 pb-8">
+<div class="flex-1 space-y-2">
+<div class="h-[40%] bg-gradient-to-t from-primary/80 to-primary rounded-t-sm relative group">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity">42%</div>
+</div>
+<div class="text-[8px] text-slate-500 text-center font-bold">Q1 2023</div>
+</div>
+<div class="flex-1 space-y-2">
+<div class="h-[65%] bg-gradient-to-t from-primary/80 to-primary rounded-t-sm relative group">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity">68%</div>
+</div>
+<div class="text-[8px] text-slate-500 text-center font-bold">Q2 2023</div>
+</div>
+<div class="flex-1 space-y-2">
+<div class="h-[55%] bg-gradient-to-t from-primary/80 to-primary rounded-t-sm relative group">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity">55%</div>
+</div>
+<div class="text-[8px] text-slate-500 text-center font-bold">Q3 2023</div>
+</div>
+<div class="flex-1 space-y-2">
+<div class="h-[90%] bg-gradient-to-t from-accent-teal/80 to-accent-teal rounded-t-sm relative group">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-white font-bold">92%</div>
+</div>
+<div class="text-[8px] text-accent-teal text-center font-black">EST 2024</div>
+</div>
+<div class="flex-1 space-y-2">
+<div class="h-[45%] bg-gradient-to-t from-primary/40 to-primary/60 rounded-t-sm"></div>
+<div class="text-[8px] text-slate-500 text-center font-bold">BENCHMARK</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6 mt-auto pt-6 border-t border-white/5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-accent-teal/10 flex items-center justify-center text-accent-teal">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+</div>
+<div>
+<p class="text-white text-xs font-bold">+12.4% Variance</p>
+<p class="text-[9px] text-slate-500">Above category average</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">precision_manufacturing</span>
+</div>
+<div>
+<p class="text-white text-xs font-bold">High Efficiency</p>
+<p class="text-[9px] text-slate-500">Resource optimization optimal</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Scanline Overlay Effect -->
+<div class="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]"></div>
+</div>
+<!-- Slide Controls -->
+<div class="flex items-center justify-between px-2">
+<div class="flex gap-4">
+<div class="flex flex-col">
+<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Generated by</span>
+<span class="text-sm font-semibold">Stratos AI v4.2</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<span class="text-xs font-mono text-slate-400 px-2">Slide 08 of 14</span>
+<button class="p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

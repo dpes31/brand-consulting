@@ -1,0 +1,67 @@
+목적: 조사 브랜드가 처한 시장 흐름과 주요 이슈 분석.
+브랜드명: 비즈넵
+
+목표 : "현재 시장의 판도를 바꾸고 있는 가장 중요한 변곡점은 무엇입니까? 단순한 성장률이 아닌 거시적 흐름을 파악해야 합니다."
+
+조사 항목 (PEST 및 3C 중 Company):
+I. MARKET ANALYSIS
+- Policy & Economic: 동종 업계의 시장 내 거시 주요 이슈
+- Market Overview: 동종 업계의 시장 규모 및 성장 추이
+- Company Growth: 브랜드 매출규모, 시장 점유율, 성장률
+- Product USP: 제품/서비스의 특장점 및 경쟁력
+
+
+
+목적: 조사 브랜드가 처한 경쟁 흐름과 주요 이슈 분석.
+브랜드명: 비즈넵
+
+목표 : "비즈니스를 위협하는 직접/간접 경쟁사는 누구이며, 그들이 소비자 마음에 심고자 하는 '핵심 욕망(Core Desire)'은 무엇입니까?"
+
+조사 항목 (3C 중 Competitor):
+II. COMPETITOR
+- Direct Competitor: 주요 경쟁사 식별, 시장 점유율, 성장률, 특장점
+- Indirect Competitor: 대체재/유사 카테고리 경쟁사 분석
+- Product Matrix: 경쟁사들과의 차이점 및 브랜드 경쟁력
+- Positioning Map: 경쟁 포지셔닝 맵 (AS-IS -> TO-BE)
+
+
+
+
+목적: 조사 브랜드가 처한 고객 흐름과 인사이트 분석.
+브랜드명: 비즈넵
+
+목표 : "타겟은 우리 제품을 '고용(Jobs-to-be-Done)'하여 삶의 어떤 진보를 이루려 합니까? 기존 카테고리가 채우지 못한 심리적 공백을 파악해야 합니다."
+
+조사 항목 (3C 중 Consumer):
+III. CONSUMER
+- Trends: 관련 산업 트렌드 및 통계 (최근 5년 이내)
+- Persona: 주요 소비자/타겟 정의
+- Voice of Customer: 긍정적/부정적 소비자 인식
+- Pain Points: 잠재적 Unmet needs, Pain-Points 도출
+
+
+
+목적: 조사 브랜드와 경쟁사의 과거 광고 커뮤니케이션 히스토리 조사.
+브랜드명: 비즈넵
+
+목표 : "과거 5년간 자사와 주요 경쟁사의 광고 히스토리를 정리해 주십시오. 핵심은 요약이 아니라 '실제 카피(Verbatim)'입니다."
+
+조사 항목:
+IV. CREATIVE
+- 조사 브랜드의 TVC Creative History: 연도별 모델, 키카피, 소구 전략 (가급적 실제 슬로건/카피 원문 포함)
+- Competitor TVC Creative History: 주요 경쟁사의 핵심 마케팅/광고 흐름
+- Creative Insight: 시사점 및 차별화 포인트
+
+
+
+
+목적: 앞의 모든 리서치를 기반으로 한 거시적/미시적 전략 제안 도출.
+브랜드명: 비즈넵
+
+목표 : "위 4가지 분석(시장, 경쟁, 소비자, 자사)의 교집합에서 발견된 치명적 문제점(SWOT)은 무엇이며, 이 판을 뒤집을 최후의 '위닝 무브'는 무엇입니까?"
+
+조사 항목:
+V. STRATEGY
+- SWOT Analysis: 강점, 약점, 기회, 위협
+- STP Strategy: 차별화된 타겟팅 및 포지셔닝 제안
+- Strategic Implication: 최종 컨셉, 소구 전략안 (최대 3~4가지 방향성 제안)
