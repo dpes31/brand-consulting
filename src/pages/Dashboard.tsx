@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Markdown from 'react-markdown';
 import { useAppContext } from '../context/AppContext';
-import { RESEARCH_NODES } from '../lib/prompts';
+import { RESEARCH_NODES, MASTER_COMPILE_PROMPT, getBrandDesignReference } from '../lib/prompts';
 import { runResearchNode } from '../lib/gemini';
 import { compileReportToHTML } from '../lib/geminiCompiler';
 import { useProjects } from '../hooks/useProjects';
@@ -191,7 +191,7 @@ export default function Dashboard() {
       setErrorText('');
       
       // 최종 HTML 컴파일 진행
-      const finalHtml = await compileReportToHTML(accumulatedReport, apiKey);
+      const finalHtml = await compileReportToHTML(accumulatedReport, apiKey, brandName);
       setCompiledHtml(finalHtml);
       setCurrentStep(7); // 완료 상태
     } catch (e: any) {
@@ -240,31 +240,13 @@ export default function Dashboard() {
 
   const handleExportPrompt = async () => {
     try {
-      const response = await fetch('/template.html');
-      const masterHtml = await response.text();
-      const promptText = `[Role & Identity]
-You are a "Master Strategic Compiler" and a "Strict HTML Molder".
-Your task is to take raw, fragmented research data, elevate it using top-tier consulting logic (McKinsey & Ogilvy level), and inject it perfectly into the provided [Immutable Master HTML Code].
+      const designRef = getBrandDesignReference(brandName);
+      
+      let promptText = MASTER_COMPILE_PROMPT
+        .replace('{BRAND_ACCENT_COLOR}', designRef.match(/Accent: (#\w+)/)?.[1] || '#5e6ad2')
+        .replace('{BRAND_DESIGN_REFERENCE}', designRef)
+        .replace('{REPORT_DATA}', reportData || '');
 
-[Directives]
-1. Read the Raw Data thoroughly. Fact-check it, fix logical leaps (So What?), and synthesize it.
-2. Replace ALL {{PLACEHOLDERS}} in the HTML template with your high-density, professional Korean content.
-3. Content Density Rule: Inside every box (<dl>), aim for at least 3 detail points (<dd>) per topic (<dt>). Do not leave boxes empty. Infer logical connections if data is scarce.
-4. Tone & Manner: Use full, professional Korean sentences. Wrap critical phrases in governing-msg with <span class="highlight">...</span>.
-5. NO [cite], [source], or markdown citations in the output HTML.
-6. YOU MUST OUTPUT THE ENTIRE HTML from <!DOCTYPE html> to </html> IN A SINGLE RESPONSE. Do NOT truncate, do NOT split it into parts. It must be valid HTML.
-
-[Immutable Master HTML Code]
-${masterHtml}
-
-[Raw Research Data]
-${reportData}
-
-================
-Now, execute the compilation. Output the finalized HTML code enclosed in \`\`\`html ... \`\`\` formatting. 
-Make sure ALL {{PLACEHOLDERS}} are replaced with high-quality content.
-This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND the new Brand Fact Book slides ({{SF01_TITLE}}, {{SF02_TITLE}}, {{SF03_TITLE}}, etc.).
-`;
       await navigator.clipboard.writeText(promptText);
       
       const blob = new Blob([promptText], { type: 'text/plain' });
@@ -310,7 +292,7 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
                     onClick={async () => {
                       setIsProcessing(true);
                       try {
-                        const finalHtml = await compileReportToHTML(reportData || '', apiKey);
+                        const finalHtml = await compileReportToHTML(reportData || '', apiKey, brandName);
                         setCompiledHtml(finalHtml);
                         setCurrentStep(7);
                         setShowFullscreenViewer(true);

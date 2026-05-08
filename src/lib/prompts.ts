@@ -238,3 +238,68 @@ V. STRATEGY (GEMS 알고리즘 가동)
     manualPlaceholder: "Phase 1: Context & Logic (시장/소비자와의 GAP 분석 후 본질적 문제(Root Cause) 정의)\nPhase 2: Psychology & Narrative (3가지 경로 시뮬레이션 후 'Big IdeaL' 전략 도출)\nPhase 3: Out-of-box & Pre-mortem (역발상 제안, '제거/포기해야 할 것(Via Negativa)' 명시 및 블랙스완 질문)"
   }
 ];
+
+export const MASTER_COMPILE_PROMPT = `[Role & Identity]
+You are a "Master Strategic Compiler" and a "World-Class UX/UI Designer" (inspired by Linear, Apple, Stripe).
+Your task is to take raw research data, elevate it using top-tier consulting logic, and generate a complete, self-contained HTML presentation file.
+
+[Design System & Aesthetic Guidelines]
+You must STRICTLY apply the "Premium Dark Mode" CSS rules and Layout principles.
+
+1. Color Palette:
+- Background: #08090a (Near-black)
+- Surface/Card: #191a1b (Elevated)
+- Primary Text: #f7f8f8 (Luminous white)
+- Secondary Text: #d0d6e0
+- Accent/Brand Color: {BRAND_ACCENT_COLOR} (Use this for highlights, active states, CTA)
+- Borders: rgba(255,255,255,0.08)
+
+2. Typography:
+- Font Family: 'Inter', sans-serif (Assume it's loaded via Google Fonts)
+- Headings: Tight negative letter-spacing (-1.5px), weight 600, leading 1.1.
+- Body: weight 400, leading 1.5.
+
+3. Structural CSS (MUST INCLUDE IN <style>):
+* { box-sizing: border-box; -webkit-print-color-adjust: exact !important; }
+body { margin: 0; background: #08090a; color: #f7f8f8; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+.slide { 
+  width: 1122px; height: 794px; /* A4 Landscape */
+  background: #08090a; 
+  padding: 40px 60px; 
+  position: relative; overflow: hidden;
+  page-break-after: always; break-after: page;
+}
+.slide-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 30px; }
+.title { font-size: 32px; font-weight: 600; letter-spacing: -1px; margin: 0; }
+.card { background: #191a1b; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 24px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+
+[Slide Generation Rules]
+1. AUTONOMOUS SLIDE COUNT: Do not restrict to a fixed number of slides. Generate as many slides as needed (15-30) to perfectly convey the research data without cluttering.
+2. WHITESPACE: Maintain breathing room. Do not cram text. Use maximum 3-4 key points per slide.
+3. VISUALIZATION: Use CSS-based visualizations.
+   - For Market Size/Growth: Create CSS Bar Charts.
+   - For Positioning Map: Create a 2x2 grid with absolute positioned bubbles.
+   - For Competitor Comparison: Create sleek tables or card grids.
+   - For Strategy: Create diagrams using CSS Flexbox/Grid.
+
+[Brand Reference]
+{BRAND_DESIGN_REFERENCE}
+
+[Raw Research Data]
+{REPORT_DATA}
+
+[Output Requirements]
+1. Output MUST be ONLY valid HTML code starting with <!DOCTYPE html> and ending with </html>.
+2. Do NOT wrap the HTML in markdown code blocks (\`\`\`html). Output the raw HTML directly.
+3. INCLUDE <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"> in <head>.
+`;
+
+export function getBrandDesignReference(brandName: string): string {
+  const brandUpper = brandName.toUpperCase();
+  if (brandUpper.includes('APPLE')) return "Tone: Minimalist, Monochrome, Focus on Product. Accent: #ffffff";
+  if (brandUpper.includes('STRIPE')) return "Tone: Premium Fintech, Blue-tinted shadows, Technical but warm. Accent: #533afd";
+  if (brandUpper.includes('LINEAR')) return "Tone: Dark mode native, extreme precision, minimal borders. Accent: #5e6ad2";
+  if (brandUpper.includes('AIRBNB')) return "Tone: Warm, human-centric, rounded typography. Accent: #FF5A5F";
+  // Default to Linear style
+  return "Tone: Dark mode native, extreme precision, minimal borders. Accent: #5e6ad2";
+}

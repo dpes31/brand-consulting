@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
+import { getBrandDesignReference } from './prompts';
 
-export const compileReportToHTML = async (rawData: string, apiKey: string): Promise<string> => {
+export const compileReportToHTML = async (rawData: string, apiKey: string, brandName: string): Promise<string> => {
   if (!apiKey) {
     throw new Error('API 키가 렌더링에 필요합니다.');
   }
@@ -12,7 +13,13 @@ export const compileReportToHTML = async (rawData: string, apiKey: string): Prom
   if (!response.ok) {
     throw new Error('의존성 파일(template.html)을 불러올 수 없습니다.');
   }
-  const masterHtml = await response.text();
+  let masterHtml = await response.text();
+  
+  // Inject Brand Design Reference CSS
+  const designRef = getBrandDesignReference(brandName);
+  const accentColor = designRef.match(/Accent: (#\w+)/)?.[1] || '#5e6ad2';
+  masterHtml = masterHtml.replace('--hds-brand-accent: #5e6ad2;', `--hds-brand-accent: ${accentColor}; /* Dynamically matched for ${brandName} */`);
+
 
   const systemInstruction = `
 [Role & Identity]
