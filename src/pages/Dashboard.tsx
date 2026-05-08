@@ -129,12 +129,11 @@ export default function Dashboard() {
         const node = RESEARCH_NODES[i];
         setCurrentStep(node.step);
 
-        // ⏱️ 무료 티어 분당 토큰 한도(250K) 회피: 첫 단계 이후 65초 대기
-        // 왜 65초? → Google의 분당 한도는 "슬라이딩 윈도우" 방식이므로,
-        // 60초를 확실히 넘겨야 이전 요청의 토큰이 윈도우 밖으로 빠짐
+        // ⏱️ RPM(분당 요청 5회) 한도 회피를 위한 15초 딜레이
+        // TPM(분당 토큰 250K)은 넉넉하므로 긴 대기 불필요
         if (i > 0) {
-          setErrorText(`⏳ API 쿼터 보호: ${node.title} 시작까지 65초 대기 중... (${i}/${RESEARCH_NODES.length})`);
-          await new Promise(resolve => setTimeout(resolve, 65000));
+          setErrorText(`⏳ API 쿼터 보호: ${node.title} 시작까지 15초 대기 중... (${i}/${RESEARCH_NODES.length})`);
+          await new Promise(resolve => setTimeout(resolve, 15000));
           setErrorText('');
         }
 
@@ -144,7 +143,7 @@ export default function Dashboard() {
         // Step 0/1에서만 첨부 파일을 Gemini에 함께 전달 (RFP 등 참고자료)
         const filesToSend = (node.step <= 1 && attachedFiles.length > 0) ? attachedFiles : undefined;
 
-        // 429 에러 발생 시 자동 재시도 (최대 3회)
+        // 에러 발생 시 자동 재시도 (최대 3회, 단 RPD 소진은 즉시 중단)
         let result = '';
         let retries = 0;
         const MAX_RETRIES = 3;
@@ -154,7 +153,14 @@ export default function Dashboard() {
             break; // 성공 시 루프 탈출
           } catch (retryError: any) {
             const msg = retryError.message || '';
-            // 재시도 가능한 에러: 429(쿼터 초과), 503(서버 과부하)
+
+            // RPD(일일 한도) 소진 시 재시도 의미 없음 → 즉시 중단 & 안내
+            const isDailyLimit = msg.includes('PerDay') || msg.includes('per_day');
+            if (isDailyLimit) {
+              throw new Error('🚫 일일 API 호출 한도(20회/일)가 소진되었습니다. 내일 오후 4시(한국 시간) 이후 다시 시도하거나, Google AI Studio에서 유료 결제를 활성화해 주세요.');
+            }
+
+            // 재시도 가능한 에러: 429(분당 쿼터 초과), 503(서버 과부하)
             const isRetryable = msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')
               || msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('high demand');
             if (isRetryable && retries < MAX_RETRIES) {
@@ -163,7 +169,7 @@ export default function Dashboard() {
               const waitMatch = msg.match(/retry in (\d+)/i);
               const waitSec = waitMatch ? parseInt(waitMatch[1]) + 10 : 45;
               const reason = msg.includes('503') || msg.includes('UNAVAILABLE')
-                ? '서버 과부하 (일시적)' : 'API 한도 초과';
+                ? '서버 과부하 (일시적)' : 'API 분당 한도 초과';
               setErrorText(`⏳ ${reason} — ${waitSec}초 후 자동 재시도 (${retries}/${MAX_RETRIES})...`);
               await new Promise(resolve => setTimeout(resolve, waitSec * 1000));
               setErrorText('');
@@ -179,9 +185,9 @@ export default function Dashboard() {
       
       setCurrentStep(6);
 
-      // 컴파일 전에도 대기 (누적 토큰이 가장 큰 시점)
-      setErrorText('⏳ 최종 HTML 컴파일 준비 중... 65초 대기');
-      await new Promise(resolve => setTimeout(resolve, 65000));
+      // 컴파일 전 RPM 한도 회피를 위한 15초 대기
+      setErrorText('⏳ 최종 HTML 컴파일 준비 중... 15초 대기');
+      await new Promise(resolve => setTimeout(resolve, 15000));
       setErrorText('');
       
       // 최종 HTML 컴파일 진행

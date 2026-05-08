@@ -27,6 +27,12 @@ Your task is to take raw, fragmented research data, elevate it using top-tier co
 5. NO [cite], [source], or markdown citations in the output HTML.
 6. YOU MUST OUTPUT THE ENTIRE HTML from <!DOCTYPE html> to </html> IN A SINGLE RESPONSE. Do NOT truncate, do NOT split it into parts. It must be valid HTML.
 
+[CRITICAL: HTML Structure Integrity Rules]
+7. NEVER remove, merge, or skip any <div class="slide-wrapper"> block. The template contains exactly 22 slide-wrapper blocks (cover + f01~f03 + 01~18 + back-cover). Your output MUST contain ALL 22.
+8. Every opened <div> MUST have a matching </div>. Pay special attention to slide-17 (STP Strategy) — ensure its closing </div></div></div> sequence is complete BEFORE slide-18 begins.
+9. The LAST THREE blocks in your output MUST be: wrap-slide-17 → wrap-slide-18 → wrap-back-cover. If any of these are missing, your output is INVALID.
+10. After generating, mentally verify: does the output end with </main></body></html>? If not, you have truncated.
+
 [Immutable Master HTML Code]
 ${masterHtml}
 `;
