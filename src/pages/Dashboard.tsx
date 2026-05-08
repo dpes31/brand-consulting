@@ -125,20 +125,59 @@ export default function Dashboard() {
     let accumulatedReport = '';
     
     try {
-      for (const node of RESEARCH_NODES) {
+      for (let i = 0; i < RESEARCH_NODES.length; i++) {
+        const node = RESEARCH_NODES[i];
         setCurrentStep(node.step);
+
+        // ⏱️ 무료 티어 분당 토큰 한도(250K) 회피: 첫 단계 이후 35초 대기
+        // 왜 35초? → Gemini 무료 티어는 "분당" 입력 토큰 한도가 있으며,
+        // 누적 프롬프트가 커지는 후반 단계에서 한도 초과를 방지하기 위함
+        if (i > 0) {
+          setErrorText(`⏳ API 쿼터 보호: ${node.title} 시작까지 35초 대기 중... (${i}/${RESEARCH_NODES.length})`);
+          await new Promise(resolve => setTimeout(resolve, 35000));
+          setErrorText('');
+        }
+
         // 기본 프롬프트에 단계별 선택 입력값을 외과적으로 주입
         const basePrompt = node.userPromptTemplate.replace('{BRAND_NAME}', brandName);
         const prompt = buildPromptWithContext(basePrompt, node.step, contextOpts);
         // Step 0/1에서만 첨부 파일을 Gemini에 함께 전달 (RFP 등 참고자료)
         const filesToSend = (node.step <= 1 && attachedFiles.length > 0) ? attachedFiles : undefined;
-        const result = await runResearchNode(apiKey, node.systemPrompt, prompt, filesToSend);
+
+        // 429 에러 발생 시 자동 재시도 (최대 3회)
+        let result = '';
+        let retries = 0;
+        const MAX_RETRIES = 3;
+        while (retries <= MAX_RETRIES) {
+          try {
+            result = await runResearchNode(apiKey, node.systemPrompt, prompt, filesToSend);
+            break; // 성공 시 루프 탈출
+          } catch (retryError: any) {
+            const is429 = retryError.message?.includes('429') || retryError.message?.includes('RESOURCE_EXHAUSTED');
+            if (is429 && retries < MAX_RETRIES) {
+              retries++;
+              // 에러 메시지에서 대기 시간 파싱, 없으면 기본 40초
+              const waitMatch = retryError.message.match(/retry in (\d+)/i);
+              const waitSec = waitMatch ? parseInt(waitMatch[1]) + 10 : 40;
+              setErrorText(`⏳ API 한도 초과 — ${waitSec}초 후 자동 재시도 (${retries}/${MAX_RETRIES})...`);
+              await new Promise(resolve => setTimeout(resolve, waitSec * 1000));
+              setErrorText('');
+            } else {
+              throw retryError; // 재시도 불가능한 에러는 상위로 전파
+            }
+          }
+        }
         
         accumulatedReport += `\n\n## 0${node.step}. ${node.title}\n` + result;
         setReportData(accumulatedReport);
       }
       
       setCurrentStep(6);
+
+      // 컴파일 전에도 대기 (누적 토큰이 가장 큰 시점)
+      setErrorText('⏳ 최종 HTML 컴파일 준비 중... 35초 대기');
+      await new Promise(resolve => setTimeout(resolve, 35000));
+      setErrorText('');
       
       // 최종 HTML 컴파일 진행
       const finalHtml = await compileReportToHTML(accumulatedReport, apiKey);
