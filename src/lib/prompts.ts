@@ -259,27 +259,17 @@ You must STRICTLY apply the "Premium Dark Mode" CSS rules and Layout principles.
 - Headings: Tight negative letter-spacing (-1.5px), weight 600, leading 1.1.
 - Body: weight 400, leading 1.5.
 
-3. Structural CSS (MUST INCLUDE IN <style>):
-* { box-sizing: border-box; -webkit-print-color-adjust: exact !important; }
-body { margin: 0; background: #08090a; color: #f7f8f8; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-.slide { 
-  width: 1122px; height: 794px; /* A4 Landscape */
-  background: #08090a; 
-  padding: 40px 60px; 
-  position: relative; overflow: hidden;
-  page-break-after: always; break-after: page;
-}
-.slide-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 30px; }
-.title { font-size: 32px; font-weight: 600; letter-spacing: -1px; margin: 0; }
-.card { background: #191a1b; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 24px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+3. Component Library & Dynamic Styling (MUST USE):
+You are provided with a complete HTML component library in the [Master HTML Reference] section.
+- You MUST extract the CSS <style> block and HTML structure from the Master HTML.
+- CRITICAL: The Master HTML uses a default Dark Mode. You MUST rewrite the CSS color variables, backgrounds, and text colors to perfectly match the [Brand Reference] provided below. If the Brand Reference describes a Light Mode (like Airbnb), you must change the background to white and text to dark. Do NOT blindly copy the dark colors if it contradicts the Brand Reference.
 
 [Slide Generation Rules]
 1. AUTONOMOUS SLIDE COUNT: Do not restrict to a fixed number of slides. Generate as many slides as needed (15-30) to perfectly convey the research data without cluttering.
 2. WHITESPACE: Maintain breathing room. Do not cram text. Use maximum 3-4 key points per slide.
-3. VISUALIZATION: Use CSS-based visualizations.
+3. VISUALIZATION: Use the CSS-based visualizations demonstrated in the Master HTML.
    - For Market Size/Growth: Create CSS Bar Charts.
    - For Positioning Map: Create a 2x2 grid with absolute positioned bubbles.
-   - For Competitor Comparison: Create sleek tables or card grids.
    - For Strategy: Create diagrams using CSS Flexbox/Grid.
 
 [Brand Reference]
@@ -288,10 +278,13 @@ body { margin: 0; background: #08090a; color: #f7f8f8; font-family: 'Inter', san
 [Raw Research Data]
 {REPORT_DATA}
 
+[Master HTML Reference]
+{MASTER_HTML}
+
 [Output Requirements]
 1. Output MUST be ONLY valid HTML code starting with <!DOCTYPE html> and ending with </html>.
 2. Do NOT wrap the HTML in markdown code blocks (\`\`\`html). Output the raw HTML directly.
-3. INCLUDE <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"> in <head>.
+3. Your output MUST include the full <head> and <style> from the Master HTML, applying the Brand Accent Color where appropriate.
 `;
 
 export function getBrandDesignReference(brandName: string): string {

@@ -240,12 +240,16 @@ export default function Dashboard() {
 
   const handleExportPrompt = async () => {
     try {
+      const response = await fetch('/template.html?t=' + Date.now());
+      const masterHtml = await response.text();
+      
       const designRef = getBrandDesignReference(brandName);
       
       let promptText = MASTER_COMPILE_PROMPT
         .replace('{BRAND_ACCENT_COLOR}', designRef.match(/Accent: (#\w+)/)?.[1] || '#5e6ad2')
         .replace('{BRAND_DESIGN_REFERENCE}', designRef)
-        .replace('{REPORT_DATA}', reportData || '');
+        .replace('{REPORT_DATA}', reportData || '')
+        .replace('{MASTER_HTML}', masterHtml);
 
       await navigator.clipboard.writeText(promptText);
       

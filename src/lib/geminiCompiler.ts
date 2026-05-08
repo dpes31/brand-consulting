@@ -9,7 +9,7 @@ export const compileReportToHTML = async (rawData: string, apiKey: string, brand
   const ai = new GoogleGenAI({ apiKey: apiKey });
 
   // 1. Fetch the immutable master HTML template
-  const response = await fetch('/template.html');
+  const response = await fetch('/template.html?t=' + Date.now());
   if (!response.ok) {
     throw new Error('의존성 파일(template.html)을 불러올 수 없습니다.');
   }
