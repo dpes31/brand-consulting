@@ -62,7 +62,8 @@ export default function Dashboard() {
     isProcessing, setIsProcessing,
     currentStep, setCurrentStep,
     reportData, setReportData,
-    compiledHtml, setCompiledHtml
+    compiledHtml, setCompiledHtml,
+    phaseInputs, setPhaseInputs
   } = useAppContext();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -78,7 +79,7 @@ export default function Dashboard() {
   const [showFullscreenViewer, setShowFullscreenViewer] = useState(false);
 
   // 프로젝트 저장 훅
-  const { projects, saveProject, loadProjectHtml, renameProject, deleteProject } = useProjects();
+  const { projects, saveProject, loadProjectHtml, loadProjectPhaseInputs, renameProject, deleteProject } = useProjects();
   // 프로젝트명 인라인 편집 중인 항목 ID
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -89,7 +90,7 @@ export default function Dashboard() {
   // compiledHtml이 완성되면 자동 저장
   useEffect(() => {
     if (compiledHtml && brandName.trim()) {
-      saveProject(brandName.trim(), compiledHtml);
+      saveProject(brandName.trim(), compiledHtml, phaseInputs);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compiledHtml]);
@@ -97,6 +98,20 @@ export default function Dashboard() {
   const saveSettings = () => {
     setApiKey(tempKey);
     setIsSettingsOpen(false);
+  };
+
+  const resetProject = () => {
+    setBrandName('');
+    setMustHaveCompetitors('');
+    setClientNeeds('');
+    setReferenceNote('');
+    setAttachedFiles([]);
+    setReportData(null);
+    setCompiledHtml(null);
+    setPhaseInputs({});
+    setCurrentStep(0);
+    setIsManualMode(false);
+    setImportHtmlInput('');
   };
 
   const handleStartEngine = async () => {
@@ -111,6 +126,8 @@ export default function Dashboard() {
       setIsManualMode(true);
       setCurrentStep(0);
       setReportData('');
+      setPhaseInputs({});
+      setManualInput('');
       // 조사 시작 시 전략 세팅 패널 자동 접기
       setIsContextOpen(false);
       return;
@@ -120,9 +137,11 @@ export default function Dashboard() {
     setIsContextOpen(false);
     setIsProcessing(true);
     setReportData('');
+    setPhaseInputs({});
     setCompiledHtml('');
     setCurrentStep(0);
     let accumulatedReport = '';
+    let currentPhaseInputs: Record<number, string> = {};
     
     try {
       for (let i = 0; i < RESEARCH_NODES.length; i++) {
@@ -178,6 +197,8 @@ export default function Dashboard() {
             }
           }
         }
+        currentPhaseInputs[node.step] = result;
+        setPhaseInputs({ ...currentPhaseInputs });
         
         accumulatedReport += `\n\n## 0${node.step}. ${node.title}\n` + result;
         setReportData(accumulatedReport);
@@ -210,12 +231,22 @@ export default function Dashboard() {
     }
     
     setPressureError('');
-    const currentNode = RESEARCH_NODES.find(n => n.step === currentStep);
     
-    const newReportData = (reportData || '') + `\n\n## 0${currentStep}. ${currentNode?.title}\n` + manualInput;
+    const newPhaseInputs = { ...phaseInputs, [currentStep]: manualInput };
+    setPhaseInputs(newPhaseInputs);
+    
+    // 파이프라인 전체 데이터를 다시 합쳐서 reportData 갱신
+    const newReportData = RESEARCH_NODES.map(node => {
+      const data = newPhaseInputs[node.step];
+      return data ? `\n\n## 0${node.step}. ${node.title}\n` + data : '';
+    }).join('');
+    
     setReportData(newReportData);
-    setManualInput('');
-    setCurrentStep(currentStep + 1);
+    
+    // 다음 스텝으로 넘어가되, 만약 다음 스텝에 이미 작성된 데이터가 있다면 불러옴
+    const nextStep = currentStep + 1;
+    setCurrentStep(nextStep);
+    setManualInput(newPhaseInputs[nextStep] || '');
   };
 
   const handleCopyPrompt = () => {
@@ -440,12 +471,12 @@ export default function Dashboard() {
   return (
     <div className="flex h-screen w-full bg-[#120d0b] font-display text-slate-100 overflow-hidden relative">
       <aside className="w-[260px] border-r border-slate-800 flex flex-col bg-[#1a1412]/80">
-        <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-          <div className="h-8 w-8 bg-[#ec5b13] rounded-lg flex items-center justify-center text-white">
+        <button onClick={resetProject} className="p-6 flex items-center gap-3 border-b border-slate-800 text-left hover:bg-white/5 transition-colors w-full cursor-pointer">
+          <div className="h-8 w-8 bg-[#ec5b13] rounded-lg flex items-center justify-center text-white shrink-0">
             <span className="material-symbols-outlined text-xl">insights</span>
           </div>
           <h2 className="text-xl font-bold tracking-tight">Brand Consulting</h2>
-        </div>
+        </button>
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {/* 섹션 헤더 */}
           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest px-2 pt-2">Saved Projects</p>
@@ -488,8 +519,12 @@ export default function Dashboard() {
                         className="flex-1 flex items-center gap-2 text-left min-w-0"
                         onClick={() => {
                           const html = loadProjectHtml(proj.id);
+                          const loadedInputs = loadProjectPhaseInputs(proj.id);
                           if (html) {
+                            setBrandName(proj.name);
+                            setPhaseInputs(loadedInputs);
                             setCompiledHtml(html);
+                            setCurrentStep(7);
                             setShowFullscreenViewer(true);
                           }
                         }}
@@ -757,7 +792,16 @@ export default function Dashboard() {
                       const isCurrent = currentStep === node.step;
                       
                       return (
-                        <div key={node.step} className={`relative flex flex-col items-center gap-3 z-10 w-26 ${!isCurrent && !isPast ? 'opacity-40' : ''}`}>
+                        <div 
+                          key={node.step} 
+                          onClick={() => {
+                            if (currentStep !== node.step) {
+                              setCurrentStep(node.step);
+                              setManualInput(phaseInputs[node.step] || '');
+                            }
+                          }}
+                          className={`relative flex flex-col items-center gap-3 z-10 w-26 cursor-pointer hover:opacity-100 transition-opacity ${!isCurrent && !isPast ? 'opacity-40' : ''}`}
+                        >
                           <div className={`h-10 w-10 rounded-full flex items-center justify-center 
                             ${isPast ? 'bg-[#ec5b13] text-white shadow-lg shadow-[#ec5b13]/20' : 
                               isCurrent ? 'bg-[#2DD4BF] text-[#120d0b] pulse-teal' : 
@@ -772,7 +816,12 @@ export default function Dashboard() {
                     })}
 
                     {/* 컴파일러 단계 시각화 */}
-                    <div className={`relative flex flex-col items-center gap-3 z-10 w-26 ${currentStep < 6 ? 'opacity-40' : ''}`}>
+                    <div 
+                      onClick={() => {
+                        if (currentStep !== 6) setCurrentStep(6);
+                      }}
+                      className={`relative flex flex-col items-center gap-3 z-10 w-26 cursor-pointer hover:opacity-100 transition-opacity ${currentStep < 6 ? 'opacity-40' : ''}`}
+                    >
                       <div className={`h-10 w-10 rounded-full flex items-center justify-center 
                         ${currentStep > 6 ? 'bg-[#ec5b13] text-white shadow-lg shadow-[#ec5b13]/20' : 
                           currentStep === 6 ? 'bg-[#2DD4BF] text-[#120d0b] pulse-teal' : 
@@ -807,7 +856,16 @@ export default function Dashboard() {
                       const isPast = currentStep > node.step;
                       const isCurrent = currentStep === node.step;
                       return (
-                        <div key={node.step} className={`relative flex flex-col items-center gap-2 z-10 w-20 ${!isCurrent && !isPast ? 'opacity-30' : ''}`}>
+                        <div 
+                          key={node.step} 
+                          onClick={() => {
+                            if (currentStep !== node.step) {
+                              setCurrentStep(node.step);
+                              setManualInput(phaseInputs[node.step] || '');
+                            }
+                          }}
+                          className={`relative flex flex-col items-center gap-2 z-10 w-20 cursor-pointer hover:opacity-100 transition-opacity ${!isCurrent && !isPast ? 'opacity-30' : ''}`}
+                        >
                           <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold
                             ${isPast ? 'bg-[#ec5b13] text-white' :
                               isCurrent ? 'bg-[#2DD4BF] text-[#120d0b] pulse-teal' :

@@ -17,6 +17,7 @@ export interface SavedProject {
 
 const INDEX_KEY = 'stratos_projects_index';
 const htmlKey = (id: string) => `stratos_project_html_${id}`;
+const dataKey = (id: string) => `stratos_project_data_${id}`;
 
 // ─── 내부 유틸 ───────────────────────────────────────────────
 function loadIndex(): SavedProject[] {
@@ -46,14 +47,15 @@ export function useProjects() {
    * 프로젝트 저장 또는 업데이트.
    * 같은 brandName(정확히 동일)이면 기존 항목을 덮어씁니다.
    */
-  const saveProject = useCallback((brandName: string, compiledHtml: string) => {
+  const saveProject = useCallback((brandName: string, compiledHtml: string, phaseInputs: Record<number, string>) => {
     const current = loadIndex();
     const existing = current.find(p => p.name === brandName);
     const id = existing?.id || Date.now().toString(36);
 
-    // HTML 개별 저장 (대용량 대응)
+    // HTML 및 원본 데이터 개별 저장 (대용량 대응)
     try {
       localStorage.setItem(htmlKey(id), compiledHtml);
+      localStorage.setItem(dataKey(id), JSON.stringify(phaseInputs));
     } catch (e) {
       console.warn('[useProjects] localStorage 용량 초과로 저장 실패:', e);
       return null;
@@ -80,6 +82,15 @@ export function useProjects() {
     return localStorage.getItem(htmlKey(id));
   }, []);
 
+  /** 저장된 프로젝트의 phaseInputs 원본 조회 */
+  const loadProjectPhaseInputs = useCallback((id: string): Record<number, string> => {
+    try {
+      return JSON.parse(localStorage.getItem(dataKey(id)) || '{}');
+    } catch {
+      return {};
+    }
+  }, []);
+
   /** 프로젝트명 수정 */
   const renameProject = useCallback((id: string, newName: string) => {
     const next = loadIndex().map(p => p.id === id ? { ...p, name: newName } : p);
@@ -90,10 +101,11 @@ export function useProjects() {
   /** 프로젝트 삭제 (HTML 포함) */
   const deleteProject = useCallback((id: string) => {
     localStorage.removeItem(htmlKey(id));
+    localStorage.removeItem(dataKey(id));
     const next = loadIndex().filter(p => p.id !== id);
     saveIndex(next);
     setProjects(next);
   }, []);
 
-  return { projects, saveProject, loadProjectHtml, renameProject, deleteProject };
+  return { projects, saveProject, loadProjectHtml, loadProjectPhaseInputs, renameProject, deleteProject };
 }

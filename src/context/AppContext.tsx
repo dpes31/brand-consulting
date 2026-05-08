@@ -28,6 +28,8 @@ interface AppState {
   setReportData: (data: string | null) => void;
   compiledHtml: string | null;
   setCompiledHtml: (html: string | null) => void;
+  phaseInputs: Record<number, string>;
+  setPhaseInputs: (inputs: Record<number, string>) => void;
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -44,6 +46,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [reportData, setReportData] = useState<string | null>(null);
   const [compiledHtml, setCompiledHtml] = useState<string | null>(null);
+  const [phaseInputs, setPhaseInputs] = useState<Record<number, string>>({});
 
   const handleSetApiKey = (key: string) => {
     localStorage.setItem('gemini_api_key', key);
@@ -62,7 +65,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       isProcessing, setIsProcessing,
       currentStep, setCurrentStep,
       reportData, setReportData,
-      compiledHtml, setCompiledHtml
+      compiledHtml, setCompiledHtml,
+      phaseInputs, setPhaseInputs
     }}>
       {children}
     </AppContext.Provider>
