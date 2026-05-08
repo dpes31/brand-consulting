@@ -129,12 +129,12 @@ export default function Dashboard() {
         const node = RESEARCH_NODES[i];
         setCurrentStep(node.step);
 
-        // ⏱️ 무료 티어 분당 토큰 한도(250K) 회피: 첫 단계 이후 35초 대기
-        // 왜 35초? → Gemini 무료 티어는 "분당" 입력 토큰 한도가 있으며,
-        // 누적 프롬프트가 커지는 후반 단계에서 한도 초과를 방지하기 위함
+        // ⏱️ 무료 티어 분당 토큰 한도(250K) 회피: 첫 단계 이후 65초 대기
+        // 왜 65초? → Google의 분당 한도는 "슬라이딩 윈도우" 방식이므로,
+        // 60초를 확실히 넘겨야 이전 요청의 토큰이 윈도우 밖으로 빠짐
         if (i > 0) {
-          setErrorText(`⏳ API 쿼터 보호: ${node.title} 시작까지 35초 대기 중... (${i}/${RESEARCH_NODES.length})`);
-          await new Promise(resolve => setTimeout(resolve, 35000));
+          setErrorText(`⏳ API 쿼터 보호: ${node.title} 시작까지 65초 대기 중... (${i}/${RESEARCH_NODES.length})`);
+          await new Promise(resolve => setTimeout(resolve, 65000));
           setErrorText('');
         }
 
@@ -180,8 +180,8 @@ export default function Dashboard() {
       setCurrentStep(6);
 
       // 컴파일 전에도 대기 (누적 토큰이 가장 큰 시점)
-      setErrorText('⏳ 최종 HTML 컴파일 준비 중... 35초 대기');
-      await new Promise(resolve => setTimeout(resolve, 35000));
+      setErrorText('⏳ 최종 HTML 컴파일 준비 중... 65초 대기');
+      await new Promise(resolve => setTimeout(resolve, 65000));
       setErrorText('');
       
       // 최종 HTML 컴파일 진행
