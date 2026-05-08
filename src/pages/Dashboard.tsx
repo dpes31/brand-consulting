@@ -153,13 +153,18 @@ export default function Dashboard() {
             result = await runResearchNode(apiKey, node.systemPrompt, prompt, filesToSend);
             break; // 성공 시 루프 탈출
           } catch (retryError: any) {
-            const is429 = retryError.message?.includes('429') || retryError.message?.includes('RESOURCE_EXHAUSTED');
-            if (is429 && retries < MAX_RETRIES) {
+            const msg = retryError.message || '';
+            // 재시도 가능한 에러: 429(쿼터 초과), 503(서버 과부하)
+            const isRetryable = msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')
+              || msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('high demand');
+            if (isRetryable && retries < MAX_RETRIES) {
               retries++;
-              // 에러 메시지에서 대기 시간 파싱, 없으면 기본 40초
-              const waitMatch = retryError.message.match(/retry in (\d+)/i);
-              const waitSec = waitMatch ? parseInt(waitMatch[1]) + 10 : 40;
-              setErrorText(`⏳ API 한도 초과 — ${waitSec}초 후 자동 재시도 (${retries}/${MAX_RETRIES})...`);
+              // 에러 메시지에서 대기 시간 파싱, 없으면 기본 45초
+              const waitMatch = msg.match(/retry in (\d+)/i);
+              const waitSec = waitMatch ? parseInt(waitMatch[1]) + 10 : 45;
+              const reason = msg.includes('503') || msg.includes('UNAVAILABLE')
+                ? '서버 과부하 (일시적)' : 'API 한도 초과';
+              setErrorText(`⏳ ${reason} — ${waitSec}초 후 자동 재시도 (${retries}/${MAX_RETRIES})...`);
               await new Promise(resolve => setTimeout(resolve, waitSec * 1000));
               setErrorText('');
             } else {
