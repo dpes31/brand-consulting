@@ -203,6 +203,10 @@ export default function Dashboard() {
             }
           }
         }
+        
+        // AI가 생성한 불필요한 출처 마커([cite: XX], \cite 등)를 화면 표시 및 저장 전 원천 제거
+        result = result.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, "");
+        
         currentPhaseInputs[node.step] = result;
         setPhaseInputs({ ...currentPhaseInputs });
         
@@ -238,7 +242,10 @@ export default function Dashboard() {
     
     setPressureError('');
     
-    const newPhaseInputs = { ...phaseInputs, [currentStep]: manualInput };
+    // 수동 입력된 텍스트 내에 섞여있는 제미나이의 출처 마커([cite: XX], \cite 등)를 즉시 제거
+    const cleanInput = manualInput.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, "");
+    
+    const newPhaseInputs = { ...phaseInputs, [currentStep]: cleanInput };
     setPhaseInputs(newPhaseInputs);
     
     // 파이프라인 전체 데이터를 다시 합쳐서 reportData 갱신
