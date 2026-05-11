@@ -179,6 +179,12 @@ export default function Dashboard() {
               throw new Error('🚫 일일 API 호출 한도(20회/일)가 소진되었습니다. 내일 오후 4시(한국 시간) 이후 다시 시도하거나, Google AI Studio에서 유료 결제를 활성화해 주세요.');
             }
 
+            // 입력 토큰(파일 용량) 초과 시 재시도 무의미 (무료 티어는 분당 25만 토큰 제한)
+            const isInputTokenLimit = msg.includes('input_token_count') || msg.includes('limit: 250000');
+            if (isInputTokenLimit) {
+              throw new Error('🚫 첨부한 파일의 용량(토큰 수)이 너무 큽니다. (무료 티어 제한: 분당 250,000 토큰). 파일의 내용을 요약/축소하여 다시 첨부하거나, 유료 결제를 활성화해 주세요.');
+            }
+
             // 재시도 가능한 에러: 429(분당 쿼터 초과), 503(서버 과부하)
             const isRetryable = msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')
               || msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('high demand');

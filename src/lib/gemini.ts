@@ -67,6 +67,7 @@ export async function runResearchNode(
         config: {
           systemInstruction: systemInstruction,
           temperature: 0.2,
+          maxOutputTokens: 2048,
           tools: [{ googleSearch: {} }],
         },
       });
@@ -84,6 +85,7 @@ export async function runResearchNode(
         config: {
           systemInstruction: systemInstruction,
           temperature: 0.2,
+          maxOutputTokens: 2048,
           tools: [{ googleSearch: {} }],
         },
       });
