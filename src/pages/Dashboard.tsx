@@ -524,6 +524,14 @@ export default function Dashboard() {
                             setBrandName(proj.name);
                             setPhaseInputs(loadedInputs);
                             setCompiledHtml(html);
+                            
+                            // Load시 reportData(마크다운 뷰) 재조립
+                            const newReportData = RESEARCH_NODES.map(n => {
+                              const data = loadedInputs[n.step];
+                              return data ? `\n\n## 0${n.step}. ${n.title}\n` + data : '';
+                            }).join('');
+                            setReportData(newReportData);
+
                             setCurrentStep(7);
                             setShowFullscreenViewer(true);
                           }
@@ -798,6 +806,8 @@ export default function Dashboard() {
                             if (currentStep !== node.step) {
                               setCurrentStep(node.step);
                               setManualInput(phaseInputs[node.step] || '');
+                              setIsManualMode(true);
+                              setCompiledHtml('');
                             }
                           }}
                           className={`relative flex flex-col items-center gap-3 z-10 w-26 cursor-pointer hover:opacity-100 transition-opacity ${!isCurrent && !isPast ? 'opacity-40' : ''}`}
@@ -818,7 +828,11 @@ export default function Dashboard() {
                     {/* 컴파일러 단계 시각화 */}
                     <div 
                       onClick={() => {
-                        if (currentStep !== 6) setCurrentStep(6);
+                        if (currentStep !== 6) {
+                          setCurrentStep(6);
+                          setIsManualMode(true);
+                          setCompiledHtml('');
+                        }
                       }}
                       className={`relative flex flex-col items-center gap-3 z-10 w-26 cursor-pointer hover:opacity-100 transition-opacity ${currentStep < 6 ? 'opacity-40' : ''}`}
                     >
@@ -862,6 +876,7 @@ export default function Dashboard() {
                             if (currentStep !== node.step) {
                               setCurrentStep(node.step);
                               setManualInput(phaseInputs[node.step] || '');
+                              setCompiledHtml('');
                             }
                           }}
                           className={`relative flex flex-col items-center gap-2 z-10 w-20 cursor-pointer hover:opacity-100 transition-opacity ${!isCurrent && !isPast ? 'opacity-30' : ''}`}
@@ -879,7 +894,15 @@ export default function Dashboard() {
                       );
                     })}
                     {/* 컴파일러 단계 */}
-                    <div className={`relative flex flex-col items-center gap-2 z-10 w-20 ${currentStep < 6 ? 'opacity-30' : ''}`}>
+                    <div 
+                      onClick={() => {
+                        if (currentStep !== 6) {
+                          setCurrentStep(6);
+                          setCompiledHtml('');
+                        }
+                      }}
+                      className={`relative flex flex-col items-center gap-2 z-10 w-20 cursor-pointer hover:opacity-100 transition-opacity ${currentStep < 6 ? 'opacity-30' : ''}`}
+                    >
                       <div className={`h-8 w-8 rounded-full flex items-center justify-center
                         ${currentStep > 6 ? 'bg-[#ec5b13] text-white' :
                           currentStep === 6 ? 'bg-[#2DD4BF] text-[#120d0b] pulse-teal' :
