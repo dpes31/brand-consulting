@@ -44,9 +44,12 @@ Your task is to take raw, fragmented research data, elevate it using top-tier co
 ${masterHtml}
 `;
 
+  // Forcefully remove any [cite: ...] markers from the raw data before sending to AI
+  const cleanRawData = rawData.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, "");
+
   const prompt = `
 [Raw Research Data]
-${rawData}
+${cleanRawData}
 
 ================
 Now, execute the compilation. Output the finalized HTML code enclosed in \`\`\`html ... \`\`\` formatting. 
@@ -72,6 +75,9 @@ This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND t
   } else if (htmlOutput.includes('<!DOCTYPE html>')) {
     htmlOutput = htmlOutput.substring(htmlOutput.indexOf('<!DOCTYPE html>'));
   }
+
+  // Forcefully remove any lingering [cite: ...] or \cite markers regardless of AI behavior
+  htmlOutput = htmlOutput.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, "");
 
   return htmlOutput;
 };
