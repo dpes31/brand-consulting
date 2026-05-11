@@ -1,0 +1,2010 @@
+[Role & Identity]
+You are a "Master Strategic Compiler" and a "World-Class UX/UI Designer" (inspired by Linear, Apple, Stripe).
+Your task is to take raw research data, elevate it using top-tier consulting logic, and generate a complete, self-contained HTML presentation file.
+
+[Design System & Aesthetic Guidelines]
+You must STRICTLY apply the "Premium Dark Mode" CSS rules and Layout principles.
+
+1. Color Palette:
+- Background: #08090a (Near-black)
+- Surface/Card: #191a1b (Elevated)
+- Primary Text: #f7f8f8 (Luminous white)
+- Secondary Text: #d0d6e0
+- Accent/Brand Color: #5e6ad2 (Use this for highlights, active states, CTA)
+- Borders: rgba(255,255,255,0.08)
+
+2. Typography:
+- Font Family: 'Inter', sans-serif (Assume it's loaded via Google Fonts)
+- Headings: Tight negative letter-spacing (-1.5px), weight 600, leading 1.1.
+- Body: weight 400, leading 1.5.
+
+3. Component Library & Dynamic Styling (MUST USE):
+You are provided with a complete HTML component library in the [Master HTML Reference] section.
+- You MUST extract the CSS <style> block and HTML structure from the Master HTML.
+- CRITICAL: The Master HTML uses a default Dark Mode. You MUST rewrite the CSS color variables, backgrounds, and text colors to perfectly match the [Brand Reference] provided below. If the Brand Reference describes a Light Mode (like Airbnb), you must change the background to white and text to dark. Do NOT blindly copy the dark colors if it contradicts the Brand Reference.
+
+[Slide Generation Rules]
+1. AUTONOMOUS SLIDE COUNT: Do not restrict to a fixed number of slides. Generate as many slides as needed (15-30) to perfectly convey the research data without cluttering.
+2. WHITESPACE: Maintain breathing room. Do not cram text. Use maximum 3-4 key points per slide.
+3. VISUALIZATION: Use the CSS-based visualizations demonstrated in the Master HTML.
+   - For Market Size/Growth: Create CSS Bar Charts.
+   - For Positioning Map: Create a 2x2 grid with absolute positioned bubbles.
+   - For Strategy: Create diagrams using CSS Flexbox/Grid.
+
+[Brand Reference]
+Tone: Dark mode native, extreme precision, minimal borders. Accent: #5e6ad2
+
+[Raw Research Data]
+
+
+## 00. Brand Fact Book
+코웨이는 단순히 정수기를 파는 기업이 아닙니다. 대한민국 주거 문화에 ‘구독 경제(Subscription)’라는 개념이 존재하기도 전부터, 무형의 ‘관리 서비스’를 유료화하며 시장의 문법을 바꾼 **비즈니스 모델의 개척자**입니다.
+
+본격적인 광고 캠페인 전략 수립에 앞서, 코웨이의 근간과 현재 위치를 정리한 Brand Fact Book을 공유합니다.
+
+---
+
+## 0-1. Brand Identity & Key Metrics
+
+**"렌탈을 넘어 라이프 솔루션으로"**
+
+* **설립 및 미션:** 1989년 설립 (윤석금 창업자). "베스트 라이프 솔루션 기업(Best Life Solution Company)"을 비전으로 하며, 고객의 건강한 삶을 케어하는 것을 존재 이유로 삼습니다.
+* **핵심 KPI (2024-25 추정치 기준):**
+1. **국내외 총 계정 수:** 약 **1,000만 계정** 돌파 (국내 가전 렌탈 압도적 1위)
+2. **연간 매출액:** 약 **4조 원**대 안착 (안정적인 현금 흐름 확보)
+3. **해외 비중:** 전체 매출의 약 **35%** 이상 (말레이시아, 미국 등 글로벌 시장 확장 가속화)
+
+
+* **카테고리 및 타겟:** 환경가전(정수기, 공기청정기, 비데) 및 슬립/힐링케어(매트리스, 안마의자). 주 타겟은 건강과 위생에 민감한 3050 가구이며, 최근 '비렉스(BEREX)' 브랜드를 통해 2030 싱글 및 신혼부부로 타겟을 확장 중입니다.
+
+---
+
+## 0-2. Growth Story & Core Inflection
+
+**"위기를 혁신으로 바꾼 3번의 레이어"**
+
+| 구분 | 주요 변곡점 (Inflection Point) | 브랜드에 미친 구조적 영향 |
+| --- | --- | --- |
+| **사회적 (1998)** | **IMF 외환위기와 '코디(COWAY Lady)'의 탄생** | 고가의 정수기를 팔 수 없게 되자, **'빌려주고 관리해주는' 렌탈 비즈니스**를 세계 최초로 도입. 방문 관리 서비스의 표준 수립. |
+| **기술적 (2010s)** | **필터 기술의 정점과 IoT 결합** | 단순히 물을 거르는 것을 넘어, 수질 모니터링 및 자가 관리 기술 고도화. '스마트 케어' 브랜드로 체질 개선. |
+| **경제적 (2022~)** | **비렉스(BEREX) 론칭 및 카테고리 확장** | 정수기를 넘어 매트리스, 안마의자로 렌탈 품목 다각화. '힐링케어'라는 고단가 시장을 선점하며 제2의 성장 동력 확보. |
+
+---
+
+## 0-3. Product USP & Brand Best Self
+
+**"기술보다 깊은 케어, 케어보다 넓은 휴식"**
+
+### 1) 기술적 USP: 압도적 R&D와 환경기술연구소
+
+* 국가 공인 물 맛 전문가(워터 소믈리에)와 국내 최대 규모의 환경기술연구소를 보유하고 있습니다. '아이콘 정수기' 시리즈처럼 초소형 사이즈에 나노트랩 필터 기술을 집약시켜 **공간 효율성과 정수 성능**을 동시에 잡는 것이 핵심입니다.
+
+### 2) 포지셔닝 USP: '신뢰의 상징'에서 '라이프스타일 아이콘'으로
+
+* 과거 코웨이가 "관리 잘해주는 아주머니(코디)"라는 서비스 지향적 포지셔닝이었다면, 현재는 비렉스(BEREX)를 통해 "감각적인 휴식을 제공하는 프리미엄 가전"으로 이동 중입니다. 단순 가전 브랜드가 아닌 '라이프스타일 큐레이터'로서의 위치를 공고히 하고 있습니다.
+
+### 3) 브랜드의 가장 선한 모습 (Best Self)
+
+* **"안심의 일상화"**: 고객이 물 한 잔을 마시고 잠자리에 드는 당연한 일상 속에서 어떠한 의심이나 불안도 느끼지 않게 만드는 것. 보이지 않는 곳에서 묵묵히 삶의 질을 지탱하는 '가장 믿음직한 생활 파트너'가 코웨이의 본질입니다.
+
+---
+
+## 💡 시장 조사의 필요성: 왜 지금 코웨이를 분석해야 하는가?
+
+현재 코웨이는 **'전통적 렌탈 1위'라는 안전한 성**에 안주하느냐, 아니면 **'글로벌 라이프 테크 기업'으로 탈바꿈하느냐**의 기로에 서 있습니다.
+
+1. **브랜드 노후화 탈피:** '코디'로 상징되는 방문 관리 서비스가 젊은 세대에게는 '사생활 침해'로 느껴질 수 있습니다. 이 허들을 어떻게 마케팅으로 넘을 것인가?
+2. **비렉스(BEREX)의 연착륙:** 매트리스와 안마의자 시장의 경쟁이 치열해지는 가운데, 코웨이만의 프리미엄 이미지를 어떻게 구축할 것인가?
+3. **구독 모델의 재정의:** 수많은 가전 기업이 렌탈 시장에 뛰어든 지금, 코웨이만이 줄 수 있는 '오리지널리티'는 무엇인가?
+
+이 질문들에 답하기 위해, 코웨이가 가진 자산과 시장의 냉정한 시선을 교차 분석하는 이번 조사는 필수적입니다. 이 리포트는 그 해답을 찾는 나침반이 될 것입니다.
+
+## 01. Market Analysis
+시장 조사의 핵심은 단순히 ‘1위 기업’임을 확인하는 것이 아니라, 1위가 처한 ‘불안한 풍요’와 그 이면의 ‘문화적 결핍’을 읽어내는 데 있습니다. 코웨이가 마주한 현재의 판도와 변곡점을 분석합니다.
+
+---
+
+## I. MARKET ANALYSIS: 판도의 재편
+
+### 1. Policy & Economic (STEPIC 분석 및 Cultural Tension)
+
+거시적 흐름 속에서 대중이 느끼는 심리적 압박과 결핍을 추적합니다.
+
+* **S (Social): 고립된 위생에서 '공유된 웰니스'로**
+* 과거 정수기/비데는 '나만 아는 위생'의 영역이었습니다. 그러나 현재는 개인의 수면 데이터, 건강 데이터가 실시간으로 분석되는 **'데이터 기반 웰니스'** 시대로 전환되었습니다.
+
+
+* **T (Technology): AI와 휴먼 터치의 '불편한 동거'**
+* 기술은 자가 관리(Self-care)를 가능하게 하지만, 여전히 정교한 유지보수는 전문가의 손길을 필요로 합니다. 기술 만능주의와 아날로그 신뢰 사이의 긴장이 존재합니다.
+
+
+* **E (Economic): 소유의 종말과 '경험의 구독화'**
+* 고금리·고물가 시대, 목돈 지출 대신 월 구독(Monthly Subscription)을 통한 '프리미엄 경험' 향유가 뉴노멀이 되었습니다.
+
+
+* **Cultural Tension (문화적 긴장): "나는 돌봄 받고 싶지만, 간섭받기는 싫다"**
+* **결핍:** 현대인은 완벽하게 케어받는 삶을 갈구하지만, 동시에 낯선 이(코디)의 방문이나 정해진 스케줄에 구속받는 것을 극도로 꺼립니다. 이 '돌봄의 모순'이 현재 시장의 가장 큰 긴장점입니다.
+
+
+
+### 2. Market Overview & Inflection Point (최근 5년 흐름)
+
+국내 가전 렌탈 시장은 2021년 약 40조 원 규모에서 2026년 현재 **약 50조 원 이상**으로 성장한 것으로 추산됩니다.
+
+* **변곡점: '물'에서 '잠'과 '쉼'으로의 대이동**
+* 정수기 시장의 포화로 인해 성장이 둔화될 것이라는 예측을 깨고, 코웨이는 비렉스(BEREX)를 통해 '슬립/힐링케어'라는 거대 담론을 선점했습니다. 이는 단순 가전 교체 주기를 넘어 **'인생의 1/3(수면 시간)을 구독하게 만드는'** 구조적 변화를 가져왔습니다.
+
+
+
+### 3. Company Growth (브랜드 팩트)
+
+* **매출 규모:** 2026년 1분기 기준 매출 **1.3조 원** 돌파 (연간 4조 원 중반대 예상).
+* **시장 점유율:** 국내 정수기/환경가전 시장 점유율 약 35~40%로 부동의 1위.
+* **성장률:** 비렉스(BEREX) 침대 부문 신규 판매가 전년 대비 **30% 이상 급증**하며 전사 성장을 견인 중입니다.
+* **글로벌:** 말레이시아와 태국 법인의 두 자릿수 성장(20~30%)으로 국내 시장의 한계를 글로벌에서 돌파하고 있습니다.
+
+---
+
+## II. Product USP & Heritage: 가장 선한 모습(Best Self)
+
+코웨이의 광고가 건드려야 할 핵심은 스펙이 아닌 '헤리티지(Heritage)'입니다.
+
+* **기술적 USP: ‘안심의 필터’에서 ‘수면의 알고리즘’까지**
+* 세계 최대 규모의 환경기술연구소와 국가 공인 물 맛 전문가들의 노하우는 '코웨이 제품은 본질(물, 공기)에서 타협하지 않는다'는 기술적 신뢰를 줍니다. 최근에는 AI를 활용한 **수면 분석 알고리즘**이 새로운 기술적 차별점이 되었습니다.
+
+
+* **Brand Best Self: "가장 보이지 않는 곳에서, 가장 완벽하게 당신을 지키는 존재"**
+* 코웨이의 가장 선한 모습은 제품을 뽐낼 때가 아니라, **고객의 일상이 방해받지 않도록 물 흐르듯 케어할 때** 나타납니다. 30년 넘게 축적된 '관리의 역사'는 경쟁사가 단기간에 흉내 낼 수 없는 '헌신적인 집사'로서의 정체성입니다.
+
+
+
+---
+
+### 💡 시장 조사의 '납득' 포인트
+
+> **"왜 이 광고를 위해 조사가 필요한가?"**
+
+지금 코웨이는 "익숙해서 낡아 보이는 1위"와 **"새로운 웰니스 아이콘"** 사이의 과도기에 있습니다. 소비자는 코웨이를 믿지만, 설레어 하지는 않습니다.
+
+우리는 이번 조사를 통해 **'방문 관리'에 대한 거부감을 '전문적인 존중'으로 승화**시키고, 비렉스가 제안하는 **'잠의 질'을 단순한 기능이 아닌 새로운 문화적 라이프스타일**로 정의해야 합니다. 이 간극을 메우지 못하면 코웨이는 '엄마 세대의 가전'에 머물게 될 것입니다.
+
+이 브랜드의 광고를 만들기 위해서는, 소비자가 코웨이의 로고를 보았을 때 **'안심'을 넘어 '자부심'과 '설렘'을 느끼게 할 포인트**를 찾아내야 합니다. 그것이 이번 시장 조사의 진짜 목적입니다.
+
+## 02. Competitor Strategy
+코웨이는 현재 ‘전통의 관리 명가’라는 과거의 유산과 ‘스마트 웰니스 가전’이라는 미래 가치 사이의 치열한 카테고리 진실 공방 속에 있습니다. 직접 경쟁사들의 거센 추격과 예상치 못한 간접 대체재의 등장은 코웨이에게 새로운 포지셔닝을 요구하고 있습니다.
+
+---
+
+## II. COMPETITOR: 점유율 전쟁과 욕망의 각축장
+
+### 1. Direct Competitor: 추격하는 거인들
+
+최근 5년, 코웨이의 영토를 잠식하거나 새로운 전선(비렉스)에서 맞붙는 핵심 경쟁사들입니다.
+
+| 경쟁사 | 핵심 소구 포인트 (Core Desire) | 시장 지위 및 위협 요소 |
+| --- | --- | --- |
+| **LG전자 (구독)** | **"가전은 역시 LG" (가전 신뢰도)** | 대형 가전(세탁기, 냉장고) 구독을 앞세워 렌탈 시장 점유율 급상승. 관리 중심이 아닌 '가전 자체의 브랜드 파워'로 코웨이의 프리미엄 이미지 위협. |
+| **쿠쿠홈시스** | **"가성비와 실용" (합리적 소유)** | 셀프 관리형 정수기로 1인 가구 및 실속형 타겟 점유율 확대. 코웨이 대비 낮은 렌탈료로 가격 민감층 공략. |
+| **에이스/시몬스** | **"침대는 과학/침대는 에이스" (전통적 권위)** | 비렉스(BEREX)가 진입한 슬립케어 시장의 전통 강자. '렌탈 제품은 저가형'이라는 인식을 심어 비렉스의 프리미엄화를 견제. |
+
+* **Fact:** 코웨이는 여전히 전체 1위이나, LG전자가 가전 구독 매출 1조 원을 돌파하며 가장 강력한 경쟁자로 부상했습니다. 반면, 코웨이는 비렉스(BEREX)를 통해 침대 시장에서 에이스·시몬스의 매출을 추월하거나 대등한 수준까지 올라서는 파괴적 성장을 기록 중입니다.
+
+### 2. Indirect Competitor: 지갑과 시간을 뺏는 파괴적 대체재
+
+* **브리타(Brita) & 생수 배달:** "관리가 왜 필요해?"라고 묻는 미니멀리스트. '방문 관리' 자체를 귀찮은 비용으로 느끼게 하는 라이프스타일적 위협.
+* **리추얼 가전 (커피머신 등):** 정수기에 쓸 돈을 '더 즐거운 미식 경험'으로 돌리게 만드는 라이프스타일 가전들.
+* **수면 전문 앱 & 테크:** 스마트워치나 수면 앱이 '잠의 질' 분석 기능을 고도화하며, 굳이 비싼 스마트 매트리스가 없어도 된다는 심리적 대체재 역할 수행.
+
+---
+
+## III. Product Matrix: 관행(Cliché)의 파괴와 '낯설게 보기'
+
+코웨이는 업계의 오래된 문법을 깨뜨리며 제품의 결정적 차별점을 만들어내고 있습니다.
+
+### 1) 업계의 진부한 관행 (Cliché)
+
+* **"코디가 오면 해결됩니다"**: 방문 관리자가 모든 서비스의 시작이자 끝이라는 강조.
+* **"우리 필터가 제일 깨끗합니다"**: 눈에 보이지 않는 수치와 기술 용어로만 점철된 광고.
+* **"3년/5년 노예 계약"**: 혜택 뒤에 숨겨진 위약금과 긴 약정 기간 강조.
+
+### 2) 코웨이의 '낯설게 보기' (Decisive Differentiation)
+
+* **관리의 자율성 (아이콘 시리즈):** 방문 관리를 필수가 아닌 '선택'으로 전환. "전문가가 관리해주지만, 당신이 원할 땐 직접 1분 만에 필터를 갈 수 있다"는 **자유도** 제공.
+* **가구 같은 가전 (비렉스 페블체어):** 안마의자의 거대하고 투박한 디자인(관행)을 깨고, 거실 오브제 같은 **가구적 디자인**으로 승화. "안마기능은 기본, 인테리어가 완성된다"는 포지셔닝.
+
+---
+
+## IV. Positioning Map: AS-IS → TO-BE
+
+과거의 코웨이가 '관리 기술'에 집중했다면, 미래의 코웨이는 '삶의 감각'으로 이동해야 합니다.
+
+* **AS-IS (현재): [신뢰 기반의 관리 전문 브랜드]**
+* 축: High Maintenance(높은 관리력) / Functional Trust(기능적 신뢰)
+* 인식: "물 깨끗하고 관리 잘해주는 1등 정수기 회사"
+
+
+* **TO-BE (목표): [일상의 감각을 깨우는 웰니스 큐레이터]**
+* 축: Seamless Life(번거로움 없는 삶) / Lifestyle Inspiration(감각적 영감)
+* 인식: "내 집의 공기와 물, 잠의 질을 가장 세련되게 케어해주는 파트너"
+
+
+
+---
+
+### 💡 시장 조사의 '납득' 포인트
+
+> **"이 광고는 경쟁사의 스펙 전쟁에 참전하기 위한 것이 아닙니다."**
+
+경쟁사들이 "우리 가전이 더 똑똑하다"거나 "렌탈료가 더 싸다"고 외칠 때, 코웨이는 "코웨이가 있는 삶이 얼마나 더 아름답고 평온한가"라는 차원이 다른 질문을 던져야 합니다.
+
+이번 조사는 경쟁사들이 건드리지 못하는 **'방문 관리에 대한 피로감'을 '완벽한 자유'로 치환**하고, **'딱딱한 가전'을 '부드러운 웰니스 가구'로 인식**시키는 결정적 한 방을 찾기 위해 반드시 필요합니다.
+
+## 03. Consumer Insights
+코웨이가 직면한 가장 큰 숙제는 **'엄마의 정수기'를 '나의 웰니스 시스템'으로 재정의**하는 것입니다. 소비자들은 더 이상 단순히 물을 마시기 위해 코웨이를 고용하지 않습니다. 그들이 코웨이를 통해 해결하고자 하는 삶의 진보와 그 과정의 병목 지점을 분석합니다.
+
+---
+
+## III. CONSUMER: 욕망의 이동과 심리적 장벽
+
+### 1. Trends: 소유에서 '최적화된 상태'로의 변화
+
+최근 5년간 소비자의 인식은 '가전을 사는 것'에서 '환경을 세팅하는 것'으로 폭발적인 전환을 맞이했습니다.
+
+* **위생의 내면화:** 코로나19 이후 위생은 '이벤트'가 아닌 '기본값'이 되었습니다.
+* **시분초 사회 (Efficiency):** 직접 관리하거나 신경 쓰는 시간을 최소화하고, 그 에너지를 자기 계발에 쓰고 싶어 하는 '관리 아웃소싱' 욕구가 강해졌습니다.
+* **인테리어 테리어 (Interior-terrier):** 가전이 집안의 미관을 해치는 것을 용납하지 않는 심미적 기준의 상승이 두드러집니다.
+
+### 2. Persona & Identity Alignment: "스마트한 자기관리자"
+
+코웨이의 핵심 타겟은 단순히 3050 주부가 아닌, '나와 내 가족의 삶을 완벽하게 통제하고 싶은 큐레이터'입니다.
+
+* **Persona:** "효율과 미감을 동시에 추구하는 3545 화이트칼라 가구"
+* **Identity Alignment:** 코웨이를 소비함으로써 얻는 정체성은 '가장 앞선 기술로 가족의 건강을 빈틈없이 챙기면서도, 감각적인 안목을 포기하지 않는 현명한 사람'입니다. 이들은 코웨이의 슬림한 디자인과 AI 기능을 통해 자신의 스마트함을 증명받고자 합니다.
+
+### 3. AIPL Bottleneck: 전환이 끊기는 치명적 '심리적 병목'
+
+인지에서 충성까지의 여정 중, 코웨이가 가장 큰 이탈을 겪는 지점은 **관심(I) → 구매(P)** 단계입니다.
+
+* **병목 구간:** **'약정의 무게와 방문의 부담'**
+* **심리적 허들:** "한 번 계약하면 5년은 묶여야 하는데, 중간에 이사 가거나 더 예쁜 모델이 나오면 어떡하지?", "모르는 사람이 정기적으로 우리 집에 들어오는 게 과연 편하기만 할까?"라는 의구심이 구매 직전 결제를 멈추게 합니다.
+
+---
+
+## IV. Unmet Needs & JTBD: 소비자가 진짜 원하는 '진보'
+
+### 1) JTBD (Jobs-to-be-Done)
+
+> **"나의 에너지를 낭비하지 않고도, 우리 집의 보이지 않는 기본값(물, 공기, 잠)을 최상으로 유지해 줘."**
+
+소비자는 제품이라는 '물건'을 사는 것이 아니라, '신경 쓰지 않아도 완벽하게 돌아가는 일상의 자동화'라는 진보를 얻기 위해 코웨이를 고용합니다.
+
+### 2) Unmet Needs (미충족 욕구와 심리적 공백)
+
+VOC(고객의 소리)를 기반으로 분석한 결과, 기존 카테고리가 채워주지 못한 3가지 공백이 드러납니다.
+
+| 구분 | 심리적 공백 (Unmet Needs) | 소비자의 속마음 |
+| --- | --- | --- |
+| **자율적 통제권** | 방문 관리와 자가 관리 사이의 완벽한 하이브리드 부재 | "관리는 받고 싶지만, 내가 원할 때 내 방식대로 점검하고 싶어." |
+| **심미적 일체감** | 프리미엄 가전 수준의 인테리어 조화 | "성능은 믿지만, 거실 한복판에 있는 안마의자가 '나 안마기요'라고 외치지 않았으면 좋겠어." |
+| **데이터의 효용** | 수집된 데이터에 기반한 실질적인 가이드 | "AI가 내 수면과 수질을 분석한다는데, 그래서 내가 내일 아침에 뭘 해야 하는지 구체적으로 알려줘." |
+
+---
+
+### 💡 시장 조사의 '납득' 포인트
+
+> **"우리는 물을 파는 광고가 아니라, '일상의 통제권'을 파는 광고를 만들어야 합니다."**
+
+소비자는 코웨이의 기술력이 좋다는 것을 이미 '인지'하고 있습니다. 하지만 그들이 '구매'로 넘어오지 못하는 이유는 기술의 부족이 아니라, **약정과 방문이라는 전통적 문법이 주는 심리적 압박** 때문입니다.
+
+이번 조사를 통해 우리는 비렉스(BEREX)가 제공하는 '휴식의 해방감'과 아이콘 시리즈가 제안하는 '관리의 자유'를 정교하게 연결해야 합니다. 소비자의 Pain-point인 '구속'을 '케어'로 바꾸는 심리적 프레임의 전환, 그것이 코웨이 광고가 나아가야 할 단 하나의 방향입니다.
+
+## 04. Creative History
+코웨이와 경쟁사들이 지난 5년간 시장에 던진 메시지는 '관리의 정당성'에서 '라이프스타일의 소유'로 급격히 이동해왔습니다. 숫자가 담지 못하는 실제 카피의 궤적을 통해, 그들이 소비자의 뇌리에 심으려 했던 진짜 의도를 추적합니다.
+
+---
+
+## IV. CREATIVE: 메시지의 궤적 (2020-2024)
+
+### 1. 코웨이(COWAY): "관리의 기술에서 휴식의 감각으로"
+
+| 연도 | 모델 | 핵심 카피 (Verbatim) | 소구 전략 흐름 |
+| --- | --- | --- | --- |
+| **2020** | 공유 | **"관리가 모든 것을 결정하니까"** | '깨끗함'이라는 결과보다 '관리'라는 과정의 정통성 강조. |
+| **2021** | BTS | **"정수기의 모든 혁신, 아이콘에 담다"** | 브랜드 노후화 탈피를 위해 글로벌 아이콘(BTS)과 제품 혁신성(컴팩트 디자인) 결합. |
+| **2022** | BTS | **"잠은 기술이 아니라 케어받아야 하니까"** | '비렉스(BEREX)' 브랜드 론칭. 침대를 가구가 아닌 '케어의 대상'으로 재정의. |
+| **2023** | BTS | **"안마의자의 한계를 넘다, 페블체어"** | 가전의 가구화를 선언. 인테리어 오브제로서의 심미성 극대화. |
+| **2024** | 방시혁 외 | **"코웨이 비렉스, 당신의 내일을 바꿉니다"** | '스마트 매트리스' 등 기술적 우위와 삶의 질(Wellness)의 연관성 최종 소구. |
+
+---
+
+### 2. 주요 경쟁사: "브랜드 파워와 가성비의 파상공세"
+
+#### [LG전자 (가전구독/정수기)]
+
+* **2020~21:** **"LG 퓨리케어, 직수 그 이상의 깨끗함"** (기술적 우위 강조)
+* **2022:** **"가전, 사는 것에서 사는(Live) 것으로"** (가전 구독 서비스로의 전환 선포)
+* **2023~24:** **"LG 가전 구독, 당신의 일상을 업그레이드"** (관리보다 'LG 가전' 자체의 소유 가치 강조)
+
+#### [SK매직]
+
+* **2021:** **"남다르게, 끊임없이. SK매직"** (스마트 가전의 역동성)
+* **2023:** **"생활 구독의 시작"** (코웨이의 '렌탈'을 '구독'이라는 트렌디한 언어로 치환 시도)
+
+#### [에이스/시몬스 (비렉스 경쟁)]
+
+* **에이스:** **"침대만은 에이스다", "잠들면 다시 시작된다"** (침대 전문성 고수)
+* **시몬스:** **"침대 없는 침대 광고 (Manner Matters)"** (브랜드의 힙한 이미지와 철학 전달에 집중)
+
+---
+
+## 3. Creative Insight: 맥나마라 오류를 배제한 시사점
+
+*수치화된 효율(도달률, 조회수) 뒤에 숨겨진 뼈아픈 정성적 분석입니다.*
+
+### ① '코디'의 실종과 'BTS'의 잔상
+
+코웨이는 지난 5년간 광고에서 '코디(방문 관리자)'를 지우고 'BTS'와 '세련된 제품'을 채웠습니다. 이는 브랜드의 젊고 스마트한 이미지를 구축하는 데 성공했으나, 역설적으로 **코웨이만의 가장 강력한 무기인 '압도적 서비스 신뢰도'를 추상적인 이미지로 치환**해버린 리스크를 안고 있습니다.
+
+### ② "전문가" 대 "전문 브랜드"
+
+경쟁사인 에이스·시몬스가 "침대는 침대 전문 브랜드에서"라는 권위를 카피로 공고히 할 때, 코웨이는 "케어받는 침대"라는 실용적 가치로 맞섰습니다. 하지만 소비자 뇌리에는 여전히 '침대는 가구, 정수기는 코웨이'라는 카테고리 칸막이가 존재합니다. 이 칸막이를 부수는 것은 스펙 카피가 아니라 "왜 침대에도 코웨이의 필터 같은 케어가 필요한가?"에 대한 감성적 설득입니다.
+
+### ③ '렌탈'이라는 단어의 노후화
+
+LG전자가 '구독'이라는 단어를 선점하며 렌탈을 "똑똑한 소비"로 포장하는 동안, 코웨이는 여전히 업계 리더로서 '렌탈'의 고정관념(약정, 관리 방문)과 싸우고 있습니다. 카피 원문에서 보듯 코웨이는 '케어'라는 단어를 고수하고 있지만, MZ세대에게 '케어'는 '돌봄'이 아닌 '간섭'으로 읽힐 위험이 있습니다.
+
+---
+
+### 💡 결론: 우리 광고가 가야 할 길
+
+> **"관리의 정통성을 '자부심'으로 치환하고 있는가?"**
+
+경쟁사들이 '구독'과 '전문성'을 외칠 때, 코웨이는 "30년 넘게 당신의 집 안을 가장 잘 아는 사람들이 만든 진짜 웰니스"라는 헤리티지를 현대적으로 재해석해야 합니다. 단순히 BTS가 쓰는 예쁜 정수기가 아니라, "코웨이를 쓴다는 것은 내 삶의 기본(水, 空, 眠)을 가장 완벽하게 통제하고 있다는 증거"임을 선언하는 카피가 필요합니다.
+
+이것이 우리가 숫자를 넘어, 다시 '메시지의 본질'로 돌아가 시장 조사를 해야 하는 이유입니다.
+
+## 05. Strategic Implication
+코웨이가 마주한 진실은 명확합니다. "신뢰하지만 설레지 않고, 관리받고 싶지만 구속받기는 싫다"는 거대한 모순입니다. 1위 브랜드로서 쌓아온 ‘철저한 관리’라는 자산이, 역설적으로 현대인의 ‘자율적 프라이버시’와 충돌하고 있습니다. 이 교집합에서 추출한 최후의 전략적 위닝 무브를 제안합니다.
+
+---
+
+## V. STRATEGY: 판을 뒤집는 '위닝 무브'
+
+### Phase 1: Context & Logic (본질적 문제 정의)
+
+**"1위의 저주: 안심의 Default값화"**
+
+* **GAP 분석:** 코웨이는 여전히 '기술과 관리'를 말하지만, 소비자는 이미 이를 '당연한 기본값'으로 여깁니다. 당연한 것은 더 이상 구매의 결정적 이유(Reason to Buy)가 되지 못합니다.
+* **Root Cause:** '방문 관리'라는 핵심 역량이 고객에게는 '내 일상에 타인이 개입하는 비용'으로 인식되기 시작했습니다. 관리의 정통성이 '번거로움'이라는 부채로 변질된 것이 성장의 병목이자 본질적 문제입니다.
+
+---
+
+### Phase 2: Psychology & Narrative (Big IdeaL 도출)
+
+**"돌봄의 민주화: 관리에서 해방으로"**
+
+소비자의 Cultural Tension(간섭 없는 케어)과 코웨이의 Best Self(완벽한 집사)가 만나는 지점을 공략합니다.
+
+* **ToT (Trajectory of Thought) 시뮬레이션:**
+1. *Fear:* 관리가 끊기면 불안하다. 하지만 모르는 사람의 방문은 불편하다.
+2. *Desire:* 내가 신경 쓰지 않아도 집안의 모든 상태가 '최적'이었으면 좋겠다.
+3. *Resolution:* 관리를 '당하는 것'이 아니라, 보이지 않는 기술이 '나를 자유롭게' 만드는 것.
+
+
+* **Big IdeaL:**
+> **"Invisible Care, Absolute Freedom (보이지 않는 케어, 완벽한 자유)"**
+> : 코웨이는 당신의 시간을 뺏는 서비스가 아니라, 일상의 사소한 걱정으로부터 당신의 시간을 되찾아주는 **'시간 해방 브랜드'**가 되어야 합니다.
+
+
+
+---
+
+### Phase 3: Feedback & Out-of-box (역발상 제안)
+
+#### 1) 판을 엎는 역발상: "The No-Show Service"
+
+* **제안:** 방문 관리를 숨기는 것이 아니라, '완벽한 비대면 관리 시스템'을 마케팅의 전면에 세웁니다. "우리는 당신을 만나러 가지 않습니다. 하지만 당신의 물과 잠은 그 어느 때보다 완벽하게 관리되고 있습니다."
+* **실행:** AI 원격 진단과 자가 교체 키트의 UX를 '귀찮은 일'이 아닌 '스마트한 통제권'으로 브랜딩하여, LG전자의 '가전 권위'를 '라이프 컨트롤러' 이미지로 압도합니다.
+
+#### 2) Via Negativa (전략적 안티프래질을 위한 포기)
+
+* **포기 1. '친절한 코디' 이미지 제거:** 광고에서 더 이상 미소 짓는 관리자의 모습을 강조하지 않습니다. 대신 '첨단 연구소의 데이터'와 '자동화된 시스템'의 차가운 완벽함을 보여줌으로써 신뢰의 격차를 벌립니다.
+* **포기 2. '렌탈' 용어의 폐기:** 약정을 연상시키는 '렌탈' 대신, 비렉스를 중심으로 '웰니스 구독(Wellness Pass)'이라는 용어로 전면 교체하여 부채감을 지우고 소유권을 제안합니다.
+
+#### 3) 사전 부검 (Pre-mortem): 치명적 맹점에 대한 질문
+
+* "만약 비렉스의 AI 매트리스 데이터가 경쟁사 스마트워치 데이터보다 가치 없다고 느껴진다면, 우리는 무엇으로 '잠의 권위'를 증명할 것인가?"
+* "방문 관리를 줄였을 때 발생할 수 있는 '심리적 거리감'을 브랜드 팬덤으로 메울 수 있는가?"
+
+---
+
+### 💡 최종 전략 요약
+
+코웨이의 다음 광고는 "우리가 얼마나 잘 관리하는가"를 자랑하는 캠페인이어서는 안 됩니다.
+
+경쟁사들이 가전의 스펙을 뽐낼 때, 코웨이는 "코웨이가 당신의 집안일을 완벽히 아웃소싱했기에, 당신은 오직 당신의 삶에만 집중할 수 있다"는 '삶의 주도권 회복'을 선언해야 합니다. 이것이 1위 브랜드만이 던질 수 있는 가장 오만하고도 매력적인 위닝 무브입니다.
+
+[Master HTML Reference]
+<!DOCTYPE html>
+
+<html lang="ko">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>{{BRAND_NAME}} Strategic Consulting {{YEAR}}</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+    /* [STYLE LAYOUT: LINEAR INSPIRED DARK MODE] */
+    :root { 
+      /* Brand Color Variables - Dynamically overridden by AI */
+      --hds-brand-accent: #5e6ad2; /* Default Linear Violet */
+      --hds-brand-accent-hover: #7170ff;
+      
+      /* Base Colors */
+      --bg-base: #08090a;
+      --surface-1: #0f1011;
+      --surface-2: #191a1b;
+      --surface-3: #28282c;
+      
+      /* Text Colors */
+      --text-main: #f7f8f8;
+      --text-secondary: #d0d6e0;
+      --text-muted: #8a8f98;
+      
+      /* Borders & UI */
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --border-strong: rgba(255, 255, 255, 0.1);
+      --shadow-elevation: 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      
+      --nav-w: 240px; 
+      --slide-w: 1122px; --slide-h: 794px; 
+    }
+
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
+
+    body { 
+      margin: 0; padding: 0; 
+      background-color: var(--bg-base); 
+      font-family: 'Inter', 'Noto Sans KR', sans-serif; 
+      color: var(--text-main);
+      overflow-x: hidden; 
+      -webkit-font-smoothing: antialiased;
+    }
+
+    nav { 
+      position: fixed; top: 0; left: 0; width: var(--nav-w); height: 100vh; 
+      background: var(--surface-1); color: var(--text-main);
+      border-right: 1px solid var(--border-subtle); padding: 24px 16px; z-index: 9999; overflow-y: auto;
+    }
+
+    .brand { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 30px; letter-spacing: -1px; }
+    .brand span { color: var(--hds-brand-accent); }
+    .nav-group { margin-bottom: 30px; }
+    .nav-title { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 1.5px; text-transform: uppercase; }
+    .nav-item { 
+      display: flex; align-items: center; gap: 8px; color: var(--text-secondary); 
+      text-decoration: none; padding: 6px 10px; border-radius: 6px; 
+      font-size: 13px; transition: all 0.2s;
+    }
+    .nav-item:hover, .nav-item.active { background: var(--surface-3); color: var(--text-main); font-weight: 500; }
+    .nav-item i { width: 20px; text-align: center; opacity: 0.7; }
+
+    main#content { margin-left: var(--nav-w); width: calc(100% - var(--nav-w)); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 0; transform-origin: top center; }
+
+    .slide-wrapper { 
+      width: var(--slide-w); height: var(--slide-h); 
+      margin-bottom: 40px; position: relative; transform-origin: top center; 
+      flex-shrink: 0;
+    }
+
+    .slide { 
+      width: 100%; height: 100%; background: var(--bg-base); 
+      padding: 40px 60px 85px; box-shadow: var(--shadow-elevation); 
+      display: flex; flex-direction: column; position: relative; 
+      overflow: hidden; border-radius: 8px; border: 1px solid var(--border-subtle);
+    }
+    .slide.slide-full { padding-bottom: 30px !important; }
+
+    .slide-header { 
+      margin-bottom: 24px; border-bottom: 1px solid var(--border-strong); 
+      padding-bottom: 16px; flex-shrink: 0; 
+    }
+    .breadcrumb { 
+      font-size: 11px; font-weight: 600; color: var(--text-muted); 
+      text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1.5px;
+    }
+    .title-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    .title { 
+      font-size: 32px; font-weight: 600; color: var(--text-main); 
+      line-height: 1.1; margin: 0; flex-grow: 1; letter-spacing: -1.2px;
+    }
+    .slide-badge { 
+      background: rgba(94, 106, 210, 0.15); border: 1px solid rgba(94, 106, 210, 0.3); color: var(--hds-brand-accent); padding: 4px 12px; 
+      border-radius: 100px; font-size: 10px; font-weight: 600; 
+      text-transform: uppercase; white-space: nowrap; margin-left: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .slide-body { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 5px; }
+
+    .governing-msg { 
+      background: var(--surface-2); 
+      padding: 16px 24px; margin-bottom: 20px; border-radius: 6px; 
+      font-size: 16px; font-weight: 500; color: var(--text-main); 
+      line-height: 1.5; text-align: left; 
+      border: 1px solid var(--border-subtle); 
+      border-left: 3px solid var(--hds-brand-accent); flex-shrink: 0;
+      letter-spacing: -0.3px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+    .highlight { 
+      background: rgba(94, 106, 210, 0.2); padding: 2px 6px; 
+      color: #828fff; font-weight: 600; border-radius: 4px;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; height: auto; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; height: auto; }
+
+    .box { 
+      border: 1px solid var(--border-subtle); border-radius: 8px; padding: 20px 24px; 
+      background: var(--surface-2); display: flex; flex-direction: column; 
+      height: auto; min-height: 0; position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+    .box.compact-box, .box.tight-box { padding: 16px 20px !important; }
+
+    .box-title { 
+      font-size: 15px; font-weight: 600; color: var(--text-main); 
+      margin-bottom: 12px; border-bottom: 1px solid var(--border-strong); 
+      padding-bottom: 8px; flex-shrink: 0; letter-spacing: -0.5px;
+    }
+    .box-content { flex-grow: 1; overflow: visible; }
+
+    /* Risk/Opportunity highlighting updated for dark mode */
+    .box.emphasis-risk { 
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), transparent); 
+    }
+    .box.emphasis-opp { 
+      border: 1px solid rgba(94, 106, 210, 0.3);
+      background: linear-gradient(135deg, rgba(94, 106, 210, 0.05), transparent); 
+    }
+
+    dl { margin: 0; }
+    .consumer-list dt, .compact-list dt, dl dt { 
+      font-weight: 600; color: var(--text-main); margin-top: 12px; 
+      margin-bottom: 4px; font-size: 13px; display: block; 
+      letter-spacing: -0.2px;
+    }
+    .consumer-list dt:first-child, .compact-list dt:first-child, dl dt:first-child { margin-top: 0; }
+    .consumer-list dd, .compact-list dd, dl dd { 
+      margin: 0 0 6px 0; padding-left: 12px; position: relative; 
+      color: var(--text-secondary); font-size: 12px; line-height: 1.5; display: block;
+    }
+    .consumer-list dd::before, .compact-list dd::before, dl dd::before { 
+      content: '—'; position: absolute; left: 0; top: 0; color: var(--text-muted); 
+    }
+
+    .compact-list dt { margin-top: 8px !important; font-size: 12px !important; }
+    .compact-list dd { margin-bottom: 4px !important; font-size: 11px !important; }
+
+    .voice-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-right: 6px; vertical-align: middle; transform: translateY(-1px); border: 1px solid rgba(255,255,255,0.1); }
+    .badge-pos { background: rgba(39, 166, 68, 0.15); color: #4ade80; border-color: rgba(39, 166, 68, 0.3); }
+    .badge-neg { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+    .implication-bar { 
+      position: absolute; bottom: 24px; left: 60px; right: 60px; 
+      height: auto; min-height: 40px; padding: 12px 20px;
+      background: var(--surface-2); color: var(--text-main); 
+      display: flex; align-items: center; gap: 12px; 
+      border-radius: 8px; z-index: 100; 
+      border: 1px solid var(--border-strong);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      font-size: 13px; line-height: 1.4; font-weight: 500;
+    }
+
+    .stat-box { display: flex; align-items: baseline; gap: 8px; margin-top: 5px; margin-bottom: 8px; }
+    .stat-num { font-size: 32px; font-weight: 600; color: var(--text-main); line-height: 1; letter-spacing: -1px; }
+    .stat-label { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+    .trend-arrow { font-size: 14px; font-weight: 600; }
+
+    .chart-bar-bg { width: 100%; height: 4px; background: var(--surface-3); border-radius: 2px; margin-top: 8px; overflow: hidden; margin-bottom: 16px; }
+    .chart-bar-fill { height: 100%; background: var(--hds-brand-accent); border-radius: 2px; }
+
+    .pos-map { position: relative; width: 100%; height: 400px; background: var(--surface-1); border: 1px dashed var(--border-strong); border-radius: 8px; margin-top: 15px; }
+    .pos-bubble { position: absolute; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.5); text-align: center; z-index: 10; font-weight: 500; font-size: 12px; }
+
+    .timeline-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 15px; height: 60%; }
+    .timeline-card { background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 16px 12px; text-align: center; display: flex; flex-direction: column; height: 100%; position: relative; }
+    .timeline-card.current { border: 1px solid var(--hds-brand-accent); background: rgba(94, 106, 210, 0.05); }
+    .timeline-card.current::before { content: 'NOW'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--hds-brand-accent); color: white; font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.5px; }
+    
+    .t-year { font-size: 16px; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-strong); margin-bottom: 12px; padding-bottom: 8px; }
+    .current .t-year { color: #828fff; border-color: rgba(94, 106, 210, 0.3); }
+    .t-category { display: inline-block; background: var(--surface-3); color: var(--text-secondary); font-size: 10px; font-weight: 500; padding: 4px 8px; border-radius: 4px; margin-bottom: 12px; width: 100%; text-transform: uppercase; letter-spacing: 0.5px; }
+    .current .t-category { background: rgba(94, 106, 210, 0.15); color: #828fff; }
+    .t-title { font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; line-height: 1.3; min-height: 35px; display: flex; align-items: center; justify-content: center; word-break: keep-all; }
+    .t-desc { background: var(--surface-3); color: var(--text-secondary); font-size: 11px; font-weight: 400; padding: 8px; border-radius: 4px; line-height: 1.4; flex-grow: 1; display: flex; align-items: center; justify-content: center; word-break: keep-all; border: 1px solid var(--border-subtle); }
+    .current .t-desc { background: rgba(94, 106, 210, 0.1); color: #d0d6e0; border-color: rgba(94, 106, 210, 0.2); }
+
+    .comp-year-box { background: var(--surface-3); border-radius: 6px 6px 0 0; padding: 8px; text-align: center; border: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-strong); font-weight: 600; color: var(--text-secondary); font-size: 12px; }
+    .comp-content-box { border: 1px solid var(--border-subtle); border-top: none; border-radius: 0 0 6px 6px; padding: 12px; text-align: center; background: var(--surface-2); margin-bottom: 12px; }
+    .comp-name { font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block; letter-spacing: -0.3px; }
+    .comp-tag { display: block; padding: 4px; border-radius: 4px; font-size: 10px; font-weight: 500; margin-top: 6px; border: 1px solid var(--border-subtle); background: var(--surface-3); color: var(--text-secondary); }
+
+    /* 포지셔닝 맵 AS-IS → TO-BE 화살표 (AI가 자유롭게 그리도록 투명화 또는 제거) */
+    .pos-map::after { display: none; }
+
+    @media print {
+      @page { size: A4 landscape !important; margin: 0; }
+      html, body { 
+        width: 297mm !important; height: 209.5mm !important;
+        margin: 0 !important; padding: 0 !important; 
+        background: var(--bg-base) !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact !important;
+      }
+      nav { display: none !important; }
+      main#content { 
+        margin: 0 !important; padding: 0 !important; 
+        width: 297mm !important; height: 209.5mm !important;
+        background: var(--bg-base); transform: none !important; display: block !important;
+      }
+      .slide-wrapper { 
+        width: 297mm !important; height: 209.5mm !important;
+        margin: 0 !important; padding: 0 !important;
+        page-break-after: always !important; break-after: page !important;
+        transform: none !important; position: relative !important;
+        box-shadow: none !important; overflow: hidden !important;
+      }
+      .slide { 
+        width: 297mm !important; height: 209.5mm !important;
+        box-shadow: none !important; border: none !important;
+        padding: 40px 60px 85px !important; border-radius: 0 !important;
+        display: flex !important; flex-direction: column !important;
+        background: var(--bg-base) !important;
+      }
+      .implication-bar {
+        position: absolute !important; bottom: 20px !important; left: 60px !important; right: 60px !important;
+        margin: 0 !important; box-shadow: none !important;
+      }
+      .pos-map { height: 300px !important; }
+      .grid-2, .grid-3 { height: auto !important; }
+      .box { height: auto !important; min-height: auto !important; }
+      .print-guide { display: none !important; }
+      body { transform: none !important; }
+    }
+
+</style>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const observer = new MutationObserver((mutations) => {
+
+            mutations.forEach((mutation) => {
+
+                if (mutation.type === 'childList' || mutation.type === 'characterData') {
+
+                    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+
+                    let node;
+
+                    while (node = walker.nextNode()) {
+
+                        if (/\[cite.*?\]|\\cite.*?|\[cite_start\]/g.test(node.nodeValue)) {
+
+                            node.nodeValue = node.nodeValue.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, "");
+
+                        }
+
+                    }
+
+                }
+
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+        document.body.innerHTML = document.body.innerHTML.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, "");
+
+    });
+
+    function scaleSlides() {
+
+        const wrappers = document.querySelectorAll('.slide-wrapper');
+
+        const availableWidth = window.innerWidth - 300;
+
+        const baseWidth = 1122;
+
+        let scale = availableWidth / baseWidth;
+
+        if (scale > 1) scale = 1;
+
+        wrappers.forEach(el => {
+
+            el.style.transform = `scale(${scale})`;
+
+            const h = el.getBoundingClientRect().height / scale;
+            el.style.marginBottom = `-${h * (1 - scale) - 40}px`;
+
+        });
+
+    }
+
+    // [PDF 1:1 고정] 인쇄 직전 JS transform 완전 초기화
+    // @media print CSS와 JS 인라인 스타일 충돌 방지
+    window.addEventListener('beforeprint', function() {
+        document.querySelectorAll('.slide-wrapper').forEach(function(el) {
+            el._savedTransform = el.style.transform;
+            el._savedMarginBottom = el.style.marginBottom;
+            el.style.transform = '';
+            el.style.marginBottom = '';
+        });
+    });
+
+    // [PDF 1:1 고정] 인쇄 완료 후 웹 뷰 transform 복원
+    window.addEventListener('afterprint', function() {
+        document.querySelectorAll('.slide-wrapper').forEach(function(el) {
+            el.style.transform = el._savedTransform || '';
+            el.style.marginBottom = el._savedMarginBottom || '';
+        });
+    });
+
+    window.addEventListener('resize', scaleSlides);
+
+    window.addEventListener('load', scaleSlides);
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        var sections = document.querySelectorAll('.slide-wrapper');
+
+        var navItems = document.querySelectorAll('.nav-item');
+
+        var navObserver = new IntersectionObserver(function(entries) {
+
+            entries.forEach(function(entry) {
+
+                if (entry.isIntersecting) {
+
+                    var id = entry.target.getAttribute('id').replace('wrap-', '');
+
+                    navItems.forEach(function(item) {
+
+                        item.classList.remove('active');
+
+                        if (item.getAttribute('href') === '#' + id) item.classList.add('active');
+
+                    });
+
+                }
+
+            });
+
+        }, { threshold: 0.3 });
+
+        sections.forEach(function(section) { navObserver.observe(section); });
+
+    });
+
+</script>
+
+</head>
+
+<body>
+
+
+
+<nav id="navbar">
+
+    <div class="brand">{{BRAND_NAME}} <span>{{YEAR}}</span></div>
+
+    <div class="nav-group">
+
+        <div class="nav-title">0. BRAND FACT BOOK</div>
+
+        <a href="#slide-f01" class="nav-item"><i class="fas fa-id-badge"></i> Brand Identity</a>
+
+        <a href="#slide-f02" class="nav-item"><i class="fas fa-rocket"></i> Growth & Inflection</a>
+
+        <a href="#slide-f03" class="nav-item"><i class="fas fa-gem"></i> USP & Best Self</a>
+
+    </div>
+
+        <div class="nav-group">
+
+        <div class="nav-title">I. MARKET ANALYSIS</div>
+
+        <a href="#slide-01" class="nav-item active"><i class="fas fa-gavel"></i> Policy & Economic</a>
+
+        <a href="#slide-02" class="nav-item"><i class="fas fa-home"></i> Market Overview</a>
+
+        <a href="#slide-03" class="nav-item"><i class="fas fa-chart-line"></i> Company Growth</a>
+
+        <a href="#slide-04" class="nav-item"><i class="fas fa-microchip"></i> Product USP</a>
+
+    </div>
+
+    <div class="nav-group">
+
+        <div class="nav-title">II. COMPETITOR</div>
+
+        <a href="#slide-05" class="nav-item"><i class="fas fa-fist-raised"></i> Direct Competitor</a>
+
+        <a href="#slide-06" class="nav-item"><i class="fas fa-hand-sparkles"></i> Indirect Competitor</a>
+
+        <a href="#slide-07" class="nav-item"><i class="fas fa-th-list"></i> Product Matrix</a>
+
+        <a href="#slide-08" class="nav-item"><i class="fas fa-map-marked-alt"></i> Positioning Map</a>
+
+    </div>
+
+    <div class="nav-group">
+
+        <div class="nav-title">III. CONSUMER</div>
+
+        <a href="#slide-09" class="nav-item"><i class="fas fa-search"></i> Trends</a>
+
+        <a href="#slide-10" class="nav-item"><i class="fas fa-user-tag"></i> Persona</a>
+
+        <a href="#slide-11" class="nav-item"><i class="fas fa-comments"></i> Voice of Customer</a>
+
+        <a href="#slide-12" class="nav-item"><i class="fas fa-exclamation-circle"></i> Pain Points</a>
+
+    </div>
+
+    <div class="nav-group">
+
+        <div class="nav-title">IV. CREATIVE</div>
+
+        <a href="#slide-13" class="nav-item"><i class="fas fa-ad"></i> Creative History</a>
+
+        <a href="#slide-14" class="nav-item"><i class="fas fa-tv"></i> Competitor Creative</a>
+
+        <a href="#slide-15" class="nav-item"><i class="fas fa-lightbulb"></i> Creative Insight</a>
+
+    </div>
+
+    <div class="nav-group">
+
+        <div class="nav-title">V. STRATEGY</div>
+
+        <a href="#slide-16" class="nav-item"><i class="fas fa-chess-board"></i> SWOT Analysis</a>
+
+        <a href="#slide-17" class="nav-item"><i class="fas fa-bullseye"></i> STP Strategy</a>
+
+        <a href="#slide-18" class="nav-item"><i class="fas fa-columns"></i> Strategic Implication</a>
+
+    </div>
+
+</nav>
+
+
+
+<main id="content">
+
+
+
+    <div class="slide-wrapper" id="wrap-cover">
+
+        <div class="slide" id="cover" style="justify-content: center; align-items: flex-start; background: linear-gradient(135deg, var(--primary) 0%, #002d25 100%); color: white;">
+
+            <div style="font-size: 20px; font-weight: 500; letter-spacing: 2px; color: #ccfbf1; margin-bottom: 20px;">{{YEAR}} STRATEGIC REPORT</div>
+
+            <h1 style="font-size: 64px; font-weight: 900; line-height: 1.1; margin-bottom: 40px; font-family: 'Montserrat';">
+
+                {{BRAND_NAME}}<br><span style="color: #4fd1c5;">Consulting</span>
+
+            </h1>
+
+            <div style="width: 100px; height: 6px; background: #4fd1c5; margin-bottom: 40px;"></div>
+
+            <div style="font-size: 24px; font-weight: 300; opacity: 0.9;">Market Analysis, Competitor Review,<br>Consumer Trends & Strategic Roadmap</div>
+
+            <div style="position: absolute; bottom: 50px; right: 60px; text-align: right;">
+
+                <div style="font-size: 16px; font-weight: 700;">{{TODAY_DATE}}</div>
+
+                <div style="font-size: 14px; opacity: 0.7;">Confidential Document</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ========== SECTION 0: BRAND FACT BOOK ========== -->
+
+    <div class="slide-wrapper" id="wrap-slide-f01">
+
+        <div class="slide" id="slide-f01">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">0. Brand Fact Book > Identity</div>
+
+                <div class="title-row"><h2 class="title">{{SF01_TITLE}}</h2><span class="slide-badge">Brand Profile</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{SF01_MSG}}</div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px;">
+
+                    <div style="background: var(--primary); color: white; border-radius: 8px; padding: 18px; text-align: center;">
+                        <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">{{SF01_KPI1_LABEL}}</div>
+                        <div style="font-size: 28px; font-weight: 900; color: var(--accent);">{{SF01_KPI1_VALUE}}</div>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 4px;">{{SF01_KPI1_NOTE}}</div>
+                    </div>
+
+                    <div style="background: var(--primary); color: white; border-radius: 8px; padding: 18px; text-align: center;">
+                        <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">{{SF01_KPI2_LABEL}}</div>
+                        <div style="font-size: 28px; font-weight: 900; color: var(--accent);">{{SF01_KPI2_VALUE}}</div>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 4px;">{{SF01_KPI2_NOTE}}</div>
+                    </div>
+
+                    <div style="background: var(--primary); color: white; border-radius: 8px; padding: 18px; text-align: center;">
+                        <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">{{SF01_KPI3_LABEL}}</div>
+                        <div style="font-size: 28px; font-weight: 900; color: var(--accent);">{{SF01_KPI3_VALUE}}</div>
+                        <div style="font-size: 10px; opacity: 0.6; margin-top: 4px;">{{SF01_KPI3_NOTE}}</div>
+                    </div>
+
+                </div>
+
+                <div class="grid-2">
+
+                    <div class="box emphasis-opp"><div class="box-title"><i class="fas fa-building" style="margin-right:8px;"></i>{{SF01_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF01_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box"><div class="box-title"><i class="fas fa-bullseye" style="margin-right:8px;"></i>{{SF01_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF01_BOX2_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-fingerprint" style="color:#00d4aa;"></i><div style="font-size: 14px; font-weight: 600;">{{SF01_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-f02">
+
+        <div class="slide" id="slide-f02">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">0. Brand Fact Book > Growth Story</div>
+
+                <div class="title-row"><h2 class="title">{{SF02_TITLE}}</h2><span class="slide-badge">Growth Trajectory</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{SF02_MSG}}</div>
+
+                <div class="box" style="margin-bottom: 16px; padding: 18px;">
+
+                    <div class="box-title"><i class="fas fa-chart-line" style="margin-right:8px;"></i>성장 궤적 (Growth Timeline)</div>
+
+                    <div class="box-content consumer-list"><dl>{{SF02_TIMELINE_CONTENT}}</dl></div>
+
+                </div>
+
+                <div class="grid-3">
+
+                    <div class="box" style="border-top: 4px solid #3b82f6;"><div class="box-title" style="color: #1d4ed8;"><i class="fas fa-microchip" style="margin-right:8px;"></i>{{SF02_INF1_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF02_INF1_CONTENT}}</dl></div></div>
+
+                    <div class="box" style="border-top: 4px solid #f59e0b;"><div class="box-title" style="color: #d97706;"><i class="fas fa-users" style="margin-right:8px;"></i>{{SF02_INF2_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF02_INF2_CONTENT}}</dl></div></div>
+
+                    <div class="box" style="border-top: 4px solid #ef4444;"><div class="box-title" style="color: #dc2626;"><i class="fas fa-coins" style="margin-right:8px;"></i>{{SF02_INF3_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF02_INF3_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-bolt" style="color:#fbbf24;"></i><div style="font-size: 14px; font-weight: 600;">{{SF02_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-f03">
+
+        <div class="slide" id="slide-f03">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">0. Brand Fact Book > Best Self</div>
+
+                <div class="title-row"><h2 class="title">{{SF03_TITLE}}</h2><span class="slide-badge">Brand DNA</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{SF03_MSG}}</div>
+
+                <div class="grid-2">
+
+                    <div class="box" style="background: #f0fdfa; border: 2px solid var(--secondary);"><div class="box-title" style="border-bottom-color: rgba(15,118,110,0.2);"><i class="fas fa-cogs" style="margin-right:10px;"></i>{{SF03_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF03_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box" style="background: #ffffff;"><div class="box-title"><i class="fas fa-crosshairs" style="margin-right:10px; color: #7c3aed;"></i>{{SF03_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{SF03_BOX2_CONTENT}}</dl></div></div>
+
+                </div>
+
+                <div class="box" style="margin-top: 14px; background: var(--primary); color: white; border: none; padding: 16px 20px;">
+
+                    <div style="font-size: 11px; opacity: 0.6; font-weight: 700; margin-bottom: 6px; letter-spacing: 1px;">BRAND BEST SELF</div>
+
+                    <div style="font-size: 16px; font-weight: 700; line-height: 1.6; color: var(--accent);">{{SF03_BESTSELL_QUOTE}}</div>
+
+                    <div style="font-size: 13px; opacity: 0.8; margin-top: 8px; line-height: 1.5;">{{SF03_BESTSELL_DESC}}</div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-star" style="color:#fbbf24;"></i><div style="font-size: 14px; font-weight: 600;">{{SF03_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-01">
+
+        <div class="slide" id="slide-01">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">I. Market Analysis > Policy</div>
+
+                <div class="title-row"><h2 class="title">{{S01_TITLE}}</h2><span class="slide-badge">Policy Impact</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S01_MSG}}</div>
+
+                <div class="grid-3">
+
+                    <div class="box emphasis-opp"><div class="box-title">{{S01_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{S01_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box"><div class="box-title">{{S01_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{S01_BOX2_CONTENT}}</dl></div></div>
+
+                    <div class="box emphasis-risk"><div class="box-title">{{S01_BOX3_TITLE}}</div><div class="box-content consumer-list"><dl>{{S01_BOX3_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-lightbulb" style="color:#fbbf24;"></i><div style="font-size: 14px; font-weight: 600;">{{S01_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-02">
+
+        <div class="slide" id="slide-02">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">I. Market Analysis > Market Overview</div>
+
+                <div class="title-row"><h2 class="title">{{S02_TITLE}}</h2><span class="slide-badge">Market Size</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S02_MSG}}</div>
+
+                <div class="grid-3">
+
+                    <div class="box">
+
+                        <div class="box-title">{{S02_BOX1_TITLE}}</div>
+
+                        <div class="box-content consumer-list">
+
+                            <div class="stat-box"><span class="stat-num">{{S02_STAT1_NUM}}</span><span class="stat-label">{{S02_STAT1_LBL}}</span><span class="trend-arrow" style="color:var(--primary)">▲</span></div>
+
+                            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: {{S02_STAT1_PCT}}%;"></div></div>
+
+                            <dl>{{S02_BOX1_CONTENT}}</dl>
+
+                        </div>
+
+                    </div>
+
+                    <div class="box emphasis-risk">
+
+                        <div class="box-title">{{S02_BOX2_TITLE}}</div>
+
+                        <div class="box-content consumer-list">
+
+                            <dl>{{S02_BOX2_CONTENT}}</dl>
+
+                        </div>
+
+                    </div>
+
+                    <div class="box">
+
+                        <div class="box-title">{{S02_BOX3_TITLE}}</div>
+
+                        <div class="box-content consumer-list">
+
+                            <dl>{{S02_BOX3_CONTENT}}</dl>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-chart-line" style="color: #10b981;"></i><div style="font-size: 14px; font-weight: 600;">{{S02_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-03">
+
+        <div class="slide" id="slide-03">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">I. Market Analysis > Company Fact</div>
+
+                <div class="title-row"><h2 class="title">{{S03_TITLE}}</h2><span class="slide-badge">Internal Analysis</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S03_MSG}}</div>
+
+                <div class="grid-2">
+
+                    <div class="box emphasis-opp">
+
+                        <div class="box-title">{{S03_BOX1_TITLE}}</div>
+
+                        <div class="box-content consumer-list">
+
+                            <div class="stat-box"><span class="stat-num">{{S03_STAT1_NUM}}</span><span class="stat-label">{{S03_STAT1_LBL}}</span><span class="trend-arrow" style="color:#ef4444">▲</span></div>
+
+                            <dl>{{S03_BOX1_CONTENT}}</dl>
+
+                        </div>
+
+                    </div>
+
+                    <div class="box">
+
+                        <div class="box-title">{{S03_BOX2_TITLE}}</div>
+
+                        <div class="box-content consumer-list">
+
+                            <dl>{{S03_BOX2_CONTENT}}</dl>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-trophy" style="color: #fbbf24;"></i><div style="font-size: 14px; font-weight: 600;">{{S03_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-04">
+
+        <div class="slide" id="slide-04">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">I. Market Analysis > Product USP</div>
+
+                <div class="title-row"><h2 class="title">{{S04_TITLE}}</h2><span class="slide-badge">Core Competency</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S04_MSG}}</div>
+
+                <div class="grid-2">
+
+                    <div class="box"><div class="box-title">{{S04_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{S04_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box emphasis-opp"><div class="box-title">{{S04_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{S04_BOX2_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-tools" style="color: #6366f1;"></i><div style="font-size: 14px; font-weight: 600;">{{S04_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-05">
+
+        <div class="slide" id="slide-05">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">I. Market Analysis > Tech Specs</div>
+
+                <div class="title-row"><h2 class="title">{{S05_TITLE}}</h2><span class="slide-badge">Detailed Specs</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S05_MSG}}</div>
+
+                <div class="grid-3">
+
+                    <div class="box"><div class="box-title">{{S05_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{S05_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box"><div class="box-title">{{S05_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{S05_BOX2_CONTENT}}</dl></div></div>
+
+                    <div class="box"><div class="box-title">{{S05_BOX3_TITLE}}</div><div class="box-content consumer-list"><dl>{{S05_BOX3_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-flask" style="color: #3b82f6;"></i><div style="font-size: 14px; font-weight: 600;">{{S05_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+<div class="slide-wrapper" id="wrap-slide-06">
+
+        <div class="slide" id="slide-06">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">II. Competitor > Direct</div>
+
+                <div class="title-row"><h2 class="title">{{S06_TITLE}}</h2><span class="slide-badge">Rivalry</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S06_MSG}}</div>
+
+                <div class="grid-2">
+
+                    <div class="box" style="border-top: 4px solid #c02431;"><div class="box-title" style="color: #c02431;">{{S06_COMP1_NAME}}</div><div class="box-content consumer-list"><dl>{{S06_COMP1_CONTENT}}</dl></div></div>
+
+                    <div class="box" style="border-top: 4px solid #1e3a8a;"><div class="box-title" style="color: #1e3a8a;">{{S06_COMP2_NAME}}</div><div class="box-content consumer-list"><dl>{{S06_COMP2_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-balance-scale" style="color: #fbbf24;"></i><div style="font-size: 14px; font-weight: 600;">{{S06_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-07">
+
+        <div class="slide" id="slide-07">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">II. Competitor > Matrix</div>
+
+                <div class="title-row"><h2 class="title">{{S07_TITLE}}</h2><span class="slide-badge">Feature War</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S07_MSG}}</div>
+
+                <div class="box" style="padding: 0; overflow: hidden; border: none; height: 100%;">
+
+                    <table style="width: 100%; height: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+
+                        <thead>
+
+                            <tr style="height: 45px; color: white;">
+
+                                <th style="padding: 8px 15px; background: #64748b; width: 20%;">구분</th>
+
+                                <th style="padding: 8px 15px; background: var(--primary); width: 26%;">{{BRAND_NAME}}</th>
+
+                                <th style="padding: 8px 15px; background: #c02431; width: 27%;">{{S07_COMP1_NAME}}</th>
+
+                                <th style="padding: 8px 15px; background: #1e3a8a; width: 27%;">{{S07_COMP2_NAME}}</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <tr><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0; font-weight: 700; background: #f8fafc;">{{S07_ROW1_CAT}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0; background: #f0fdfa; font-weight: 600;">{{S07_ROW1_V1}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0;">{{S07_ROW1_V2}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0;">{{S07_ROW1_V3}}</td></tr>
+
+                            <tr><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0; font-weight: 700; background: #f8fafc;">{{S07_ROW2_CAT}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0; background: #f0fdfa; font-weight: 600;">{{S07_ROW2_V1}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0;">{{S07_ROW2_V2}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0;">{{S07_ROW2_V3}}</td></tr>
+
+                            <tr><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0; font-weight: 700; background: #f8fafc;">{{S07_ROW3_CAT}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0; background: #f0fdfa; font-weight: 600;">{{S07_ROW3_V1}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0;">{{S07_ROW3_V2}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0;">{{S07_ROW3_V3}}</td></tr>
+
+                            <tr><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0; font-weight: 700; background: #f8fafc;">{{S07_ROW4_CAT}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0; background: #f0fdfa; font-weight: 600;">{{S07_ROW4_V1}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0;">{{S07_ROW4_V2}}</td><td style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0;">{{S07_ROW4_V3}}</td></tr>
+
+                            <tr><td style="padding: 10px 15px; font-weight: 700; background: #f8fafc;">마케팅 소구점</td><td style="padding: 10px 15px; background: #f0fdfa; font-weight: 600;">{{S07_ROW5_V1}}</td><td style="padding: 10px 15px;">{{S07_ROW5_V2}}</td><td style="padding: 10px 15px;">{{S07_ROW5_V3}}</td></tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-tasks" style="color: #3b82f6;"></i><div style="font-size: 14px; font-weight: 600;">{{S07_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-08">
+
+        <div class="slide" id="slide-08">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">II. Competitor > Positioning</div>
+
+                <div class="title-row"><h2 class="title">{{S08_TITLE}}</h2><span class="slide-badge">Strategic View</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S08_MSG}}</div>
+
+                <div class="pos-map">
+
+                    <div style="position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: #cbd5e1;"></div>
+
+                    <div style="position: absolute; left: 50%; top: 5%; bottom: 5%; width: 2px; background: #cbd5e1;"></div>
+
+                    <div style="position: absolute; top: 46%; left: 2%; font-size: 11px; font-weight: 800; color: #64748b; background: rgba(255,255,255,0.8);">{{S08_X_LEFT}}</div>
+
+                    <div style="position: absolute; top: 46%; right: 2%; font-size: 11px; font-weight: 800; color: #64748b; background: rgba(255,255,255,0.8);">{{S08_X_RIGHT}}</div>
+
+                    <div style="position: absolute; top: 2%; left: 51%; font-size: 11px; font-weight: 800; color: #64748b; background: rgba(255,255,255,0.8);">{{S08_Y_TOP}}</div>
+
+                    <div style="position: absolute; bottom: 2%; left: 51%; font-size: 11px; font-weight: 800; color: #64748b; background: rgba(255,255,255,0.8);">{{S08_Y_BOTTOM}}</div>
+
+                    
+
+                    <div class="pos-bubble" style="top: {{S08_B1_TOP}}%; right: {{S08_B1_RIGHT}}%; width: 110px; height: 110px; background: rgba(192, 36, 49, 0.9);"><div style="font-weight: 800; font-size: 16px;">{{S08_B1_NAME}}</div><div style="font-size: 11px; margin-top: 5px;">{{S08_B1_DESC}}</div></div>
+
+                    <div class="pos-bubble" style="top: {{S08_B2_TOP}}%; left: {{S08_B2_LEFT}}%; width: 110px; height: 110px; background: rgba(30, 58, 138, 0.9);"><div style="font-weight: 800; font-size: 16px;">{{S08_B2_NAME}}</div><div style="font-size: 11px; margin-top: 5px;">{{S08_B2_DESC}}</div></div>
+
+                    <div class="pos-bubble" style="top: {{S08_B3_TOP}}%; left: {{S08_B3_LEFT}}%; width: 100px; height: 100px; background: #94a3b8; border: 2px dashed var(--primary); z-index: 5;"><div style="font-weight: 800; font-size: 14px;">{{BRAND_NAME}}<br>(AS-IS)</div><div style="font-size: 10px; margin-top: 5px;">{{S08_B3_DESC}}</div></div>
+
+                    <div class="pos-bubble" style="top: {{S08_B4_TOP}}%; left: {{S08_B4_LEFT}}%; width: 110px; height: 110px; background: var(--primary); border: 3px solid #fbbf24; z-index: 20;"><div style="font-weight: 800; font-size: 15px;">{{BRAND_NAME}}<br>(TO-BE)</div><div style="font-size: 11px; margin-top: 5px;">{{S08_B4_DESC}}</div></div>
+
+                    <div class="pos-bubble" style="bottom: 30%; right: 40%; width: 90px; height: 90px; background: rgba(100, 116, 139, 0.8);"><div style="font-weight: 700; font-size: 13px;">{{S08_B5_NAME}}</div><div style="font-size: 10px; margin-top: 5px;">{{S08_B5_DESC}}</div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-crosshairs" style="color: #ef4444;"></i><div style="font-size: 14px; font-weight: 600;">{{S08_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-09">
+
+        <div class="slide" id="slide-09">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">III. Consumer > Trends</div>
+
+                <div class="title-row"><h2 class="title">{{S09_TITLE}}</h2><span class="slide-badge">Macro Shift</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S09_MSG}}</div>
+
+                <div class="grid-3">
+
+                    <div class="box"><div class="box-title">{{S09_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{S09_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box emphasis-opp"><div class="box-title">{{S09_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{S09_BOX2_CONTENT}}</dl></div></div>
+
+                    <div class="box emphasis-risk"><div class="box-title">{{S09_BOX3_TITLE}}</div><div class="box-content consumer-list"><dl>{{S09_BOX3_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-eye" style="color: #0ea5e9;"></i><div style="font-size: 14px; font-weight: 600;">{{S09_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-10">
+
+        <div class="slide" id="slide-10">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">III. Consumer > Persona</div>
+
+                <div class="title-row"><h2 class="title">{{S10_TITLE}}</h2><span class="slide-badge">Targeting</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="governing-msg">{{S10_MSG}}</div>
+
+                <div class="grid-2">
+
+                    <div class="box" style="background: #f0fdfa; border: 2px solid var(--secondary);"><div class="box-title" style="border-bottom-color: rgba(15,118,110,0.2);"><i class="fas fa-user-shield" style="margin-right: 10px;"></i>{{S10_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{S10_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box" style="background: #ffffff;"><div class="box-title"><i class="fas fa-gem" style="margin-right: 10px; color: #7c3aed;"></i>{{S10_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{S10_BOX2_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-users" style="color: #8b5cf6;"></i><div style="font-size: 14px; font-weight: 600;">{{S10_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-11">
+
+        <div class="slide" id="slide-11">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">III. Consumer > Voice</div>
+
+                <div class="title-row"><h2 class="title">{{S11_TITLE}}</h2><span class="slide-badge">VOC</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="grid-2">
+
+                    <div class="box"><div class="box-title" style="color: #059669;">Desired Experience (Needs)</div><div class="box-content consumer-list"><dl><dt><span class="voice-badge badge-pos">{{S11_POS1_KEY}}</span> {{S11_POS1_TITLE}}</dt><dd>{{S11_POS1_DESC}}</dd><dt><span class="voice-badge badge-pos">{{S11_POS2_KEY}}</span> {{S11_POS2_TITLE}}</dt><dd>{{S11_POS2_DESC}}</dd><dt><span class="voice-badge badge-pos">{{S11_POS3_KEY}}</span> {{S11_POS3_TITLE}}</dt><dd>{{S11_POS3_DESC}}</dd></dl></div></div>
+
+                    <div class="box emphasis-risk"><div class="box-title" style="color: #dc2626;">Actual Pain Points (Complaints)</div><div class="box-content consumer-list"><dl><dt><span class="voice-badge badge-neg">{{S11_NEG1_KEY}}</span> {{S11_NEG1_TITLE}}</dt><dd>{{S11_NEG1_DESC}}</dd><dt><span class="voice-badge badge-neg">{{S11_NEG2_KEY}}</span> {{S11_NEG2_TITLE}}</dt><dd>{{S11_NEG2_DESC}}</dd><dt><span class="voice-badge badge-neg">{{S11_NEG3_KEY}}</span> {{S11_NEG3_TITLE}}</dt><dd>{{S11_NEG3_DESC}}</dd></dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-comment-medical" style="color: #ef4444;"></i><div style="font-size: 14px; font-weight: 600;">{{S11_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-12">
+
+        <div class="slide" id="slide-12">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">III. Consumer > Pain Points</div>
+
+                <div class="title-row"><h2 class="title">{{S12_TITLE}}</h2><span class="slide-badge">Gap Analysis</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="grid-3">
+
+                    <div class="box emphasis-risk"><div class="box-title">{{S12_BOX1_TITLE}}</div><div class="box-content consumer-list"><dl>{{S12_BOX1_CONTENT}}</dl></div></div>
+
+                    <div class="box"><div class="box-title">{{S12_BOX2_TITLE}}</div><div class="box-content consumer-list"><dl>{{S12_BOX2_CONTENT}}</dl></div></div>
+
+                    <div class="box"><div class="box-title">{{S12_BOX3_TITLE}}</div><div class="box-content consumer-list"><dl>{{S12_BOX3_CONTENT}}</dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-key" style="color: #ef4444;"></i><div style="font-size: 14px; font-weight: 600;">{{S12_IMPLICATION}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+<div class="slide-wrapper" id="wrap-slide-13">
+
+    <div class="slide" id="slide-13">
+
+        <div class="slide-header">
+
+            <div class="breadcrumb">IV. Creative > History</div>
+
+            <div class="title-row"><h2 class="title">{{S13_TITLE}}</h2><span class="slide-badge">Timeline</span></div>
+
+        </div>
+
+        <div class="slide-body">
+
+            <div class="governing-msg">{{S13_MSG}}</div>
+
+            <div class="timeline-container">
+
+                <div class="timeline-card"><div class="t-year">{{S13_Y1}}</div><div class="t-category">{{S13_CAT1}}</div><div class="t-title">{{S13_MSG1}}</div><div class="t-desc">{{S13_MOD1}}</div></div>
+
+                <div class="timeline-card"><div class="t-year">{{S13_Y2}}</div><div class="t-category">{{S13_CAT2}}</div><div class="t-title">{{S13_MSG2}}</div><div class="t-desc">{{S13_MOD2}}</div></div>
+
+                <div class="timeline-card"><div class="t-year">{{S13_Y3}}</div><div class="t-category">{{S13_CAT3}}</div><div class="t-title">{{S13_MSG3}}</div><div class="t-desc">{{S13_MOD3}}</div></div>
+
+                <div class="timeline-card"><div class="t-year">{{S13_Y4}}</div><div class="t-category">{{S13_CAT4}}</div><div class="t-title">{{S13_MSG4}}</div><div class="t-desc">{{S13_MOD4}}</div></div>
+
+                <div class="timeline-card"><div class="t-year">{{S13_Y5}}</div><div class="t-category">{{S13_CAT5}}</div><div class="t-title">{{S13_MSG5}}</div><div class="t-desc">{{S13_MOD5}}</div></div>
+
+                <div class="timeline-card current"><div class="t-year">{{S13_Y6}}</div><div class="t-category">{{S13_CAT6}}</div><div class="t-title">{{S13_MSG6}}</div><div class="t-desc">{{S13_MOD6}}</div></div>
+
+            </div>
+
+            <div class="box safe-box" style="margin-top: 0; padding: 15px;">
+
+                <div class="box-title" style="margin-bottom: 10px;">Evolution of Message Strategy</div>
+
+                <div class="box-content" style="display: flex; justify-content: space-between; align-items: stretch; gap: 15px; height: 100%;">
+
+                    <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; text-align: center;">
+
+                        <div style="font-size: 12px; color: #64748b; font-weight: 700;">Phase 1</div><div style="font-size: 15px; font-weight: 900; margin: 5px 0;">{{S13_PH1_T}}</div><div style="font-size: 12px; color: #475569;">{{S13_PH1_D}}</div>
+
+                    </div>
+
+                    <div style="font-size: 20px; color: #cbd5e1; align-self: center;">&rarr;</div>
+
+                    <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; text-align: center;">
+
+                        <div style="font-size: 12px; color: #64748b; font-weight: 700;">Phase 2</div><div style="font-size: 15px; font-weight: 900; margin: 5px 0;">{{S13_PH2_T}}</div><div style="font-size: 12px; color: #475569;">{{S13_PH2_D}}</div>
+
+                    </div>
+
+                    <div style="font-size: 20px; color: #cbd5e1; align-self: center;">&rarr;</div>
+
+                    <div style="flex: 1; background: #ecfdf5; border: 2px solid var(--secondary); border-radius: 8px; padding: 10px; text-align: center;">
+
+                        <div style="font-size: 12px; color: var(--secondary); font-weight: 700;">Phase 3</div><div style="font-size: 15px; font-weight: 900; margin: 5px 0; color: var(--primary);">{{S13_PH3_T}}</div><div style="font-size: 12px; color: #065f46;">{{S13_PH3_D}}</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="implication-bar"><i class="fas fa-history" style="color: #6366f1;"></i><div style="font-size: 14px; font-weight: 600;">{{S13_IMPLICATION}}</div></div>
+
+    </div>
+
+</div>
+
+
+
+<div class="slide-wrapper" id="wrap-slide-14">
+
+    <div class="slide" id="slide-14">
+
+        <div class="slide-header">
+
+            <div class="breadcrumb">IV. Creative > Competitor Strategy</div>
+
+            <div class="title-row"><h2 class="title">{{S14_TITLE}}</h2><span class="slide-badge">Ad War</span></div>
+
+        </div>
+
+        <div class="slide-body">
+
+            <div class="governing-msg">{{S14_MSG}}</div>
+
+            <div class="grid-2">
+
+                <div class="box compact-box" style="border-top: 4px solid #c02431;">
+
+                    <div class="box-title" style="color: #c02431;">{{S14_C1_NAME}}</div>
+
+                    <div class="box-content">
+
+                        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+
+                            <div style="flex: 1;"><div class="comp-year-box">{{S14_C1_Y1}}</div><div class="comp-content-box"><span class="comp-name">{{S14_C1_MSG1}}</span><span class="comp-tag tag-lx">{{S14_C1_MOD1}}</span></div></div>
+
+                            <div style="flex: 1;"><div class="comp-year-box">{{S14_C1_Y2}}</div><div class="comp-content-box"><span class="comp-name">{{S14_C1_MSG2}}</span><span class="comp-tag tag-lx">{{S14_C1_MOD2}}</span></div></div>
+
+                        </div>
+
+                        <dl class="consumer-list">{{S14_C1_DL}}</dl>
+
+                    </div>
+
+                </div>
+
+                <div class="box compact-box" style="border-top: 4px solid #1e3a8a;">
+
+                    <div class="box-title" style="color: #1e3a8a;">{{S14_C2_NAME}}</div>
+
+                    <div class="box-content">
+
+                        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+
+                            <div style="flex: 1;"><div class="comp-year-box">{{S14_C2_Y1}}</div><div class="comp-content-box"><span class="comp-name">{{S14_C2_MSG1}}</span><span class="comp-tag tag-kcc">{{S14_C2_MOD1}}</span></div></div>
+
+                            <div style="flex: 1;"><div class="comp-year-box">{{S14_C2_Y2}}</div><div class="comp-content-box"><span class="comp-name">{{S14_C2_MSG2}}</span><span class="comp-tag tag-kcc">{{S14_C2_MOD2}}</span></div></div>
+
+                        </div>
+
+                        <dl class="consumer-list">{{S14_C2_DL}}</dl>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="implication-bar"><i class="fas fa-bullhorn" style="color: #f59e0b;"></i><div style="font-size: 14px; font-weight: 600;">{{S14_IMPLICATION}}</div></div>
+
+    </div>
+
+</div>
+
+
+
+<div class="slide-wrapper" id="wrap-slide-15">
+
+    <div class="slide" id="slide-15">
+
+        <div class="slide-header">
+
+            <div class="breadcrumb">IV. Creative > Insight</div>
+
+            <div class="title-row"><h2 class="title">{{S15_TITLE}}</h2><span class="slide-badge">Performance Review</span></div>
+
+        </div>
+
+        <div class="slide-body">
+
+            <div class="governing-msg">{{S15_MSG}}</div>
+
+            <div class="grid-2" style="height: 55%;">
+
+                <div class="box emphasis-risk compact-box"><div class="box-title">Current Limitation (As-Is)</div><div class="box-content consumer-list"><dl>{{S15_LIMIT_DL}}</dl></div></div>
+
+                <div class="box emphasis-opp compact-box"><div class="box-title">Creative Opportunity (To-Be)</div><div class="box-content consumer-list"><dl>{{S15_OPP_DL}}</dl></div></div>
+
+            </div>
+
+            <div class="box safe-box" style="margin-top:15px; background:#004d40; color:white; border:none; padding: 10px 15px; min-height: auto; height: 20%;">
+
+                <div style="display:flex; justify-content:space-around; align-items:center; height: 100%;">
+
+                    <div style="text-align:center;"><small style="opacity:0.7;">Keyword 1</small><br><strong style="font-size:20px;">{{S15_KEY1}}</strong></div>
+
+                    <div style="font-size:24px; opacity:0.5;">+</div>
+
+                    <div style="text-align:center;"><small style="opacity:0.7;">Keyword 2</small><br><strong style="font-size:20px;">{{S15_KEY2}}</strong></div>
+
+                    <div style="font-size:24px; opacity:0.5;">=</div>
+
+                    <div style="text-align:center;"><small style="opacity:0.7;">New Concept</small><br><strong style="font-size:22px; color:#fbbf24;">{{S15_CONCEPT}}</strong></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="implication-bar"><i class="fas fa-lightbulb" style="color: #fbbf24;"></i><div style="font-size: 14px; font-weight: 600;">{{S15_IMPLICATION}}</div></div>
+
+    </div>
+
+</div>
+
+
+
+<div class="slide-wrapper" id="wrap-slide-16">
+
+    <div class="slide slide-full" id="slide-16">
+
+        <div class="slide-header">
+
+            <div class="breadcrumb">V. Strategy > SWOT</div>
+
+            <div class="title-row"><h2 class="title">SWOT Analysis</h2><span class="slide-badge">Diagnosis</span></div>
+
+        </div>
+
+        <div class="slide-body">
+
+            <div class="governing-msg" style="margin-bottom: 5px; padding: 10px 20px;">{{S16_MSG}}</div>
+
+            <div class="grid-2" style="grid-template-rows: 1fr 1fr; gap: 10px;">
+
+                <div class="box tight-box" style="background: #f0fdfa; border: 2px solid #004d40;">
+
+                    <div class="box-title" style="color: #004d40;"><i class="fas fa-dumbbell" style="margin-right:8px;"></i> Strength (강점)</div>
+
+                    <div class="box-content compact-list"><dl>{{S16_S_DL}}</dl></div>
+
+                </div>
+
+                <div class="box tight-box" style="background: #fff5f5; border: 2px solid #ef4444;">
+
+                    <div class="box-title" style="color: #ef4444;"><i class="fas fa-link" style="margin-right:8px;"></i> Weakness (약점)</div>
+
+                    <div class="box-content compact-list"><dl>{{S16_W_DL}}</dl></div>
+
+                </div>
+
+                <div class="box tight-box" style="background: #eff6ff; border: 2px solid #3b82f6;">
+
+                    <div class="box-title" style="color: #1d4ed8;"><i class="fas fa-lightbulb" style="margin-right:8px;"></i> Opportunity (기회)</div>
+
+                    <div class="box-content compact-list"><dl>{{S16_O_DL}}</dl></div>
+
+                </div>
+
+                <div class="box tight-box" style="background: #fff7ed; border: 2px solid #f97316;">
+
+                    <div class="box-title" style="color: #c2410c;"><i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i> Threat (위협)</div>
+
+                    <div class="box-content compact-list"><dl>{{S16_T_DL}}</dl></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="slide-wrapper" id="wrap-slide-17">
+
+    <div class="slide slide-full" id="slide-17">
+
+        <div class="slide-header">
+
+            <div class="breadcrumb">V. Strategy > STP</div>
+
+            <div class="title-row"><h2 class="title">{{S17_TITLE}}</h2><span class="slide-badge">Roadmap</span></div>
+
+        </div>
+
+        <div class="slide-body">
+
+            <div class="governing-msg">{{S17_MSG}}</div>
+
+            <div class="box" style="flex: 1; min-height: 0; margin-bottom: 20px; padding: 25px;">
+
+                <div class="box-title" style="margin-bottom: 20px;">Targeting Strategy: Audience Expansion</div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; height: calc(100% - 40px);">
+
+                    <div style="flex: 1; background: #f1f5f9; border-radius: 12px; text-align: center; padding: 30px; display:flex; flex-direction:column; justify-content:center; height: 100%;">
+
+                        <div style="color: #64748b; font-weight: 800; font-size: 14px; margin-bottom: 10px;">AS-IS (Core)</div>
+
+                        <div style="color: var(--text-main); font-weight: 900; font-size: 24px; margin-bottom: 10px;">{{S17_T_ASIS_TIT}}</div>
+
+                        <div style="font-size: 14px; color: #475569; font-weight: 500;">{{S17_T_ASIS_DESC}}</div>
+
+                    </div>
+
+                    <div style="font-size: 30px; color: var(--secondary);"><i class="fas fa-long-arrow-alt-right"></i></div>
+
+                    <div style="flex: 1; background: #ecfdf5; border: 2px solid var(--secondary); border-radius: 12px; text-align: center; padding: 30px; display:flex; flex-direction:column; justify-content:center; height: 100%;">
+
+                        <div style="color: var(--secondary); font-weight: 800; font-size: 14px; margin-bottom: 10px;">TO-BE (Expansion)</div>
+
+                        <div style="color: var(--primary); font-weight: 900; font-size: 24px; margin-bottom: 10px;">{{S17_T_TOBE_TIT}}</div>
+
+                        <div style="font-size: 14px; color: #064e3b; font-weight: 500;">{{S17_T_TOBE_DESC}}</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="box" style="flex: 1; min-height: 0; padding: 25px;">
+
+                <div class="box-title" style="margin-bottom: 20px;">Positioning Strategy: Value Shift</div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; height: calc(100% - 40px);">
+
+                    <div style="flex: 1; background: #f1f5f9; border-radius: 12px; text-align: center; padding: 30px; display:flex; flex-direction:column; justify-content:center; height: 100%;">
+
+                        <div style="color: #64748b; font-weight: 800; font-size: 14px; margin-bottom: 10px;">AS-IS Position</div>
+
+                        <div style="color: var(--text-main); font-weight: 900; font-size: 24px; margin-bottom: 10px;">{{S17_P_ASIS_TIT}}</div>
+
+                        <div style="font-size: 14px; color: #475569; font-weight: 500;">{{S17_P_ASIS_DESC}}</div>
+
+                    </div>
+
+                    <div style="font-size: 30px; color: var(--secondary);"><i class="fas fa-long-arrow-alt-right"></i></div>
+
+                    <div style="flex: 1; background: #fff7ed; border: 2px solid #f97316; border-radius: 12px; text-align: center; padding: 30px; display:flex; flex-direction:column; justify-content:center; height: 100%;">
+
+                        <div style="color: #ea580c; font-weight: 800; font-size: 14px; margin-bottom: 10px;">TO-BE Position</div>
+
+                        <div style="color: #c2410c; font-weight: 900; font-size: 24px; margin-bottom: 10px;">{{S17_P_TOBE_TIT}}</div>
+
+                        <div style="font-size: 14px; color: #9a3412; font-weight: 500;">{{S17_P_TOBE_DESC}}</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-slide-18">
+
+        <div class="slide slide-full" id="slide-18">
+
+            <div class="slide-header">
+
+                <div class="breadcrumb">V. Strategy > 4 Pillars</div>
+
+                <div class="title-row"><h2 class="title">Strategic Implication</h2><span class="slide-badge">Action Plan</span></div>
+
+            </div>
+
+            <div class="slide-body">
+
+                <div class="grid-2" style="grid-template-rows: 1fr 1fr; gap: 15px;">
+
+                    <div class="box tight-box"><div class="box-title">1. {{S19_PIL1_TIT}}</div><div class="box-content compact-list"><dl><dt style="color:#059669;">Concept</dt><dd style="font-weight:700;">{{S19_PIL1_CON}}</dd><dt style="color:#059669;">Strategy</dt><dd>{{S19_PIL1_STR}}</dd><dt style="color:#059669;">Key Copy</dt><dd style="font-family: 'Noto Serif KR', serif; font-style: italic; color: var(--primary);">{{S19_PIL1_CPY}}</dd></dl></div></div>
+
+                    <div class="box tight-box"><div class="box-title">2. {{S19_PIL2_TIT}}</div><div class="box-content compact-list"><dl><dt style="color:#059669;">Concept</dt><dd style="font-weight:700;">{{S19_PIL2_CON}}</dd><dt style="color:#059669;">Strategy</dt><dd>{{S19_PIL2_STR}}</dd><dt style="color:#059669;">Key Copy</dt><dd style="font-family: 'Noto Serif KR', serif; font-style: italic; color: var(--primary);">{{S19_PIL2_CPY}}</dd></dl></div></div>
+
+                    <div class="box tight-box"><div class="box-title">3. {{S19_PIL3_TIT}}</div><div class="box-content compact-list"><dl><dt style="color:#059669;">Concept</dt><dd style="font-weight:700;">{{S19_PIL3_CON}}</dd><dt style="color:#059669;">Strategy</dt><dd>{{S19_PIL3_STR}}</dd><dt style="color:#059669;">Key Copy</dt><dd style="font-family: 'Noto Serif KR', serif; font-style: italic; color: var(--primary);">{{S19_PIL3_CPY}}</dd></dl></div></div>
+
+                    <div class="box tight-box"><div class="box-title">4. {{S19_PIL4_TIT}}</div><div class="box-content compact-list"><dl><dt style="color:#059669;">Concept</dt><dd style="font-weight:700;">{{S19_PIL4_CON}}</dd><dt style="color:#059669;">Strategy</dt><dd>{{S19_PIL4_STR}}</dd><dt style="color:#059669;">Key Copy</dt><dd style="font-family: 'Noto Serif KR', serif; font-style: italic; color: var(--primary);">{{S19_PIL4_CPY}}</dd></dl></div></div>
+
+                </div>
+
+            </div>
+
+            <div class="implication-bar"><i class="fas fa-flag-checkered" style="color: #10b981;"></i><div style="font-size: 14px; font-weight: 600;">{{S19_FINAL_GOAL}}</div></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="slide-wrapper" id="wrap-back-cover">
+
+        <div class="slide" id="back-cover" style="justify-content: center; align-items: center; background: #111827; color: white; text-align: center;">
+
+            <div style="font-size: 48px; font-weight: 900; margin-bottom: 20px; font-family: 'Montserrat';">{{BRAND_NAME}}</div>
+
+            <div style="width: 60px; height: 4px; background: #4fd1c5; margin: 0 auto 30px;"></div>
+
+            <div style="font-size: 20px; font-weight: 300; opacity: 0.8; margin-bottom: 60px;">Creating the New Standard of<br>Premium Life Solution</div>
+
+            <div style="font-size: 14px; opacity: 0.5;">© {{YEAR}} All Rights Reserved.</div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- 인쇄 설정 가이드 (웹에서만 보임) -->
+    <div class="print-guide" style="position: fixed; bottom: 25px; right: 25px; background: rgba(10, 37, 64, 0.95); color: white; padding: 14px 20px; border-radius: 12px; font-size: 13px; z-index: 100000; box-shadow: 0 8px 32px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; pointer-events: none; transition: all 0.3s; backdrop-filter: blur(8px);">
+        <div style="background: var(--accent); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <i class="fas fa-print"></i>
+        </div>
+        <div>
+            <div style="font-weight: 800; margin-bottom: 2px; color: var(--accent);">PDF 인쇄 최적화 팁</div>
+            <div style="opacity: 0.9;">설정에서 <b>여백: 없음 (None)</b>을 권장합니다.</div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+
+</html>
+
+[Output Requirements]
+1. Output MUST be ONLY valid HTML code starting with <!DOCTYPE html> and ending with </html>.
+2. Do NOT wrap the HTML in markdown code blocks (```html). Output the raw HTML directly.
+3. Your output MUST include the full <head> and <style> from the Master HTML, applying the Brand Accent Color where appropriate.
