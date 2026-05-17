@@ -384,15 +384,38 @@ export default function Dashboard() {
                    onChange={e => setImportHtmlInput(e.target.value)}
                  />
                  <button 
-                   onClick={() => {
-                     let html = importHtmlInput;
-                     if (html.includes('\`\`\`html')) html = html.split('\`\`\`html')[1].split('\`\`\`')[0].trim();
-                     else if (html.includes('<!DOCTYPE html>')) html = html.substring(html.indexOf('<!DOCTYPE html>'));
-                     
-                     setCompiledHtml(html);
-                     setCurrentStep(7);
-                     setShowFullscreenViewer(true);
-                   }}
+                   onClick={async () => {
+                      setIsProcessing(true);
+                      try {
+                        let html = importHtmlInput;
+                        if (html.includes('```html')) html = html.split('```html')[1].split('```')[0].trim();
+                        
+                        const response = await fetch('/template.html?t=' + Date.now());
+                        let masterHtml = await response.text();
+                        
+                        const designRef = getBrandDesignReference(brandName);
+                        const accentColor = designRef.match(/Accent:\s*(#\w+)/i)?.[1] || '#5e6ad2';
+                        masterHtml = masterHtml.replace(/--hds-brand-accent:\s*#5e6ad2;/g, `--hds-brand-accent: ${accentColor};`);
+
+                        const mainStart = masterHtml.indexOf('<main id="content">');
+                        const mainEnd = masterHtml.indexOf('</main>', mainStart);
+                        if (mainStart !== -1 && mainEnd !== -1) {
+                          const before = masterHtml.substring(0, mainStart + '<main id="content">'.length);
+                          const after = masterHtml.substring(mainEnd);
+                          html = before + '\n' + html + '\n' + after;
+                        } else if (html.includes('<!DOCTYPE html>')) {
+                          html = html.substring(html.indexOf('<!DOCTYPE html>'));
+                        }
+
+                        setCompiledHtml(html);
+                        setCurrentStep(7);
+                        setShowFullscreenViewer(true);
+                      } catch (e) {
+                        alert('렌더링 중 오류가 발생했습니다: ' + e);
+                      } finally {
+                        setIsProcessing(false);
+                      }
+                    }}
                    disabled={!importHtmlInput.trim()}
                    className="w-full mt-2 py-2 bg-[#2DD4BF] text-[#120d0b] font-bold rounded-lg hover:brightness-110 text-sm disabled:opacity-50 transition shadow-lg flex items-center justify-center gap-2"
                  >
