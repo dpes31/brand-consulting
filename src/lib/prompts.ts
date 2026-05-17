@@ -284,9 +284,10 @@ You are provided with a complete HTML component library in the [Master HTML Refe
 [Output Requirements]
 1. CRITICAL: You MUST output exactly ONE single unified string of raw HTML. DO NOT split the CSS, JS, and HTML into separate markdown blocks.
 2. The <style> and <script> tags MUST be included directly inside the HTML structure, exactly as shown in the Master HTML Reference.
-3. Output MUST start exactly with <!DOCTYPE html> and end with </html>.
-4. Do NOT wrap the HTML in markdown code blocks (\`\`\`html). Output the raw HTML directly without any explanations.
-5. Your output MUST include the full <head> and <style> from the Master HTML, applying the Brand Accent Color where appropriate.
+3. Output MUST start exactly with <!DOCTYPE html> and end with </html>. You MUST include the full <html>, <head>, and <body> tags. DO NOT just output the <div class="slide-wrapper"> elements.
+4. CRITICAL: You MUST completely remove ALL citation markers (e.g., [cite: 19], \cite{...}) from the final text. They must NOT appear anywhere in the HTML output.
+5. Do NOT wrap the HTML in markdown code blocks (\`\`\`html). Output the raw HTML directly without any explanations.
+6. Your output MUST include the full <head> and <style> from the Master HTML, applying the Brand Accent Color where appropriate.
 `;
 
 export function getBrandDesignReference(brandName: string): string {

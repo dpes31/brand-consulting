@@ -1,0 +1,414 @@
+<div class="slide-wrapper" id="wrap-slide-01">
+    <div class="slide" id="slide-01">
+        <div class="slide-header">
+            <div class="breadcrumb">0. Brand Fact Book > Identity</div>
+            <h2 class="title">"렌탈을 넘어 라이프 솔루션으로" [cite: 19]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="governing-msg">대한민국 주거 문화에 ‘구독 경제’라는 개념을 최초로 유료화한 비즈니스 모델의 개척자입니다. [cite: 17]</div>
+            <div class="grid-3" style="margin-bottom: 30px;">
+                <div class="box">
+                    <div class="stat-label">총 계정 수</div>
+                    <div class="stat-box"><span class="stat-num">1,000만</span><span class="stat-label">Accounts</span></div>
+                    <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 100%;"></div></div>
+                    <div style="font-size: 11px; color: var(--text-muted);">국내 가전 렌탈 압도적 1위 [cite: 21]</div>
+                </div>
+                <div class="box">
+                    <div class="stat-label">연간 매출액</div>
+                    <div class="stat-box"><span class="stat-num">4.0조</span><span class="stat-label">KRW</span></div>
+                    <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 85%;"></div></div>
+                    <div style="font-size: 11px; color: var(--text-muted);">안정적인 현금 흐름 확보 [cite: 21]</div>
+                </div>
+                <div class="box">
+                    <div class="stat-label">해외 매출 비중</div>
+                    <div class="stat-box"><span class="stat-num">35%</span><span class="stat-label">Global</span></div>
+                    <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 35%;"></div></div>
+                    <div style="font-size: 11px; color: var(--text-muted);">말레이시아, 미국 확장 가속 [cite: 21]</div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="box">
+                    <div class="box-title">Mission & Vision</div>
+                    <dl>
+                        <dt>베스트 라이프 솔루션 기업 [cite: 20]</dt>
+                        <dd>고객의 건강한 삶을 케어하는 것을 존재 이유로 삼습니다. [cite: 20]</dd>
+                    </dl>
+                </div>
+                <div class="box">
+                    <div class="box-title">Target & Category</div>
+                    <dl>
+                        <dt>Core: 3050 가구 [cite: 22]</dt>
+                        <dd>건강과 위생에 민감한 핵심 타겟 [cite: 22]</dd>
+                        <dt>Next: 2030 싱글/신혼부부 [cite: 22]</dt>
+                        <dd>'비렉스(BEREX)'를 통한 타겟 확장 [cite: 22]</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="implication-bar"><i class="fas fa-fingerprint"></i> 보이지 않는 곳에서 묵묵히 삶의 질을 지탱하는 '가장 믿음직한 생활 파트너' [cite: 35]</div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-02">
+    <div class="slide" id="slide-02">
+        <div class="slide-header">
+            <div class="breadcrumb">0. Brand Fact Book > History</div>
+            <h2 class="title">위기를 혁신으로 바꾼 3번의 변곡점 [cite: 23]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-3" style="height: 100%;">
+                <div class="box">
+                    <div class="box-title">사회적 (1998) [cite: 24]</div>
+                    <dl>
+                        <dt>IMF 외환위기와 '코디' 탄생 [cite: 25]</dt>
+                        <dd>고가의 정수기를 빌려주고 관리해주는 세계 최초 렌탈 비즈니스 도입 [cite: 25]</dd>
+                        <dd>방문 관리 서비스 표준 수립 [cite: 26]</dd>
+                    </dl>
+                </div>
+                <div class="box">
+                    <div class="box-title">기술적 (2010s) [cite: 27]</div>
+                    <dl>
+                        <dt>필터 기술 정점과 IoT 결합 [cite: 27]</dt>
+                        <dd>단순 여과를 넘어 수질 모니터링 및 자가 관리 기술 고도화 [cite: 27]</dd>
+                        <dd>'스마트 케어' 브랜드로 체질 개선 [cite: 27]</dd>
+                    </dl>
+                </div>
+                <div class="box" style="border: 1px solid var(--hds-brand-accent);">
+                    <div class="box-title">경제적 (2022~) [cite: 28]</div>
+                    <dl>
+                        <dt>비렉스(BEREX) 론칭 [cite: 28]</dt>
+                        <dd>정수기를 넘어 매트리스, 안마의자로 카테고리 확장 [cite: 28]</dd>
+                        <dd>고단가 '힐링케어' 시장 선점 [cite: 29]</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-03">
+    <div class="slide" id="slide-03">
+        <div class="slide-header">
+            <div class="breadcrumb">0. Brand Fact Book > Brand DNA</div>
+            <h2 class="title">"기술보다 깊은 케어, 케어보다 넓은 휴식" [cite: 30]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-2">
+                <div class="box">
+                    <div class="box-title">기술적 USP [cite: 30]</div>
+                    <dl>
+                        <dt>압도적 R&D 인프라 [cite: 30]</dt>
+                        <dd>워터 소믈리에 및 국내 최대 규모 환경기술연구소 보유 [cite: 30]</dd>
+                        <dt>공간 효율 & 정수 성능 [cite: 31]</dt>
+                        <dd>아이콘 시리즈: 초소형 사이즈에 나노트랩 기술 집약 [cite: 31]</dd>
+                    </dl>
+                </div>
+                <div class="box">
+                    <div class="box-title">포지셔닝 USP [cite: 32]</div>
+                    <dl>
+                        <dt>라이프스타일 큐레이터 [cite: 33]</dt>
+                        <dd>서비스 중심 '코디'에서 '감각적 휴식'의 프리미엄 가전으로 이동 [cite: 32]</dd>
+                        <dd>단순 가전 브랜드를 넘은 포지셔닝 [cite: 33]</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="box" style="margin-top: 20px; background: rgba(94, 106, 210, 0.05); border: 1px solid var(--hds-brand-accent);">
+                <div class="box-title" style="color: var(--hds-brand-accent); border: none;">Brand Best Self: "안심의 일상화" [cite: 34]</div>
+                <p style="font-size: 15px; line-height: 1.6; margin: 0;">고객이 물 한 잔을 마시고 잠자리에 드는 당연한 일상 속에서 어떠한 의심이나 불안도 느끼지 않게 만드는 것. [cite: 34] 보이지 않는 곳에서 묵묵히 삶의 질을 지탱하는 존재입니다. [cite: 35]</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-04">
+    <div class="slide" id="slide-04">
+        <div class="slide-header">
+            <div class="breadcrumb">I. Market Analysis > Context</div>
+            <h2 class="title">Cultural Tension: "돌봄의 모순" [cite: 49]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="governing-msg">현대인은 완벽한 케어를 갈구하지만, 사생활 침해는 거부하는 긴장 상태에 있습니다. [cite: 48, 49]</div>
+            <div class="grid-2">
+                <div class="box">
+                    <div class="box-title">Social Shift [cite: 44]</div>
+                    <dl>
+                        <dt>공유된 웰니스로 [cite: 44]</dt>
+                        <dd>'나만 아는 위생'에서 '데이터 기반 웰니스' 시대로 전환 [cite: 44, 45]</dd>
+                    </dl>
+                </div>
+                <div class="box" style="border: 1px solid #ef4444;">
+                    <div class="box-title" style="color: #ef4444;">Core Tension [cite: 48, 49]</div>
+                    <p style="font-size: 18px; font-weight: 600; line-height: 1.4;">"나는 돌봄 받고 싶지만, 간섭받기는 싫다" [cite: 48]</p>
+                    <p style="font-size: 13px; color: var(--text-secondary);">낯선 이의 방문이나 정해진 스케줄에 구속받는 것을 극도로 꺼리는 결핍 [cite: 48]</p>
+                </div>
+            </div>
+        </div>
+        <div class="implication-bar"><i class="fas fa-bolt"></i> '코디' 서비스가 젊은 세대에게는 '사생활 침해'로 느껴지는 리스크 존재 [cite: 38]</div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-05">
+    <div class="slide" id="slide-05">
+        <div class="slide-header">
+            <div class="breadcrumb">I. Market Analysis > Overview</div>
+            <h2 class="title">'물'에서 '잠'과 '쉼'으로의 대이동 [cite: 50]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-2">
+                <div class="box">
+                    <div class="box-title">Market Size (KRW) [cite: 49]</div>
+                    <div class="stat-box"><span class="stat-num">50조+</span><span class="stat-label">2026 추산</span></div>
+                    <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 100%;"></div></div>
+                    <p style="font-size: 12px; color: var(--text-muted);">2021년 40조 원 규모에서 비약적 성장 [cite: 49]</p>
+                </div>
+                <div class="box">
+                    <div class="box-title">비렉스(BEREX) 모멘텀 [cite: 54]</div>
+                    <div class="stat-box"><span class="stat-num">30%↑</span><span class="stat-label">신규 판매 급증</span></div>
+                    <p style="font-size: 12px; color: var(--text-muted);">침대 부문 전사 성장 견인 [cite: 54]</p>
+                </div>
+            </div>
+            <div class="box" style="margin-top: 20px;">
+                <div class="box-title">구조적 변화 [cite: 51]</div>
+                <p style="font-size: 15px; line-height: 1.6;">단순 가전 교체 주기를 넘어 **'인생의 1/3(수면 시간)'**을 구독하게 만드는 전략적 담론 선점 [cite: 51]</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-06">
+    <div class="slide" id="slide-06">
+        <div class="slide-header">
+            <div class="breadcrumb">II. Competitor > Strategy</div>
+            <h2 class="title">추격하는 거인들과 파괴적 대체재 [cite: 67]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-3" style="margin-bottom: 20px;">
+                <div class="box" style="border-top: 4px solid #ea002c;">
+                    <div class="box-title" style="color: #ea002c;">LG전자 (구독) [cite: 69]</div>
+                    <p style="font-size: 12px;">가전 자체의 브랜드 파워로 프리미엄 이미지 위협 [cite: 70]</p>
+                </div>
+                <div class="box" style="border-top: 4px solid #005aab;">
+                    <div class="box-title" style="color: #005aab;">쿠쿠홈시스 [cite: 71]</div>
+                    <p style="font-size: 12px;">가성비와 실속형 타겟으로 점유율 확대 [cite: 71]</p>
+                </div>
+                <div class="box" style="border-top: 4px solid #5e6ad2;">
+                    <div class="box-title" style="color: #5e6ad2;">에이스/시몬스 [cite: 72]</div>
+                    <p style="font-size: 12px;">전통적 권위로 비렉스의 프리미엄화 견제 [cite: 73]</p>
+                </div>
+            </div>
+            <div class="box">
+                <div class="box-title">Indirect Competitor: 지갑을 뺏는 대체재 [cite: 76]</div>
+                <dl>
+                    <dt>브리타 & 생수 배달 [cite: 76]</dt>
+                    <dd>방문 관리 자체를 '귀찮은 비용'으로 느끼게 함 [cite: 77]</dd>
+                    <dt>수면 앱 & 테크 [cite: 78]</dt>
+                    <dd>물리적 제품 없이 '잠의 질' 분석 기능을 제공하는 심리적 대체재 [cite: 78]</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-07">
+    <div class="slide" id="slide-07">
+        <div class="slide-header">
+            <div class="breadcrumb">II. Competitor > Positioning Map</div>
+            <h2 class="title">AS-IS → TO-BE: 삶의 감각으로 [cite: 86]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="pos-map">
+                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-strong);"></div>
+                <div style="position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--border-strong);"></div>
+                
+                <div style="position: absolute; top: 10px; left: 51%; font-size: 10px; color: var(--text-muted);">Lifestyle Inspiration [cite: 86]</div>
+                <div style="position: absolute; bottom: 10px; left: 51%; font-size: 10px; color: var(--text-muted);">Functional Trust [cite: 87]</div>
+                <div style="position: absolute; top: 51%; right: 10px; font-size: 10px; color: var(--text-muted);">Seamless Life [cite: 86]</div>
+                <div style="position: absolute; top: 51%; left: 10px; font-size: 10px; color: var(--text-muted);">High Maintenance [cite: 87]</div>
+
+                <div class="pos-bubble" style="bottom: 20%; left: 20%; width: 100px; height: 100px; background: rgba(138, 143, 152, 0.3); border: 2px dashed var(--text-muted);">COWAY<br>(AS-IS)</div>
+                <div class="pos-bubble" style="top: 20%; right: 20%; width: 120px; height: 120px; background: rgba(94, 106, 210, 0.4); border: 2px solid var(--hds-brand-accent);">COWAY<br>(TO-BE)</div>
+                <div class="pos-bubble" style="bottom: 30%; right: 10%; width: 80px; height: 80px; background: rgba(234, 0, 44, 0.2);">LG전자</div>
+            </div>
+        </div>
+        <div class="implication-bar"><i class="fas fa-crosshairs"></i> '관리 기술'의 신뢰를 넘어 '삶의 감각'을 깨우는 큐레이터로 [cite: 86]</div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-08">
+    <div class="slide" id="slide-08">
+        <div class="slide-header">
+            <div class="breadcrumb">III. Consumer > Persona</div>
+            <h2 class="title">"스마트한 자기관리자" [cite: 96]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="governing-msg">타겟은 가전을 사는 것이 아니라 '환경을 세팅'하고자 합니다. [cite: 92]</div>
+            <div class="grid-2">
+                <div class="box">
+                    <div class="box-title">Persona Profile [cite: 97]</div>
+                    <p style="font-size: 16px; font-weight: 600;">3545 화이트칼라 가구 [cite: 97]</p>
+                    <dl>
+                        <dt>효율과 미감의 동시 추구 [cite: 97]</dt>
+                        <dd>가족 건강을 챙기면서도 감각적 안목을 포기하지 않는 현명함 [cite: 97]</dd>
+                        <dd>AI 기능을 통해 자신의 스마트함을 증명하려는 욕구 [cite: 98]</dd>
+                    </dl>
+                </div>
+                <div class="box" style="background: rgba(94, 106, 210, 0.1);">
+                    <div class="box-title">JTBD [cite: 101]</div>
+                    <p style="font-size: 15px; font-weight: 500; line-height: 1.6;">"나의 에너지를 낭비하지 않고도, 우리 집의 보이지 않는 기본값(물, 공기, 잠)을 최상으로 유지해 줘." [cite: 101]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-09">
+    <div class="slide" id="slide-09">
+        <div class="slide-header">
+            <div class="breadcrumb">III. Consumer > Bottlenecks</div>
+            <h2 class="title">전환의 치명적 '심리적 병목' [cite: 99]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="box" style="border: 1px solid #ef4444; margin-bottom: 20px;">
+                <div class="box-title" style="color: #ef4444;">Bottleneck: 관심(I) → 구매(P) [cite: 99]</div>
+                <p style="font-size: 18px; font-weight: 600;">'약정의 무게와 방문의 부담' [cite: 100]</p>
+                <p style="font-size: 14px; color: var(--text-secondary);">"모르는 사람이 정기적으로 우리 집에 들어오는 게 과연 편하기만 할까?" [cite: 100]</p>
+            </div>
+            <div class="grid-2">
+                <div class="box">
+                    <div class="box-title">Unmet Need: 자율적 통제권 [cite: 104]</div>
+                    <p style="font-size: 12px;">"관리는 받고 싶지만, 내가 원할 때 내 방식대로 점검하고 싶어." [cite: 105]</p>
+                </div>
+                <div class="box">
+                    <div class="box-title">Unmet Need: 심미적 일체감 [cite: 106]</div>
+                    <p style="font-size: 12px;">"성능은 믿지만, 거실 한복판에 있는 안마의자가 튀지 않았으면 좋겠어." [cite: 106]</p>
+                </div>
+            </div>
+        </div>
+        <div class="implication-bar"><i class="fas fa-key"></i> '구속'을 '케어'로 바꾸는 심리적 프레임의 전환이 단 하나의 방향 [cite: 111]</div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-10">
+    <div class="slide" id="slide-10">
+        <div class="slide-header">
+            <div class="breadcrumb">IV. Creative > History</div>
+            <h2 class="title">메시지의 궤적 (2020-2024) [cite: 114]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="timeline-container" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; height: 60%;">
+                <div class="box" style="padding: 15px;">
+                    <div class="t-year">2020</div>
+                    <div style="font-size: 12px; font-weight: 600; margin: 10px 0;">"관리가 모든 것을 결정하니까" [cite: 116]</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">모델: 공유. 과정의 정통성 [cite: 115, 116]</div>
+                </div>
+                <div class="box" style="padding: 15px;">
+                    <div class="t-year">2021</div>
+                    <div style="font-size: 12px; font-weight: 600; margin: 10px 0;">"모든 혁신, 아이콘에 담다" [cite: 117]</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">모델: BTS. 브랜드 노후화 탈피 [cite: 117]</div>
+                </div>
+                <div class="box" style="padding: 15px;">
+                    <div class="t-year">2022</div>
+                    <div style="font-size: 12px; font-weight: 600; margin: 10px 0;">"잠은 기술이 아니라 케어" [cite: 118]</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">비렉스 론칭. 침대를 케어로 정의 [cite: 118]</div>
+                </div>
+                <div class="box" style="padding: 15px;">
+                    <div class="t-year">2023</div>
+                    <div style="font-size: 12px; font-weight: 600; margin: 10px 0;">"안마의자의 한계를 넘다" [cite: 119]</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">가전의 가구화. 심미성 극대화 [cite: 119]</div>
+                </div>
+                <div class="box" style="padding: 15px; border: 1px solid var(--hds-brand-accent);">
+                    <div class="t-year">2024</div>
+                    <div style="font-size: 12px; font-weight: 600; margin: 10px 0;">"당신의 내일을 바꿉니다" [cite: 120]</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">비렉스. 웰니스 가치 최종 소구 [cite: 120]</div>
+                </div>
+            </div>
+            <div class="box emphasis-risk" style="margin-top: 15px;">
+                <div class="box-title">Insight: '코디'의 실종과 BTS의 잔상 [cite: 122, 123]</div>
+                <p style="font-size: 12px; margin: 0;">가장 강력한 무기인 '압도적 서비스 신뢰도'를 추상적 이미지로 치환해버린 리스크 존재 [cite: 123]</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-slide-11">
+    <div class="slide" id="slide-11">
+        <div class="slide-header">
+            <div class="breadcrumb">V. Strategy > Action</div>
+            <h2 class="title">"보이지 않는 케어, 완벽한 자유" [cite: 141]</h2>
+        </div>
+        <div class="slide-body">
+            <div class="governing-msg">코웨이는 시간을 뺏는 서비스가 아니라, 일상의 걱정으로부터 시간을 되찾아주는 **'시간 해방 브랜드'**가 되어야 합니다. [cite: 141]</div>
+            <div class="grid-2">
+                <div class="box">
+                    <div class="box-title">Winning Move: "The No-Show Service" [cite: 142]</div>
+                    <p style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">"우리는 당신을 만나러 가지 않습니다" [cite: 143]</p>
+                    <p style="font-size: 12px;">AI 원격 진단과 자가 교체 키트를 '스마트한 통제권'으로 브랜딩하여 경쟁사를 압도 [cite: 144]</p>
+                </div>
+                <div class="box" style="background: rgba(94, 106, 210, 0.1);">
+                    <div class="box-title">Via Negativa (포기 전략) [cite: 145]</div>
+                    <dl>
+                        <dt>'친절한 코디' 이미지 제거 [cite: 145]</dt>
+                        <dd>미소 대신 '데이터'와 '자동화 시스템'의 차가운 완벽함 강조 [cite: 146]</dd>
+                        <dt>'렌탈' 용어의 폐기 [cite: 147]</dt>
+                        <dd>'웰니스 구독(Wellness Pass)'으로 교체하여 부채감 제거 [cite: 147]</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="implication-bar"><i class="fas fa-flag-checkered"></i> "코웨이가 집안일을 완벽히 아웃소싱했기에, 당신은 당신의 삶에만 집중할 수 있다" [cite: 151]</div>
+    </div>
+</div>
+
+<div class="slide-wrapper" id="wrap-back-cover">
+    <div class="slide" id="back-cover" style="justify-content: center; align-items: center; background: #08090a; text-align: center;">
+        <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 20px; font-family: 'Montserrat';">COWAY<span style="color: var(--hds-brand-accent);">.</span></h1>
+        <div style="width: 60px; height: 4px; background: var(--hds-brand-accent); margin: 0 auto 30px;"></div>
+        <div style="font-size: 20px; font-weight: 300; opacity: 0.8; margin-bottom: 60px;">Creating the New Standard of<br>Premium Life Solution</div>
+        <div style="font-size: 14px; opacity: 0.5;">© 2026 All Rights Reserved.</div>
+    </div>
+</div>
+function scaleSlides() {
+    const wrappers = document.querySelectorAll('.slide-wrapper');
+    const availableWidth = window.innerWidth - 300;
+    const baseWidth = 1122;
+    let scale = availableWidth / baseWidth;
+    if (scale > 1) scale = 1;
+    wrappers.forEach(el => {
+        el.style.transform = `scale(${scale})`;
+        const h = el.getBoundingClientRect().height / scale;
+        el.style.marginBottom = `-${h * (1 - scale) - 40}px`;
+    });
+}
+window.addEventListener('beforeprint', function() {
+    document.querySelectorAll('.slide-wrapper').forEach(function(el) {
+        el._savedTransform = el.style.transform;
+        el._savedMarginBottom = el.style.marginBottom;
+        el.style.transform = '';
+        el.style.marginBottom = '';
+    });
+});
+window.addEventListener('afterprint', function() {
+    document.querySelectorAll('.slide-wrapper').forEach(function(el) {
+        el.style.transform = el._savedTransform || '';
+        el.style.marginBottom = el._savedMarginBottom || '';
+    });
+});
+window.addEventListener('resize', scaleSlides);
+window.addEventListener('load', scaleSlides);
+
+document.addEventListener('DOMContentLoaded', function() {
+    var sections = document.querySelectorAll('.slide-wrapper');
+    var navItems = document.querySelectorAll('.nav-item');
+    var navObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                var id = entry.target.getAttribute('id').replace('wrap-', '');
+                navItems.forEach(function(item) {
+                    item.classList.remove('active');
+                    if (item.getAttribute('href') === '#' + id) item.classList.add('active');
+                });
+            }
+        });
+    }, { threshold: 0.3 });
+    sections.forEach(function(section) { navObserver.observe(section); });
+});
