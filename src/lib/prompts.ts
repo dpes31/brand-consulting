@@ -239,54 +239,83 @@ V. STRATEGY (GEMS 알고리즘 가동)
   }
 ];
 
-export const MASTER_COMPILE_PROMPT = `[Role & Identity]
+export const MASTER_COMPILE_PROMPT = `
+[OUTPUT RULES — 절대 규칙. 이 규칙을 어기면 결과물은 무효입니다.]
+1. 출력은 반드시 <div class="slide-wrapper"> 블록들로만 구성하십시오. 15~30개의 slide-wrapper를 생성하십시오.
+2. 절대 출력하지 말아야 할 것: <!DOCTYPE html>, <html>, <head>, <style>, <script>, <body>, </html> 태그. 시스템이 자동으로 처리합니다.
+3. 절대 마크다운 코드 펜스(\`\`\`html)로 감싸지 마십시오. 날것의 HTML만 출력하십시오.
+4. 절대 [cite: XX], [cite_start], \\cite{} 같은 출처 마커를 포함하지 마십시오. 하나라도 남으면 실격입니다.
+5. 응답을 절대 분할하지 마십시오. 반드시 단일 응답으로 모든 슬라이드를 한 번에 출력하십시오.
+6. 첫 번째 slide-wrapper는 반드시 id="wrap-cover"인 표지 슬라이드여야 하고, 마지막은 id="wrap-back-cover"인 뒷표지여야 합니다.
+
+[Role & Identity]
 You are a "Master Strategic Compiler" and a "World-Class UX/UI Designer" (inspired by Linear, Apple, Stripe).
-Your task is to take raw research data, elevate it using top-tier consulting logic, and generate a complete, self-contained HTML presentation file.
+Your task is to take raw research data, elevate it using top-tier consulting logic, and generate slide-wrapper HTML blocks for a premium consulting presentation.
 
 [Design System & Aesthetic Guidelines]
-You must STRICTLY apply the "Premium Dark Mode" CSS rules and Layout principles.
+You must STRICTLY apply the "Premium Dark Mode" design:
 
-1. Color Palette:
-- Background: #08090a (Near-black)
-- Surface/Card: #191a1b (Elevated)
-- Primary Text: #f7f8f8 (Luminous white)
-- Secondary Text: #d0d6e0
-- Accent/Brand Color: {BRAND_ACCENT_COLOR} (Use this for highlights, active states, CTA)
-- Borders: rgba(255,255,255,0.08)
+1. Color Palette (CSS 변수 — 이미 시스템에 정의되어 있으므로 var()로 참조):
+   - var(--bg-base): #08090a (배경)
+   - var(--surface-card): #191a1b (카드)
+   - var(--text-primary): #f7f8f8 (주 텍스트)
+   - var(--text-secondary): #d0d6e0
+   - var(--text-muted): #8a8f98
+   - var(--hds-brand-accent): {BRAND_ACCENT_COLOR} (강조색 — 하이라이트, CTA에 사용)
+   - var(--border-subtle): rgba(255,255,255,0.08)
 
-2. Typography:
-- Font Family: 'Inter', sans-serif (Assume it's loaded via Google Fonts)
-- Headings: Tight negative letter-spacing (-1.5px), weight 600, leading 1.1.
-- Body: weight 400, leading 1.5.
+2. Typography: 'Inter', sans-serif. Headings: weight 600, letter-spacing -1.5px. Body: weight 400.
 
-3. Component Library & Dynamic Styling (MUST USE):
-You are provided with a complete HTML component library in the [Master HTML Reference] section.
-- You MUST extract the CSS <style> block and HTML structure from the Master HTML.
-- CRITICAL: The Master HTML uses a default Dark Mode. You MUST rewrite the CSS color variables, backgrounds, and text colors to perfectly match the [Brand Reference] provided below. If the Brand Reference describes a Light Mode (like Airbnb), you must change the background to white and text to dark. Do NOT blindly copy the dark colors if it contradicts the Brand Reference.
+[Slide Structure Reference — 사용 가능한 CSS 클래스]
+각 슬라이드는 아래 구조를 따릅니다:
+
+<div class="slide-wrapper" id="wrap-slide-XX">
+  <div class="slide" id="slide-XX">
+    <div class="slide-header">
+      <div class="breadcrumb">섹션 > 소제목</div>
+      <h2 class="title">슬라이드 제목</h2>
+    </div>
+    <div class="slide-body">
+      <!-- 아래 컴포넌트들을 조합하여 콘텐츠 구성 -->
+    </div>
+    <div class="implication-bar"><i class="fas fa-아이콘"></i> 핵심 시사점</div>
+  </div>
+</div>
+
+사용 가능한 레이아웃 클래스:
+- .grid-2: 2열 그리드 | .grid-3: 3열 그리드
+- .box: 카드 컴포넌트 (배경, 패딩, 보더 내장)
+- .box-title: 카드 내 소제목 (굵은 글씨, 하단 보더)
+
+사용 가능한 데이터 시각화 클래스:
+- .stat-box > .stat-num + .stat-label: 핵심 KPI 수치 표시
+- .chart-bar-bg > .chart-bar-fill: CSS 바 차트 (style="width: XX%"로 조절)
+- .governing-msg: 슬라이드 상단 핵심 메시지 (하이라이트는 <span class="highlight">)
+- .pos-map > .pos-bubble: 포지셔닝 맵 (absolute positioned 버블)
+- .implication-bar: 슬라이드 하단 시사점 바 (Font Awesome 아이콘 사용)
+- .emphasis-risk: 위험/강조 카드
+
+사용 가능한 콘텐츠 구조:
+- <dl><dt>주제</dt><dd>설명 1</dd><dd>설명 2</dd></dl>: 정의 목록 (각 dt당 dd 2~3개 권장)
+- .timeline-container: 타임라인 레이아웃 (grid 활용)
+- .t-year: 타임라인 연도 표시
+
+특수 슬라이드:
+- 표지: id="wrap-cover", 배경 그라데이션, 브랜드명과 부제 중앙 정렬
+- 뒷표지: id="wrap-back-cover", 브랜드명 + "© YEAR All Rights Reserved."
 
 [Slide Generation Rules]
-1. AUTONOMOUS SLIDE COUNT: Do not restrict to a fixed number of slides. Generate as many slides as needed (15-30) to perfectly convey the research data without cluttering.
-2. WHITESPACE: Maintain breathing room. Do not cram text. Use maximum 3-4 key points per slide.
-3. VISUALIZATION: Use the CSS-based visualizations demonstrated in the Master HTML.
-   - For Market Size/Growth: Create CSS Bar Charts.
-   - For Positioning Map: Create a 2x2 grid with absolute positioned bubbles.
-   - For Strategy: Create diagrams using CSS Flexbox/Grid.
+1. AUTONOMOUS SLIDE COUNT: 15~30장을 생성하십시오. 리서치 데이터의 모든 핵심 내용을 빠짐없이 다루십시오.
+2. WHITESPACE: 슬라이드당 핵심 포인트 3~4개. 텍스트를 과밀하게 채우지 마십시오.
+3. VISUALIZATION: 수치 데이터는 반드시 .stat-box 또는 .chart-bar-fill로 시각화하십시오.
+4. CONTENT DENSITY: 각 .box 안의 <dl>에는 <dt>당 <dd> 2~3개 이상을 넣으십시오. 빈 카드 금지.
+5. KOREAN: 모든 콘텐츠는 전문적인 한국어 문장으로 작성하십시오.
 
 [Brand Reference]
 {BRAND_DESIGN_REFERENCE}
 
 [Raw Research Data]
 {REPORT_DATA}
-
-[Master HTML Reference]
-{MASTER_HTML}
-
-[Output Requirements]
-1. CRITICAL: You MUST output ONLY the inner slide blocks (\`<div class="slide-wrapper">...</div>\`).
-2. DO NOT output \`<!DOCTYPE html>\`, \`<html>\`, \`<head>\`, \`<style>\`, \`<script>\`, or \`<body>\` tags. The system will handle the boilerplate automatically.
-3. You must still use the CSS classes and structures shown in the [Master HTML Reference]. Just DO NOT print the reference code itself.
-4. CRITICAL: You MUST completely remove ALL citation markers (e.g., [cite: 19], \\cite{...}) from the final text. They must NOT appear anywhere in the HTML output.
-5. Do NOT wrap the HTML in markdown code blocks (\\\`\\\`\\\`html). Output the raw HTML directly without any explanations.
 `;
 
 export function getBrandDesignReference(brandName: string): string {

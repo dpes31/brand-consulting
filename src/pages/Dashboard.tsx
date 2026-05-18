@@ -284,16 +284,13 @@ export default function Dashboard() {
 
   const handleExportPrompt = async () => {
     try {
-      const response = await fetch('/template.html?t=' + Date.now());
-      const masterHtml = await response.text();
-      
+      // Phase B: template.html을 프롬프트에 넣지 않음 (98KB → 12KB 축소의 핵심)      
       const designRef = getBrandDesignReference(brandName);
       
       let promptText = MASTER_COMPILE_PROMPT
         .replace('{BRAND_ACCENT_COLOR}', designRef.match(/Accent: (#\w+)/)?.[1] || '#5e6ad2')
         .replace('{BRAND_DESIGN_REFERENCE}', designRef)
-        .replace('{REPORT_DATA}', reportData || '')
-        .replace('{MASTER_HTML}', masterHtml);
+        .replace('{REPORT_DATA}', reportData || '');
 
       await navigator.clipboard.writeText(promptText);
       
@@ -388,15 +385,19 @@ export default function Dashboard() {
                       setIsProcessing(true);
                       try {
                         let html = importHtmlInput;
+                        // 마크다운 코드 블록 감싸기 제거
                         if (html.includes('```html')) html = html.split('```html')[1].split('```')[0].trim();
-                        
+
+                        // template.html 뼈대를 불러와서 알맹이를 삽입
                         const response = await fetch('/template.html?t=' + Date.now());
                         let masterHtml = await response.text();
-                        
+
+                        // 브랜드 Accent Color 동적 적용
                         const designRef = getBrandDesignReference(brandName);
                         const accentColor = designRef.match(/Accent:\s*(#\w+)/i)?.[1] || '#5e6ad2';
                         masterHtml = masterHtml.replace(/--hds-brand-accent:\s*#5e6ad2;/g, `--hds-brand-accent: ${accentColor};`);
 
+                        // 뼈대의 <main id="content"> 안에 알맹이(slides)를 주입
                         const mainStart = masterHtml.indexOf('<main id="content">');
                         const mainEnd = masterHtml.indexOf('</main>', mainStart);
                         if (mainStart !== -1 && mainEnd !== -1) {
@@ -404,8 +405,14 @@ export default function Dashboard() {
                           const after = masterHtml.substring(mainEnd);
                           html = before + '\n' + html + '\n' + after;
                         } else if (html.includes('<!DOCTYPE html>')) {
+                          // Fallback: 제미나이가 전체 HTML을 뱉은 경우 그대로 사용
                           html = html.substring(html.indexOf('<!DOCTYPE html>'));
                         }
+
+                        // [cite: XX] 마커 강제 제거 방어막
+                        html = html.replace(/\[cite[:\s]*\d*[\],]*/g, '');
+                        html = html.replace(/\[cite_start\]/g, '');
+                        html = html.replace(/\\cite\{[^}]*\}/g, '');
 
                         setCompiledHtml(html);
                         setCurrentStep(7);
