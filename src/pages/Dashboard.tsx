@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Markdown from 'react-markdown';
 import { useAppContext } from '../context/AppContext';
-import { RESEARCH_NODES, MASTER_COMPILE_PROMPT, getBrandDesignReference } from '../lib/prompts';
+import { RESEARCH_NODES, getBrandDesignReference } from '../lib/prompts';
 import { runResearchNode } from '../lib/gemini';
 import { compileReportToHTML } from '../lib/geminiCompiler';
 import { useProjects } from '../hooks/useProjects';
@@ -282,18 +282,51 @@ export default function Dashboard() {
     );
   };
 
+  // template.html을 포함하여 비즈넵과 동일한 구조의 프롬프트 생성
+  // (구 MASTER_COMPILE_PROMPT 방식은 template.html 미포함으로 AI 출력이 짧아지는 결함 수정)
   const handleExportPrompt = async () => {
     try {
-      // Phase B: template.html을 프롬프트에 넣지 않음 (98KB → 12KB 축소의 핵심)      
+      const response = await fetch('/template.html?t=' + Date.now());
+      if (!response.ok) throw new Error('template.html을 불러올 수 없습니다.');
+      let masterHtml = await response.text();
+
       const designRef = getBrandDesignReference(brandName);
-      
-      let promptText = MASTER_COMPILE_PROMPT
-        .replace('{BRAND_ACCENT_COLOR}', designRef.match(/Accent: (#\w+)/)?.[1] || '#5e6ad2')
-        .replace('{BRAND_DESIGN_REFERENCE}', designRef)
-        .replace('{REPORT_DATA}', reportData || '');
+      const accentColor = designRef.match(/Accent:\s*(#\w+)/i)?.[1] || '#5e6ad2';
+      masterHtml = masterHtml.replace('--hds-brand-accent: #5e6ad2;', `--hds-brand-accent: ${accentColor};`);
+
+      const cleanRawData = (reportData || '').replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, '');
+
+      const promptText = `[Role & Identity]
+You are a "Master Strategic Compiler" and a "Strict HTML Molder".
+Your task is to take raw, fragmented research data, elevate it using top-tier consulting logic (McKinsey & Ogilvy level), and inject it perfectly into the provided [Immutable Master HTML Code].
+
+[Directives]
+1. Read the Raw Data thoroughly. Fact-check it, fix logical leaps (So What?), and synthesize it.
+2. Replace ALL {{PLACEHOLDERS}} in the HTML template with your high-density, professional Korean content.
+3. Content Density Rule: Inside every box (<dl>), aim for at least 3 detail points (<dd>) per topic (<dt>). Do not leave boxes empty. Infer logical connections if data is scarce.
+4. Tone & Manner: Use full, professional Korean sentences. Wrap critical phrases in governing-msg with <span class="highlight">...</span>.
+5. NO [cite], [source], or markdown citations in the output HTML.
+6. YOU MUST OUTPUT THE ENTIRE HTML from <!DOCTYPE html> to </html> IN A SINGLE RESPONSE. Do NOT truncate, do NOT split it into parts. It must be valid HTML.
+
+[CRITICAL: HTML Structure Integrity Rules]
+7. NEVER remove, merge, or skip any <div class="slide-wrapper"> block. The template contains exactly 22 slide-wrapper blocks (cover + f01~f03 + 01~18 + back-cover). Your output MUST contain ALL 22.
+8. Every opened <div> MUST have a matching </div>. Pay special attention to slide-17 (STP Strategy).
+9. The LAST THREE blocks in your output MUST be: wrap-slide-17 → wrap-slide-18 → wrap-back-cover. If any of these are missing, your output is INVALID.
+10. After generating, mentally verify: does the output end with </main></body></html>? If not, you have truncated.
+
+[Immutable Master HTML Code]
+${masterHtml}
+
+[Raw Research Data]
+${cleanRawData}
+
+================
+Now, execute the compilation. Output the finalized HTML code enclosed in \`\`\`html ... \`\`\` formatting.
+Make sure ALL {{PLACEHOLDERS}} are replaced with high-quality content derived from the raw data.
+This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND the new Brand Fact Book slides ({{SF01_TITLE}}, {{SF01_KPI1_LABEL}}, {{SF02_TITLE}}, {{SF02_TIMELINE_CONTENT}}, {{SF03_TITLE}}, {{SF03_BESTSELL_QUOTE}}, etc.).`;
 
       await navigator.clipboard.writeText(promptText);
-      
+
       const blob = new Blob([promptText], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -303,8 +336,8 @@ export default function Dashboard() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
-      alert('마스터 프롬프트가 클립보드에 복사되었으며 파일로 다운로드되었습니다! 외부 AI에 붙여넣어 코드를 생성하세요.');
+
+      alert('✅ 마스터 프롬프트가 클립보드에 복사 + 파일 다운로드 완료!\n\n⚠️ 파일 크기가 약 150~200KB입니다.\n외부 Gemini에 붙여넣어 전체 HTML 코드를 생성하세요.');
     } catch(e) {
       alert('프롬프트 생성 오류: ' + e);
     }
@@ -388,25 +421,23 @@ export default function Dashboard() {
                         // 마크다운 코드 블록 감싸기 제거
                         if (html.includes('```html')) html = html.split('```html')[1].split('```')[0].trim();
 
-                        // template.html 뼈대를 불러와서 알맹이를 삽입
-                        const response = await fetch('/template.html?t=' + Date.now());
-                        let masterHtml = await response.text();
-
-                        // 브랜드 Accent Color 동적 적용
-                        const designRef = getBrandDesignReference(brandName);
-                        const accentColor = designRef.match(/Accent:\s*(#\w+)/i)?.[1] || '#5e6ad2';
-                        masterHtml = masterHtml.replace(/--hds-brand-accent:\s*#5e6ad2;/g, `--hds-brand-accent: ${accentColor};`);
-
-                        // 뼈대의 <main id="content"> 안에 알맹이(slides)를 주입
-                        const mainStart = masterHtml.indexOf('<main id="content">');
-                        const mainEnd = masterHtml.indexOf('</main>', mainStart);
-                        if (mainStart !== -1 && mainEnd !== -1) {
-                          const before = masterHtml.substring(0, mainStart + '<main id="content">'.length);
-                          const after = masterHtml.substring(mainEnd);
-                          html = before + '\n' + html + '\n' + after;
-                        } else if (html.includes('<!DOCTYPE html>')) {
-                          // Fallback: 제미나이가 전체 HTML을 뱉은 경우 그대로 사용
+                        // 1. 전체 HTML이 포함된 경우(template 기반 프롬프트 결과) → 그대로 사용
+                        if (html.includes('<!DOCTYPE html>')) {
                           html = html.substring(html.indexOf('<!DOCTYPE html>'));
+                        } else {
+                          // 2. slide-wrapper 블록만 있는 경우(자율 생성 방식) → template.html 뼈대에 주입
+                          const response = await fetch('/template.html?t=' + Date.now());
+                          let masterHtml = await response.text();
+                          const designRef = getBrandDesignReference(brandName);
+                          const accentColor = designRef.match(/Accent:\s*(#\w+)/i)?.[1] || '#5e6ad2';
+                          masterHtml = masterHtml.replace(/--hds-brand-accent:\s*#5e6ad2;/g, `--hds-brand-accent: ${accentColor};`);
+                          const mainStart = masterHtml.indexOf('<main id="content">');
+                          const mainEnd = masterHtml.indexOf('</main>', mainStart);
+                          if (mainStart !== -1 && mainEnd !== -1) {
+                            const before = masterHtml.substring(0, mainStart + '<main id="content">'.length);
+                            const after = masterHtml.substring(mainEnd);
+                            html = before + '\n' + html + '\n' + after;
+                          }
                         }
 
                         // [cite: XX] 마커 강제 제거 방어막
