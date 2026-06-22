@@ -3,39 +3,36 @@ const SLIDE_HEIGHT_PX = 720;
 const PDF_WIDTH_PT = 960;
 const PDF_HEIGHT_PT = 540;
 const RASTER_SCALE = 2;
+const HTML2CANVAS_SRC = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 
 type PdfProgress = (current: number, total: number) => void;
 
-const INLINE_STYLE_PROPERTIES = [
-  'display', 'position', 'box-sizing', 'top', 'right', 'bottom', 'left', 'z-index',
-  'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
-  'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
-  'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-  'overflow', 'overflow-x', 'overflow-y',
-  'background', 'background-color', 'background-image', 'background-size',
-  'background-position', 'background-repeat',
-  'border-top', 'border-right', 'border-bottom', 'border-left', 'border-radius',
-  'box-shadow', 'opacity', 'visibility',
-  'color', 'font-family', 'font-size', 'font-style', 'font-weight', 'font-stretch',
-  'line-height', 'letter-spacing', 'text-align', 'text-decoration', 'text-transform',
-  'white-space', 'word-break', 'overflow-wrap', 'text-overflow',
-  'vertical-align', 'list-style',
-  'flex', 'flex-basis', 'flex-direction', 'flex-flow', 'flex-grow', 'flex-shrink',
-  'flex-wrap', 'align-content', 'align-items', 'align-self',
-  'justify-content', 'justify-items', 'justify-self', 'gap', 'row-gap', 'column-gap',
-  'grid', 'grid-area', 'grid-auto-columns', 'grid-auto-flow', 'grid-auto-rows',
-  'grid-column', 'grid-column-end', 'grid-column-start', 'grid-row',
-  'grid-row-end', 'grid-row-start', 'grid-template', 'grid-template-areas',
-  'grid-template-columns', 'grid-template-rows',
-  'transform', 'transform-origin', 'filter', 'clip-path',
-] as const;
+type Html2CanvasOptions = {
+  allowTaint?: boolean;
+  backgroundColor?: string | null;
+  height?: number;
+  imageTimeout?: number;
+  logging?: boolean;
+  onclone?: (clonedDocument: Document, element: HTMLElement) => void;
+  removeContainer?: boolean;
+  scale?: number;
+  scrollX?: number;
+  scrollY?: number;
+  useCORS?: boolean;
+  width?: number;
+  windowHeight?: number;
+  windowWidth?: number;
+};
 
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
+type Html2CanvasRenderer = (
+  element: HTMLElement,
+  options?: Html2CanvasOptions,
+) => Promise<HTMLCanvasElement>;
+
+type ReportWindow = Window & {
+  html2canvas?: Html2CanvasRenderer;
+  __HTML2CANVAS_LOADING__?: Promise<Html2CanvasRenderer>;
+};
 
 function sanitizeFilename(value: string): string {
   const cleaned = value
@@ -45,133 +42,154 @@ function sanitizeFilename(value: string): string {
   return cleaned || 'Brand Consulting';
 }
 
-function isElementNode(value: Node): value is HTMLElement {
-  return value.nodeType === Node.ELEMENT_NODE && 'style' in value;
+function normalizeTransparentColor(value: string): string {
+  return value === 'rgba(0, 0, 0, 0)' || value === 'transparent' ? '#ffffff' : value;
 }
 
-function safeStyleValue(property: string, value: string): string {
-  if (property === 'background-image' && /url\(["']?https?:/i.test(value)) return 'none';
-  return value;
-}
+function loadHtml2Canvas(documentRef: Document, windowRef: ReportWindow): Promise<Html2CanvasRenderer> {
+  if (windowRef.html2canvas) return Promise.resolve(windowRef.html2canvas);
+  if (windowRef.__HTML2CANVAS_LOADING__) return windowRef.__HTML2CANVAS_LOADING__;
 
-function copyComputedStyles(source: Element, target: Element, windowRef: Window): void {
-  if (!isElementNode(source) || !isElementNode(target)) return;
+  windowRef.__HTML2CANVAS_LOADING__ = new Promise<Html2CanvasRenderer>((resolve, reject) => {
+    const existing = documentRef.querySelector<HTMLScriptElement>('script[data-layout-html2canvas="true"]');
+    const script = existing ?? documentRef.createElement('script');
 
-  const computed = windowRef.getComputedStyle(source);
-  INLINE_STYLE_PROPERTIES.forEach((property) => {
-    const value = safeStyleValue(property, computed.getPropertyValue(property));
-    if (value) target.style.setProperty(property, value);
-  });
+    const timeout = window.setTimeout(() => {
+      reject(new Error('PDF 렌더링 모듈 로딩 시간이 초과됐습니다. 네트워크 연결을 확인해 주세요.'));
+    }, 20000);
 
-  if (source.classList.contains('slide')) {
-    target.style.setProperty('width', `${SLIDE_WIDTH_PX}px`, 'important');
-    target.style.setProperty('height', `${SLIDE_HEIGHT_PX}px`, 'important');
-    target.style.setProperty('min-width', `${SLIDE_WIDTH_PX}px`, 'important');
-    target.style.setProperty('min-height', `${SLIDE_HEIGHT_PX}px`, 'important');
-    target.style.setProperty('transform', 'none', 'important');
-    target.style.setProperty('position', 'relative', 'important');
-    target.style.setProperty('overflow', 'hidden', 'important');
-  }
+    const finish = () => {
+      window.clearTimeout(timeout);
+      if (windowRef.html2canvas) resolve(windowRef.html2canvas);
+      else reject(new Error('PDF 렌더링 모듈을 불러오지 못했습니다.'));
+    };
 
-  const sourceChildren = Array.from(source.children);
-  const targetChildren = Array.from(target.children);
-  sourceChildren.forEach((child, index) => {
-    const clonedChild = targetChildren[index];
-    if (clonedChild) copyComputedStyles(child, clonedChild, windowRef);
-  });
-}
+    script.addEventListener('load', finish, { once: true });
+    script.addEventListener('error', () => {
+      window.clearTimeout(timeout);
+      reject(new Error('PDF 렌더링 모듈 다운로드에 실패했습니다.'));
+    }, { once: true });
 
-function collectLocalCss(documentRef: Document): string {
-  const css: string[] = [];
-
-  documentRef.querySelectorAll('style').forEach((style) => {
-    if (style.textContent) css.push(style.textContent);
-  });
-
-  Array.from(documentRef.styleSheets).forEach((sheet) => {
-    try {
-      if (sheet.href) {
-        const sheetUrl = new URL(sheet.href, documentRef.baseURI);
-        if (sheetUrl.protocol === 'http:' || sheetUrl.protocol === 'https:') return;
-      }
-      css.push(Array.from(sheet.cssRules ?? []).map((rule) => rule.cssText).join('\n'));
-    } catch {
-      // Cross-origin styles are intentionally skipped. Visible nodes receive
-      // their computed layout styles before capture.
+    if (!existing) {
+      script.src = HTML2CANVAS_SRC;
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      script.dataset.layoutHtml2canvas = 'true';
+      documentRef.head.appendChild(script);
+    } else if (windowRef.html2canvas) {
+      finish();
     }
   });
 
-  return css.join('\n').replace(/<\/style/gi, '<\\/style');
+  return windowRef.__HTML2CANVAS_LOADING__;
 }
 
-function createSlideClone(slide: HTMLElement, windowRef: Window): HTMLElement {
-  const clone = slide.cloneNode(true) as HTMLElement;
-  clone.removeAttribute('data-layout-overflow');
-  copyComputedStyles(slide, clone, windowRef);
-  return clone;
+function createExportStage(documentRef: Document, slide: HTMLElement): {
+  wrapper: HTMLElement;
+  slideClone: HTMLElement;
+} {
+  const wrapper = documentRef.createElement('div');
+  wrapper.className = 'slide-wrapper pdf-export-stage';
+  wrapper.style.setProperty('position', 'fixed', 'important');
+  wrapper.style.setProperty('left', '-20000px', 'important');
+  wrapper.style.setProperty('top', '0', 'important');
+  wrapper.style.setProperty('width', `${SLIDE_WIDTH_PX}px`, 'important');
+  wrapper.style.setProperty('height', `${SLIDE_HEIGHT_PX}px`, 'important');
+  wrapper.style.setProperty('min-width', `${SLIDE_WIDTH_PX}px`, 'important');
+  wrapper.style.setProperty('min-height', `${SLIDE_HEIGHT_PX}px`, 'important');
+  wrapper.style.setProperty('margin', '0', 'important');
+  wrapper.style.setProperty('overflow', 'hidden', 'important');
+  wrapper.style.setProperty('transform', 'none', 'important');
+  wrapper.style.setProperty('z-index', '-2147483647', 'important');
+  wrapper.style.setProperty('pointer-events', 'none', 'important');
+
+  const slideClone = slide.cloneNode(true) as HTMLElement;
+  slideClone.removeAttribute('data-layout-overflow');
+  slideClone.style.setProperty('position', 'relative', 'important');
+  slideClone.style.setProperty('left', '0', 'important');
+  slideClone.style.setProperty('top', '0', 'important');
+  slideClone.style.setProperty('width', `${SLIDE_WIDTH_PX}px`, 'important');
+  slideClone.style.setProperty('height', `${SLIDE_HEIGHT_PX}px`, 'important');
+  slideClone.style.setProperty('min-width', `${SLIDE_WIDTH_PX}px`, 'important');
+  slideClone.style.setProperty('min-height', `${SLIDE_HEIGHT_PX}px`, 'important');
+  slideClone.style.setProperty('margin', '0', 'important');
+  slideClone.style.setProperty('transform', 'none', 'important');
+  slideClone.style.setProperty('overflow', 'hidden', 'important');
+
+  // Cross-origin media must never taint the export canvas. html2canvas will use
+  // CORS-enabled assets where available and omit unsafe assets otherwise.
+  slideClone.querySelectorAll<HTMLImageElement>('img').forEach((image) => {
+    image.crossOrigin = 'anonymous';
+    image.referrerPolicy = 'no-referrer';
+  });
+  slideClone.querySelectorAll('video, iframe, canvas').forEach((element) => element.remove());
+
+  wrapper.appendChild(slideClone);
+  documentRef.body.appendChild(wrapper);
+  return { wrapper, slideClone };
 }
 
-async function svgToJpeg(
-  slide: HTMLElement,
-  documentRef: Document,
-  windowRef: Window,
-): Promise<Uint8Array> {
-  const clone = createSlideClone(slide, windowRef);
-  const css = collectLocalCss(documentRef);
-  const serialized = new XMLSerializer().serializeToString(clone);
-
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${SLIDE_WIDTH_PX}" height="${SLIDE_HEIGHT_PX}" viewBox="0 0 ${SLIDE_WIDTH_PX} ${SLIDE_HEIGHT_PX}">
-  <foreignObject x="0" y="0" width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml" style="width:${SLIDE_WIDTH_PX}px;height:${SLIDE_HEIGHT_PX}px;overflow:hidden;">
-      <style>${escapeXml(css)}</style>
-      ${serialized}
-    </div>
-  </foreignObject>
-</svg>`;
-
-  const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-  const svgUrl = URL.createObjectURL(svgBlob);
-
-  try {
-    const image = new Image();
-    image.decoding = 'sync';
-
-    await new Promise<void>((resolve, reject) => {
-      const timeout = window.setTimeout(() => reject(new Error('슬라이드 이미지 변환 시간이 초과됐습니다.')), 15000);
-      image.onload = () => {
-        window.clearTimeout(timeout);
-        resolve();
-      };
-      image.onerror = () => {
-        window.clearTimeout(timeout);
-        reject(new Error('슬라이드를 이미지로 변환하지 못했습니다.'));
-      };
-      image.src = svgUrl;
-    });
-
-    const canvas = document.createElement('canvas');
-    canvas.width = SLIDE_WIDTH_PX * RASTER_SCALE;
-    canvas.height = SLIDE_HEIGHT_PX * RASTER_SCALE;
-    const context = canvas.getContext('2d', { alpha: false });
-    if (!context) throw new Error('PDF 렌더링용 Canvas를 생성하지 못했습니다.');
-
-    const background = windowRef.getComputedStyle(slide).backgroundColor || '#ffffff';
-    context.fillStyle = background === 'rgba(0, 0, 0, 0)' ? '#ffffff' : background;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-    const jpegBlob = await new Promise<Blob>((resolve, reject) => {
+async function canvasToJpeg(canvas: HTMLCanvasElement): Promise<Uint8Array> {
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    try {
       canvas.toBlob(
-        (blob) => (blob ? resolve(blob) : reject(new Error('JPEG 변환에 실패했습니다.'))),
+        (result) => (result ? resolve(result) : reject(new Error('JPEG 변환에 실패했습니다.'))),
         'image/jpeg',
         0.96,
       );
+    } catch (error) {
+      reject(error);
+    }
+  });
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
+async function slideToJpeg(
+  slide: HTMLElement,
+  documentRef: Document,
+  windowRef: ReportWindow,
+  renderer: Html2CanvasRenderer,
+): Promise<Uint8Array> {
+  const { wrapper, slideClone } = createExportStage(documentRef, slide);
+
+  try {
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+    const computedBackground = windowRef.getComputedStyle(slide).backgroundColor || '#ffffff';
+
+    const canvas = await renderer(slideClone, {
+      allowTaint: false,
+      backgroundColor: normalizeTransparentColor(computedBackground),
+      height: SLIDE_HEIGHT_PX,
+      imageTimeout: 10000,
+      logging: false,
+      removeContainer: true,
+      scale: RASTER_SCALE,
+      scrollX: 0,
+      scrollY: 0,
+      useCORS: true,
+      width: SLIDE_WIDTH_PX,
+      windowHeight: SLIDE_HEIGHT_PX,
+      windowWidth: SLIDE_WIDTH_PX,
+      onclone: (clonedDocument, clonedElement) => {
+        clonedDocument.documentElement.style.width = `${SLIDE_WIDTH_PX}px`;
+        clonedDocument.documentElement.style.height = `${SLIDE_HEIGHT_PX}px`;
+        clonedDocument.body.style.width = `${SLIDE_WIDTH_PX}px`;
+        clonedDocument.body.style.height = `${SLIDE_HEIGHT_PX}px`;
+        clonedDocument.body.style.margin = '0';
+        clonedDocument.body.style.overflow = 'hidden';
+        clonedElement.style.setProperty('transform', 'none', 'important');
+        clonedElement.style.setProperty('width', `${SLIDE_WIDTH_PX}px`, 'important');
+        clonedElement.style.setProperty('height', `${SLIDE_HEIGHT_PX}px`, 'important');
+        clonedElement.querySelectorAll<HTMLImageElement>('img').forEach((image) => {
+          image.crossOrigin = 'anonymous';
+          image.referrerPolicy = 'no-referrer';
+        });
+      },
     });
 
-    return new Uint8Array(await jpegBlob.arrayBuffer());
+    return await canvasToJpeg(canvas);
   } finally {
-    URL.revokeObjectURL(svgUrl);
+    wrapper.remove();
   }
 }
 
@@ -287,7 +305,7 @@ export async function exportReportPdf(
   filename?: string,
 ): Promise<void> {
   const documentRef = iframe.contentDocument;
-  const windowRef = iframe.contentWindow;
+  const windowRef = iframe.contentWindow as ReportWindow | null;
   if (!documentRef || !windowRef) throw new Error('보고서 iframe에 접근할 수 없습니다.');
 
   const preflight = (windowRef as Window & { __REPORT_PREFLIGHT__?: () => { ok: boolean; issues: string[] } }).__REPORT_PREFLIGHT__?.();
@@ -300,13 +318,14 @@ export async function exportReportPdf(
   const slides = Array.from(documentRef.querySelectorAll<HTMLElement>('.slide-wrapper > .slide'));
   if (slides.length === 0) throw new Error('출력할 슬라이드를 찾지 못했습니다.');
 
+  const renderer = await loadHtml2Canvas(documentRef, windowRef);
   const progress = showProgressOverlay(slides.length);
   const jpegs: Uint8Array[] = [];
 
   try {
     for (let index = 0; index < slides.length; index += 1) {
       progress.update(index + 1, slides.length);
-      jpegs.push(await svgToJpeg(slides[index], documentRef, windowRef));
+      jpegs.push(await slideToJpeg(slides[index], documentRef, windowRef, renderer));
       await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
     }
 
