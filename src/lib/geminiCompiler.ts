@@ -5,6 +5,7 @@ import {
   normalizeDynamicReportHtml,
 } from './dynamicPagePlanner';
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
+import { buildVisualizationCompilerDirective } from './visualizationEngine';
 
 export const compileReportToHTML = async (rawData: string, apiKey: string, brandName: string): Promise<string> => {
   if (!apiKey) {
@@ -28,17 +29,18 @@ export const compileReportToHTML = async (rawData: string, apiKey: string, brand
 
   const basePrompt = buildReportCompilerPrompt(masterHtml, rawData, brandName);
   const creativeDirective = buildCreativeHistoryCompilerDirective(rawData);
+  const visualizationDirective = buildVisualizationCompilerDirective();
   const compilerPrompt = basePrompt.replace(
     '\n[Brand]\n',
-    `\n${creativeDirective}\n\n[Brand]\n`,
+    `\n${creativeDirective}\n\n${visualizationDirective}\n\n[Brand]\n`,
   );
 
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {
-      systemInstruction: 'You are a strict strategic report compiler. Follow the complete page-planning, factual-verification, and Creative History contracts without truncation.',
-      temperature: 0.1,
-      topP: 0.7,
+      systemInstruction: 'You are a strict strategic report compiler. Follow the complete page-planning, factual-verification, Creative History, and evidence-driven visualization contracts without truncation.',
+      temperature: 0.08,
+      topP: 0.65,
     },
   });
 
