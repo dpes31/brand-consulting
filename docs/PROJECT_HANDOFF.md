@@ -13,6 +13,7 @@
   2. `feature-competitor-selection-v1`
   3. `feature-dynamic-page-planner-v1`
   4. `feature-creative-history-contract-v1`
+  5. `feature-visualization-engine-v1`
 - Every new phase branches from the latest validated phase, not from `main`.
 
 ## Non-negotiable product requirements
@@ -65,19 +66,26 @@
 
 ### Phase 5 — Visualization Engine
 
-Objective: replace generic text-card walls with evidence-appropriate charts, diagrams, matrices, timelines, flows, and visual emphasis while preserving factual density.
+Status: implementation complete on `feature-visualization-engine-v1`; owner Preview validation is pending.
 
-Required implementation direction:
+Implemented:
 
-- Use pure HTML/CSS/SVG components that remain safe for PDF export. Avoid canvas and cross-origin image dependencies.
-- Do not draw charts when data is not comparable or verified.
-- Use a visual plan per slide: decision question → evidence → visual form → interpretation → implication.
-- Quantitative comparisons should use bars, dot plots, KPI deltas, or matrices rather than prose-only boxes.
-- Processes and causal structures should use flows or system diagrams.
-- Temporal evidence should use timelines.
-- Positioning should use a defined 2x2 map with named axes.
-- Symmetric structures must use equal tracks and aligned card heights.
-- Add machine-readable `data-viz-type` attributes and a runtime validation report.
+- Compiler contract that selects a visual form from the evidence rather than decorating prose.
+- Pure HTML/CSS/SVG component grammar for KPI strips, bars, dot plots, matrices, process flows, system maps, positioning maps, timelines, verbatim evidence, and evidence gaps.
+- Prohibition of canvas, external chart libraries, cross-origin images, invented values, and mixed-unit scales.
+- Automatic equal-height treatment for comparable two- and three-column box grids.
+- Legacy tagging for existing timelines, matrices, positioning maps, KPI blocks, and bar components.
+- Machine-readable `data-viz-type` and visual audit manifest.
+- Warning-only runtime audit for quantitative slides without visuals, text-heavy slides without visual anchors, excessive box walls, and unknown visualization types.
+- Manual Phase 6 filename changed to `visual_report_compiler_브랜드명.txt`.
+
+Validation expectations:
+
+- Market and competitor metrics should become charts or matrices when comparable data exist.
+- Process and strategy logic should become flows or system maps.
+- Creative History must remain the validated six-year timeline.
+- Evidence gaps must be shown honestly rather than filled with invented numbers.
+- PDF must remain exact 16:9 and retain every dynamic page.
 
 ## Deferred Phase 6 defects
 
