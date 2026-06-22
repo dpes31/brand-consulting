@@ -10,6 +10,7 @@ AI-assisted strategic consulting report generator with evidence-driven competito
 - [Phase 2: Competitor Selection](docs/phase2-competitor-selection.md)
 - [Phase 3: Dynamic Page Planner](docs/phase3-dynamic-page-planner.md)
 - [Phase 4: Creative History Contract](docs/phase4-creative-history-contract.md)
+- [Phase 5: Visualization Engine](docs/phase5-visualization-engine.md)
 
 ## Development
 
