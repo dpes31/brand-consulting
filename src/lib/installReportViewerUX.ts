@@ -1,3 +1,5 @@
+import { normalizeDynamicReportDocument } from './dynamicPagePlanner';
+
 let installed = false;
 
 function removePrintTip(documentRef: Document): void {
@@ -58,6 +60,16 @@ function simplifyLivePreview(iframe: HTMLIFrameElement, documentRef: Document): 
 function applyViewerUx(iframe: HTMLIFrameElement): void {
   const documentRef = iframe.contentDocument;
   if (!documentRef?.documentElement) return;
+
+  try {
+    const manifest = normalizeDynamicReportDocument(documentRef);
+    documentRef.documentElement.dataset.mainDeckPages = String(manifest.mainPageCount);
+    documentRef.documentElement.dataset.appendixPages = String(manifest.appendixPageCount);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    documentRef.documentElement.dataset.pagePlanError = message;
+    console.warn('[Dynamic Page Planner] Runtime normalization skipped:', message);
+  }
 
   removePrintTip(documentRef);
   simplifyLivePreview(iframe, documentRef);
