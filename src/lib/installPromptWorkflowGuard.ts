@@ -6,6 +6,13 @@ import {
 
 let installed = false;
 
+const SESSION_KEYS = {
+  brand: 'brand-consulting:brand-name',
+  competitors: 'brand-consulting:competitor-seeds',
+  clientNeeds: 'brand-consulting:client-needs',
+  referenceNote: 'brand-consulting:reference-note',
+} as const;
+
 function showToast(title: string, message: string, tone: 'success' | 'error' = 'success'): void {
   document.getElementById('brand-consulting-toast')?.remove();
 
@@ -50,9 +57,49 @@ function currentStepFromDom(): number | null {
   return null;
 }
 
+function safeSessionGet(key: string): string {
+  try {
+    return window.sessionStorage.getItem(key)?.trim() ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function safeSessionSet(key: string, value: string): void {
+  try {
+    window.sessionStorage.setItem(key, value);
+  } catch {
+    // Session storage may be disabled. The visible form remains the fallback.
+  }
+}
+
+function classifyControl(control: HTMLInputElement | HTMLTextAreaElement): string | null {
+  const placeholder = control.placeholder ?? '';
+  if (placeholder.includes('Enter brand name')) return SESSION_KEYS.brand;
+  if (placeholder.includes('삼성카드') || placeholder.includes('검토 후보')) return SESSION_KEYS.competitors;
+  if (placeholder.includes('TV CF') || placeholder.includes('캠페인')) return SESSION_KEYS.clientNeeds;
+  if (placeholder.includes('RFP 문서') || placeholder.includes('참고 지침')) return SESSION_KEYS.referenceNote;
+  return null;
+}
+
+function captureControl(control: HTMLInputElement | HTMLTextAreaElement): void {
+  const key = classifyControl(control);
+  if (key) safeSessionSet(key, control.value.trim());
+}
+
+function handleInput(event: Event): void {
+  const target = event.target;
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) captureControl(target);
+}
+
 function getBrandName(): string {
   const input = document.querySelector<HTMLInputElement>('input[placeholder*="Enter brand name"]');
-  return input?.value.trim() || '조사 브랜드';
+  const visibleValue = input?.value.trim() ?? '';
+  if (visibleValue) {
+    safeSessionSet(SESSION_KEYS.brand, visibleValue);
+    return visibleValue;
+  }
+  return safeSessionGet(SESSION_KEYS.brand) || '조사 브랜드';
 }
 
 function findControlByLabel(fragment: string): HTMLInputElement | HTMLTextAreaElement | null {
@@ -63,21 +110,30 @@ function findControlByLabel(fragment: string): HTMLInputElement | HTMLTextAreaEl
   return container?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input, textarea') ?? null;
 }
 
+function getContextValue(labelFragment: string, sessionKey: string): string {
+  const visible = findControlByLabel(labelFragment)?.value.trim() ?? '';
+  if (visible) {
+    safeSessionSet(sessionKey, visible);
+    return visible;
+  }
+  return safeSessionGet(sessionKey);
+}
+
 function buildContextAppendix(step: number): string {
   if (step === 0 || step === 1) {
-    const note = findControlByLabel('첨부 참고자료 안내')?.value.trim();
+    const note = getContextValue('첨부 참고자료 안내', SESSION_KEYS.referenceNote);
     if (!note) return '';
     return `\n\n[첨부 참고자료 활용 지침]\n외부 AI에 첨부한 문서가 있다면 해당 자료를 우선 검토하고 조사에 반영하십시오.\n참고자료 메모: ${note}`;
   }
 
   if (step === 2) {
-    const seeds = findControlByLabel('필수 검토 경쟁사')?.value.trim();
+    const seeds = getContextValue('필수 검토 경쟁사', SESSION_KEYS.competitors);
     if (!seeds) return '';
     return `\n\n[필수 검토 경쟁사 후보 — Mandatory Review Seeds]\n아래 업체는 후보군에서 반드시 검토하십시오. 단, 자동 선정 명단이 아니며 시장 위협도 평가 결과에 따라 최종 Top 2~5에서 제외될 수 있습니다. Indirect Competitor 분류는 사용하지 마십시오.\n${seeds}`;
   }
 
   if (step === 5) {
-    const needs = findControlByLabel('광고주 핵심 니즈')?.value.trim();
+    const needs = getContextValue('광고주 핵심 니즈', SESSION_KEYS.clientNeeds);
     if (!needs) return '';
     return `\n\n[광고주 핵심 니즈 / 캠페인 필수 방향]\n아래 내용을 전략 제안의 최우선 Constraint로 적용하고 최종안이 부합하는지 검증하십시오.\n${needs}`;
   }
@@ -194,5 +250,8 @@ function handleClick(event: MouseEvent): void {
 export function installPromptWorkflowGuard(): void {
   if (installed || typeof document === 'undefined') return;
   installed = true;
+
+  document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea').forEach(captureControl);
+  document.addEventListener('input', handleInput, true);
   document.addEventListener('click', handleClick, true);
 }
