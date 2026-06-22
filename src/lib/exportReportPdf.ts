@@ -45,17 +45,24 @@ function sanitizeFilename(value: string): string {
   return cleaned || 'Brand Consulting';
 }
 
+function isElementNode(value: Node): value is HTMLElement {
+  return value.nodeType === Node.ELEMENT_NODE && 'style' in value;
+}
+
+function safeStyleValue(property: string, value: string): string {
+  if (property === 'background-image' && /url\(["']?https?:/i.test(value)) return 'none';
+  return value;
+}
+
 function copyComputedStyles(source: Element, target: Element, windowRef: Window): void {
-  if (!(source instanceof HTMLElement) || !(target instanceof HTMLElement)) return;
+  if (!isElementNode(source) || !isElementNode(target)) return;
 
   const computed = windowRef.getComputedStyle(source);
   INLINE_STYLE_PROPERTIES.forEach((property) => {
-    const value = computed.getPropertyValue(property);
+    const value = safeStyleValue(property, computed.getPropertyValue(property));
     if (value) target.style.setProperty(property, value);
   });
 
-  // The web viewer scales slides with transform. PDF capture must always use the
-  // logical 1280 x 720 canvas, never the preview transform.
   if (source.classList.contains('slide')) {
     target.style.setProperty('width', `${SLIDE_WIDTH_PX}px`, 'important');
     target.style.setProperty('height', `${SLIDE_HEIGHT_PX}px`, 'important');
@@ -85,14 +92,12 @@ function collectLocalCss(documentRef: Document): string {
     try {
       if (sheet.href) {
         const sheetUrl = new URL(sheet.href, documentRef.baseURI);
-        const baseUrl = new URL(documentRef.baseURI);
-        if (sheetUrl.origin !== baseUrl.origin) return;
+        if (sheetUrl.protocol === 'http:' || sheetUrl.protocol === 'https:') return;
       }
-      const rules = Array.from(sheet.cssRules ?? []);
-      css.push(rules.map((rule) => rule.cssText).join('\n'));
+      css.push(Array.from(sheet.cssRules ?? []).map((rule) => rule.cssText).join('\n'));
     } catch {
-      // Cross-origin stylesheets are intentionally skipped. Every visible node
-      // also receives its computed layout styles before capture.
+      // Cross-origin styles are intentionally skipped. Visible nodes receive
+      // their computed layout styles before capture.
     }
   });
 
@@ -196,7 +201,6 @@ function buildPdf(jpegs: Uint8Array[]): Uint8Array {
     chunks.push(chunk);
     byteOffset += chunk.length;
   };
-
   const pushText = (text: string) => push(ascii(text));
   const startObject = (id: number) => {
     offsets[id] = byteOffset;
@@ -307,7 +311,11 @@ export async function exportReportPdf(
     }
 
     const pdfBytes = buildPdf(jpegs);
-    const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const arrayBuffer = pdfBytes.buffer.slice(
+      pdfBytes.byteOffset,
+      pdfBytes.byteOffset + pdfBytes.byteLength,
+    ) as ArrayBuffer;
+    const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
     const url = URL.createObjectURL(pdfBlob);
     const anchor = document.createElement('a');
     anchor.href = url;
