@@ -30,4 +30,4 @@ npm run lint
 
 ## Current status
 
-Phase 4 has been validated. Phase 5, the Visualization Engine, is in progress. See `docs/PROJECT_HANDOFF.md` for the authoritative status and deferred defects.
+Phase 4 is validated. Phase 5 is implemented on `feature-visualization-engine-v1` and awaits Preview validation. See `docs/PROJECT_HANDOFF.md` for the authoritative status and deferred defects.
