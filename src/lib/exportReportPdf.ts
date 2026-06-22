@@ -34,6 +34,14 @@ type ReportWindow = Window & {
   __HTML2CANVAS_LOADING__?: Promise<Html2CanvasRenderer>;
 };
 
+type PdfCacheEntry = {
+  fingerprint: string;
+  blob: Blob;
+  slideCount: number;
+};
+
+const reportPdfCache = new WeakMap<HTMLIFrameElement, PdfCacheEntry>();
+
 function sanitizeFilename(value: string): string {
   const cleaned = value
     .replace(/[\\/:*?"<>|]+/g, '-')
@@ -44,6 +52,84 @@ function sanitizeFilename(value: string): string {
 
 function normalizeTransparentColor(value: string): string {
   return value === 'rgba(0, 0, 0, 0)' || value === 'transparent' ? '#ffffff' : value;
+}
+
+function collectCssFingerprint(documentRef: Document): string {
+  const css: string[] = [];
+
+  documentRef.querySelectorAll('style').forEach((style) => {
+    css.push(style.textContent ?? '');
+  });
+
+  documentRef.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]').forEach((link) => {
+    css.push(`href:${link.href}`);
+  });
+
+  Array.from(documentRef.styleSheets).forEach((sheet) => {
+    try {
+      css.push(Array.from(sheet.cssRules ?? []).map((rule) => rule.cssText).join('\n'));
+    } catch {
+      if (sheet.href) css.push(`sheet:${sheet.href}`);
+    }
+  });
+
+  return css.join('\u001e');
+}
+
+function fallbackHash(value: string): string {
+  let hashA = 0x811c9dc5;
+  let hashB = 0x9e3779b9;
+
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    hashA ^= code;
+    hashA = Math.imul(hashA, 0x01000193);
+    hashB ^= code + index;
+    hashB = Math.imul(hashB, 0x85ebca6b);
+  }
+
+  return `${(hashA >>> 0).toString(16).padStart(8, '0')}${(hashB >>> 0).toString(16).padStart(8, '0')}`;
+}
+
+async function createReportFingerprint(
+  documentRef: Document,
+  slides: HTMLElement[],
+): Promise<string> {
+  const main = documentRef.querySelector<HTMLElement>('main#content');
+  const fingerprintSource = [
+    `title:${documentRef.title}`,
+    `html-class:${documentRef.documentElement.getAttribute('class') ?? ''}`,
+    `html-style:${documentRef.documentElement.getAttribute('style') ?? ''}`,
+    `body-class:${documentRef.body?.getAttribute('class') ?? ''}`,
+    `body-style:${documentRef.body?.getAttribute('style') ?? ''}`,
+    `main-class:${main?.getAttribute('class') ?? ''}`,
+    `main-style:${main?.getAttribute('style') ?? ''}`,
+    `css:${collectCssFingerprint(documentRef)}`,
+    `slides:${slides.map((slide) => slide.outerHTML).join('\u001d')}`,
+  ].join('\u001f');
+
+  if (globalThis.crypto?.subtle) {
+    const digest = await globalThis.crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(fingerprintSource),
+    );
+    return Array.from(new Uint8Array(digest))
+      .map((byte) => byte.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  return fallbackHash(fingerprintSource);
+}
+
+function downloadPdfBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `${sanitizeFilename(filename)}.pdf`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
 
 function loadHtml2Canvas(documentRef: Document, windowRef: ReportWindow): Promise<Html2CanvasRenderer> {
@@ -116,8 +202,6 @@ function createExportStage(documentRef: Document, slide: HTMLElement): {
   slideClone.style.setProperty('transform', 'none', 'important');
   slideClone.style.setProperty('overflow', 'hidden', 'important');
 
-  // Cross-origin media must never taint the export canvas. html2canvas will use
-  // CORS-enabled assets where available and omit unsafe assets otherwise.
   slideClone.querySelectorAll<HTMLImageElement>('img').forEach((image) => {
     image.crossOrigin = 'anonymous';
     image.referrerPolicy = 'no-referrer';
@@ -318,6 +402,18 @@ export async function exportReportPdf(
   const slides = Array.from(documentRef.querySelectorAll<HTMLElement>('.slide-wrapper > .slide'));
   if (slides.length === 0) throw new Error('출력할 슬라이드를 찾지 못했습니다.');
 
+  const downloadName = filename || documentRef.title || 'Brand Consulting';
+  const fingerprint = await createReportFingerprint(documentRef, slides);
+  const cached = reportPdfCache.get(iframe);
+
+  if (cached && cached.fingerprint === fingerprint && cached.slideCount === slides.length) {
+    console.info('[PDF Cache] 변경 사항이 없어 기존 PDF를 즉시 다운로드합니다.');
+    downloadPdfBlob(cached.blob, downloadName);
+    return;
+  }
+
+  if (cached) reportPdfCache.delete(iframe);
+
   const renderer = await loadHtml2Canvas(documentRef, windowRef);
   const progress = showProgressOverlay(slides.length);
   const jpegs: Uint8Array[] = [];
@@ -335,14 +431,14 @@ export async function exportReportPdf(
       pdfBytes.byteOffset + pdfBytes.byteLength,
     ) as ArrayBuffer;
     const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
-    const url = URL.createObjectURL(pdfBlob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `${sanitizeFilename(filename || documentRef.title)}.pdf`;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 30000);
+
+    reportPdfCache.set(iframe, {
+      fingerprint,
+      blob: pdfBlob,
+      slideCount: slides.length,
+    });
+
+    downloadPdfBlob(pdfBlob, downloadName);
   } finally {
     progress.close();
   }
