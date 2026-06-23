@@ -52,7 +52,7 @@ function showToast(title: string, message: string, tone: 'success' | 'warning' |
   body.style.cssText = 'font-size:12px;line-height:1.55;color:#cbd5e1;white-space:pre-line';
   toast.append(titleElement, body);
   document.body.appendChild(toast);
-  window.setTimeout(() => toast.remove(), tone === 'error' ? 9000 : 5500);
+  window.setTimeout(() => toast.remove(), tone === 'error' ? 9000 : 6000);
 }
 
 function readAudit(): VisualIntentAuditEntry[] {
@@ -64,13 +64,25 @@ function readAudit(): VisualIntentAuditEntry[] {
   }
 }
 
-function writeAudit(entry: VisualIntentAuditEntry): void {
+function writeAudit(entries: VisualIntentAuditEntry[]): void {
   try {
-    const audit = [...readAudit(), entry].slice(-30);
-    sessionStorage.setItem(AUDIT_KEY, JSON.stringify(audit));
+    sessionStorage.setItem(AUDIT_KEY, JSON.stringify(entries.slice(-30)));
   } catch {
     // Validation still works when storage is unavailable.
   }
+}
+
+function recipeSignature(entry: VisualIntentAuditEntry): string {
+  return entry.primaryRecipes.join('|');
+}
+
+function stabilitySummary(audit: VisualIntentAuditEntry[], entry: VisualIntentAuditEntry): string {
+  const comparable = [...audit.filter((item) => item.valid && item.step === entry.step), entry].slice(-3);
+  if (comparable.length < 2) return '반복 안정성: 첫 유효 실행';
+  const currentSignature = recipeSignature(entry);
+  const matches = comparable.filter((item) => recipeSignature(item) === currentSignature).length;
+  const rate = Math.round((matches / comparable.length) * 100);
+  return `최근 ${comparable.length}회 Recipe 일치율: ${rate}%`;
 }
 
 function handleClick(event: MouseEvent): void {
@@ -83,6 +95,7 @@ function handleClick(event: MouseEvent): void {
   if (step === null || !isVisualIntentStep(step)) return;
   const value = getTextarea(button)?.value.trim() ?? '';
   const result = validateVisualIntentBrief(value, step);
+  const audit = readAudit();
   const entry: VisualIntentAuditEntry = {
     timestamp: new Date().toISOString(),
     step,
@@ -92,7 +105,8 @@ function handleClick(event: MouseEvent): void {
     warnings: result.warnings,
     errors: result.errors,
   };
-  writeAudit(entry);
+  const stability = result.valid ? stabilitySummary(audit, entry) : '';
+  writeAudit([...audit, entry]);
 
   if (!result.valid) {
     event.preventDefault();
@@ -108,7 +122,7 @@ function handleClick(event: MouseEvent): void {
   if (result.warnings.length > 0) {
     showToast(
       `Step ${step} Visual Intent 통과 — 확인 필요`,
-      `Brief ${entry.briefCount}개가 유효합니다.\n${result.warnings.slice(0, 3).join('\n')}`,
+      `Brief ${entry.briefCount}개가 유효합니다.\n${stability}\n${result.warnings.slice(0, 3).join('\n')}`,
       'warning',
     );
     return;
@@ -116,7 +130,7 @@ function handleClick(event: MouseEvent): void {
 
   showToast(
     `Step ${step} Visual Intent 검증 통과`,
-    `Brief ${entry.briefCount}개 · Primary Recipe: ${entry.primaryRecipes.join(', ')}`,
+    `Brief ${entry.briefCount}개 · Primary Recipe: ${entry.primaryRecipes.join(', ')}\n${stability}`,
     'success',
   );
 }
