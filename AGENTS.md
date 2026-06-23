@@ -1,90 +1,73 @@
 # AGENTS.md
 
-This repository is maintained through preview-first, reversible AI-assisted development.
+Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate2a-test-script.md`, and the files under `design/` before changing this repository.
 
-## Mandatory first read
-
-Before making changes, read:
-
-- `docs/PROJECT_HANDOFF.md`
-- the latest open stacked PRs
-- the implementation notes under `docs/phase*.md`
-- `docs/phase5b-pilot-spec.md` when working on visualization architecture
-- `design/DESIGN.md` and the machine-readable files under `design/`
-
-## Branch and deployment rules
+## Safety
 
 - Never commit directly to `main`.
-- Never merge to `main` without explicit owner approval after Vercel Preview validation.
-- Create each phase branch from the latest owner-validated phase branch.
-- Keep the rollback branch `backup-production-stable-20260622` untouched.
-- Do not rewrite or force-push validated branches.
-- Do not delete or overwrite `feature-visualization-engine-v1` or Draft PR #6; they remain the audit record of the failed prompt-only Phase 5 approach.
+- Never merge without explicit owner approval after Preview validation.
+- Keep `backup-production-stable-20260622` untouched.
+- Preserve validated branches.
+- Keep `feature-visualization-engine-v1` and Draft PR #6 as the audit record of the failed prompt-only Phase 5 approach.
+- Do not intentionally run or inspect Vercel Preview during Gate 2A unless separately authorized.
 
 ## Product invariants
 
-- Preserve all 23 approved base report wrappers.
-- Main Deck: 23–40 pages; overflow evidence continues as Appendix in the same HTML/PDF.
-- Report canvas: exact 16:9, excluding the web navigation.
-- PDF: all pages, no clipping, no white outer margins.
-- Direct competitors: threat-ranked 2–5; no Indirect Competitor section.
-- Every selected competitor gets an independent Deep Dive and six-year Creative History page.
-- Do not invent figures, campaign models, dates, or copy.
-- Only verified verbatim advertising copy may use quotation marks.
-- Final reports do not expose raw source URLs.
+- Preserve all 23 base wrappers.
+- Main Deck remains 23–40 pages, with later evidence in the same HTML/PDF Appendix.
+- Preserve exact 16:9 PDF output.
+- Final direct competitors remain the locked Step 2 Registry of 2–5 brands.
+- Preserve one Deep Dive and one six-year Creative History page per selected competitor.
+- Do not invent figures, dates, campaign models, sources, or copy.
+- Only verified verbatim copy may use quotation marks.
+- Do not expose raw source URLs in final reports.
 
-## Current work
+## Current status
 
-Phase 4 is validated.
+- Phase 4 is owner-validated.
+- The initial Phase 5 visualization approach failed quality review.
+- Current branch: `feature-visual-recipe-pilot-v1` from `feature-creative-history-contract-v1`.
+- Gate 1.5 specification is approved.
+- Active gate: **Gate 2A — Visual Intent Brief prompt-contract testing**.
 
-Phase 5 prompt-only visualization on `feature-visualization-engine-v1` failed owner quality validation and is not approved.
+Gate 2A currently adds Visual Intent requirements to Steps 0, 2, 3, and 5, validates the marked JSON during the manual workflow, and records temporary repeated-run recipe audit data.
 
-Current branch: `feature-visual-recipe-pilot-v1`, created from validated `feature-creative-history-contract-v1`.
+Relevant files:
 
-Current gate: **Gate 1.5 specification only**.
+- `src/lib/visualIntentBrief.ts`
+- `src/lib/installVisualIntentWorkflowGuard.ts`
+- `docs/phase5b-gate2a-test-script.md`
 
-Authorized work in Gate 1.5:
+Gate 2A does not authorize:
 
-- Visual Intent Brief Schema;
-- Step-level Recipe Selection Matrix;
-- schemas for `milestone-timeline`, `competitor-threat-system`, and `feature-matrix`;
-- success/failure criteria;
-- feature-flag and rollback specification;
-- continuity documentation.
-
-Not authorized until explicit owner approval:
-
-- research prompt changes;
-- renderer code;
+- deterministic renderer work;
 - `template.html` changes;
-- runtime Validator code;
 - Phase 6 compiler changes;
+- PDF Export changes;
+- runtime design-token integration;
+- visual/geometry export validators;
 - Draft PR creation;
-- intentional Vercel deployment or Preview;
-- any merge.
+- intentional Vercel Preview;
+- merge or deployment.
 
-Approval of Gate 1.5 authorizes Gate 2A prompt-contract testing only. It does not authorize deterministic renderer implementation.
+The manual external-AI path is the approved test path. API-mode acceptance is not yet governed by the Gate 2A validator.
 
-## Phase 5B architecture direction
-
-Use the following staged system:
+## Architecture direction
 
 ```text
-Research response
+Research
 → Step-level Visual Intent Brief
-→ Phase 6 Semantic Slide Plan
+→ Semantic Slide Plan
 → constrained Recipe Router
 → deterministic HTML/CSS/SVG Renderer
 → blocking Validator
-→ existing 16:9 PDF Export
+→ existing PDF Export
 ```
 
-External template libraries inform abstract information patterns only. Executable output must use internal recipe IDs.
+External reference libraries inform structural patterns only. Runtime output uses internal recipe IDs.
 
-## Change discipline
+## Gate 2A pass condition
 
-- Keep changes phase-scoped.
-- Prefer additive guards and validation over destructive template rewrites.
-- Use pure HTML/CSS/SVG for future report visualization; avoid canvas and cross-origin assets that can taint PDF export.
-- Preserve backward compatibility with existing 23-page reports.
-- Update `AGENTS.md` and `docs/PROJECT_HANDOFF.md` whenever the gate, branch, architecture, deferred defect, or acceptance criteria change.
+Do not start Gate 2B until Steps 0, 2, 3, and 5 each complete three valid repeated runs, registries remain intact, comparable runs achieve at least 80% primary-recipe agreement, unsupported recipes remain explicit, and the owner approves the outputs.
+
+Update this file and `docs/PROJECT_HANDOFF.md` whenever the active gate, architecture, or acceptance criteria change.
