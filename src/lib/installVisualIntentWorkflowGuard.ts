@@ -1,6 +1,8 @@
+import { parseCompetitorRegistry } from './competitorSelection';
 import {
   isVisualIntentStep,
   validateVisualIntentBrief,
+  type VisualIntentRegistry,
   type VisualIntentStep,
 } from './visualIntentBrief';
 
@@ -73,7 +75,7 @@ function writeAudit(entries: VisualIntentAuditEntry[]): void {
 }
 
 function recipeSignature(entry: VisualIntentAuditEntry): string {
-  return entry.primaryRecipes.join('|');
+  return [...entry.primaryRecipes].sort().join('|');
 }
 
 function stabilitySummary(audit: VisualIntentAuditEntry[], entry: VisualIntentAuditEntry): string {
@@ -83,6 +85,31 @@ function stabilitySummary(audit: VisualIntentAuditEntry[], entry: VisualIntentAu
   const matches = comparable.filter((item) => recipeSignature(item) === currentSignature).length;
   const rate = Math.round((matches / comparable.length) * 100);
   return `최근 ${comparable.length}회 Recipe 일치율: ${rate}%`;
+}
+
+function addCoverageErrors(step: VisualIntentStep, raw: string, registry: VisualIntentRegistry | null, errors: string[]): void {
+  if (!registry) return;
+  const recipes = registry.visualBriefs.map((brief) => brief.primaryRecipe.recipeId);
+
+  if (step === 0 && !recipes.some((recipe) => recipe === 'milestone-timeline' || recipe === 'growth-trajectory' || recipe === 'evidence-gap')) {
+    errors.push('Step 0에는 Growth Story용 milestone-timeline, growth-trajectory 또는 evidence-gap Brief가 필요합니다.');
+  }
+
+  if (step !== 2) return;
+  const competitorRegistry = parseCompetitorRegistry(raw);
+  if (!competitorRegistry) return;
+
+  const visualEntities = new Set(registry.visualBriefs.flatMap((brief) => brief.entities));
+  competitorRegistry.selected.forEach((competitor) => {
+    if (!visualEntities.has(competitor.name)) errors.push(`Step 2 Visual Intent에서 선정 경쟁사 '${competitor.name}'가 누락됐습니다.`);
+  });
+
+  if (!recipes.includes('rank-scorecard') && !recipes.includes('evidence-gap')) {
+    errors.push('Step 2에는 Threat Ranking용 rank-scorecard 또는 evidence-gap Brief가 필요합니다.');
+  }
+  if (!recipes.includes('feature-matrix') && !recipes.includes('evidence-gap')) {
+    errors.push('Step 2에는 Product Matrix용 feature-matrix 또는 evidence-gap Brief가 필요합니다.');
+  }
 }
 
 function handleClick(event: MouseEvent): void {
@@ -95,6 +122,9 @@ function handleClick(event: MouseEvent): void {
   if (step === null || !isVisualIntentStep(step)) return;
   const value = getTextarea(button)?.value.trim() ?? '';
   const result = validateVisualIntentBrief(value, step);
+  addCoverageErrors(step, value, result.registry, result.errors);
+  result.valid = result.errors.length === 0;
+
   const audit = readAudit();
   const entry: VisualIntentAuditEntry = {
     timestamp: new Date().toISOString(),
