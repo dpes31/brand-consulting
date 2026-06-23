@@ -30,7 +30,8 @@ Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate
 - Gate 1.5 specification is approved.
 - Active gate: **Gate 2A — Visual Intent Brief prompt-contract testing**.
 - Step 0 owner validation passed with three independent responses and 100% primary-recipe agreement.
-- Step 2 prompt/validator correction is deployed for owner re-test; Step 2 is not yet approved.
+- Step 2 role coverage passed the fourth owner test, but Metric completeness and stability calculation required a second correction.
+- The corrected Step 2 Metric contract and role-based stability audit are deployed for owner re-test; Step 2 is not yet approved.
 
 Gate 2A adds Visual Intent requirements to Steps 0, 2, 3, and 5, validates the marked JSON during the manual workflow, and records temporary repeated-run recipe audit data.
 
@@ -46,7 +47,6 @@ Relevant files:
 - The user pastes the **entire AI response**: normal analysis plus the marked Visual Intent JSON block.
 - JSON-only input is intentionally rejected because later research Steps require the normal analysis.
 - Step 0 tests Growth Story only. Extra Brand Identity, KPI, or USP Visual Briefs are ignored with warnings; the copied prompt requests exactly one Growth Story brief.
-- Incomplete Metric objects on non-quantitative briefs are warnings and are excluded. Quantitative-comparison briefs remain strict.
 - Three repeated runs mean three independently generated AI responses from the same prompt—not three submissions of one answer.
 - Exact duplicate responses are rejected and do not count toward recipe stability.
 - Step 2 uses exact role mappings:
@@ -58,6 +58,13 @@ Relevant files:
 - Step 2 requires exactly one Threat Ranking, exactly one Product Matrix, and exactly one independent Deep Dive per `COMPETITOR_REGISTRY.selected` competitor.
 - Each Step 2 Deep Dive `entities` array must contain exactly one selected competitor name and must match the Registry exactly.
 - Positioning Map is optional and limited to one Brief when two defensible common axes exist.
+- Step 2 Metric objects are strict. If `metrics` is not empty, every item must contain `metricId`, `label`, numeric `value`, `unit`, `period`, `denominator`, `sourceLabel`, and `verificationStatus`.
+- Step 2 `verificationStatus` is limited to `verified`, `partially-verified`, and `unverified`.
+- Official statistics, filings, or government-source figures may be `verified`; company-announced figures and transparent analyst scores are `partially-verified`; unsupported or uncorroborated estimates are `unverified`.
+- Step 2 stability ignores the number of Deep Dive Briefs and compares the required role recipes only: Threat Ranking, Deep Dive, and Product Matrix.
+- Positioning Map participation is reported separately and does not lower the required-role stability score.
+- The Step 2 audit storage key is versioned so prior pre-fix runs do not contaminate the new stability score.
+- Outside Step 2, incomplete Metric objects on non-quantitative briefs remain warnings and are excluded. Quantitative-comparison briefs remain strict.
 
 Gate 2A does not authorize:
 
