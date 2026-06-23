@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "status": "gate-1.5-specification",
+  "principles": {
+    "externalTemplateNamesAreExecutable": false,
+    "maximumFallbackRecipes": 1,
+    "unsupportedRecipeBehavior": "record-as-planned-or-unsupported; never render as generic-card-wall",
+    "finalDecisionOwner": "phase-6-recipe-router"
+  },
+  "pilotSupportedRecipes": [
+    "milestone-timeline",
+    "competitor-threat-system",
+    "feature-matrix"
+  ],
+  "steps": [
+    {
+      "step": 0,
+      "name": "Brand Fact Book",
+      "evidenceTypes": ["time-change", "causal-relationship", "evidence-gap"],
+      "primaryRecipes": [
+        "milestone-timeline",
+        "growth-trajectory",
+        "before-after"
+      ],
+      "fallbackRecipes": ["evidence-gap"],
+      "pilotTargets": [
+        {
+          "preferredSlideId": "slide-f02",
+          "decisionQuestionPattern": "growth history, stage change, inflection point",
+          "preferredRecipeOrder": [
+            "milestone-timeline",
+            "growth-trajectory",
+            "evidence-gap"
+          ]
+        }
+      ],
+      "forbidden": [
+        "feature-matrix for chronology",
+        "quantitative chart without comparable verified series",
+        "external template name as recipeId"
+      ]
+    },
+    {
+      "step": 1,
+      "name": "Market",
+      "evidenceTypes": [
+        "quantitative-comparison",
+        "time-change",
+        "causal-relationship",
+        "priority-ranking",
+        "evidence-gap"
+      ],
+      "primaryRecipes": [
+        "kpi-trend-bridge",
+        "rank-scorecard",
+        "milestone-timeline",
+        "system-map"
+      ],
+      "fallbackRecipes": ["evidence-gap"],
+      "forbidden": [
+        "mixed-unit single-axis chart",
+        "trend chart from one data point",
+        "invented market value"
+      ]
+    },
+    {
+      "step": 2,
+      "name": "Competitor Strategy",
+      "evidenceTypes": [
+        "priority-ranking",
+        "causal-relationship",
+        "quantitative-comparison",
+        "competitive-space",
+        "evidence-gap"
+      ],
+      "primaryRecipes": [
+        "rank-scorecard",
+        "competitor-threat-system",
+        "feature-matrix",
+        "positioning-map"
+      ],
+      "fallbackRecipes": ["evidence-gap"],
+      "pilotTargets": [
+        {
+          "preferredSlideKind": "competitor-deep-dive",
+          "decisionQuestionPattern": "how the competitor steals demand or customers",
+          "preferredRecipeOrder": [
+            "competitor-threat-system",
+            "evidence-gap"
+          ]
+        },
+        {
+          "preferredSlideId": "slide-07",
+          "decisionQuestionPattern": "which brand is stronger on common comparison axes",
+          "preferredRecipeOrder": [
+            "feature-matrix",
+            "evidence-gap"
+          ]
+        }
+      ],
+      "forbidden": [
+        "competitor outside locked registry as a core entity",
+        "arbitrary brand color per competitor",
+        "feature matrix with non-common axes",
+        "external template name as recipeId"
+      ]
+    },
+    {
+      "step": 3,
+      "name": "Consumer",
+      "evidenceTypes": [
+        "consumer-journey",
+        "sequential-process",
+        "causal-relationship",
+        "priority-ranking",
+        "evidence-gap"
+      ],
+      "primaryRecipes": [
+        "customer-journey",
+        "friction-flow",
+        "needs-hierarchy"
+      ],
+      "fallbackRecipes": ["evidence-gap"],
+      "forbidden": [
+        "journey without a stable sequence",
+        "emotion claim without research support",
+        "generic four-card persona wall"
+      ]
+    },
+    {
+      "step": 4,
+      "name": "Creative History",
+      "evidenceTypes": ["creative-trajectory", "time-change", "evidence-gap"],
+      "primaryRecipes": ["creative-message-trajectory"],
+      "fallbackRecipes": ["evidence-gap"],
+      "forbidden": [
+        "unverified copy in quotation marks",
+        "competitor omission from locked registry",
+        "fewer or more than six contracted years without validation error"
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Strategy",
+      "evidenceTypes": [
+        "strategic-choice",
+        "causal-relationship",
+        "execution-roadmap",
+        "priority-ranking",
+        "evidence-gap"
+      ],
+      "primaryRecipes": [
+        "choice-architecture",
+        "as-is-to-be",
+        "swot-to-strategy",
+        "roadmap"
+      ],
+      "fallbackRecipes": ["evidence-gap"],
+      "forbidden": [
+        "SWOT four-box as final strategic answer",
+        "roadmap without sequencing evidence",
+        "winning move disconnected from root cause"
+      ]
+    }
+  ],
+  "routerRules": [
+    {
+      "ruleId": "R-001",
+      "when": "evidenceType=time-change and no comparable continuous metric series",
+      "select": "milestone-timeline"
+    },
+    {
+      "ruleId": "R-002",
+      "when": "step=2 and requiredInputs include Evidence, Core Desire, Appeal, Threat Mechanism, Attack Point",
+      "select": "competitor-threat-system"
+    },
+    {
+      "ruleId": "R-003",
+      "when": "step=2 and all entities share common axes with categorical or normalized values",
+      "select": "feature-matrix"
+    },
+    {
+      "ruleId": "R-004",
+      "when": "required pilot inputs are missing",
+      "select": "evidence-gap"
+    },
+    {
+      "ruleId": "R-005",
+      "when": "primary recipe is not implemented",
+      "select": "fallback only if fallback is evidence-compatible; otherwise block"
+    }
+  ]
+}
