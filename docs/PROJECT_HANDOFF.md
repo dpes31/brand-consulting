@@ -11,6 +11,7 @@ Read this file and `AGENTS.md` before changing the repository. The owner require
 - Failed Phase 5 audit branch: `feature-visualization-engine-v1`
 - Failed Draft PR: #6 — retain for audit, do not merge.
 - Current branch: `feature-visual-recipe-pilot-v1`
+- Current Draft PR: #7 — Gate 2A owner validation only; do not merge.
 
 ## Product invariants
 
@@ -71,6 +72,13 @@ Planned flag: `visualRecipePilot`, default `false`. It is not implemented yet.
 
 Status: **Visual Intent prompt contract and manual validation support implemented; repeated owner testing in progress.**
 
+Owner validation status:
+
+- Step 0: passed with three independent valid responses and 100% `milestone-timeline` agreement.
+- Step 2: first owner run failed because the copied prompt did not expose the exact evidenceType/Recipe mappings and allowed combined Deep Dive Briefs.
+- Step 2 correction: implemented and awaiting owner re-test.
+- Steps 3 and 5: not yet tested.
+
 Implemented files:
 
 - `src/lib/visualIntentBrief.ts`
@@ -94,7 +102,7 @@ Current behavior:
 - Valid runs store temporary session audit data and report recent primary-recipe agreement.
 - Exact duplicate responses are rejected and do not count as separate runs.
 
-### Gate 2A usability correction after first owner test
+### Gate 2A usability correction after first Step 0 owner test
 
 The first Step 0 test exposed two contract problems:
 
@@ -103,13 +111,38 @@ The first Step 0 test exposed two contract problems:
 
 Corrections on the current branch:
 
-- Step 0 prompt now requests exactly one Growth Story Visual Brief.
+- Step 0 prompt requests exactly one Growth Story Visual Brief.
 - Step 0 extra non-Growth briefs are ignored with warnings during the pilot.
 - incomplete metrics are warnings and excluded when the brief is not `quantitative-comparison`;
 - quantitative comparison remains strict and requires at least two complete, unit-compatible metrics;
 - missing `denominator` is normalized to `null` with a warning;
-- validation errors now explicitly instruct the user to paste the full response;
+- validation errors explicitly instruct the user to paste the full response;
 - duplicate answer submission is blocked to prevent a false stability score.
+
+Step 0 then passed three independent owner runs with 100% primary-recipe agreement.
+
+### Gate 2A usability correction after first Step 2 owner test
+
+The first Step 2 test exposed three contract problems:
+
+1. the copied prompt listed Recipe IDs but did not expose the exact evidenceType → Recipe mapping for each required role;
+2. the generic example biased the model toward `competitor-threat-system`, causing Threat Ranking to omit `rank-scorecard`;
+3. multiple selected competitors could be combined into one Deep Dive Brief even though later page planning requires one Deep Dive per competitor.
+
+Corrections on the current branch:
+
+- the copied Step 2 prompt now lists all allowed evidenceTypes;
+- Threat Ranking is fixed to `priority-ranking` → `rank-scorecard`;
+- each selected competitor Deep Dive is fixed to `causal-relationship` → `competitor-threat-system`;
+- Product Matrix is fixed to `competitive-space` → `feature-matrix`;
+- optional Positioning Map is fixed to `competitive-space` → `positioning-map`;
+- missing evidence for a role uses `evidence-gap` → `evidence-gap`;
+- the prompt includes separate examples for Threat Ranking, one Deep Dive, and Product Matrix;
+- the prompt tells the model to duplicate the Deep Dive object once per selected competitor;
+- the validator requires exactly one Threat Ranking and exactly one Product Matrix;
+- the validator requires exactly one independent Deep Dive per `COMPETITOR_REGISTRY.selected` competitor;
+- every Deep Dive `entities` array must contain exactly one selected competitor name and no Registry-external competitor;
+- Positioning Map is optional and limited to one Brief.
 
 Three runs mean three independently generated AI responses from the same unchanged prompt and evidence. They do not mean submitting one identical response three times.
 
