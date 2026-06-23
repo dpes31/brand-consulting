@@ -41,6 +41,19 @@ Product Matrix와 Positioning Map 규칙:
 - Positioning Map은 근거 있는 두 축이 없으면 생성하지 마십시오.
 - 비교축·점수·수치를 임의 생성하지 마십시오.
 
+Metric 계약:
+- metrics를 하나라도 사용하면 각 객체에 metricId, label, value, unit, period, denominator, sourceLabel, verificationStatus를 모두 작성하십시오.
+- metricId는 영문·숫자·하이픈으로 만든 고유 ID입니다.
+- value는 숫자입니다.
+- denominator는 비교 기준이 없으면 null입니다.
+- sourceLabel에는 URL 대신 출처명·자료명·연도를 적으십시오.
+- verificationStatus 허용값은 verified, partially-verified, unverified뿐입니다.
+- 공식 통계·공시·정부기관 자료에서 정확히 확인된 수치: verified
+- 회사가 직접 발표했으나 독립 검증이 제한된 수치: partially-verified
+- 공개 근거를 종합한 분석 점수: partially-verified
+- 단일 미확인 주장 또는 교차 검증되지 않은 추정치: unverified
+- 수치가 필요하지 않으면 metrics는 []로 두십시오. 불완전한 Metric 객체를 넣지 마십시오.
+
 Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableInputs, missingInputs를 분리하십시오. 외부 템플릿 이름이나 번호를 recipeId로 사용하지 마십시오.
 
 <!-- VISUAL_INTENT_BRIEF_START -->
@@ -63,7 +76,18 @@ Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableIn
       "requiredInputs": ["경쟁사명", "위협도 점수", "평가 기준", "선정 사유"],
       "availableInputs": ["COMPETITOR_REGISTRY selected 데이터"],
       "missingInputs": [],
-      "metrics": [],
+      "metrics": [
+        {
+          "metricId": "selected-competitor-1-threat-score",
+          "label": "선정 경쟁사명 1 위협도",
+          "value": 92,
+          "unit": "점",
+          "period": "현재 평가 시점",
+          "denominator": "100점",
+          "sourceLabel": "Step 2 위협도 평가표, 현재 평가 시점",
+          "verificationStatus": "partially-verified"
+        }
+      ],
       "entities": ["선정 경쟁사명 1", "선정 경쟁사명 2"],
       "timePeriods": ["현재 평가 시점"],
       "implementationStatus": "planned"
@@ -82,7 +106,18 @@ Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableIn
       "requiredInputs": ["Evidence", "Core Desire", "Appeal", "Threat Mechanism", "Attack Point"],
       "availableInputs": ["해당 경쟁사의 확보된 근거"],
       "missingInputs": ["누락된 직접 고객 이동 근거"],
-      "metrics": [],
+      "metrics": [
+        {
+          "metricId": "selected-competitor-1-users",
+          "label": "선정 경쟁사명 1 누적 이용자",
+          "value": 100,
+          "unit": "만 명",
+          "period": "공식 발표 기준 시점",
+          "denominator": null,
+          "sourceLabel": "경쟁사 공식 발표 자료, 발표 연도",
+          "verificationStatus": "partially-verified"
+        }
+      ],
       "entities": ["실제 선정 경쟁사명 1"],
       "timePeriods": ["최근 5년 및 현재"],
       "implementationStatus": "pilot-supported"
