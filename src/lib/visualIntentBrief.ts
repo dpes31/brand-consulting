@@ -81,6 +81,10 @@ function strings(value: unknown): string[] {
   return Array.isArray(value) ? [...new Set(value.map(text).filter(Boolean))].slice(0, 20) : [];
 }
 
+function hasOwn(object: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(object, key);
+}
+
 function extract(textValue: string): string | null {
   const start = textValue.indexOf(VISUAL_INTENT_BRIEF_START);
   const end = textValue.indexOf(VISUAL_INTENT_BRIEF_END, start + VISUAL_INTENT_BRIEF_START.length);
@@ -93,7 +97,7 @@ function extract(textValue: string): string | null {
 
 function metric(value: unknown): VisualIntentMetric | null {
   const item = obj(value);
-  if (!item) return null;
+  if (!item || !hasOwn(item, 'denominator')) return null;
   const verificationStatus = item.verificationStatus;
   if (verificationStatus !== 'verified' && verificationStatus !== 'partially-verified' && verificationStatus !== 'unverified') return null;
   const numericValue = Number(item.value);
@@ -123,6 +127,7 @@ export function validateVisualIntentBrief(raw: string | null | undefined, expect
     const step = Number(root.step) as VisualIntentStep;
     const brand = text(root.brand);
     const rawBriefs = root.visualBriefs;
+    if (Number(root.version) !== 1) errors.push('version은 1이어야 합니다.');
     if (![0, 2, 3, 5].includes(step)) errors.push('step은 0, 2, 3, 5 중 하나여야 합니다.');
     if (expectedStep !== undefined && step !== expectedStep) errors.push(`현재 Step ${expectedStep}와 JSON step이 다릅니다.`);
     if (!brand) errors.push('brand가 비어 있습니다.');
@@ -146,6 +151,7 @@ export function validateVisualIntentBrief(raw: string | null | undefined, expect
 
       if (!insightId || seen.has(insightId)) errors.push(`${insightId || index}: insightId가 없거나 중복됐습니다.`);
       if (insightId) seen.add(insightId);
+      if (!text(item.section)) errors.push(`${insightId || index}: section이 비어 있습니다.`);
       if (!EVIDENCE[step].includes(evidenceType)) errors.push(`${insightId || index}: 허용되지 않은 evidenceType입니다.`);
       if (!RECIPES[step].includes(primaryRecipe) || Number(primaryObject?.priority) !== 1) errors.push(`${insightId || index}: primaryRecipe가 유효하지 않습니다.`);
       if (fallbackObject && (!RECIPES[step].includes(fallbackRecipe) || Number(fallbackObject.priority) !== 2)) errors.push(`${insightId || index}: fallbackRecipe가 유효하지 않습니다.`);
@@ -154,9 +160,12 @@ export function validateVisualIntentBrief(raw: string | null | undefined, expect
       if (!['high', 'medium', 'low'].includes(text(item.confidence))) errors.push(`${insightId || index}: confidence가 유효하지 않습니다.`);
       if (!['pilot-supported', 'planned', 'unsupported'].includes(implementationStatus)) errors.push(`${insightId || index}: implementationStatus가 유효하지 않습니다.`);
       if (PILOT.has(primaryRecipe) !== (implementationStatus === 'pilot-supported')) errors.push(`${insightId || index}: Recipe와 implementationStatus가 일치하지 않습니다.`);
+      if (!Array.isArray(item.requiredInputs) || !Array.isArray(item.availableInputs) || !Array.isArray(item.missingInputs)) errors.push(`${insightId || index}: required/available/missingInputs는 각각 배열이어야 합니다.`);
       if (strings(item.requiredInputs).length === 0) errors.push(`${insightId || index}: requiredInputs가 비어 있습니다.`);
       if (text(item.decisionQuestion).length < 8 || text(item.coreMessage).length < 8 || text(item.selectionReason).length < 8) errors.push(`${insightId || index}: 질문·핵심 메시지·선정 이유가 너무 짧습니다.`);
+      if (!Array.isArray(item.metrics)) errors.push(`${insightId || index}: metrics는 배열이어야 합니다.`);
       if (Array.isArray(item.metrics) && normalizedMetrics.length !== item.metrics.length) errors.push(`${insightId || index}: Metric 필드가 불완전합니다.`);
+      if (normalizedMetrics.some((entry) => /^https?:\/\//i.test(entry.sourceLabel))) warnings.push(`${insightId || index}: sourceLabel에는 URL 대신 출처명·자료명·연도를 권장합니다.`);
       if (evidenceType === 'quantitative-comparison') {
         if (normalizedMetrics.length < 2) errors.push(`${insightId || index}: 정량 비교에는 Metric 2개 이상이 필요합니다.`);
         if (new Set(normalizedMetrics.map((entry) => entry.unit)).size > 1) errors.push(`${insightId || index}: 서로 다른 단위가 혼합됐습니다.`);
@@ -203,7 +212,7 @@ function stepRules(step: VisualIntentStep): string {
 }
 
 export function buildVisualIntentPromptContract(step: VisualIntentStep): string {
-  return `\n\n[VISUAL INTENT BRIEF — GATE 2A TEST]\n일반 분석을 먼저 작성한 뒤 같은 근거를 어떤 장표 구조로 전달할지 계획하십시오. HTML/CSS/SVG는 작성하지 마십시오. 외부 템플릿 이름·번호를 recipeId로 사용하지 마십시오. Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableInputs, missingInputs를 분리하십시오. 수치는 value/unit/period/denominator/sourceLabel/verificationStatus를 기록하십시오.\n\n허용 Recipe: ${RECIPES[step].join(', ')}\n필수 판단: ${stepRules(step)}\n\n${step === 2 ? '출력 순서: 일반 분석 → COMPETITOR_REGISTRY → VISUAL_INTENT_BRIEF' : '출력 순서: 일반 분석 → VISUAL_INTENT_BRIEF'}\n\n${VISUAL_INTENT_BRIEF_START}\n{\n  "version": 1,\n  "brand": "{BRAND_NAME}",\n  "step": ${step},\n  "visualBriefs": [\n    {\n      "insightId": "STEP${step}_INSIGHT_01",\n      "section": "해당 섹션",\n      "preferredSlideId": null,\n      "decisionQuestion": "독자가 이 장표에서 판단해야 할 질문",\n      "evidenceType": "${step === 0 ? 'time-change' : step === 2 ? 'causal-relationship' : step === 3 ? 'consumer-journey' : 'strategic-choice'}",\n      "coreMessage": "근거가 말하는 핵심 결론",\n      "primaryRecipe": { "recipeId": "${step === 0 ? 'milestone-timeline' : step === 2 ? 'competitor-threat-system' : step === 3 ? 'friction-flow' : 'choice-architecture'}", "priority": 1 },\n      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },\n      "selectionReason": "해당 정보 구조에 이 Recipe가 적합한 이유",\n      "confidence": "medium",\n      "requiredInputs": ["필수 데이터"],\n      "availableInputs": ["확보 데이터"],\n      "missingInputs": ["누락 데이터"],\n      "metrics": [],\n      "entities": ["{BRAND_NAME}"],\n      "timePeriods": [],\n      "implementationStatus": "${step === 0 || step === 2 ? 'pilot-supported' : 'planned'}"\n    }\n  ]\n}\n${VISUAL_INTENT_BRIEF_END}`;
+  return `\n\n[VISUAL INTENT BRIEF — GATE 2A TEST]\n일반 분석을 먼저 작성한 뒤 같은 근거를 어떤 장표 구조로 전달할지 계획하십시오. HTML/CSS/SVG는 작성하지 마십시오. 외부 템플릿 이름·번호를 recipeId로 사용하지 마십시오. Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableInputs, missingInputs를 분리하십시오. 수치는 value/unit/period/denominator/sourceLabel/verificationStatus를 기록하십시오.\n현재 pilot-supported Recipe는 milestone-timeline, competitor-threat-system, feature-matrix입니다. 그 외 Recipe는 planned 또는 unsupported로 기록하십시오.\n\n허용 Recipe: ${RECIPES[step].join(', ')}\n필수 판단: ${stepRules(step)}\n\n${step === 2 ? '출력 순서: 일반 분석 → COMPETITOR_REGISTRY → VISUAL_INTENT_BRIEF' : '출력 순서: 일반 분석 → VISUAL_INTENT_BRIEF'}\n\n${VISUAL_INTENT_BRIEF_START}\n{\n  "version": 1,\n  "brand": "{BRAND_NAME}",\n  "step": ${step},\n  "visualBriefs": [\n    {\n      "insightId": "STEP${step}_INSIGHT_01",\n      "section": "해당 섹션",\n      "preferredSlideId": null,\n      "decisionQuestion": "독자가 이 장표에서 판단해야 할 질문",\n      "evidenceType": "${step === 0 ? 'time-change' : step === 2 ? 'causal-relationship' : step === 3 ? 'consumer-journey' : 'strategic-choice'}",\n      "coreMessage": "근거가 말하는 핵심 결론",\n      "primaryRecipe": { "recipeId": "${step === 0 ? 'milestone-timeline' : step === 2 ? 'competitor-threat-system' : step === 3 ? 'friction-flow' : 'choice-architecture'}", "priority": 1 },\n      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },\n      "selectionReason": "해당 정보 구조에 이 Recipe가 적합한 이유",\n      "confidence": "medium",\n      "requiredInputs": ["필수 데이터"],\n      "availableInputs": ["확보 데이터"],\n      "missingInputs": ["누락 데이터"],\n      "metrics": [],\n      "entities": ["{BRAND_NAME}"],\n      "timePeriods": [],\n      "implementationStatus": "${step === 0 || step === 2 ? 'pilot-supported' : 'planned'}"\n    }\n  ]\n}\n${VISUAL_INTENT_BRIEF_END}`;
 }
 
 export function installVisualIntentBriefPolicy(): void {
