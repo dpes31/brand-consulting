@@ -136,6 +136,25 @@ Product Matrix and Positioning Map rules:
 - do not invent product scores or positioning axes;
 - omit Positioning Map when two defensible axes do not exist.
 
+Step 2 Metric contract:
+
+- use `metrics: []` when a Brief does not need a number;
+- when metrics are present, every Metric must contain `metricId`, `label`, numeric `value`, `unit`, `period`, `denominator`, `sourceLabel`, and `verificationStatus`;
+- `denominator` is `null` when there is no comparison base;
+- `sourceLabel` uses source name, document title, and year—not a raw URL;
+- allowed `verificationStatus` values are `verified`, `partially-verified`, and `unverified`;
+- official statistics, filings, or government-source figures may be `verified`;
+- company-announced figures and transparent analyst scores are `partially-verified`;
+- unsupported or uncorroborated estimates are `unverified`;
+- incomplete Step 2 Metric objects block submission instead of being silently discarded.
+
+Step 2 stability scoring:
+
+- compare the required role recipes only: Threat Ranking, Deep Dive, and Product Matrix;
+- ignore how many selected competitors exist and therefore how many Deep Dive Briefs are repeated;
+- report Positioning Map participation separately because it is optional;
+- different selected-competitor counts must not lower the required-role agreement score when role decisions are identical.
+
 Pass recipes:
 
 - `rank-scorecard` — planned;
@@ -152,6 +171,8 @@ Fail examples:
 - evidenceType aliases such as `rank-comparison`, `feature-comparison`, or `spatial-positioning` are used;
 - matrix axes differ by competitor;
 - product scores are invented;
+- a Metric uses `name` instead of `metricId` and `label`;
+- a Metric uses a free-form verification value such as `company-reported` or `analyst-scored`;
 - Competitor Registry is missing or placed after the Visual Intent final block.
 
 ## 7. Step 3 acceptance check
@@ -197,11 +218,13 @@ For each Step and run, record:
 | Step allowlist compliance | 100% |
 | Registry preservation | 100% for Step 2 |
 | Required/available/missing separation | 100% |
-| Metric metadata completeness | 100% when metrics are used for quantitative comparison |
+| Metric metadata completeness | 100% when metrics are used |
 | Unsupported recipe disclosure | 100% |
 | External template ID occurrence | 0 |
 | Primary recipe stability | at least 80% across independent comparable responses |
 | Evidence invention | 0 |
+
+For Step 2, primary-recipe stability means agreement across the required roles—not equality of the total repeated Deep Dive count. Positioning Map is monitored separately.
 
 ## 10. Gate decision
 
