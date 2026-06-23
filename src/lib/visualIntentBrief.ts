@@ -118,18 +118,21 @@ export function validateVisualIntentBrief(raw: string | null | undefined, expect
 
   try {
     const root = obj(JSON.parse(jsonText));
-    const step = Number(root?.step) as VisualIntentStep;
-    const brand = text(root?.brand);
+    if (!root) return { valid: false, registry: null, errors: ['Visual Intent JSON 최상위 값이 객체가 아닙니다.'], warnings };
+
+    const step = Number(root.step) as VisualIntentStep;
+    const brand = text(root.brand);
+    const rawBriefs = root.visualBriefs;
     if (![0, 2, 3, 5].includes(step)) errors.push('step은 0, 2, 3, 5 중 하나여야 합니다.');
     if (expectedStep !== undefined && step !== expectedStep) errors.push(`현재 Step ${expectedStep}와 JSON step이 다릅니다.`);
     if (!brand) errors.push('brand가 비어 있습니다.');
-    if (!Array.isArray(root?.visualBriefs) || root.visualBriefs.length === 0) errors.push('visualBriefs가 비어 있습니다.');
-    if (!brand || !Array.isArray(root?.visualBriefs) || ![0, 2, 3, 5].includes(step)) return { valid: false, registry: null, errors, warnings };
+    if (!Array.isArray(rawBriefs) || rawBriefs.length === 0) errors.push('visualBriefs가 비어 있습니다.');
+    if (!brand || !Array.isArray(rawBriefs) || ![0, 2, 3, 5].includes(step)) return { valid: false, registry: null, errors, warnings };
 
     const seen = new Set<string>();
     const briefs: VisualIntentBrief[] = [];
 
-    root.visualBriefs.slice(0, 20).forEach((value, index) => {
+    rawBriefs.slice(0, 20).forEach((value, index) => {
       const item = obj(value);
       if (!item) { errors.push(`visualBriefs[${index}]가 객체가 아닙니다.`); return; }
       const insightId = text(item.insightId);
@@ -142,22 +145,22 @@ export function validateVisualIntentBrief(raw: string | null | undefined, expect
       const normalizedMetrics = Array.isArray(item.metrics) ? item.metrics.map(metric).filter(Boolean) as VisualIntentMetric[] : [];
 
       if (!insightId || seen.has(insightId)) errors.push(`${insightId || index}: insightId가 없거나 중복됐습니다.`);
-      seen.add(insightId);
-      if (!EVIDENCE[step].includes(evidenceType)) errors.push(`${insightId}: 허용되지 않은 evidenceType입니다.`);
-      if (!RECIPES[step].includes(primaryRecipe) || Number(primaryObject?.priority) !== 1) errors.push(`${insightId}: primaryRecipe가 유효하지 않습니다.`);
-      if (fallbackObject && (!RECIPES[step].includes(fallbackRecipe) || Number(fallbackObject.priority) !== 2)) errors.push(`${insightId}: fallbackRecipe가 유효하지 않습니다.`);
-      if (primaryRecipe && primaryRecipe === fallbackRecipe) errors.push(`${insightId}: primary와 fallback이 동일합니다.`);
-      if (/umbrex|edraw|max|mckinsey|bcg|bain/i.test(primaryRecipe + fallbackRecipe)) errors.push(`${insightId}: 외부 템플릿 이름을 recipeId로 사용할 수 없습니다.`);
-      if (!['high', 'medium', 'low'].includes(text(item.confidence))) errors.push(`${insightId}: confidence가 유효하지 않습니다.`);
-      if (!['pilot-supported', 'planned', 'unsupported'].includes(implementationStatus)) errors.push(`${insightId}: implementationStatus가 유효하지 않습니다.`);
-      if (PILOT.has(primaryRecipe) !== (implementationStatus === 'pilot-supported')) errors.push(`${insightId}: Recipe와 implementationStatus가 일치하지 않습니다.`);
-      if (strings(item.requiredInputs).length === 0) errors.push(`${insightId}: requiredInputs가 비어 있습니다.`);
-      if (text(item.decisionQuestion).length < 8 || text(item.coreMessage).length < 8 || text(item.selectionReason).length < 8) errors.push(`${insightId}: 질문·핵심 메시지·선정 이유가 너무 짧습니다.`);
-      if (Array.isArray(item.metrics) && normalizedMetrics.length !== item.metrics.length) errors.push(`${insightId}: Metric 필드가 불완전합니다.`);
+      if (insightId) seen.add(insightId);
+      if (!EVIDENCE[step].includes(evidenceType)) errors.push(`${insightId || index}: 허용되지 않은 evidenceType입니다.`);
+      if (!RECIPES[step].includes(primaryRecipe) || Number(primaryObject?.priority) !== 1) errors.push(`${insightId || index}: primaryRecipe가 유효하지 않습니다.`);
+      if (fallbackObject && (!RECIPES[step].includes(fallbackRecipe) || Number(fallbackObject.priority) !== 2)) errors.push(`${insightId || index}: fallbackRecipe가 유효하지 않습니다.`);
+      if (primaryRecipe && primaryRecipe === fallbackRecipe) errors.push(`${insightId || index}: primary와 fallback이 동일합니다.`);
+      if (/umbrex|edraw|max|mckinsey|bcg|bain/i.test(primaryRecipe + fallbackRecipe)) errors.push(`${insightId || index}: 외부 템플릿 이름을 recipeId로 사용할 수 없습니다.`);
+      if (!['high', 'medium', 'low'].includes(text(item.confidence))) errors.push(`${insightId || index}: confidence가 유효하지 않습니다.`);
+      if (!['pilot-supported', 'planned', 'unsupported'].includes(implementationStatus)) errors.push(`${insightId || index}: implementationStatus가 유효하지 않습니다.`);
+      if (PILOT.has(primaryRecipe) !== (implementationStatus === 'pilot-supported')) errors.push(`${insightId || index}: Recipe와 implementationStatus가 일치하지 않습니다.`);
+      if (strings(item.requiredInputs).length === 0) errors.push(`${insightId || index}: requiredInputs가 비어 있습니다.`);
+      if (text(item.decisionQuestion).length < 8 || text(item.coreMessage).length < 8 || text(item.selectionReason).length < 8) errors.push(`${insightId || index}: 질문·핵심 메시지·선정 이유가 너무 짧습니다.`);
+      if (Array.isArray(item.metrics) && normalizedMetrics.length !== item.metrics.length) errors.push(`${insightId || index}: Metric 필드가 불완전합니다.`);
       if (evidenceType === 'quantitative-comparison') {
-        if (normalizedMetrics.length < 2) errors.push(`${insightId}: 정량 비교에는 Metric 2개 이상이 필요합니다.`);
-        if (new Set(normalizedMetrics.map((entry) => entry.unit)).size > 1) errors.push(`${insightId}: 서로 다른 단위가 혼합됐습니다.`);
-        if (normalizedMetrics.filter((entry) => entry.verificationStatus === 'verified').length < 2 && primaryRecipe !== 'evidence-gap') warnings.push(`${insightId}: 검증 Metric이 2개 미만입니다.`);
+        if (normalizedMetrics.length < 2) errors.push(`${insightId || index}: 정량 비교에는 Metric 2개 이상이 필요합니다.`);
+        if (new Set(normalizedMetrics.map((entry) => entry.unit)).size > 1) errors.push(`${insightId || index}: 서로 다른 단위가 혼합됐습니다.`);
+        if (normalizedMetrics.filter((entry) => entry.verificationStatus === 'verified').length < 2 && primaryRecipe !== 'evidence-gap') warnings.push(`${insightId || index}: 검증 Metric이 2개 미만입니다.`);
       }
 
       briefs.push({
@@ -209,7 +212,10 @@ export function installVisualIntentBriefPolicy(): void {
   ([0, 2, 3, 5] as VisualIntentStep[]).forEach((step) => {
     const node = RESEARCH_NODES.find((item) => item.step === step);
     if (!node) return;
-    node.systemPrompt += '\n\n[GATE 2A]\n기존 사실성·Registry 규칙을 보존하면서 사용자 요청 끝의 Visual Intent Brief 계약을 반드시 따르십시오.';
+    const step2OrderOverride = step === 2
+      ? '\nStep 2 출력 순서는 일반 분석 → COMPETITOR_REGISTRY → VISUAL_INTENT_BRIEF입니다. 이전의 Registry를 마지막에 두라는 문구보다 이 순서가 우선하며, Visual Intent 블록이 최종 블록입니다.'
+      : '';
+    node.systemPrompt += `\n\n[GATE 2A]\n기존 사실성·Registry 규칙을 보존하면서 사용자 요청 끝의 Visual Intent Brief 계약을 반드시 따르십시오.${step2OrderOverride}`;
     node.userPromptTemplate += buildVisualIntentPromptContract(step);
   });
 }
