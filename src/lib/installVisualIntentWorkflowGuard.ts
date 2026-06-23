@@ -17,6 +17,7 @@ interface VisualIntentAuditEntry {
   primaryRecipes: string[];
   warnings: string[];
   errors: string[];
+  responseFingerprint?: string;
 }
 
 function currentStepFromDom(): number | null {
@@ -41,7 +42,7 @@ function showToast(title: string, message: string, tone: 'success' | 'warning' |
   const heading = tone === 'success' ? '#5eead4' : tone === 'warning' ? '#fde68a' : '#fca5a5';
   toast.style.cssText = [
     'position:fixed', 'top:22px', 'right:22px', 'z-index:2147483647',
-    'width:min(480px,calc(100vw - 44px))', 'padding:16px 18px',
+    'width:min(500px,calc(100vw - 44px))', 'padding:16px 18px',
     'border-radius:12px', 'background:#111827', `border:1px solid ${border}`,
     'box-shadow:0 18px 60px rgba(0,0,0,.48)',
     'font-family:Inter,Noto Sans KR,sans-serif', 'color:#f8fafc',
@@ -54,7 +55,7 @@ function showToast(title: string, message: string, tone: 'success' | 'warning' |
   body.style.cssText = 'font-size:12px;line-height:1.55;color:#cbd5e1;white-space:pre-line';
   toast.append(titleElement, body);
   document.body.appendChild(toast);
-  window.setTimeout(() => toast.remove(), tone === 'error' ? 9000 : 6000);
+  window.setTimeout(() => toast.remove(), tone === 'error' ? 9000 : 7000);
 }
 
 function readAudit(): VisualIntentAuditEntry[] {
@@ -74,17 +75,31 @@ function writeAudit(entries: VisualIntentAuditEntry[]): void {
   }
 }
 
+function normalizeForFingerprint(value: string): string {
+  return value.replace(/\r\n/g, '\n').replace(/[ \t]+/g, ' ').trim();
+}
+
+function responseFingerprint(value: string): string {
+  const normalized = normalizeForFingerprint(value);
+  let hash = 2166136261;
+  for (let index = 0; index < normalized.length; index += 1) {
+    hash ^= normalized.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
 function recipeSignature(entry: VisualIntentAuditEntry): string {
   return [...entry.primaryRecipes].sort().join('|');
 }
 
 function stabilitySummary(audit: VisualIntentAuditEntry[], entry: VisualIntentAuditEntry): string {
   const comparable = [...audit.filter((item) => item.valid && item.step === entry.step), entry].slice(-3);
-  if (comparable.length < 2) return '반복 안정성: 첫 유효 실행';
+  if (comparable.length < 2) return '반복 안정성: 첫 번째 서로 다른 AI 응답';
   const currentSignature = recipeSignature(entry);
   const matches = comparable.filter((item) => recipeSignature(item) === currentSignature).length;
   const rate = Math.round((matches / comparable.length) * 100);
-  return `최근 ${comparable.length}회 Recipe 일치율: ${rate}%`;
+  return `최근 ${comparable.length}개 서로 다른 AI 응답의 Recipe 일치율: ${rate}%`;
 }
 
 function addCoverageErrors(step: VisualIntentStep, raw: string, registry: VisualIntentRegistry | null, errors: string[]): void {
@@ -121,11 +136,25 @@ function handleClick(event: MouseEvent): void {
   const step = currentStepFromDom();
   if (step === null || !isVisualIntentStep(step)) return;
   const value = getTextarea(button)?.value.trim() ?? '';
+  const fingerprint = responseFingerprint(value);
+  const audit = readAudit();
+
+  const duplicate = audit.find((item) => item.step === step && item.responseFingerprint === fingerprint);
+  if (duplicate) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    showToast(
+      `Step ${step} 동일 응답 재제출`,
+      '같은 AI 답변을 여러 번 Submit하는 것은 반복 테스트로 계산하지 않습니다.\n같은 프롬프트를 AI에 다시 실행해 새 응답을 받은 뒤, 새 응답 전체를 붙여 넣어 주세요.',
+      'warning',
+    );
+    return;
+  }
+
   const result = validateVisualIntentBrief(value, step);
   addCoverageErrors(step, value, result.registry, result.errors);
   result.valid = result.errors.length === 0;
 
-  const audit = readAudit();
   const entry: VisualIntentAuditEntry = {
     timestamp: new Date().toISOString(),
     step,
@@ -134,6 +163,7 @@ function handleClick(event: MouseEvent): void {
     primaryRecipes: result.registry?.visualBriefs.map((brief) => brief.primaryRecipe.recipeId) ?? [],
     warnings: result.warnings,
     errors: result.errors,
+    responseFingerprint: fingerprint,
   };
   const stability = result.valid ? stabilitySummary(audit, entry) : '';
   writeAudit([...audit, entry]);
@@ -151,7 +181,7 @@ function handleClick(event: MouseEvent): void {
 
   if (result.warnings.length > 0) {
     showToast(
-      `Step ${step} Visual Intent 통과 — 확인 필요`,
+      `Step ${step} Visual Intent 통과 — 참고 경고`,
       `Brief ${entry.briefCount}개가 유효합니다.\n${stability}\n${result.warnings.slice(0, 3).join('\n')}`,
       'warning',
     );
