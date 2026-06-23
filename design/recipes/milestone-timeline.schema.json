@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brand-consulting.local/recipes/milestone-timeline.schema.json",
+  "title": "Milestone Timeline Recipe",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "recipeId",
+    "decisionQuestion",
+    "governingMessage",
+    "startYear",
+    "endYear",
+    "phases",
+    "milestones",
+    "inflectionPoints",
+    "nextGrowthChallenge",
+    "interpretation",
+    "implication"
+  ],
+  "properties": {
+    "recipeId": {
+      "const": "milestone-timeline"
+    },
+    "decisionQuestion": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 240
+    },
+    "governingMessage": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 240
+    },
+    "startYear": {
+      "type": "integer",
+      "minimum": 1900,
+      "maximum": 2100
+    },
+    "endYear": {
+      "type": "integer",
+      "minimum": 1900,
+      "maximum": 2100
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "items": {
+        "$ref": "#/$defs/phase"
+      }
+    },
+    "milestones": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/milestone"
+      }
+    },
+    "inflectionPoints": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/inflectionPoint"
+      }
+    },
+    "nextGrowthChallenge": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 220
+    },
+    "interpretation": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 320
+    },
+    "implication": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 320
+    },
+    "sourceLabels": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 220
+      }
+    }
+  },
+  "$defs": {
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phaseId", "label", "startYear", "endYear", "meaning"],
+      "properties": {
+        "phaseId": {
+          "type": "string",
+          "pattern": "^[A-Z0-9][A-Z0-9_-]{1,31}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "startYear": {
+          "type": "integer",
+          "minimum": 1900,
+          "maximum": 2100
+        },
+        "endYear": {
+          "type": "integer",
+          "minimum": 1900,
+          "maximum": 2100
+        },
+        "meaning": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 120
+        }
+      }
+    },
+    "milestone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "milestoneId",
+        "year",
+        "title",
+        "event",
+        "businessMeaning",
+        "phaseId",
+        "evidenceStatus"
+      ],
+      "properties": {
+        "milestoneId": {
+          "type": "string",
+          "pattern": "^[A-Z0-9][A-Z0-9_-]{1,31}$"
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 1900,
+          "maximum": 2100
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "event": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 140
+        },
+        "businessMeaning": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 140
+        },
+        "phaseId": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32
+        },
+        "evidenceStatus": {
+          "enum": ["verified", "partially-verified", "unverified"]
+        },
+        "sourceLabel": {
+          "type": ["string", "null"],
+          "maxLength": 220
+        }
+      }
+    },
+    "inflectionPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["year", "label", "whyItMatters"],
+      "properties": {
+        "year": {
+          "type": "integer",
+          "minimum": 1900,
+          "maximum": 2100
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 70
+        },
+        "whyItMatters": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 160
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "milestones": {
+            "minItems": 8
+          }
+        }
+      },
+      "then": {
+        "description": "Eight milestones are the maximum for one 16:9 slide. Additional chronology requires a continuation page."
+      }
+    }
+  ],
+  "x-recipe-metadata": {
+    "evidenceTypes": ["time-change"],
+    "minItems": 3,
+    "maxItems": 8,
+    "allowedUnits": ["year", "date", "period-label"],
+    "overflowPolicy": "split-into-continuation-page; never reduce body text below approved typography token",
+    "notSuitableFor": [
+      "continuous quantitative trend with comparable values",
+      "one isolated event",
+      "unordered capability list"
+    ],
+    "requiredDomMetadata": {
+      "data-recipe-id": "milestone-timeline",
+      "data-viz-type": "timeline"
+    }
+  }
+}
