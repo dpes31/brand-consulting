@@ -29,6 +29,8 @@ Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate
 - Current branch: `feature-visual-recipe-pilot-v1` from `feature-creative-history-contract-v1`.
 - Gate 1.5 specification is approved.
 - Active gate: **Gate 2A — Visual Intent Brief prompt-contract testing**.
+- Step 0 owner validation passed with three independent responses and 100% primary-recipe agreement.
+- Step 2 prompt/validator correction is deployed for owner re-test; Step 2 is not yet approved.
 
 Gate 2A adds Visual Intent requirements to Steps 0, 2, 3, and 5, validates the marked JSON during the manual workflow, and records temporary repeated-run recipe audit data.
 
@@ -43,10 +45,19 @@ Relevant files:
 
 - The user pastes the **entire AI response**: normal analysis plus the marked Visual Intent JSON block.
 - JSON-only input is intentionally rejected because later research Steps require the normal analysis.
-- Step 0 tests Growth Story only. Extra Brand Identity, KPI, or USP Visual Briefs are ignored with warnings; the copied prompt now requests exactly one Growth Story brief.
+- Step 0 tests Growth Story only. Extra Brand Identity, KPI, or USP Visual Briefs are ignored with warnings; the copied prompt requests exactly one Growth Story brief.
 - Incomplete Metric objects on non-quantitative briefs are warnings and are excluded. Quantitative-comparison briefs remain strict.
 - Three repeated runs mean three independently generated AI responses from the same prompt—not three submissions of one answer.
 - Exact duplicate responses are rejected and do not count toward recipe stability.
+- Step 2 uses exact role mappings:
+  - Threat Ranking: `priority-ranking` → `rank-scorecard`.
+  - Each selected competitor Deep Dive: `causal-relationship` → `competitor-threat-system`.
+  - Product Matrix: `competitive-space` → `feature-matrix`.
+  - Optional Positioning Map: `competitive-space` → `positioning-map`.
+  - Missing evidence for a role: `evidence-gap` → `evidence-gap`.
+- Step 2 requires exactly one Threat Ranking, exactly one Product Matrix, and exactly one independent Deep Dive per `COMPETITOR_REGISTRY.selected` competitor.
+- Each Step 2 Deep Dive `entities` array must contain exactly one selected competitor name and must match the Registry exactly.
+- Positioning Map is optional and limited to one Brief when two defensible common axes exist.
 
 Gate 2A does not authorize:
 
