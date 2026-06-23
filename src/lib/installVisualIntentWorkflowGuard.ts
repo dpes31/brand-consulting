@@ -8,7 +8,7 @@ import {
 } from './visualIntentBrief';
 
 let installed = false;
-const AUDIT_KEY = 'brand-consulting:visual-intent-audit';
+const AUDIT_KEY = 'brand-consulting:visual-intent-audit-v2';
 
 interface VisualIntentAuditEntry {
   timestamp: string;
@@ -16,6 +16,8 @@ interface VisualIntentAuditEntry {
   valid: boolean;
   briefCount: number;
   primaryRecipes: string[];
+  roleRecipes?: Record<string, string>;
+  positioningMapSelected?: boolean;
   warnings: string[];
   errors: string[];
   responseFingerprint?: string;
@@ -91,16 +93,32 @@ function responseFingerprint(value: string): string {
 }
 
 function recipeSignature(entry: VisualIntentAuditEntry): string {
+  if (entry.step === 2 && entry.roleRecipes) {
+    return Object.entries(entry.roleRecipes)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([role, recipe]) => `${role}=${recipe}`)
+      .join('|');
+  }
   return [...entry.primaryRecipes].sort().join('|');
+}
+
+function positioningMapSummary(entries: VisualIntentAuditEntry[], entry: VisualIntentAuditEntry): string {
+  if (entry.step !== 2) return '';
+  const used = entries.filter((item) => item.positioningMapSelected === true).length;
+  return `선택 항목 Positioning Map: 최근 ${entries.length}개 중 ${used}개 응답에서 사용`;
 }
 
 function stabilitySummary(audit: VisualIntentAuditEntry[], entry: VisualIntentAuditEntry): string {
   const comparable = [...audit.filter((item) => item.valid && item.step === entry.step), entry].slice(-3);
-  if (comparable.length < 2) return '반복 안정성: 첫 번째 서로 다른 AI 응답';
+  const optionalSummary = positioningMapSummary(comparable, entry);
+  if (comparable.length < 2) {
+    return ['반복 안정성: 첫 번째 서로 다른 AI 응답', optionalSummary].filter(Boolean).join('\n');
+  }
   const currentSignature = recipeSignature(entry);
   const matches = comparable.filter((item) => recipeSignature(item) === currentSignature).length;
   const rate = Math.round((matches / comparable.length) * 100);
-  return `최근 ${comparable.length}개 서로 다른 AI 응답의 Recipe 일치율: ${rate}%`;
+  const label = entry.step === 2 ? '핵심 역할 Recipe 일치율' : 'Recipe 일치율';
+  return [`최근 ${comparable.length}개 서로 다른 AI 응답의 ${label}: ${rate}%`, optionalSummary].filter(Boolean).join('\n');
 }
 
 function briefText(brief: VisualIntentBrief): string {
@@ -140,6 +158,22 @@ function isCompetitorDeepDiveBrief(brief: VisualIntentBrief): boolean {
   const haystack = briefText(brief);
   return recipe === 'competitor-threat-system'
     || (recipe === 'evidence-gap' && /deep dive|deep-dive|딥다이브|core desire|threat mechanism|attack point|위협 메커니즘|공격 지점/.test(haystack));
+}
+
+function step2RoleRecipes(registry: VisualIntentRegistry): Record<string, string> {
+  const ranking = registry.visualBriefs.find(isThreatRankingBrief)?.primaryRecipe.recipeId ?? 'missing';
+  const matrix = registry.visualBriefs.find(isProductMatrixBrief)?.primaryRecipe.recipeId ?? 'missing';
+  const deepDiveRecipes = [...new Set(
+    registry.visualBriefs
+      .filter(isCompetitorDeepDiveBrief)
+      .map((brief) => brief.primaryRecipe.recipeId),
+  )].sort();
+
+  return {
+    'threat-ranking': ranking,
+    'deep-dive': deepDiveRecipes.length > 0 ? deepDiveRecipes.join('+') : 'missing',
+    'product-matrix': matrix,
+  };
 }
 
 function addStep2CoverageErrors(
@@ -232,12 +266,18 @@ function handleClick(event: MouseEvent): void {
   addCoverageErrors(step, value, result.registry, result.errors);
   result.valid = result.errors.length === 0;
 
+  const roleRecipes = step === 2 && result.registry ? step2RoleRecipes(result.registry) : undefined;
+  const positioningMapSelected = step === 2 && result.registry
+    ? result.registry.visualBriefs.some(isPositioningMapBrief)
+    : undefined;
   const entry: VisualIntentAuditEntry = {
     timestamp: new Date().toISOString(),
     step,
     valid: result.valid,
     briefCount: result.registry?.visualBriefs.length ?? 0,
     primaryRecipes: result.registry?.visualBriefs.map((brief) => brief.primaryRecipe.recipeId) ?? [],
+    roleRecipes,
+    positioningMapSelected,
     warnings: result.warnings,
     errors: result.errors,
     responseFingerprint: fingerprint,
