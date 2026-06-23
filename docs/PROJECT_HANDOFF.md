@@ -69,7 +69,7 @@ Planned flag: `visualRecipePilot`, default `false`. It is not implemented yet.
 
 ## Current gate — Gate 2A
 
-Status: **Visual Intent prompt contract and manual validation support implemented; repeated owner testing pending.**
+Status: **Visual Intent prompt contract and manual validation support implemented; repeated owner testing in progress.**
 
 Implemented files:
 
@@ -77,15 +77,41 @@ Implemented files:
 - `src/lib/installVisualIntentWorkflowGuard.ts`
 - `src/main.tsx`
 - `docs/phase5b-gate2a-test-script.md`
+- `docs/gate2a-prompts/step0-appendix.txt`
+- `docs/gate2a-prompts/step2-appendix.txt`
+- `docs/gate2a-prompts/step3-appendix.txt`
+- `docs/gate2a-prompts/step5-appendix.txt`
+- `docs/phase5b-gate2a-results.md`
 
 Current behavior:
 
 - Steps 0, 2, 3, and 5 request a marked Visual Intent JSON block.
 - Step 4 remains unchanged.
 - Step 2 output order is analysis → Competitor Registry → Visual Intent Brief.
+- The user must paste the complete AI response, not JSON alone.
 - Manual submission validates markers, JSON, step allowlists, priorities, input lists, metric metadata, units, and implementation status.
 - Invalid manual output is not accepted.
 - Valid runs store temporary session audit data and report recent primary-recipe agreement.
+- Exact duplicate responses are rejected and do not count as separate runs.
+
+### Gate 2A usability correction after first owner test
+
+The first Step 0 test exposed two contract problems:
+
+1. the model produced extra Visual Briefs for Brand Identity/KPI/Product USP, including an evidence type outside the Step 0 pilot scope;
+2. non-quantitative briefs included partial Metric objects, which the validator treated as blocking errors.
+
+Corrections on the current branch:
+
+- Step 0 prompt now requests exactly one Growth Story Visual Brief.
+- Step 0 extra non-Growth briefs are ignored with warnings during the pilot.
+- incomplete metrics are warnings and excluded when the brief is not `quantitative-comparison`;
+- quantitative comparison remains strict and requires at least two complete, unit-compatible metrics;
+- missing `denominator` is normalized to `null` with a warning;
+- validation errors now explicitly instruct the user to paste the full response;
+- duplicate answer submission is blocked to prevent a false stability score.
+
+Three runs mean three independently generated AI responses from the same unchanged prompt and evidence. They do not mean submitting one identical response three times.
 
 Allowed recipes:
 
@@ -98,7 +124,7 @@ Allowed recipes:
 
 Test procedure: `docs/phase5b-gate2a-test-script.md`.
 
-Gate 2A passes only after Steps 0, 2, 3, and 5 each complete three valid comparable runs, Registry contracts remain intact, primary-recipe agreement reaches at least 80%, unsupported recipes remain explicit, and the owner approves the outputs.
+Gate 2A passes only after Steps 0, 2, 3, and 5 each have three independent valid comparable responses, Registry contracts remain intact, primary-recipe agreement reaches at least 80%, unsupported recipes remain explicit, and the owner approves the outputs.
 
 ## Gate 2A limits
 
@@ -107,8 +133,7 @@ Gate 2A passes only after Steps 0, 2, 3, and 5 each complete three valid compara
 - No renderer exists.
 - No Phase 6 compiler or PDF change.
 - No `template.html` change.
-- No intentional Vercel Preview was authorized or inspected.
-- No Draft PR or merge.
+- No merge or production deployment.
 
 ## Next approval boundary
 
