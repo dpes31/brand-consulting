@@ -244,7 +244,9 @@ export function validateVisualIntentBrief(raw: string | null | undefined, expect
 
       if (incompleteMetrics.length > 0) {
         const missing = [...new Set(incompleteMetrics.flatMap((result) => result.missingFields))].join(', ');
-        if (evidenceType === 'quantitative-comparison') {
+        if (step === 2) {
+          errors.push(`${insightId || index}: Step 2 Metric 필드가 불완전합니다 (${missing}). 수치를 사용하지 않으면 metrics를 []로 두십시오.`);
+        } else if (evidenceType === 'quantitative-comparison') {
           errors.push(`${insightId || index}: 정량 비교 Metric 필드가 불완전합니다 (${missing}).`);
         } else {
           warnings.push(`${insightId || index}: 시각화에 사용하지 않는 불완전 Metric ${incompleteMetrics.length}개를 제외했습니다 (${missing}).`);
@@ -342,7 +344,18 @@ function step2BriefExample(): string {
       "requiredInputs": ["경쟁사명", "위협도 점수", "평가 기준", "선정 사유"],
       "availableInputs": ["COMPETITOR_REGISTRY selected 데이터"],
       "missingInputs": [],
-      "metrics": [],
+      "metrics": [
+        {
+          "metricId": "selected-competitor-1-threat-score",
+          "label": "선정 경쟁사명 1 위협도",
+          "value": 92,
+          "unit": "점",
+          "period": "현재 평가 시점",
+          "denominator": "100점",
+          "sourceLabel": "Step 2 위협도 평가표, 현재 평가 시점",
+          "verificationStatus": "partially-verified"
+        }
+      ],
       "entities": ["선정 경쟁사명 1", "선정 경쟁사명 2"],
       "timePeriods": ["현재 평가 시점"],
       "implementationStatus": "planned"
@@ -361,7 +374,18 @@ function step2BriefExample(): string {
       "requiredInputs": ["Evidence", "Core Desire", "Appeal", "Threat Mechanism", "Attack Point"],
       "availableInputs": ["해당 경쟁사의 확보된 근거"],
       "missingInputs": ["누락된 직접 고객 이동 근거"],
-      "metrics": [],
+      "metrics": [
+        {
+          "metricId": "selected-competitor-1-users",
+          "label": "선정 경쟁사명 1 누적 이용자",
+          "value": 100,
+          "unit": "만 명",
+          "period": "공식 발표 기준 시점",
+          "denominator": null,
+          "sourceLabel": "경쟁사 공식 발표 자료, 발표 연도",
+          "verificationStatus": "partially-verified"
+        }
+      ],
       "entities": ["실제 선정 경쟁사명 1"],
       "timePeriods": ["최근 5년 및 현재"],
       "implementationStatus": "pilot-supported"
@@ -393,11 +417,14 @@ export function buildVisualIntentPromptContract(step: VisualIntentStep): string 
     ? '\nStep 0 중요: visualBriefs 배열에는 Growth Story용 객체 정확히 1개만 넣으십시오. 다른 Brand Fact 항목은 일반 분석 본문에만 작성하십시오. milestone-timeline을 선택하면 metrics는 반드시 []로 두십시오.'
     : '';
   const step2Rule = step === 2
-    ? '\nStep 2 중요: Threat Ranking 1개, COMPETITOR_REGISTRY selected 경쟁사별 독립 Deep Dive 1개씩, Product Matrix 1개가 필수입니다. Positioning Map은 검증 가능한 공통 축 2개가 있을 때만 최대 1개 추가하십시오. Deep Dive 객체를 경쟁사 여러 개로 합치지 마십시오. 아래 예시의 Deep Dive 객체를 selected 경쟁사 수만큼 복제하고, 각 entities에는 해당 경쟁사명 1개만 넣으십시오.'
+    ? '\nStep 2 중요: Threat Ranking 1개, COMPETITOR_REGISTRY selected 경쟁사별 독립 Deep Dive 1개씩, Product Matrix 1개가 필수입니다. Positioning Map은 검증 가능한 공통 축 2개가 있을 때만 최대 1개 추가하십시오. Deep Dive 객체를 경쟁사 여러 개로 합치지 마십시오. 아래 예시의 Deep Dive 객체를 selected 경쟁사 수만큼 복제하고, 각 entities에는 해당 경쟁사명 1개만 넣으십시오. Step 2에서 metrics를 하나라도 사용하면 모든 Metric 필드를 완전하게 작성해야 하며, 필요하지 않으면 metrics를 []로 두십시오.'
+    : '';
+  const metricContract = step === 2
+    ? '\nMetric 계약: 각 Metric은 metricId, label, value, unit, period, denominator, sourceLabel, verificationStatus를 모두 포함하십시오. metricId는 영문·숫자·하이픈으로 만든 고유 ID, value는 숫자, denominator는 비교 기준이 없으면 null입니다. verificationStatus 허용값은 verified, partially-verified, unverified뿐입니다. 공식 통계·공시·정부기관 자료에서 정확히 확인된 수치는 verified, 회사가 직접 발표했으나 독립 검증이 제한된 수치와 공개 근거를 종합한 분석 점수는 partially-verified, 단일 미확인 주장이나 교차 검증되지 않은 추정치는 unverified로 기록하십시오. sourceLabel에는 URL 대신 출처명·자료명·연도를 적으십시오.'
     : '';
   const example = step === 2 ? step2BriefExample() : defaultBriefExample(step);
 
-  return `\n\n[VISUAL INTENT BRIEF — GATE 2A TEST]\n일반 분석을 먼저 작성한 뒤 같은 근거를 어떤 장표 구조로 전달할지 계획하십시오. 분석 본문과 Visual Intent JSON을 포함한 응답 전체를 웹 앱에 붙여 넣어야 합니다. JSON만 별도로 제출하지 마십시오. HTML/CSS/SVG는 작성하지 마십시오. 외부 템플릿 이름·번호를 recipeId로 사용하지 마십시오. Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableInputs, missingInputs를 분리하십시오. 수치는 value/unit/period/denominator/sourceLabel/verificationStatus를 기록하십시오.\n현재 pilot-supported Recipe는 milestone-timeline, competitor-threat-system, feature-matrix입니다. 그 외 Recipe는 planned 또는 unsupported로 기록하십시오.${step0Rule}${step2Rule}\n\n허용 evidenceType: ${EVIDENCE[step].join(', ')}\n허용 Recipe: ${RECIPES[step].join(', ')}\n필수 판단: ${stepRules(step)}\n\n${step === 2 ? '출력 순서: 일반 분석 → COMPETITOR_REGISTRY → VISUAL_INTENT_BRIEF' : '출력 순서: 일반 분석 → VISUAL_INTENT_BRIEF'}\n\n${VISUAL_INTENT_BRIEF_START}\n{\n  "version": 1,\n  "brand": "{BRAND_NAME}",\n  "step": ${step},\n  "visualBriefs": ${example}\n}\n${VISUAL_INTENT_BRIEF_END}`;
+  return `\n\n[VISUAL INTENT BRIEF — GATE 2A TEST]\n일반 분석을 먼저 작성한 뒤 같은 근거를 어떤 장표 구조로 전달할지 계획하십시오. 분석 본문과 Visual Intent JSON을 포함한 응답 전체를 웹 앱에 붙여 넣어야 합니다. JSON만 별도로 제출하지 마십시오. HTML/CSS/SVG는 작성하지 마십시오. 외부 템플릿 이름·번호를 recipeId로 사용하지 마십시오. Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableInputs, missingInputs를 분리하십시오. 수치를 사용할 때는 metricId/label/value/unit/period/denominator/sourceLabel/verificationStatus를 모두 기록하십시오.\n현재 pilot-supported Recipe는 milestone-timeline, competitor-threat-system, feature-matrix입니다. 그 외 Recipe는 planned 또는 unsupported로 기록하십시오.${step0Rule}${step2Rule}${metricContract}\n\n허용 evidenceType: ${EVIDENCE[step].join(', ')}\n허용 Recipe: ${RECIPES[step].join(', ')}\n필수 판단: ${stepRules(step)}\n\n${step === 2 ? '출력 순서: 일반 분석 → COMPETITOR_REGISTRY → VISUAL_INTENT_BRIEF' : '출력 순서: 일반 분석 → VISUAL_INTENT_BRIEF'}\n\n${VISUAL_INTENT_BRIEF_START}\n{\n  "version": 1,\n  "brand": "{BRAND_NAME}",\n  "step": ${step},\n  "visualBriefs": ${example}\n}\n${VISUAL_INTENT_BRIEF_END}`;
 }
 
 export function installVisualIntentBriefPolicy(): void {
