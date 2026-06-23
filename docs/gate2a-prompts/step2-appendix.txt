@@ -1,0 +1,84 @@
+[VISUAL INTENT BRIEF — GATE 2A TEST]
+일반 분석과 COMPETITOR_REGISTRY를 먼저 작성한 뒤, 응답 마지막에 VISUAL_INTENT_BRIEF를 작성하십시오. HTML/CSS/SVG는 작성하지 마십시오.
+
+출력 순서: 일반 분석 → COMPETITOR_REGISTRY → VISUAL_INTENT_BRIEF
+
+허용 Recipe: rank-scorecard, competitor-threat-system, feature-matrix, positioning-map, evidence-gap
+pilot-supported: competitor-threat-system, feature-matrix
+
+필수 Brief:
+- Threat Ranking: rank-scorecard 또는 evidence-gap 1개
+- selected 경쟁사마다 Deep Dive: competitor-threat-system 또는 evidence-gap 1개
+- Product Matrix: feature-matrix 또는 evidence-gap 1개
+- 근거 있는 두 축이 있을 때만 positioning-map 1개
+
+Deep Dive 흐름: Evidence → Core Desire → Appeal → Threat Mechanism → Attack Point
+선정 경쟁사명은 COMPETITOR_REGISTRY와 정확히 일치해야 합니다. 비교축·점수·수치를 임의 생성하지 마십시오.
+Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableInputs, missingInputs를 분리하십시오. 외부 템플릿 이름이나 번호를 recipeId로 사용하지 마십시오.
+
+<!-- VISUAL_INTENT_BRIEF_START -->
+{
+  "version": 1,
+  "brand": "조사 브랜드명",
+  "step": 2,
+  "visualBriefs": [
+    {
+      "insightId": "COMP_RANK_01",
+      "section": "II. COMPETITOR > Threat Ranking",
+      "preferredSlideId": "slide-06",
+      "decisionQuestion": "어떤 경쟁사가 가장 큰 실질적 위협인가?",
+      "evidenceType": "priority-ranking",
+      "coreMessage": "검증된 위협도 평가가 말하는 우선순위",
+      "primaryRecipe": { "recipeId": "rank-scorecard", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "동일한 위협도 척도로 우선순위를 비교하기 때문",
+      "confidence": "medium",
+      "requiredInputs": ["경쟁사명", "위협도 점수", "평가 기준", "선정 사유"],
+      "availableInputs": ["COMPETITOR_REGISTRY selected 데이터"],
+      "missingInputs": [],
+      "metrics": [],
+      "entities": ["선정 경쟁사명 1", "선정 경쟁사명 2"],
+      "timePeriods": ["현재 평가 시점"],
+      "implementationStatus": "planned"
+    },
+    {
+      "insightId": "COMP_DEEP_01",
+      "section": "II. COMPETITOR > Deep Dive",
+      "preferredSlideId": null,
+      "decisionQuestion": "선정 경쟁사는 어떤 메커니즘으로 고객 선택을 빼앗는가?",
+      "evidenceType": "causal-relationship",
+      "coreMessage": "핵심 위협 메커니즘과 공격 지점",
+      "primaryRecipe": { "recipeId": "competitor-threat-system", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "증거에서 공격 지점까지의 인과 흐름을 보여줘야 하기 때문",
+      "confidence": "medium",
+      "requiredInputs": ["위협 근거", "Core Desire", "Appeal", "Threat Mechanism", "Attack Point"],
+      "availableInputs": ["확보된 경쟁 근거"],
+      "missingInputs": ["누락된 직접 고객 이동 근거"],
+      "metrics": [],
+      "entities": ["실제 선정 경쟁사명"],
+      "timePeriods": ["최근 5년 및 현재"],
+      "implementationStatus": "pilot-supported"
+    },
+    {
+      "insightId": "COMP_MATRIX_01",
+      "section": "II. COMPETITOR > Product Matrix",
+      "preferredSlideId": "slide-07",
+      "decisionQuestion": "공통 비교축에서 브랜드별 차이는 무엇인가?",
+      "evidenceType": "competitive-space",
+      "coreMessage": "공통 축에서 확인되는 우위와 취약점",
+      "primaryRecipe": { "recipeId": "feature-matrix", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "동일한 비교축으로 브랜드를 비교할 수 있기 때문",
+      "confidence": "medium",
+      "requiredInputs": ["공통 비교축", "브랜드별 평가", "평가 근거", "미확인 셀"],
+      "availableInputs": ["확보된 제품·서비스 비교 근거"],
+      "missingInputs": ["누락된 비교 근거"],
+      "metrics": [],
+      "entities": ["조사 브랜드명", "선정 경쟁사명 1", "선정 경쟁사명 2"],
+      "timePeriods": ["현재 기준"],
+      "implementationStatus": "pilot-supported"
+    }
+  ]
+}
+<!-- VISUAL_INTENT_BRIEF_END -->
