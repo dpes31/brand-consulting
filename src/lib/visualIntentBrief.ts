@@ -73,6 +73,14 @@ const EVIDENCE: Record<VisualIntentStep, string[]> = {
   5: ['strategic-choice', 'causal-relationship', 'execution-roadmap', 'priority-ranking', 'evidence-gap'],
 };
 
+const STEP2_EVIDENCE_BY_RECIPE: Record<string, string> = {
+  'rank-scorecard': 'priority-ranking',
+  'competitor-threat-system': 'causal-relationship',
+  'feature-matrix': 'competitive-space',
+  'positioning-map': 'competitive-space',
+  'evidence-gap': 'evidence-gap',
+};
+
 let installed = false;
 
 function obj(value: unknown): Record<string, unknown> | null {
@@ -227,6 +235,13 @@ export function validateVisualIntentBrief(raw: string | null | undefined, expect
       if (text(item.decisionQuestion).length < 8 || text(item.coreMessage).length < 8 || text(item.selectionReason).length < 8) errors.push(`${insightId || index}: 질문·핵심 메시지·선정 이유가 너무 짧습니다.`);
       if (!Array.isArray(item.metrics)) errors.push(`${insightId || index}: metrics는 배열이어야 합니다.`);
 
+      if (step === 2 && RECIPES[2].includes(primaryRecipe) && EVIDENCE[2].includes(evidenceType)) {
+        const expectedEvidence = STEP2_EVIDENCE_BY_RECIPE[primaryRecipe];
+        if (expectedEvidence && evidenceType !== expectedEvidence) {
+          errors.push(`${insightId || index}: ${primaryRecipe}에는 evidenceType "${expectedEvidence}"를 사용해야 합니다.`);
+        }
+      }
+
       if (incompleteMetrics.length > 0) {
         const missing = [...new Set(incompleteMetrics.flatMap((result) => result.missingFields))].join(', ');
         if (evidenceType === 'quantitative-comparison') {
@@ -282,17 +297,107 @@ export function validateVisualIntentBrief(raw: string | null | undefined, expect
 
 function stepRules(step: VisualIntentStep): string {
   if (step === 0) return 'visualBriefs에는 Growth Story용 Brief 정확히 1개만 작성하십시오. Brand Identity, KPI Snapshot, Product USP용 Brief는 이번 Gate 2A JSON에 넣지 마십시오. 사건·단계·변곡점 중심이면 milestone-timeline을 우선 검토하십시오. milestone-timeline이면 metrics는 빈 배열([])로 두십시오.';
-  if (step === 2) return '경쟁사 순위, 선정 경쟁사별 Deep Dive, Product Matrix의 Visual Brief를 작성하십시오. Deep Dive는 Evidence → Core Desire → Appeal → Threat Mechanism → Attack Point 흐름을 사용하십시오.';
+  if (step === 2) return 'Threat Ranking은 priority-ranking → rank-scorecard로 정확히 1개 작성하십시오. selected 경쟁사마다 causal-relationship → competitor-threat-system Deep Dive를 정확히 1개씩 별도로 작성하고 entities에는 해당 경쟁사명 1개만 넣으십시오. Product Matrix는 competitive-space → feature-matrix로 정확히 1개 작성하십시오. Positioning Map은 근거 있는 공통 축 2개가 있을 때만 competitive-space → positioning-map으로 최대 1개 작성하십시오. 근거가 부족한 역할은 evidence-gap → evidence-gap을 사용하십시오. Deep Dive는 Evidence → Core Desire → Appeal → Threat Mechanism → Attack Point 흐름을 사용하십시오.';
   if (step === 3) return '순차 행동이면 customer-journey, 이탈 마찰이 핵심이면 friction-flow, 욕구 위계가 핵심이면 needs-hierarchy를 선택하십시오.';
   return 'Root Cause, 전략 대안, 선택 기준, Winning Move, 실행 순서를 검토하되 SWOT 네 칸 자체를 최종 Recipe로 선택하지 마십시오.';
+}
+
+function defaultBriefExample(step: VisualIntentStep): string {
+  return `[
+    {
+      "insightId": "STEP${step}_INSIGHT_01",
+      "section": "해당 섹션",
+      "preferredSlideId": ${step === 0 ? '"slide-f02"' : 'null'},
+      "decisionQuestion": "독자가 이 장표에서 판단해야 할 질문",
+      "evidenceType": "${step === 0 ? 'time-change' : step === 3 ? 'consumer-journey' : 'strategic-choice'}",
+      "coreMessage": "근거가 말하는 핵심 결론",
+      "primaryRecipe": { "recipeId": "${step === 0 ? 'milestone-timeline' : step === 3 ? 'friction-flow' : 'choice-architecture'}", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "해당 정보 구조에 이 Recipe가 적합한 이유",
+      "confidence": "medium",
+      "requiredInputs": ["필수 데이터"],
+      "availableInputs": ["확보 데이터"],
+      "missingInputs": ["누락 데이터"],
+      "metrics": [],
+      "entities": ["{BRAND_NAME}"],
+      "timePeriods": [],
+      "implementationStatus": "${step === 0 ? 'pilot-supported' : 'planned'}"
+    }
+  ]`;
+}
+
+function step2BriefExample(): string {
+  return `[
+    {
+      "insightId": "STEP2_RANK_01",
+      "section": "B. Threat Ranking & Selection Logic",
+      "preferredSlideId": "slide-06",
+      "decisionQuestion": "어떤 경쟁사가 가장 큰 실질적 위협인가?",
+      "evidenceType": "priority-ranking",
+      "coreMessage": "동일한 위협도 기준으로 본 경쟁 우선순위",
+      "primaryRecipe": { "recipeId": "rank-scorecard", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "선정 경쟁사를 동일한 위협도 기준으로 비교하기 때문",
+      "confidence": "medium",
+      "requiredInputs": ["경쟁사명", "위협도 점수", "평가 기준", "선정 사유"],
+      "availableInputs": ["COMPETITOR_REGISTRY selected 데이터"],
+      "missingInputs": [],
+      "metrics": [],
+      "entities": ["선정 경쟁사명 1", "선정 경쟁사명 2"],
+      "timePeriods": ["현재 평가 시점"],
+      "implementationStatus": "planned"
+    },
+    {
+      "insightId": "STEP2_DEEP_01",
+      "section": "C. Selected Competitor Deep Dive > 실제 선정 경쟁사명 1",
+      "preferredSlideId": null,
+      "decisionQuestion": "이 경쟁사는 어떤 메커니즘으로 고객 선택을 빼앗는가?",
+      "evidenceType": "causal-relationship",
+      "coreMessage": "Evidence에서 Attack Point까지 이어지는 핵심 위협 메커니즘",
+      "primaryRecipe": { "recipeId": "competitor-threat-system", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "증거에서 공격 지점까지의 인과 흐름을 보여줘야 하기 때문",
+      "confidence": "medium",
+      "requiredInputs": ["Evidence", "Core Desire", "Appeal", "Threat Mechanism", "Attack Point"],
+      "availableInputs": ["해당 경쟁사의 확보된 근거"],
+      "missingInputs": ["누락된 직접 고객 이동 근거"],
+      "metrics": [],
+      "entities": ["실제 선정 경쟁사명 1"],
+      "timePeriods": ["최근 5년 및 현재"],
+      "implementationStatus": "pilot-supported"
+    },
+    {
+      "insightId": "STEP2_MATRIX_01",
+      "section": "D. Product Matrix",
+      "preferredSlideId": "slide-07",
+      "decisionQuestion": "공통 비교축에서 브랜드별 차이는 무엇인가?",
+      "evidenceType": "competitive-space",
+      "coreMessage": "공통 축에서 확인되는 우위와 취약점",
+      "primaryRecipe": { "recipeId": "feature-matrix", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "동일한 비교축으로 조사 브랜드와 선정 경쟁사를 비교하기 때문",
+      "confidence": "medium",
+      "requiredInputs": ["공통 비교축", "브랜드별 평가", "평가 근거", "미확인 셀"],
+      "availableInputs": ["확보된 제품·서비스 비교 근거"],
+      "missingInputs": ["누락된 비교 근거"],
+      "metrics": [],
+      "entities": ["{BRAND_NAME}", "선정 경쟁사명 1", "선정 경쟁사명 2"],
+      "timePeriods": ["현재 기준"],
+      "implementationStatus": "pilot-supported"
+    }
+  ]`;
 }
 
 export function buildVisualIntentPromptContract(step: VisualIntentStep): string {
   const step0Rule = step === 0
     ? '\nStep 0 중요: visualBriefs 배열에는 Growth Story용 객체 정확히 1개만 넣으십시오. 다른 Brand Fact 항목은 일반 분석 본문에만 작성하십시오. milestone-timeline을 선택하면 metrics는 반드시 []로 두십시오.'
     : '';
+  const step2Rule = step === 2
+    ? '\nStep 2 중요: Threat Ranking 1개, COMPETITOR_REGISTRY selected 경쟁사별 독립 Deep Dive 1개씩, Product Matrix 1개가 필수입니다. Positioning Map은 검증 가능한 공통 축 2개가 있을 때만 최대 1개 추가하십시오. Deep Dive 객체를 경쟁사 여러 개로 합치지 마십시오. 아래 예시의 Deep Dive 객체를 selected 경쟁사 수만큼 복제하고, 각 entities에는 해당 경쟁사명 1개만 넣으십시오.'
+    : '';
+  const example = step === 2 ? step2BriefExample() : defaultBriefExample(step);
 
-  return `\n\n[VISUAL INTENT BRIEF — GATE 2A TEST]\n일반 분석을 먼저 작성한 뒤 같은 근거를 어떤 장표 구조로 전달할지 계획하십시오. 분석 본문과 Visual Intent JSON을 포함한 응답 전체를 웹 앱에 붙여 넣어야 합니다. JSON만 별도로 제출하지 마십시오. HTML/CSS/SVG는 작성하지 마십시오. 외부 템플릿 이름·번호를 recipeId로 사용하지 마십시오. Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableInputs, missingInputs를 분리하십시오. 수치는 value/unit/period/denominator/sourceLabel/verificationStatus를 기록하십시오.\n현재 pilot-supported Recipe는 milestone-timeline, competitor-threat-system, feature-matrix입니다. 그 외 Recipe는 planned 또는 unsupported로 기록하십시오.${step0Rule}\n\n허용 Recipe: ${RECIPES[step].join(', ')}\n필수 판단: ${stepRules(step)}\n\n${step === 2 ? '출력 순서: 일반 분석 → COMPETITOR_REGISTRY → VISUAL_INTENT_BRIEF' : '출력 순서: 일반 분석 → VISUAL_INTENT_BRIEF'}\n\n${VISUAL_INTENT_BRIEF_START}\n{\n  "version": 1,\n  "brand": "{BRAND_NAME}",\n  "step": ${step},\n  "visualBriefs": [\n    {\n      "insightId": "STEP${step}_INSIGHT_01",\n      "section": "해당 섹션",\n      "preferredSlideId": ${step === 0 ? '"slide-f02"' : 'null'},\n      "decisionQuestion": "독자가 이 장표에서 판단해야 할 질문",\n      "evidenceType": "${step === 0 ? 'time-change' : step === 2 ? 'causal-relationship' : step === 3 ? 'consumer-journey' : 'strategic-choice'}",\n      "coreMessage": "근거가 말하는 핵심 결론",\n      "primaryRecipe": { "recipeId": "${step === 0 ? 'milestone-timeline' : step === 2 ? 'competitor-threat-system' : step === 3 ? 'friction-flow' : 'choice-architecture'}", "priority": 1 },\n      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },\n      "selectionReason": "해당 정보 구조에 이 Recipe가 적합한 이유",\n      "confidence": "medium",\n      "requiredInputs": ["필수 데이터"],\n      "availableInputs": ["확보 데이터"],\n      "missingInputs": ["누락 데이터"],\n      "metrics": [],\n      "entities": ["{BRAND_NAME}"],\n      "timePeriods": [],\n      "implementationStatus": "${step === 0 || step === 2 ? 'pilot-supported' : 'planned'}"\n    }\n  ]\n}\n${VISUAL_INTENT_BRIEF_END}`;
+  return `\n\n[VISUAL INTENT BRIEF — GATE 2A TEST]\n일반 분석을 먼저 작성한 뒤 같은 근거를 어떤 장표 구조로 전달할지 계획하십시오. 분석 본문과 Visual Intent JSON을 포함한 응답 전체를 웹 앱에 붙여 넣어야 합니다. JSON만 별도로 제출하지 마십시오. HTML/CSS/SVG는 작성하지 마십시오. 외부 템플릿 이름·번호를 recipeId로 사용하지 마십시오. Primary 1개와 Fallback 최대 1개만 선택하고 requiredInputs, availableInputs, missingInputs를 분리하십시오. 수치는 value/unit/period/denominator/sourceLabel/verificationStatus를 기록하십시오.\n현재 pilot-supported Recipe는 milestone-timeline, competitor-threat-system, feature-matrix입니다. 그 외 Recipe는 planned 또는 unsupported로 기록하십시오.${step0Rule}${step2Rule}\n\n허용 evidenceType: ${EVIDENCE[step].join(', ')}\n허용 Recipe: ${RECIPES[step].join(', ')}\n필수 판단: ${stepRules(step)}\n\n${step === 2 ? '출력 순서: 일반 분석 → COMPETITOR_REGISTRY → VISUAL_INTENT_BRIEF' : '출력 순서: 일반 분석 → VISUAL_INTENT_BRIEF'}\n\n${VISUAL_INTENT_BRIEF_START}\n{\n  "version": 1,\n  "brand": "{BRAND_NAME}",\n  "step": ${step},\n  "visualBriefs": ${example}\n}\n${VISUAL_INTENT_BRIEF_END}`;
 }
 
 export function installVisualIntentBriefPolicy(): void {
