@@ -2,6 +2,7 @@ import { parseCompetitorRegistry } from './competitorSelection';
 import {
   isVisualIntentStep,
   validateVisualIntentBrief,
+  type VisualIntentBrief,
   type VisualIntentRegistry,
   type VisualIntentStep,
 } from './visualIntentBrief';
@@ -102,6 +103,96 @@ function stabilitySummary(audit: VisualIntentAuditEntry[], entry: VisualIntentAu
   return `최근 ${comparable.length}개 서로 다른 AI 응답의 Recipe 일치율: ${rate}%`;
 }
 
+function briefText(brief: VisualIntentBrief): string {
+  return [
+    brief.section,
+    brief.preferredSlideId ?? '',
+    brief.decisionQuestion,
+    brief.coreMessage,
+    brief.selectionReason,
+    ...brief.requiredInputs,
+  ].join(' ').toLowerCase();
+}
+
+function isThreatRankingBrief(brief: VisualIntentBrief): boolean {
+  const recipe = brief.primaryRecipe.recipeId;
+  const haystack = briefText(brief);
+  return recipe === 'rank-scorecard'
+    || (recipe === 'evidence-gap' && /threat.*rank|rank.*threat|위협.*순위|순위.*위협|위협도/.test(haystack));
+}
+
+function isProductMatrixBrief(brief: VisualIntentBrief): boolean {
+  const recipe = brief.primaryRecipe.recipeId;
+  const haystack = briefText(brief);
+  return recipe === 'feature-matrix'
+    || (recipe === 'evidence-gap' && /product matrix|feature matrix|제품.*매트릭스|기능.*매트릭스|공통.*비교축/.test(haystack));
+}
+
+function isPositioningMapBrief(brief: VisualIntentBrief): boolean {
+  const recipe = brief.primaryRecipe.recipeId;
+  const haystack = briefText(brief);
+  return recipe === 'positioning-map'
+    || (recipe === 'evidence-gap' && /positioning|포지셔닝/.test(haystack));
+}
+
+function isCompetitorDeepDiveBrief(brief: VisualIntentBrief): boolean {
+  const recipe = brief.primaryRecipe.recipeId;
+  const haystack = briefText(brief);
+  return recipe === 'competitor-threat-system'
+    || (recipe === 'evidence-gap' && /deep dive|deep-dive|딥다이브|core desire|threat mechanism|attack point|위협 메커니즘|공격 지점/.test(haystack));
+}
+
+function addStep2CoverageErrors(
+  raw: string,
+  registry: VisualIntentRegistry,
+  errors: string[],
+): void {
+  const competitorRegistry = parseCompetitorRegistry(raw);
+  if (!competitorRegistry) return;
+
+  const selectedNames = competitorRegistry.selected.map((competitor) => competitor.name);
+  const selectedSet = new Set(selectedNames);
+  const rankingBriefs = registry.visualBriefs.filter(isThreatRankingBrief);
+  const matrixBriefs = registry.visualBriefs.filter(isProductMatrixBrief);
+  const positioningBriefs = registry.visualBriefs.filter(isPositioningMapBrief);
+  const deepDiveBriefs = registry.visualBriefs.filter(isCompetitorDeepDiveBrief);
+
+  if (rankingBriefs.length !== 1) {
+    errors.push(`Step 2에는 Threat Ranking용 rank-scorecard 또는 evidence-gap Brief가 정확히 1개 필요합니다. 현재 ${rankingBriefs.length}개입니다.`);
+  }
+
+  if (matrixBriefs.length !== 1) {
+    errors.push(`Step 2에는 Product Matrix용 feature-matrix 또는 evidence-gap Brief가 정확히 1개 필요합니다. 현재 ${matrixBriefs.length}개입니다.`);
+  }
+
+  if (positioningBriefs.length > 1) {
+    errors.push(`Step 2 Positioning Map Brief는 최대 1개만 허용됩니다. 현재 ${positioningBriefs.length}개입니다.`);
+  }
+
+  deepDiveBriefs.forEach((brief) => {
+    const matchedSelected = brief.entities.filter((entity) => selectedSet.has(entity));
+    if (matchedSelected.length !== 1) {
+      errors.push(`${brief.insightId}: Deep Dive entities에는 COMPETITOR_REGISTRY selected 경쟁사명 정확히 1개만 넣어야 합니다.`);
+    }
+  });
+
+  selectedNames.forEach((competitorName) => {
+    const matches = deepDiveBriefs.filter((brief) => brief.entities.includes(competitorName));
+    if (matches.length === 0) {
+      errors.push(`Step 2 Deep Dive에서 선정 경쟁사 '${competitorName}'가 누락됐습니다.`);
+    } else if (matches.length > 1) {
+      errors.push(`Step 2 Deep Dive에서 선정 경쟁사 '${competitorName}'가 ${matches.length}개 Brief에 중복됐습니다. 경쟁사별 정확히 1개만 작성해야 합니다.`);
+    }
+  });
+
+  const unknownDeepDiveEntities = deepDiveBriefs
+    .flatMap((brief) => brief.entities)
+    .filter((entity) => entity && !selectedSet.has(entity));
+  if (unknownDeepDiveEntities.length > 0) {
+    errors.push(`Step 2 Deep Dive에 Registry 밖의 경쟁사가 포함됐습니다: ${[...new Set(unknownDeepDiveEntities)].join(', ')}`);
+  }
+}
+
 function addCoverageErrors(step: VisualIntentStep, raw: string, registry: VisualIntentRegistry | null, errors: string[]): void {
   if (!registry) return;
   const recipes = registry.visualBriefs.map((brief) => brief.primaryRecipe.recipeId);
@@ -110,21 +201,7 @@ function addCoverageErrors(step: VisualIntentStep, raw: string, registry: Visual
     errors.push('Step 0에는 Growth Story용 milestone-timeline, growth-trajectory 또는 evidence-gap Brief가 필요합니다.');
   }
 
-  if (step !== 2) return;
-  const competitorRegistry = parseCompetitorRegistry(raw);
-  if (!competitorRegistry) return;
-
-  const visualEntities = new Set(registry.visualBriefs.flatMap((brief) => brief.entities));
-  competitorRegistry.selected.forEach((competitor) => {
-    if (!visualEntities.has(competitor.name)) errors.push(`Step 2 Visual Intent에서 선정 경쟁사 '${competitor.name}'가 누락됐습니다.`);
-  });
-
-  if (!recipes.includes('rank-scorecard') && !recipes.includes('evidence-gap')) {
-    errors.push('Step 2에는 Threat Ranking용 rank-scorecard 또는 evidence-gap Brief가 필요합니다.');
-  }
-  if (!recipes.includes('feature-matrix') && !recipes.includes('evidence-gap')) {
-    errors.push('Step 2에는 Product Matrix용 feature-matrix 또는 evidence-gap Brief가 필요합니다.');
-  }
+  if (step === 2) addStep2CoverageErrors(raw, registry, errors);
 }
 
 function handleClick(event: MouseEvent): void {
