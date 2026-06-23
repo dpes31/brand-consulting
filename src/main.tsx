@@ -6,6 +6,7 @@ import { installIframePreRepair } from './lib/installIframePreRepair'
 import { installIframeLayoutSafety } from './lib/installLayoutSafety'
 import { installCreativeHistoryContract } from './lib/installCreativeHistoryContract'
 import { installVisualIntentBriefPolicy } from './lib/visualIntentBrief'
+import { installVisualIntentWorkflowGuard } from './lib/installVisualIntentWorkflowGuard'
 import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
 
@@ -13,6 +14,7 @@ installIframePreRepair()
 installIframeLayoutSafety()
 installCreativeHistoryContract()
 installVisualIntentBriefPolicy()
+installVisualIntentWorkflowGuard()
 installPromptWorkflowGuard()
 installReportViewerUX()
 
