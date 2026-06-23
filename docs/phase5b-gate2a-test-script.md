@@ -107,12 +107,13 @@ Fail examples:
 
 ## 6. Step 2 acceptance check
 
-Mandatory Visual Brief coverage:
+Mandatory Visual Brief coverage and exact mapping:
 
-- threat-ranking overview;
-- one Deep Dive brief per selected competitor;
-- Product Matrix brief;
-- optional Positioning Map brief when two defensible axes exist.
+- Threat Ranking exactly one: `priority-ranking` → `rank-scorecard`;
+- one independent Deep Dive per `COMPETITOR_REGISTRY.selected` competitor: `causal-relationship` → `competitor-threat-system`;
+- Product Matrix exactly one: `competitive-space` → `feature-matrix`;
+- optional Positioning Map, only with two defensible common axes: `competitive-space` → `positioning-map`;
+- if evidence for a required role is insufficient: `evidence-gap` → `evidence-gap`.
 
 Deep Dive expected structure:
 
@@ -120,7 +121,20 @@ Deep Dive expected structure:
 Evidence → Core Desire → Appeal → Threat Mechanism → Attack Point
 ```
 
-The selected competitor names must match the Step 2 Competitor Registry.
+Deep Dive validator rules:
+
+- do not combine multiple competitors into one Deep Dive Brief;
+- each Deep Dive `entities` array contains exactly one selected competitor name;
+- the entity name must match the Competitor Registry exactly;
+- every selected competitor appears in exactly one Deep Dive Brief;
+- Registry-external competitors cannot receive a core Deep Dive.
+
+Product Matrix and Positioning Map rules:
+
+- use the investigated brand and locked selected competitors only;
+- use common axes that apply to all compared brands;
+- do not invent product scores or positioning axes;
+- omit Positioning Map when two defensible axes do not exist.
 
 Pass recipes:
 
@@ -134,6 +148,8 @@ Fail examples:
 
 - a competitor outside the locked Registry receives a core Deep Dive brief;
 - all competitors are combined into one generic brief;
+- Threat Ranking uses `competitor-threat-system` instead of `rank-scorecard`;
+- evidenceType aliases such as `rank-comparison`, `feature-comparison`, or `spatial-positioning` are used;
 - matrix axes differ by competitor;
 - product scores are invented;
 - Competitor Registry is missing or placed after the Visual Intent final block.
