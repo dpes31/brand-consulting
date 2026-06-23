@@ -9,7 +9,7 @@ Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate
 - Keep `backup-production-stable-20260622` untouched.
 - Preserve validated branches.
 - Keep `feature-visualization-engine-v1` and Draft PR #6 as the audit record of the failed prompt-only Phase 5 approach.
-- Do not intentionally run or inspect Vercel Preview during Gate 2A unless separately authorized.
+- Do not implement deterministic renderers during Gate 2A.
 
 ## Product invariants
 
@@ -30,13 +30,23 @@ Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate
 - Gate 1.5 specification is approved.
 - Active gate: **Gate 2A — Visual Intent Brief prompt-contract testing**.
 
-Gate 2A currently adds Visual Intent requirements to Steps 0, 2, 3, and 5, validates the marked JSON during the manual workflow, and records temporary repeated-run recipe audit data.
+Gate 2A adds Visual Intent requirements to Steps 0, 2, 3, and 5, validates the marked JSON during the manual workflow, and records temporary repeated-run recipe audit data.
 
 Relevant files:
 
 - `src/lib/visualIntentBrief.ts`
 - `src/lib/installVisualIntentWorkflowGuard.ts`
 - `docs/phase5b-gate2a-test-script.md`
+- `docs/gate2a-prompts/`
+
+## Gate 2A usability rules
+
+- The user pastes the **entire AI response**: normal analysis plus the marked Visual Intent JSON block.
+- JSON-only input is intentionally rejected because later research Steps require the normal analysis.
+- Step 0 tests Growth Story only. Extra Brand Identity, KPI, or USP Visual Briefs are ignored with warnings; the copied prompt now requests exactly one Growth Story brief.
+- Incomplete Metric objects on non-quantitative briefs are warnings and are excluded. Quantitative-comparison briefs remain strict.
+- Three repeated runs mean three independently generated AI responses from the same prompt—not three submissions of one answer.
+- Exact duplicate responses are rejected and do not count toward recipe stability.
 
 Gate 2A does not authorize:
 
@@ -46,9 +56,7 @@ Gate 2A does not authorize:
 - PDF Export changes;
 - runtime design-token integration;
 - visual/geometry export validators;
-- Draft PR creation;
-- intentional Vercel Preview;
-- merge or deployment.
+- merge or production deployment.
 
 The manual external-AI path is the approved test path. API-mode acceptance is not yet governed by the Gate 2A validator.
 
@@ -68,6 +76,6 @@ External reference libraries inform structural patterns only. Runtime output use
 
 ## Gate 2A pass condition
 
-Do not start Gate 2B until Steps 0, 2, 3, and 5 each complete three valid repeated runs, registries remain intact, comparable runs achieve at least 80% primary-recipe agreement, unsupported recipes remain explicit, and the owner approves the outputs.
+Do not start Gate 2B until Steps 0, 2, 3, and 5 each have three independent valid responses, registries remain intact, comparable runs achieve at least 80% primary-recipe agreement, unsupported recipes remain explicit, and the owner approves the outputs.
 
-Update this file and `docs/PROJECT_HANDOFF.md` whenever the active gate, architecture, or acceptance criteria change.
+Update this file and `docs/PROJECT_HANDOFF.md` whenever the active gate, architecture, usability contract, or acceptance criteria change.
