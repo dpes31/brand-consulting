@@ -32,7 +32,30 @@ Before making changes, read:
 
 ## Current work
 
-Phase 4 is validated. Phase 5 implements the Visualization Engine. Deferred Phase 6 issues include navigation click routing and second-export PDF cache regression.
+Phase 4 is validated. Phase 5 initial implementation exists on `feature-visualization-engine-v1`, but owner validation failed and Phase 5 is **not complete**.
+
+Observed Phase 5 failures:
+
+- The compiler prompt requests visualization, but the immutable HTML still hard-codes many text-box and `<dl>` layouts, so the model usually fills the existing containers instead of restructuring the slide.
+- The Growth Story page still renders chronology as line-broken prose instead of a true visual timeline.
+- Many fixed baseline slides remain generic card walls; visualization is concentrated in only a subset of dynamic pages.
+- Hard-coded light backgrounds and legacy colors conflict with the dark theme, producing unreadable or low-contrast text.
+- Competitor Deep Dive pages have inconsistent spatial hierarchy and triggered PDF preflight overflow warnings.
+- The current runtime visual audit is warning-only and cannot guarantee that the generated HTML actually uses the correct visual recipe.
+
+Do not advance to Phase 6 until Phase 5 rework passes owner validation.
+
+## Required Phase 5 rework architecture
+
+A prompt-only approach is insufficient. Implement a deterministic slide system:
+
+1. **Semantic Slide Plan** — AI outputs structured JSON containing decision question, evidence type, content blocks, and selected recipe.
+2. **Recipe Library** — reusable consulting slide recipes such as timeline, metric bridge, issue tree, comparison matrix, system map, customer journey, waterfall, roadmap, and choice architecture.
+3. **Deterministic Renderer** — application code renders the selected recipe using approved HTML/CSS/SVG components; AI should not freely rewrite layout CSS.
+4. **Design Tokens** — one token source for dark/light surfaces, text, accent, risk, opportunity, borders, spacing, and typography. No arbitrary inline hex colors.
+5. **Validation Gate** — block export on contrast failure, overflow, missing visual role, invalid recipe structure, or asymmetric comparison grids.
+
+A `DESIGN.md` file may document principles and tokens, but it must be paired with machine-readable recipe schemas and renderer components. Do not treat reference template screenshots as a substitute for implementation.
 
 ## Change discipline
 
@@ -41,3 +64,4 @@ Phase 4 is validated. Phase 5 implements the Visualization Engine. Deferred Phas
 - Use pure HTML/CSS/SVG for report visualization; avoid canvas and cross-origin assets that can taint PDF export.
 - Preserve backward compatibility with existing 23-page reports.
 - Always provide a Vercel Preview URL and acceptance checklist before requesting approval.
+- Update `AGENTS.md` and `docs/PROJECT_HANDOFF.md` whenever phase status, architecture, deferred defects, or acceptance criteria change.

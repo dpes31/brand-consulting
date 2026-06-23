@@ -7,6 +7,7 @@ import {
   validateCreativeHistoryPages,
 } from './creativeHistoryContract';
 import { buildReportCompilerPrompt } from './dynamicPagePlanner';
+import { buildVisualizationCompilerDirective } from './visualizationEngine';
 
 let installed = false;
 
@@ -112,8 +113,12 @@ function buildRawResearchData(): string {
 }
 
 function augmentCompilerPrompt(basePrompt: string, rawData: string): string {
-  const directive = buildCreativeHistoryCompilerDirective(rawData);
-  return basePrompt.replace('\n[Brand]\n', `\n${directive}\n\n[Brand]\n`);
+  const creativeDirective = buildCreativeHistoryCompilerDirective(rawData);
+  const visualizationDirective = buildVisualizationCompilerDirective();
+  return basePrompt.replace(
+    '\n[Brand]\n',
+    `\n${creativeDirective}\n\n${visualizationDirective}\n\n[Brand]\n`,
+  );
 }
 
 function downloadText(text: string, filename: string): void {
@@ -145,7 +150,7 @@ async function exportCreativeCompilerPrompt(): Promise<void> {
   const basePrompt = buildReportCompilerPrompt(masterHtml, rawData, brandName);
   const prompt = augmentCompilerPrompt(basePrompt, rawData);
   await copyText(prompt);
-  downloadText(prompt, `creative_history_compiler_${brandName || 'export'}.txt`);
+  downloadText(prompt, `visual_report_compiler_${brandName || 'export'}.txt`);
 }
 
 function handleClick(event: MouseEvent): void {
@@ -189,8 +194,8 @@ function handleClick(event: MouseEvent): void {
     event.stopImmediatePropagation();
     void exportCreativeCompilerPrompt()
       .then(() => showToast(
-        'Creative History 강화 프롬프트 추출 완료',
-        '동적 23~40장 구조와 함께 카피 원문 검증·6개년 타임라인·미확인 처리 계약을 포함했습니다.',
+        '시각화 강화 프롬프트 추출 완료',
+        '동적 23~40장 구조, Creative History 검증, 데이터 기반 차트·도식·대칭 레이아웃 계약을 포함했습니다.',
       ))
       .catch((error) => showToast('프롬프트 추출 실패', error instanceof Error ? error.message : String(error), 'error'));
   }

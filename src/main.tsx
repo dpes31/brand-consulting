@@ -7,12 +7,14 @@ import { installIframeLayoutSafety } from './lib/installLayoutSafety'
 import { installCreativeHistoryContract } from './lib/installCreativeHistoryContract'
 import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
+import { installVisualizationEngine } from './lib/installVisualizationEngine'
 
 installIframePreRepair()
 installIframeLayoutSafety()
 installCreativeHistoryContract()
 installPromptWorkflowGuard()
 installReportViewerUX()
+installVisualizationEngine()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
