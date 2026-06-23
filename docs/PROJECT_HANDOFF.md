@@ -75,8 +75,9 @@ Status: **Visual Intent prompt contract and manual validation support implemente
 Owner validation status:
 
 - Step 0: passed with three independent valid responses and 100% `milestone-timeline` agreement.
-- Step 2: first owner run failed because the copied prompt did not expose the exact evidenceType/Recipe mappings and allowed combined Deep Dive Briefs.
-- Step 2 correction: implemented and awaiting owner re-test.
+- Step 2 test 3: failed because the copied prompt did not expose the exact evidenceType/Recipe mappings and allowed combined Deep Dive Briefs.
+- Step 2 test 4: required role coverage passed, but incomplete Metric objects were discarded and the stability score was distorted by different selected-competitor counts.
+- Step 2 second correction: complete Metric contract and role-based stability calculation implemented; awaiting owner re-test.
 - Steps 3 and 5: not yet tested.
 
 Implemented files:
@@ -131,7 +132,7 @@ The first Step 2 test exposed three contract problems:
 
 Corrections on the current branch:
 
-- the copied Step 2 prompt now lists all allowed evidenceTypes;
+- the copied Step 2 prompt lists all allowed evidenceTypes;
 - Threat Ranking is fixed to `priority-ranking` → `rank-scorecard`;
 - each selected competitor Deep Dive is fixed to `causal-relationship` → `competitor-threat-system`;
 - Product Matrix is fixed to `competitive-space` → `feature-matrix`;
@@ -143,6 +144,27 @@ Corrections on the current branch:
 - the validator requires exactly one independent Deep Dive per `COMPETITOR_REGISTRY.selected` competitor;
 - every Deep Dive `entities` array must contain exactly one selected competitor name and no Registry-external competitor;
 - Positioning Map is optional and limited to one Brief.
+
+### Gate 2A usability correction after Step 2 test 4
+
+Step 2 test 4 confirmed the required Brief roles, but exposed two remaining contract defects:
+
+1. the prompt mentioned only part of the Metric fields, so models used `name` and free-form verification labels; the validator discarded those numbers as incomplete;
+2. stability compared the full repeated Recipe list, so selecting four competitors instead of three incorrectly reduced agreement even though the required role decisions were identical.
+
+Corrections on the current branch:
+
+- the Step 2 prompt now requires the complete Metric shape: `metricId`, `label`, numeric `value`, `unit`, `period`, `denominator`, `sourceLabel`, and `verificationStatus`;
+- `verificationStatus` is restricted to `verified`, `partially-verified`, and `unverified`;
+- official statistics, filings, and government-source figures map to `verified`;
+- company-announced figures and transparent analyst scores map to `partially-verified`;
+- unsupported or uncorroborated estimates map to `unverified`;
+- Step 2 incomplete Metric objects now block submission instead of being silently discarded; use `metrics: []` when no number is needed;
+- the prompt includes complete Metric examples for an analyst score and a company-announced figure;
+- Step 2 stability now compares only required role recipes: Threat Ranking, Deep Dive, and Product Matrix;
+- the number of selected competitors and resulting Deep Dive count no longer affects stability;
+- optional Positioning Map participation is reported separately and excluded from the required-role agreement score;
+- the audit storage key was versioned so pre-fix runs do not contaminate the new score.
 
 Three runs mean three independently generated AI responses from the same unchanged prompt and evidence. They do not mean submitting one identical response three times.
 
