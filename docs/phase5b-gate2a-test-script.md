@@ -1,6 +1,6 @@
 # Phase 5B — Gate 2A Visual Intent Test Script
 
-> This gate tests research-stage planning only. It does not test or authorize a deterministic renderer, template modification, PDF changes, PR merge, or Vercel Preview.
+> This gate tests research-stage planning only. It does not test or authorize a deterministic renderer, template modification, PDF changes, PR merge, or production deployment.
 
 ## 1. Objective
 
@@ -15,15 +15,19 @@ The test covers:
 
 Step 4 is excluded because the Creative History Registry already has a validated six-year structure.
 
-## 2. Required output markers
+## 2. What to paste into the web app
 
-Each tested response must contain:
+Paste the **entire AI response** into the Step textarea:
 
 ```text
+normal research analysis
+...
 <!-- VISUAL_INTENT_BRIEF_START -->
 { valid JSON }
 <!-- VISUAL_INTENT_BRIEF_END -->
 ```
+
+Do not paste only the JSON. The application needs the normal analysis for later research Steps and needs the start/end markers to locate the machine-readable block.
 
 Step 2 must retain both blocks in this order:
 
@@ -33,24 +37,49 @@ normal analysis
 → VISUAL_INTENT_BRIEF
 ```
 
-## 3. Test setup
+## 3. Meaning of three repeated runs
 
-Use the same brand, same uploaded references, same competitor seeds, and same prompt for repeated runs.
+Three runs mean **three independently generated AI responses** from the same prompt and evidence conditions.
+
+They do not mean clicking `Submit & Continue` three times with one identical response.
+
+Correct procedure:
+
+1. Copy the same Step prompt.
+2. Ask the external AI to generate Response A.
+3. Start a fresh generation or regenerate with the same prompt to obtain Response B.
+4. Generate Response C in the same way.
+5. Keep all three complete responses as separate TXT files.
+
+The Preview validator rejects an exact duplicate response so that one answer cannot create a false 100% stability score.
+
+Submitting all three through the application is optional when Step navigation makes repetition inconvenient. At least one response should pass the Preview validator; all three complete TXT responses can be provided for comparison and manual stability scoring.
+
+## 4. Test setup
+
+Use the same:
+
+- brand;
+- uploaded references;
+- competitor seeds;
+- external AI product/model;
+- copied prompt.
 
 Recommended initial brand: 비즈넵.
 
 For each tested Step:
 
-1. Copy the Step prompt.
+1. Copy the Step prompt from the Preview.
 2. Run it in the same external AI product and model.
 3. Paste the complete response into the application.
-4. Click `Submit & Continue`.
+4. Click `Submit & Continue` once.
 5. Record the validation toast.
-6. Repeat the same Step prompt three times without changing the evidence inputs.
+6. Save the complete response as a TXT file.
+7. Generate two additional independent responses with the unchanged prompt.
 
-The application stores up to 30 Gate 2A validation entries in session storage and displays the recent recipe-agreement rate after a valid submission.
+## 5. Step 0 acceptance check
 
-## 4. Step 0 acceptance check
+Gate 2A Step 0 validates **Growth Story only**. The Visual Intent JSON should contain exactly one Growth Story brief. Brand Identity, KPI Snapshot, and Product USP remain in the normal research analysis but should not create additional Step 0 Visual Brief objects.
 
 Mandatory Visual Brief:
 
@@ -58,7 +87,8 @@ Mandatory Visual Brief:
 - evidence type `time-change` when the evidence is event-led;
 - primary recipe `milestone-timeline` when no continuous comparable KPI series exists;
 - required inputs include year, event, business meaning, stage, and inflection point;
-- missing time-series values are recorded rather than invented.
+- missing time-series values are recorded rather than invented;
+- `metrics` is `[]` when using `milestone-timeline`.
 
 Pass example:
 
@@ -75,7 +105,7 @@ Fail examples:
 - no missing-input disclosure;
 - chronology expressed only as prose with no Visual Intent block.
 
-## 5. Step 2 acceptance check
+## 6. Step 2 acceptance check
 
 Mandatory Visual Brief coverage:
 
@@ -108,7 +138,7 @@ Fail examples:
 - product scores are invented;
 - Competitor Registry is missing or placed after the Visual Intent final block.
 
-## 6. Step 3 acceptance check
+## 7. Step 3 acceptance check
 
 Recipe selection logic:
 
@@ -124,7 +154,7 @@ Fail examples:
 - using four generic persona cards as a recipe description;
 - marking a planned recipe as `pilot-supported`.
 
-## 7. Step 5 acceptance check
+## 8. Step 5 acceptance check
 
 The brief must identify the primary decision structure:
 
@@ -141,7 +171,7 @@ Fail examples:
 - Winning Move disconnected from Root Cause;
 - no explicit missing inputs for cost, owner, timing, or trade-off evidence.
 
-## 8. Gate 2A scoring
+## 9. Gate 2A scoring
 
 For each Step and run, record:
 
@@ -151,19 +181,19 @@ For each Step and run, record:
 | Step allowlist compliance | 100% |
 | Registry preservation | 100% for Step 2 |
 | Required/available/missing separation | 100% |
-| Metric metadata completeness | 100% when metrics exist |
+| Metric metadata completeness | 100% when metrics are used for quantitative comparison |
 | Unsupported recipe disclosure | 100% |
 | External template ID occurrence | 0 |
-| Primary recipe stability | at least 80% across comparable runs |
+| Primary recipe stability | at least 80% across independent comparable responses |
 | Evidence invention | 0 |
 
-## 9. Gate decision
+## 10. Gate decision
 
 ### Gate 2A pass
 
 Proceed to Gate 2B only when:
 
-- every tested Step completes three valid runs;
+- every tested Step has three independent valid responses;
 - no Registry or factuality regression occurs;
 - comparable evidence produces at least 80% primary-recipe agreement;
 - the owner approves the actual outputs.
@@ -179,7 +209,7 @@ Do not implement renderers. Adjust only:
 
 Repeat the failed Step until the contract stabilizes.
 
-## 10. Current limitations
+## 11. Current limitations
 
 - API-mode response acceptance is not yet blocked by the Gate 2A validator; the owner test path is the manual external-AI workflow.
 - Session audit is temporary and resets with browser session storage.
