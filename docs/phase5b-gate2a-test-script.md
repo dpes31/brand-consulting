@@ -177,19 +177,43 @@ Fail examples:
 
 ## 7. Step 3 acceptance check
 
-Recipe selection logic:
+The normal Consumer analysis must still cover:
 
-- sequential customer behavior → `customer-journey`;
-- abandonment or friction concentration → `friction-flow`;
-- ordered need levels → `needs-hierarchy`;
-- insufficient behavioral evidence → `evidence-gap`.
+- Trends;
+- Persona;
+- Identity Alignment;
+- JTBD;
+- AIPL Bottleneck;
+- Unmet Needs.
+
+The Visual Intent JSON must contain **exactly one** core consumer-decision Brief. Do not create separate Visual Briefs for each analysis section.
+
+Strict Recipe mapping:
+
+- stable behavior sequence: `consumer-journey` → `customer-journey`;
+- concentrated abandonment, anxiety, delay, or friction: `causal-relationship` → `friction-flow`;
+- verified need priority or hierarchy: `priority-ranking` → `needs-hierarchy`;
+- insufficient behavioral evidence: `evidence-gap` → `evidence-gap`.
+
+Additional rules:
+
+- every Step 3 Recipe uses `implementationStatus: planned`;
+- `metrics` must be `[]` in the Step 3 Visual Intent Brief;
+- quantitative evidence remains in the normal analysis;
+- other-Step Recipes and invented Recipe IDs are invalid;
+- required, available, and missing inputs remain separated;
+- the locked Step 2 Competitor Registry remains unchanged.
 
 Fail examples:
 
+- more than one Step 3 Visual Brief;
+- separate Trend, Persona, JTBD, AIPL, or Identity Visual Briefs;
 - emotions or behaviors invented without research support;
 - selecting a journey when no stable sequence exists;
-- using four generic persona cards as a recipe description;
-- marking a planned recipe as `pilot-supported`.
+- using Step 0 or Step 2 Recipes such as `milestone-timeline`, `feature-matrix`, `rank-scorecard`, or `competitor-threat-system`;
+- using invented IDs such as `persona-map`, `jtbd-matrix`, or `funnel-bottleneck`;
+- marking a Step 3 Recipe as `pilot-supported` or `unsupported`;
+- placing mixed-unit quantitative metrics in the Step 3 Visual Intent block.
 
 ## 8. Step 5 acceptance check
 
@@ -225,6 +249,8 @@ For each Step and run, record:
 | Evidence invention | 0 |
 
 For Step 2, primary-recipe stability means agreement across the required roles—not equality of the total repeated Deep Dive count. Positioning Map is monitored separately.
+
+For Step 3, primary-recipe stability compares the single core consumer-decision Recipe across the three independent responses.
 
 ## 10. Gate decision
 
