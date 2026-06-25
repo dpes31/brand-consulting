@@ -1,68 +1,66 @@
 # AGENTS.md
 
-Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate2a-test-script.md`, and the files under `design/` before changing this repository.
+Read `docs/PROJECT_HANDOFF.md`, `docs/biznup-full-content-preservation-matrix.md`, `docs/phase5b-pilot-spec.md`, and the files under `design/` before changing this repository.
 
 ## Safety
 
 - Never commit directly to `main`.
 - Never merge without explicit owner approval.
 - Keep `backup-production-stable-20260622` untouched.
-- Preserve validated branches.
+- Preserve `feature-visual-recipe-pilot-v1` as the completed Gate 2A branch.
+- Preserve `feature-visual-recipe-html-pilot-v1` and Draft PR #8 as the superseded summary-pilot record; do not merge it.
 - Keep `feature-visualization-engine-v1` and Draft PR #6 as the failed Phase 5 audit record.
-- Do not begin renderer work until the owner explicitly approves Gate 2B.
+- Do not alter `geminiCompiler.ts`, `public/template.html`, or the production PDF path during this visual Preview.
 
 ## Product invariants
 
-- Preserve all 23 base wrappers and exact 16:9 PDF output.
-- Main Deck remains 23–40 pages with later evidence in the same HTML/PDF Appendix.
-- Step 2 locks 2–5 direct competitors.
-- Preserve one Deep Dive and one six-year Creative History page per selected competitor.
+- The task is a visual revision of the existing FULL report, not an executive-summary rewrite.
+- Preserve the original report sections and Step 0–5 analytical substance.
+- Dense content creates continuation or Appendix pages; it does not justify deletion.
+- Preserve exact 16:9 slide geometry.
+- Preserve one Deep Dive and one six-period Creative History for every selected competitor.
+- Creative History covers 2021–2025 completed years plus 2026 YTD.
 - Do not invent figures, dates, campaign models, sources, or copy.
 - Only verified verbatim copy may use quotation marks.
-- Do not expose raw source URLs in final reports.
+- Do not expose raw source URLs in final report pages.
 
 ## Current status
 
-- Current branch: `feature-visual-recipe-pilot-v1` from `feature-creative-history-contract-v1`.
-- Gate 1.5 is approved.
-- Gate 2A owner validation is complete and passed.
-- Step 0: three valid responses, 100% `milestone-timeline` agreement.
-- Step 2: three valid responses, complete Metric metadata, 100% required-role agreement.
-- Step 3: three valid responses, 100% `friction-flow` agreement.
-- Step 5: three valid responses, 100% `choice-architecture` agreement.
-- Gate 2B has not started and requires explicit owner approval.
+- Active branch: `feature-full-report-visual-recipe-v1`.
+- Base branch: `feature-visual-recipe-pilot-v1`.
+- Gate 2A passed.
+- The owner rejected the first 23-page summary pilot because it deleted required content.
+- The corrected Preview is defined as 40 Main Deck pages plus 8 Appendix pages.
+- The corrected deck restores Identity, KPI, all competitor detail, three Personas, JTBD, all four six-period Creative Histories, SWOT, STP, four strategy directions, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, roadmap, evidence gaps, and sources.
 
-## Gate 2A contracts
+## Visual Recipe scope
 
-- The user pastes the entire AI response, including the marked Visual Intent JSON block.
-- Duplicate responses do not count toward stability.
-- Step 0: exactly one Growth Story brief.
-- Step 2: one Threat Ranking, one Product Matrix, and one Deep Dive per selected competitor. Positioning Map is optional and reported separately.
-- Step 3: exactly one core consumer-decision brief. All Step 3 Recipes are `planned`; `metrics` must be `[]`.
-- Step 5: exactly one final strategy-decision brief. All Step 5 Recipes are `planned`; `metrics` must be `[]`.
-- Step 3 and Step 5 copy guards re-apply their full contracts immediately before prompt copy.
+The five validated Recipes replace only the visual structure of assigned pages:
 
-Relevant files:
+- `milestone-timeline` — Growth Story;
+- `competitor-threat-system` — each selected competitor Deep Dive;
+- `feature-matrix` — Product Matrix;
+- `friction-flow` — AIPL purchase bottleneck;
+- `choice-architecture` — strategy trade-off and final choice.
 
-- `src/lib/visualIntentBrief.ts`
-- `src/lib/installVisualIntentWorkflowGuard.ts`
-- `src/lib/installStep3VisualIntentContract.ts`
-- `src/lib/installStep5VisualIntentContract.ts`
-- `docs/phase5b-gate2a-test-script.md`
-- `docs/phase5b-gate2a-results.md`
+They must not replace or delete the surrounding report sections.
 
-## Architecture direction
+## Blocking Preview checks
 
-```text
-Research
-→ Step-level Visual Intent Brief
-→ Semantic Slide Plan
-→ constrained Recipe Router
-→ deterministic HTML/CSS/SVG Renderer
-→ blocking Validator
-→ existing PDF Export
-```
+The Preview is incomplete if any preservation-matrix item is absent. Runtime audit must report:
 
-Gate 2A does not authorize renderer, template, compiler, PDF, merge, or production changes.
+- Main 40 / 40;
+- Appendix 8 / 8;
+- Recipe 5 / 5;
+- Required Sections 40 / 40;
+- Overflow 0.
 
-Update this file and `docs/PROJECT_HANDOFF.md` whenever the active gate or acceptance criteria change.
+## Current implementation
+
+- `src/pages/BiznupFullReportLoader.tsx`
+- `public/biznup-full-payload-01.js` through `09.js`
+- `public/biznup-full-payload-07-fixed.js`
+- `docs/biznup-full-content-preservation-matrix.md`
+- Preview query: `?pilot=full-biznup`
+
+Compiler integration, template replacement, merge, and production deployment remain separate approval boundaries.
