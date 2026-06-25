@@ -7,6 +7,7 @@ import { installIframeLayoutSafety } from './lib/installLayoutSafety'
 import { installCreativeHistoryContract } from './lib/installCreativeHistoryContract'
 import { installVisualIntentBriefPolicy } from './lib/visualIntentBrief'
 import { installStep3VisualIntentContract } from './lib/installStep3VisualIntentContract'
+import { installStep5VisualIntentContract } from './lib/installStep5VisualIntentContract'
 import { installVisualIntentWorkflowGuard } from './lib/installVisualIntentWorkflowGuard'
 import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
@@ -16,6 +17,7 @@ installIframeLayoutSafety()
 installCreativeHistoryContract()
 installVisualIntentBriefPolicy()
 installStep3VisualIntentContract()
+installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
 installPromptWorkflowGuard()
 installReportViewerUX()
