@@ -8,7 +8,7 @@
 - External AI product/model: GPT, three independent sessions per Step
 - Reference files: same uploaded references per repeated Step run
 - Competitor seeds: none explicitly fixed for the Step 2 test set
-- Test dates: 2026-06-23 to 2026-06-25
+- Test dates: 2026-06-23 onward
 - Tester: owner
 
 The same inputs and prompt must be used for all repeated runs within a Step.
@@ -55,15 +55,41 @@ Decision: **Pass**
 
 ## Step 3 — Consumer Insights
 
-| Run | JSON valid | Recipe | Stable sequence supported | Emotion/behavior evidence | Missing inputs disclosed | External template ID | Notes |
-|---:|---|---|---|---|---|---|---|
-| 1 |  |  |  |  |  |  |  |
-| 2 |  |  |  |  |  |  |  |
-| 3 |  |  |  |  |  |  |  |
+### Test 1 — failed contract exposure
 
-Recipe agreement rate:
+All three responses produced valid normal Consumer analysis but failed the Visual Intent contract.
 
-Decision: **Pending**
+Observed defects:
+
+- the copied prompt ended after the locked Step 2 Competitor Registry and omitted the Step 3 Visual Intent contract;
+- models created multiple Briefs for Trend, Persona, JTBD, AIPL, Unmet Needs, and Identity Alignment;
+- responses used Step 0/2 Recipes or invented Recipe IDs such as persona, JTBD, funnel, and identity-map variants;
+- one response mixed different metric units inside a quantitative comparison;
+- the test cannot be used for stability scoring.
+
+Correction deployed:
+
+- the complete Step 3 contract is re-applied immediately before prompt copy, after downstream Registry locking;
+- normal analysis retains Trends, Persona, Identity Alignment, JTBD, AIPL Bottleneck, and Unmet Needs;
+- Visual Intent is limited to exactly one core consumer-decision Brief;
+- strict mapping:
+  - `consumer-journey` → `customer-journey`;
+  - `causal-relationship` → `friction-flow`;
+  - `priority-ranking` → `needs-hierarchy`;
+  - `evidence-gap` → `evidence-gap`;
+- every Step 3 Recipe must use `implementationStatus: planned`;
+- Step 3 Visual Intent metrics must be `[]`;
+- extra Briefs and other-Step Recipes block submission.
+
+| Run | JSON valid | Single core Brief | Recipe mapping | Planned status | Metrics empty | Notes |
+|---:|---|---|---|---|---|---|
+| 1 | No | No | No | No | No | Pre-correction response; excluded |
+| 2 | No | No | No | Mixed | No | Pre-correction response; excluded |
+| 3 | No | No | No | Mixed | Mixed | Pre-correction response; excluded |
+
+Recipe agreement rate: **Not scored**
+
+Decision: **Revise and re-test**
 
 ## Step 5 — Strategic Implication
 
@@ -81,22 +107,23 @@ Decision: **Pending**
 
 | Measure | Required | Actual so far | Pass |
 |---|---:|---:|---|
-| JSON parse rate | 100% | 100% for completed Steps 0 and 2 | Yes |
-| Step allowlist compliance | 100% | 100% for completed Steps 0 and 2 | Yes |
+| JSON parse rate | 100% | 100% for completed Steps 0 and 2; Step 3 re-test pending | Pending |
+| Step allowlist compliance | 100% | 100% for Steps 0 and 2; Step 3 re-test pending | Pending |
 | Step 2 Registry preservation | 100% | 100% within each response | Yes |
 | Required/available/missing separation | 100% | 100% for completed Steps 0 and 2 | Yes |
-| Metric metadata completeness | 100% when present | 100% in Step 2 test 5 | Yes |
-| Unsupported recipe disclosure | 100% | No unsupported recipe mislabel observed | Yes |
-| External template recipe IDs | 0 | 0 | Yes |
-| Primary recipe agreement | at least 80% | Step 0: 100%; Step 2 required roles: 100% | Yes |
-| Evidence invention | 0 | No blocking invention detected by current Gate 2A checks | Provisional |
+| Metric metadata completeness | 100% when present | 100% in Step 2 test 5; Step 3 now requires empty metrics | Pending |
+| Unsupported recipe disclosure | 100% | No unsupported recipe mislabel in passed Steps | Pending |
+| External template recipe IDs | 0 | 0 in passed Steps | Pending |
+| Primary recipe agreement | at least 80% | Step 0: 100%; Step 2 required roles: 100%; Step 3 pending | Pending |
+| Evidence invention | 0 | No blocking invention detected in passed Steps | Provisional |
 
 ## Gate 2A conclusion
 
 - Overall result: **In progress**
 - Passed Steps: **0, 2**
-- Pending Steps: **3, 5**
-- Steps requiring prompt revision: none currently open
+- Re-test required: **3**
+- Pending Step: **5**
+- Open prompt revision: Step 3 correction deployed, awaiting owner validation
 - Schema revisions required: none currently open
 - Allowlist revisions required: none currently open
 - Owner approval: Step 0 and Step 2 approved through submitted owner test results
