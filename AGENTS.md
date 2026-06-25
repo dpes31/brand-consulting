@@ -1,20 +1,19 @@
 # AGENTS.md
 
-Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate2a-test-script.md`, and the files under `design/` before changing this repository.
+Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate2a-test-script.md`, `docs/phase5b-html-pilot.md`, and the files under `design/` before changing this repository.
 
 ## Safety
 
 - Never commit directly to `main`.
 - Never merge without explicit owner approval.
 - Keep `backup-production-stable-20260622` untouched.
-- Preserve validated branches.
+- Preserve `feature-visual-recipe-pilot-v1` as the completed Gate 2A contract branch.
 - Keep `feature-visualization-engine-v1` and Draft PR #6 as the failed Phase 5 audit record.
-- Do not begin renderer work until the owner explicitly approves Gate 2B.
+- Do not replace the production compiler, template, or PDF path during the HTML pilot.
 
 ## Product invariants
 
-- Preserve all 23 base wrappers and exact 16:9 PDF output.
-- Main Deck remains 23–40 pages with later evidence in the same HTML/PDF Appendix.
+- Preserve all 23 base wrappers and exact 16:9 output.
 - Step 2 locks 2–5 direct competitors.
 - Preserve one Deep Dive and one six-year Creative History page per selected competitor.
 - Do not invent figures, dates, campaign models, sources, or copy.
@@ -23,33 +22,35 @@ Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate
 
 ## Current status
 
-- Current branch: `feature-visual-recipe-pilot-v1` from `feature-creative-history-contract-v1`.
-- Gate 1.5 is approved.
-- Gate 2A owner validation is complete and passed.
-- Step 0: three valid responses, 100% `milestone-timeline` agreement.
-- Step 2: three valid responses, complete Metric metadata, 100% required-role agreement.
-- Step 3: three valid responses, 100% `friction-flow` agreement.
-- Step 5: three valid responses, 100% `choice-architecture` agreement.
-- Gate 2B has not started and requires explicit owner approval.
+- Current branch: `feature-visual-recipe-html-pilot-v1`.
+- Base branch: `feature-visual-recipe-pilot-v1`.
+- Gate 2A is complete and passed.
+- Owner approved a full 비즈넵 HTML pilot using five validated recipes.
+- Implemented pilot recipes:
+  - `milestone-timeline`
+  - `competitor-threat-system`
+  - `feature-matrix`
+  - `friction-flow`
+  - `choice-architecture`
+- The pilot is a fixed 23-page 16:9 review deck exposed through `?pilot=biznup`.
+- It does not yet replace or integrate with `geminiCompiler.ts`, `public/template.html`, or the production PDF flow.
 
-## Gate 2A contracts
+## Pilot implementation files
 
-- The user pastes the entire AI response, including the marked Visual Intent JSON block.
-- Duplicate responses do not count toward stability.
-- Step 0: exactly one Growth Story brief.
-- Step 2: one Threat Ranking, one Product Matrix, and one Deep Dive per selected competitor. Positioning Map is optional and reported separately.
-- Step 3: exactly one core consumer-decision brief. All Step 3 Recipes are `planned`; `metrics` must be `[]`.
-- Step 5: exactly one final strategy-decision brief. All Step 5 Recipes are `planned`; `metrics` must be `[]`.
-- Step 3 and Step 5 copy guards re-apply their full contracts immediately before prompt copy.
+- `src/pages/BiznupHtmlPilot.tsx`
+- `src/pages/BiznupHtmlPilot.css`
+- `docs/phase5b-html-pilot.md`
+- `src/App.tsx`
 
-Relevant files:
+## Pilot quality rules
 
-- `src/lib/visualIntentBrief.ts`
-- `src/lib/installVisualIntentWorkflowGuard.ts`
-- `src/lib/installStep3VisualIntentContract.ts`
-- `src/lib/installStep5VisualIntentContract.ts`
-- `docs/phase5b-gate2a-test-script.md`
-- `docs/phase5b-gate2a-results.md`
+- One slide answers one decision question.
+- Recipe slides must declare `data-recipe-id` and `data-viz-type`.
+- No arbitrary inline colors in recipe markup.
+- Equal-hierarchy elements use equal grid tracks.
+- The deck must contain 23 slides and five unique validated recipe IDs.
+- Runtime audit reports page count, unique recipe count, and slide overflow.
+- Print CSS preserves 16:9 browser PDF review.
 
 ## Architecture direction
 
@@ -63,6 +64,4 @@ Research
 → existing PDF Export
 ```
 
-Gate 2A does not authorize renderer, template, compiler, PDF, merge, or production changes.
-
-Update this file and `docs/PROJECT_HANDOFF.md` whenever the active gate or acceptance criteria change.
+The current HTML pilot validates the visual result before compiler integration. Production compiler integration, template replacement, merge, and deployment remain separate approval boundaries.
