@@ -32,7 +32,8 @@ Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate
 - Step 0 owner validation passed with three independent responses and 100% primary-recipe agreement.
 - Step 2 owner validation passed with three independent valid responses, complete Metric metadata, and 100% required-role recipe agreement.
 - Step 2 selected-competitor identities may differ across independent research runs; Gate 2A validates contract stability, while an actual report must use one chosen response and lock its single Registry.
-- Steps 3 and 5 remain untested. Step 3 is the next owner-validation target.
+- Step 3 first owner test failed because the locked Competitor Registry refresh removed the appended Visual Intent contract and the model generated multiple out-of-scope Recipe objects.
+- Step 3 prompt and validation were corrected; a new owner re-test is required. Step 5 remains untested.
 
 Gate 2A adds Visual Intent requirements to Steps 0, 2, 3, and 5, validates the marked JSON during the manual workflow, and records temporary repeated-run recipe audit data.
 
@@ -40,6 +41,7 @@ Relevant files:
 
 - `src/lib/visualIntentBrief.ts`
 - `src/lib/installVisualIntentWorkflowGuard.ts`
+- `src/lib/installStep3VisualIntentContract.ts`
 - `docs/phase5b-gate2a-test-script.md`
 - `docs/gate2a-prompts/`
 
@@ -65,6 +67,15 @@ Relevant files:
 - Step 2 stability ignores the number of Deep Dive Briefs and compares the required role recipes only: Threat Ranking, Deep Dive, and Product Matrix.
 - Positioning Map participation is reported separately and does not lower the required-role stability score.
 - The Step 2 audit storage key is versioned so prior pre-fix runs do not contaminate the new stability score.
+- Step 3 normal analysis retains Trends, Persona, Identity Alignment, JTBD, AIPL Bottleneck, and Unmet Needs, but the Visual Intent JSON contains exactly one core consumer-decision Brief.
+- Step 3 mapping is strict:
+  - stable behavior sequence: `consumer-journey` → `customer-journey`;
+  - concentrated abandonment, anxiety, delay, or friction: `causal-relationship` → `friction-flow`;
+  - verified need priority or hierarchy: `priority-ranking` → `needs-hierarchy`;
+  - insufficient behavioral evidence: `evidence-gap` → `evidence-gap`.
+- Every Step 3 Recipe uses `implementationStatus: planned`.
+- Step 3 Visual Intent metrics must be `[]`; quantitative facts remain in the normal analysis.
+- The Step 3 copy guard re-applies the complete contract immediately before prompt copy so downstream Registry locking cannot remove it.
 - Outside Step 2, incomplete Metric objects on non-quantitative briefs remain warnings and are excluded. Quantitative-comparison briefs remain strict.
 
 Gate 2A does not authorize:
