@@ -1,70 +1,92 @@
 # Brand Consulting Generator — Project Handoff
 
-Read this file and `AGENTS.md` before changing the repository. The owner requires reversible, gate-based work. Never merge to `main` without explicit approval.
+Read this file and `AGENTS.md` before changing the repository. The owner requires reversible, branch-based work. Never merge to `main` without explicit approval.
 
 ## Repository
 
 - Repo: `dpes31/brand-consulting`
 - Production: `main`
 - Rollback: `backup-production-stable-20260622`
-- Validated base: `feature-creative-history-contract-v1`
+- Validated Phase 4 base: `feature-creative-history-contract-v1`
+- Completed Gate 2A branch: `feature-visual-recipe-pilot-v1`
+- Current HTML pilot branch: `feature-visual-recipe-html-pilot-v1`
 - Failed Phase 5 audit branch: `feature-visualization-engine-v1`
-- Failed Draft PR: #6 — retain for audit, do not merge.
-- Current branch: `feature-visual-recipe-pilot-v1`
-- Current Draft PR: #7 — do not merge.
+- Draft PR #6 remains the failed Phase 5 audit record.
+- Draft PR #7 remains the completed Gate 2A contract record.
 
 ## Product invariants
 
-- Preserve all 23 base wrappers and exact 16:9 PDF output.
-- Main Deck remains 23–40 pages with later evidence in the same HTML/PDF Appendix.
+- Preserve all 23 base wrappers and exact 16:9 output.
 - Step 2 locks 2–5 direct competitors.
 - Preserve one Deep Dive and one six-year Creative History page per selected competitor.
 - Do not invent figures, dates, models, copy, or sources.
 - Only verified verbatim copy may use quotation marks.
 - Do not expose raw URLs in final reports.
 
-## Validated phases
+## Validated work
 
 - Phase 1: layout and 16:9 PDF safety.
 - Phase 2: threat-ranked Competitor Registry.
 - Phase 3: dynamic 23–40 page planning and Appendix.
 - Phase 4: six-year Creative History factuality contract.
-- Gate 1.5: Phase 5B architecture and three frozen pilot Recipes approved.
+- Gate 1.5: Visual Intent and Recipe architecture specification.
+- Gate 2A: prompt-contract validation for Steps 0, 2, 3, and 5.
 
-## Gate 2A — completed
+Gate 2A final result: **PASS**
 
-Overall result: **PASS**
+- Step 0: `milestone-timeline`, 100% agreement.
+- Step 2: required-role Recipes, 100% agreement.
+- Step 3: `friction-flow`, 100% agreement.
+- Step 5: `choice-architecture`, 100% agreement.
 
-Owner validation:
+## Current approved scope — Full 비즈넵 HTML pilot
 
-- Step 0: three independent valid responses; 100% `milestone-timeline` agreement.
-- Step 2: three independent valid responses; complete Metric metadata; 100% required-role agreement.
-- Step 3: three independent valid responses; exactly one core Brief; 100% `friction-flow` agreement.
-- Step 5: three independent valid responses; exactly one final strategy Brief; 100% `choice-architecture` agreement.
+The owner explicitly approved a full HTML pilot using five validated Recipes:
 
-Step 5 test 2 specifically confirmed:
+1. `milestone-timeline`
+2. `competitor-threat-system`
+3. `feature-matrix`
+4. `friction-flow`
+5. `choice-architecture`
 
-- full Step 5 contract present in the copied prompt;
-- `strategic-choice` → `choice-architecture` in all three responses;
-- `implementationStatus: planned` in all three responses;
-- `metrics: []` in all three responses;
-- one Visual Intent Brief only;
-- no other-Step Recipe use;
-- 100% stability across three distinct responses.
+The pilot is implemented as a fixed 23-page 16:9 React deck exposed through:
 
-## Implemented Gate 2A files
+```text
+/?pilot=biznup
+```
 
-- `src/lib/visualIntentBrief.ts`
-- `src/lib/installVisualIntentWorkflowGuard.ts`
-- `src/lib/installStep3VisualIntentContract.ts`
-- `src/lib/installStep5VisualIntentContract.ts`
-- `src/main.tsx`
-- `docs/phase5b-gate2a-test-script.md`
-- `docs/gate2a-prompts/step0-appendix.txt`
-- `docs/gate2a-prompts/step2-appendix.txt`
-- `docs/gate2a-prompts/step3-appendix.txt`
-- `docs/gate2a-prompts/step5-appendix.txt`
-- `docs/phase5b-gate2a-results.md`
+Implemented files:
+
+- `src/pages/BiznupHtmlPilot.tsx`
+- `src/pages/BiznupHtmlPilot.css`
+- `src/App.tsx`
+- `docs/phase5b-html-pilot.md`
+
+The pilot uses the consistent locked competitor fixture:
+
+- 삼쩜삼
+- 더낸세금·혜움
+- SSEM
+
+## Pilot behavior
+
+- Recipe slides use deterministic markup and CSS.
+- Each Recipe slide declares `data-recipe-id` and `data-viz-type`.
+- Runtime audit reports five unique Recipe IDs, 23 pages, and detected overflow.
+- Browser print CSS preserves 16:9 pages for PDF review.
+- The deck includes the full strategic narrative from company growth through competitive threat, consumer friction, strategic choice, Winning Move, and execution risk.
+
+## Safety boundary
+
+This pilot does not alter:
+
+- `src/lib/geminiCompiler.ts`;
+- `public/template.html`;
+- the existing PDF export path;
+- saved report compatibility;
+- `main` or rollback branches.
+
+The pilot validates visual quality before any Phase 6 compiler integration. Compiler integration, template replacement, automated Recipe routing, merge, and production deployment remain separate approval boundaries.
 
 ## Architecture direction
 
@@ -78,12 +100,15 @@ Research
 → existing PDF Export
 ```
 
-## Gate boundary
+## Next review
 
-Gate 2B has **not** started.
+Owner reviews the Vercel Preview for:
 
-Do not implement deterministic renderers, template changes, compiler changes, PDF changes, feature-flag rollout, merge, or production deployment until the owner explicitly approves Gate 2B and its exact scope.
+- information hierarchy;
+- copy density;
+- five Recipe structures;
+- 23-page consistency;
+- overflow;
+- print/PDF behavior.
 
-## Known limitation
-
-The Gate 2A validator covers the approved manual external-AI workflow. API-mode response acceptance is not yet governed by the same blocking validator.
+Only after owner approval should the project decide whether to integrate the validated pilot structures into the Phase 6 compiler.
