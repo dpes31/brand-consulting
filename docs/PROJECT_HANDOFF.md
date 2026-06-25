@@ -78,12 +78,14 @@ Owner validation status:
 - Step 2 test 3: failed because the copied prompt did not expose the exact evidenceType/Recipe mappings and allowed combined Deep Dive Briefs.
 - Step 2 test 4: required role coverage passed, but incomplete Metric objects were discarded and the stability score was distorted by different selected-competitor counts.
 - Step 2 test 5: passed with three independent valid responses, complete Metric metadata, and 100% required-role recipe agreement. Positioning Map appeared in all three responses and remained separately reported as optional.
-- Step 3 is the next owner-validation target. Step 5 remains untested.
+- Step 3 test 1: failed because locking the Step 2 Competitor Registry rebuilt the downstream prompt from a pre-Visual-Intent base and removed the Step 3 contract. The model then generated multiple Trend, Persona, JTBD, AIPL, and Identity Briefs with out-of-scope Recipes.
+- Step 3 prompt-copy and validation correction is deployed; owner re-test is required. Step 5 remains untested.
 
 Implemented files:
 
 - `src/lib/visualIntentBrief.ts`
 - `src/lib/installVisualIntentWorkflowGuard.ts`
+- `src/lib/installStep3VisualIntentContract.ts`
 - `src/main.tsx`
 - `docs/phase5b-gate2a-test-script.md`
 - `docs/gate2a-prompts/step0-appendix.txt`
@@ -176,6 +178,28 @@ Step 2 passed on the fifth owner test:
 - all present Metric objects used complete fields and allowed verification values;
 - optional `positioning-map` appeared in all three runs and was reported separately;
 - selected-competitor identities varied across independent research runs, which is not a Gate 2A contract failure. An actual report must choose one response and lock its single Registry rather than combine runs.
+
+### Gate 2A usability correction after Step 3 test 1
+
+Step 3 test 1 exposed a downstream prompt-order defect:
+
+1. Step 2 Registry locking rebuilt the Step 3 prompt from a base captured before the Visual Intent contract was appended;
+2. the copied Step 3 prompt therefore ended after the locked competitor context and omitted the Visual Intent contract;
+3. without an allowlist and exact scope, models generated separate Trend, Persona, JTBD, AIPL, Unmet Needs, and Identity Briefs using Step 0/2 or invented Recipe IDs.
+
+Corrections on the current branch:
+
+- `installStep3VisualIntentContract.ts` re-applies the complete Step 3 contract immediately before the manual copy handler runs, after any downstream Registry refresh;
+- general Consumer analysis still includes Trends, Persona, Identity Alignment, JTBD, AIPL Bottleneck, and Unmet Needs;
+- Step 3 Visual Intent is limited to exactly one core consumer-decision Brief;
+- strict mappings are enforced:
+  - `consumer-journey` → `customer-journey`;
+  - `causal-relationship` → `friction-flow`;
+  - `priority-ranking` → `needs-hierarchy`;
+  - `evidence-gap` → `evidence-gap`;
+- all Step 3 Recipes must use `implementationStatus: planned`;
+- Step 3 Visual Intent `metrics` must be `[]`; quantitative evidence remains in the normal analysis;
+- extra section-level Briefs and other-Step Recipes are blocked before the existing Gate 2A validator records the run.
 
 Three runs mean three independently generated AI responses from the same unchanged prompt and evidence. They do not mean submitting one identical response three times.
 
