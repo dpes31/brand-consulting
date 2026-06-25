@@ -77,8 +77,8 @@ Owner validation status:
 - Step 0: passed with three independent valid responses and 100% `milestone-timeline` agreement.
 - Step 2 test 3: failed because the copied prompt did not expose the exact evidenceType/Recipe mappings and allowed combined Deep Dive Briefs.
 - Step 2 test 4: required role coverage passed, but incomplete Metric objects were discarded and the stability score was distorted by different selected-competitor counts.
-- Step 2 second correction: complete Metric contract and role-based stability calculation implemented; awaiting owner re-test.
-- Steps 3 and 5: not yet tested.
+- Step 2 test 5: passed with three independent valid responses, complete Metric metadata, and 100% required-role recipe agreement. Positioning Map appeared in all three responses and remained separately reported as optional.
+- Step 3 is the next owner-validation target. Step 5 remains untested.
 
 Implemented files:
 
@@ -165,6 +165,17 @@ Corrections on the current branch:
 - the number of selected competitors and resulting Deep Dive count no longer affects stability;
 - optional Positioning Map participation is reported separately and excluded from the required-role agreement score;
 - the audit storage key was versioned so pre-fix runs do not contaminate the new score.
+
+### Step 2 owner-validation result
+
+Step 2 passed on the fifth owner test:
+
+- three independent full responses parsed successfully;
+- each response preserved its own Competitor Registry and generated exactly one independent Deep Dive per selected competitor;
+- required roles were stable at 100%: `rank-scorecard`, `competitor-threat-system`, and `feature-matrix`;
+- all present Metric objects used complete fields and allowed verification values;
+- optional `positioning-map` appeared in all three runs and was reported separately;
+- selected-competitor identities varied across independent research runs, which is not a Gate 2A contract failure. An actual report must choose one response and lock its single Registry rather than combine runs.
 
 Three runs mean three independently generated AI responses from the same unchanged prompt and evidence. They do not mean submitting one identical response three times.
 
