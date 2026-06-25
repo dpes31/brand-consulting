@@ -45,7 +45,7 @@ Visual Intent 작성 규칙:
 ${VISUAL_INTENT_BRIEF_START}
 {
   "version": 1,
-  "brand": "{BRAND_NAME}",
+  "brand": "위에서 지정한 조사 브랜드명",
   "step": 3,
   "visualBriefs": [
     {
