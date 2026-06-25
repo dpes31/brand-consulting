@@ -1,89 +1,89 @@
 # Brand Consulting Generator — Project Handoff
 
-Read this file and `AGENTS.md` before changing the repository. The owner requires reversible, gate-based work. Never merge to `main` without explicit approval.
+Read this file, `AGENTS.md`, and `docs/biznup-full-content-preservation-matrix.md` before changing the repository. Never merge to `main` without explicit owner approval.
 
 ## Repository
 
 - Repo: `dpes31/brand-consulting`
 - Production: `main`
 - Rollback: `backup-production-stable-20260622`
-- Validated base: `feature-creative-history-contract-v1`
-- Failed Phase 5 audit branch: `feature-visualization-engine-v1`
-- Failed Draft PR: #6 — retain for audit, do not merge.
-- Current branch: `feature-visual-recipe-pilot-v1`
-- Current Draft PR: #7 — do not merge.
+- Validated Phase 4 base: `feature-creative-history-contract-v1`
+- Completed Gate 2A branch: `feature-visual-recipe-pilot-v1`
+- Superseded summary pilot: `feature-visual-recipe-html-pilot-v1`, Draft PR #8 — retain as audit, do not merge.
+- Corrected FULL visual pilot: `feature-full-report-visual-recipe-v1`
+- Failed Phase 5 audit branch: `feature-visualization-engine-v1`, Draft PR #6.
 
-## Product invariants
+## Gate 2A result
 
-- Preserve all 23 base wrappers and exact 16:9 PDF output.
-- Main Deck remains 23–40 pages with later evidence in the same HTML/PDF Appendix.
-- Step 2 locks 2–5 direct competitors.
-- Preserve one Deep Dive and one six-year Creative History page per selected competitor.
-- Do not invent figures, dates, models, copy, or sources.
-- Only verified verbatim copy may use quotation marks.
-- Do not expose raw URLs in final reports.
+Gate 2A passed:
 
-## Validated phases
+- Step 0: `milestone-timeline`, 100% agreement;
+- Step 2: required-role Recipes, 100% agreement;
+- Step 3: `friction-flow`, 100% agreement;
+- Step 5: `choice-architecture`, 100% agreement.
 
-- Phase 1: layout and 16:9 PDF safety.
-- Phase 2: threat-ranked Competitor Registry.
-- Phase 3: dynamic 23–40 page planning and Appendix.
-- Phase 4: six-year Creative History factuality contract.
-- Gate 1.5: Phase 5B architecture and three frozen pilot Recipes approved.
+## Owner correction after first HTML pilot
 
-## Gate 2A — completed
+The first HTML pilot was rejected because it converted the existing FULL report into a 23-page summary and removed required content.
 
-Overall result: **PASS**
+The corrected rule is:
 
-Owner validation:
+> Preserve the existing report TOC and Step 0–5 analytical content, then improve only the visual structure. Overflow creates continuation or Appendix pages; it never authorizes deletion.
 
-- Step 0: three independent valid responses; 100% `milestone-timeline` agreement.
-- Step 2: three independent valid responses; complete Metric metadata; 100% required-role agreement.
-- Step 3: three independent valid responses; exactly one core Brief; 100% `friction-flow` agreement.
-- Step 5: three independent valid responses; exactly one final strategy Brief; 100% `choice-architecture` agreement.
+## Corrected FULL pilot scope
 
-Step 5 test 2 specifically confirmed:
+The corrected deck contains:
 
-- full Step 5 contract present in the copied prompt;
-- `strategic-choice` → `choice-architecture` in all three responses;
-- `implementationStatus: planned` in all three responses;
-- `metrics: []` in all three responses;
-- one Visual Intent Brief only;
-- no other-Step Recipe use;
-- 100% stability across three distinct responses.
+- 40 Main Deck pages;
+- 8 Appendix pages;
+- exact 16:9 slide geometry;
+- three selected competitor Deep Dives;
+- four Creative History pages covering 2021–2025 completed years plus 2026 YTD;
+- five validated Recipe structures.
 
-## Implemented Gate 2A files
+Restored mandatory content includes:
 
-- `src/lib/visualIntentBrief.ts`
-- `src/lib/installVisualIntentWorkflowGuard.ts`
-- `src/lib/installStep3VisualIntentContract.ts`
-- `src/lib/installStep5VisualIntentContract.ts`
-- `src/main.tsx`
-- `docs/phase5b-gate2a-test-script.md`
-- `docs/gate2a-prompts/step0-appendix.txt`
-- `docs/gate2a-prompts/step2-appendix.txt`
-- `docs/gate2a-prompts/step3-appendix.txt`
-- `docs/gate2a-prompts/step5-appendix.txt`
-- `docs/phase5b-gate2a-results.md`
+- Brand Identity, category, target, JTBD, KPI, Growth Story, product USP;
+- competitive landscape, ranking, all Deep Dives, Product Matrix, category clichés, positioning;
+- consumer trends, three detailed Personas, Identity Alignment, JTBD, pain points, unmet needs, AIPL;
+- Creative methodology, target and competitor six-period histories, message trajectory, creative opportunity;
+- SWOT, GAP, Root Cause, Fact Firewall, STP, four strategic directions, selection criteria, Big IdeaL, Winning Move;
+- Tax Decision Receipt detail, Via Negativa, Pre-mortem, execution roadmap, measurement plan, evidence gaps, and source limitations.
 
-## Architecture direction
+## Recipe application
 
-```text
-Research
-→ Step-level Visual Intent Brief
-→ Semantic Slide Plan
-→ constrained Recipe Router
-→ deterministic HTML/CSS/SVG Renderer
-→ blocking Validator
-→ existing PDF Export
-```
+Recipes change only the assigned visualization:
 
-## Gate boundary
+- `milestone-timeline` — Growth Story;
+- `competitor-threat-system` — competitor Deep Dives;
+- `feature-matrix` — Product Matrix;
+- `friction-flow` — purchase bottleneck;
+- `choice-architecture` — strategy choice.
 
-Gate 2B has **not** started.
+## Corrected implementation
 
-Do not implement deterministic renderers, template changes, compiler changes, PDF changes, feature-flag rollout, merge, or production deployment until the owner explicitly approves Gate 2B and its exact scope.
+- `docs/biznup-full-content-preservation-matrix.md`
+- `src/pages/BiznupFullReportLoader.tsx`
+- `public/biznup-full-payload-01.js` through `09.js`
+- `public/biznup-full-payload-07-fixed.js`
+- `src/App.tsx`
+- Preview query: `?pilot=full-biznup`
 
-## Known limitation
+Runtime audit must report:
 
-The Gate 2A validator covers the approved manual external-AI workflow. API-mode response acceptance is not yet governed by the same blocking validator.
+- Main 40/40;
+- Appendix 8/8;
+- Recipe 5/5;
+- Required Sections 40/40;
+- Overflow 0.
+
+## Safety boundary
+
+This Preview does not alter:
+
+- `src/lib/geminiCompiler.ts`;
+- `public/template.html`;
+- the existing PDF export path;
+- `main`, rollback, or validated branches.
+
+Automatic compiler integration, template changes, merging, and production deployment require a separate owner decision after Preview validation.
