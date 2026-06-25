@@ -7,123 +7,81 @@
 - Brand: 비즈넵
 - External AI product/model: GPT, three independent sessions per Step
 - Reference files: same uploaded references per repeated Step run
-- Competitor seeds: none explicitly fixed for the Step 2 test set
-- Test dates: 2026-06-23 onward
+- Test period: 2026-06-23 to 2026-06-25
 - Tester: owner
-
-The same inputs and prompt must be used for all repeated runs within a Step.
 
 ## Step 0 — Brand Fact Book
 
-| Run | JSON valid | Primary recipes | Growth Story recipe | Missing inputs disclosed | External template ID | Evidence invention | Notes |
-|---:|---|---|---|---|---|---|---|
-| 1 | Yes | milestone-timeline | milestone-timeline | Yes | 0 | 0 observed | Valid independent response |
-| 2 | Yes | milestone-timeline | milestone-timeline | Yes | 0 | 0 observed | Valid independent response |
-| 3 | Yes | milestone-timeline | milestone-timeline | Yes | 0 | 0 observed | Valid independent response |
-
-Recipe agreement rate: **100%**
+| Run | JSON valid | Growth Story Recipe | Agreement |
+|---:|---|---|---|
+| 1 | Yes | milestone-timeline | Baseline |
+| 2 | Yes | milestone-timeline | 100% across 2 runs |
+| 3 | Yes | milestone-timeline | 100% across 3 runs |
 
 Decision: **Pass**
 
 ## Step 2 — Competitor Strategy
 
-| Run | JSON valid | Registry preserved | Ranking brief | Deep Dive per selected competitor | Matrix brief | Required-role recipe agreement | Metric contract | Optional Positioning Map | Notes |
-|---:|---|---|---|---|---|---|---|---|---|
-| 1 | Yes | Yes | 1 × rank-scorecard | 4/4 | 1 × feature-matrix | Baseline | Complete | Present | 7 Briefs |
-| 2 | Yes | Yes | 1 × rank-scorecard | 3/3 | 1 × feature-matrix | 100% across 2 runs | Complete | Present | 6 Briefs |
-| 3 | Yes | Yes | 1 × rank-scorecard | 3/3 | 1 × feature-matrix | 100% across 3 runs | Complete | Present | 6 Briefs |
+| Run | JSON valid | Ranking | Deep Dive coverage | Product Matrix | Metric contract | Required-role agreement |
+|---:|---|---|---|---|---|---|
+| 1 | Yes | rank-scorecard | 4/4 | feature-matrix | Complete | Baseline |
+| 2 | Yes | rank-scorecard | 3/3 | feature-matrix | Complete | 100% across 2 runs |
+| 3 | Yes | rank-scorecard | 3/3 | feature-matrix | Complete | 100% across 3 runs |
 
-Required role signature in all runs:
-
-```text
-Threat Ranking = rank-scorecard
-Deep Dive = competitor-threat-system
-Product Matrix = feature-matrix
-```
-
-Positioning Map participation: **3 of 3 responses**. This optional role is reported separately and does not affect the required-role agreement score.
-
-Selected competitor sets varied across independent research runs:
-
-- Run 1: 캐시노트, 삼쩜삼, 혜움·더낸세금, 쌤157
-- Run 2: 삼쩜삼, 토스인컴, 국세청 원클릭
-- Run 3: 삼쩜삼, 더낸세금·혜움, SSEM
-
-This variation is not a Gate 2A Visual Intent contract failure. A production report must use one chosen response and lock its single Registry; results from multiple runs must not be merged into a synthetic Registry.
+Positioning Map appeared in all three responses and was reported separately as optional.
 
 Decision: **Pass**
 
 ## Step 3 — Consumer Insights
 
-### Test 1 — failed contract exposure
+Test 1 failed because downstream prompt rebuilding removed the Visual Intent contract. Those responses are excluded.
 
-All three responses produced valid normal Consumer analysis but failed the Visual Intent contract because the copied prompt omitted the contract after downstream Registry rebuilding. Those responses are excluded from stability scoring.
+### Test 2
 
-### Test 2 — corrected contract
-
-| Run | JSON valid | Single core Brief | Primary Recipe | Planned status | Metrics empty | Recipe agreement | Notes |
-|---:|---|---|---|---|---|---|---|
-| 1 | Yes | Yes | friction-flow | Yes | Yes | Baseline | Valid independent response |
-| 2 | Yes | Yes | friction-flow | Yes | Yes | 100% across 2 runs | Valid independent response |
-| 3 | Yes | Yes | friction-flow | Yes | Yes | 100% across 3 runs | Valid independent response |
-
-Recipe agreement rate: **100%**
+| Run | JSON valid | Single core Brief | Primary Recipe | Planned | Metrics empty | Agreement |
+|---:|---|---|---|---|---|---|
+| 1 | Yes | Yes | friction-flow | Yes | Yes | Baseline |
+| 2 | Yes | Yes | friction-flow | Yes | Yes | 100% across 2 runs |
+| 3 | Yes | Yes | friction-flow | Yes | Yes | 100% across 3 runs |
 
 Decision: **Pass**
 
 ## Step 5 — Strategic Implication
 
-### Test 1 — failed contract exposure
+Test 1 failed because Creative History and locked-context rebuilding removed the Visual Intent contract. Those responses are excluded.
 
-Observed defects:
+### Test 2
 
-- the copied prompt omitted the Step 5 Visual Intent contract after Creative History and locked-context prompt rebuilding;
-- Run 1 and Run 3 used the Step 2 `competitor-threat-system` Recipe and marked it `planned`;
-- Run 2 omitted the Visual Intent start/end markers entirely;
-- the three responses are excluded from stability scoring.
+| Run | JSON valid | Single final Brief | Evidence Type | Primary Recipe | Planned | Metrics empty | Agreement |
+|---:|---|---|---|---|---|---|---|
+| 1 | Yes | Yes | strategic-choice | choice-architecture | Yes | Yes | Baseline |
+| 2 | Yes | Yes | strategic-choice | choice-architecture | Yes | Yes | 100% across 2 runs |
+| 3 | Yes | Yes | strategic-choice | choice-architecture | Yes | Yes | 100% across 3 runs |
 
-Correction deployed:
+All three responses retained SWOT, GAP, Root Cause, three ToT routes, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, and execution sequence in the normal analysis while limiting Visual Intent to one final strategy-decision Brief.
 
-- re-apply the complete Step 5 contract immediately before prompt copy;
-- keep SWOT, GAP, Root Cause, three ToT routes, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, and execution sequence in normal analysis;
-- limit Visual Intent to exactly one final strategy-decision Brief;
-- enforce exact evidenceType → Recipe mapping;
-- require `implementationStatus: planned`;
-- require `metrics: []` exactly;
-- block other-Step Recipes, invented Recipe IDs, and additional Briefs.
+Decision: **Pass**
 
-| Run | JSON valid | Single final Brief | Recipe mapping | Planned status | Metrics empty | Notes |
-|---:|---|---|---|---|---|---|
-| 1 | No | Yes | No | No | Yes | Pre-correction response; excluded |
-| 2 | No | No | N/A | N/A | N/A | Marked block missing; excluded |
-| 3 | No | Yes | No | No | Yes | Pre-correction response; excluded |
+## Aggregate result
 
-Recipe agreement rate: **Not scored**
-
-Decision: **Revise and re-test**
-
-## Aggregate score
-
-| Measure | Required | Actual so far | Pass |
+| Measure | Required | Actual | Pass |
 |---|---:|---:|---|
-| JSON parse rate | 100% | 100% for passed Steps 0, 2, and 3; Step 5 re-test pending | Pending |
-| Step allowlist compliance | 100% | 100% for passed Steps 0, 2, and 3; Step 5 re-test pending | Pending |
+| JSON parse | 100% | 100% across accepted runs | Yes |
+| Step allowlist compliance | 100% | 100% | Yes |
 | Step 2 Registry preservation | 100% | 100% within each response | Yes |
-| Required/available/missing separation | 100% | 100% for passed Steps | Yes |
-| Metric metadata completeness | 100% when present | Step 2 complete; Steps 3 and 5 require empty metrics | Pending |
-| Unsupported recipe disclosure | 100% | No mislabel in passed Steps | Pending |
-| External template recipe IDs | 0 | 0 in passed Steps | Pending |
-| Primary recipe agreement | at least 80% | Step 0: 100%; Step 2: 100%; Step 3: 100%; Step 5 pending | Pending |
-| Evidence invention | 0 | No blocking invention detected in passed Steps | Provisional |
+| Required/available/missing separation | 100% | 100% | Yes |
+| Metric contract | 100% when present | 100% | Yes |
+| Other-Step Recipe occurrence | 0 | 0 in accepted runs | Yes |
+| Primary Recipe stability | at least 80% | 100% in Steps 0, 2, 3, and 5 | Yes |
+| Evidence invention | 0 | No blocking invention detected | Provisional pass |
 
 ## Gate 2A conclusion
 
-- Overall result: **In progress**
-- Passed Steps: **0, 2, 3**
-- Re-test required: **5**
-- Open prompt revision: Step 5 correction deployed, awaiting owner validation
-- Schema revisions required: none currently open
-- Allowlist revisions required: none currently open
-- Owner approval: Steps 0, 2, and 3 approved through submitted owner test results
+- Overall result: **PASS**
+- Passed Steps: **0, 2, 3, 5**
+- Prompt revisions currently open: none
+- Schema revisions currently open: none
+- Allowlist revisions currently open: none
+- Gate 2B status: **not started**
 
-Gate 2B renderer work must not begin until Step 5 also passes and the owner explicitly approves the complete Gate 2A result.
+Gate 2B renderer work requires explicit owner approval and a separately bounded implementation scope. No merge or production deployment is authorized by this result.
