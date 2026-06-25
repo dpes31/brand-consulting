@@ -32,8 +32,9 @@ Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate
 - Step 0 owner validation passed with three independent responses and 100% primary-recipe agreement.
 - Step 2 owner validation passed with three independent valid responses, complete Metric metadata, and 100% required-role recipe agreement.
 - Step 2 selected-competitor identities may differ across independent research runs; Gate 2A validates contract stability, while an actual report must use one chosen response and lock its single Registry.
-- Step 3 first owner test failed because the locked Competitor Registry refresh removed the appended Visual Intent contract and the model generated multiple out-of-scope Recipe objects.
-- Step 3 prompt and validation were corrected; a new owner re-test is required. Step 5 remains untested.
+- Step 3 owner validation passed on the corrected prompt with three independent valid responses and 100% `friction-flow` agreement.
+- Step 5 first owner test failed because the copied prompt omitted the Visual Intent contract and models used a Step 2 Recipe or no marked block.
+- Step 5 prompt-copy and validation correction is deployed; a new owner re-test is required.
 
 Gate 2A adds Visual Intent requirements to Steps 0, 2, 3, and 5, validates the marked JSON during the manual workflow, and records temporary repeated-run recipe audit data.
 
@@ -42,6 +43,7 @@ Relevant files:
 - `src/lib/visualIntentBrief.ts`
 - `src/lib/installVisualIntentWorkflowGuard.ts`
 - `src/lib/installStep3VisualIntentContract.ts`
+- `src/lib/installStep5VisualIntentContract.ts`
 - `docs/phase5b-gate2a-test-script.md`
 - `docs/gate2a-prompts/`
 
@@ -76,6 +78,17 @@ Relevant files:
 - Every Step 3 Recipe uses `implementationStatus: planned`.
 - Step 3 Visual Intent metrics must be `[]`; quantitative facts remain in the normal analysis.
 - The Step 3 copy guard re-applies the complete contract immediately before prompt copy so downstream Registry locking cannot remove it.
+- Step 5 normal analysis retains SWOT, GAP, Root Cause, ToT 3 paths, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, and execution sequence, but the Visual Intent JSON contains exactly one final strategy-decision Brief.
+- Step 5 mapping is strict:
+  - alternatives and trade-offs: `strategic-choice` → `choice-architecture`;
+  - current-to-target transition: `causal-relationship` → `as-is-to-be`;
+  - diagnosis-to-action synthesis: `causal-relationship` → `swot-to-strategy`;
+  - validated execution order: `execution-roadmap` → `roadmap`;
+  - insufficient strategy evidence: `evidence-gap` → `evidence-gap`.
+- Every Step 5 Recipe uses `implementationStatus: planned`.
+- Step 5 Visual Intent metrics must be exactly `[]`; quantitative evidence remains in the normal analysis.
+- The Step 5 copy guard re-applies the complete contract immediately before prompt copy so Creative History and locked-context refreshes cannot remove it.
+- Other-Step Recipes and additional Step 5 Visual Briefs are blocked.
 - Outside Step 2, incomplete Metric objects on non-quantitative briefs remain warnings and are excluded. Quantitative-comparison briefs remain strict.
 
 Gate 2A does not authorize:
