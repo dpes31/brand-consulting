@@ -217,17 +217,47 @@ Fail examples:
 
 ## 8. Step 5 acceptance check
 
-The brief must identify the primary decision structure:
+The normal Strategy analysis must still cover:
 
-- alternatives and trade-offs → `choice-architecture`;
-- current-to-target transformation → `as-is-to-be`;
-- diagnosis-to-action synthesis → `swot-to-strategy`;
-- validated execution sequence → `roadmap`;
-- insufficient strategy evidence → `evidence-gap`.
+- SWOT;
+- GAP;
+- Root Cause;
+- functional, emotional, and cultural ToT routes;
+- Big IdeaL;
+- Winning Move;
+- Via Negativa;
+- Pre-mortem;
+- execution sequence.
+
+The Visual Intent JSON must contain **exactly one** final strategy-decision Brief. Do not create separate Visual Briefs for each analysis section or strategic route.
+
+Strict Recipe mapping:
+
+- alternatives, criteria, and trade-offs: `strategic-choice` → `choice-architecture`;
+- current-to-target transformation: `causal-relationship` → `as-is-to-be`;
+- diagnosis-to-action synthesis: `causal-relationship` → `swot-to-strategy`;
+- validated execution sequence: `execution-roadmap` → `roadmap`;
+- insufficient strategy evidence: `evidence-gap` → `evidence-gap`.
+
+Additional rules:
+
+- every Step 5 Recipe uses `implementationStatus: planned`;
+- `metrics` must be exactly `[]` in the Step 5 Visual Intent Brief;
+- quantitative evidence remains in the normal analysis;
+- other-Step Recipes and invented Recipe IDs are invalid;
+- required, available, and missing inputs remain separated;
+- Winning Move must remain connected to Root Cause;
+- SWOT four boxes are diagnosis inputs, not the final strategy Recipe.
 
 Fail examples:
 
-- SWOT four boxes treated as the final answer;
+- more than one Step 5 Visual Brief;
+- separate SWOT, GAP, Root Cause, ToT, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, or roadmap Briefs;
+- using other-Step Recipes such as `competitor-threat-system`, `feature-matrix`, `rank-scorecard`, `milestone-timeline`, `friction-flow`, or `needs-hierarchy`;
+- using invented IDs outside the Step 5 allowlist;
+- marking a Step 5 Recipe as `pilot-supported` or `unsupported`;
+- placing any Metric object inside the Step 5 Visual Intent block;
+- SWOT four boxes treated as the final strategic answer;
 - roadmap selected without sequencing evidence;
 - Winning Move disconnected from Root Cause;
 - no explicit missing inputs for cost, owner, timing, or trade-off evidence.
@@ -251,6 +281,8 @@ For each Step and run, record:
 For Step 2, primary-recipe stability means agreement across the required roles—not equality of the total repeated Deep Dive count. Positioning Map is monitored separately.
 
 For Step 3, primary-recipe stability compares the single core consumer-decision Recipe across the three independent responses.
+
+For Step 5, primary-recipe stability compares the single final strategy-decision Recipe across the three independent responses.
 
 ## 10. Gate decision
 
