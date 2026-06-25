@@ -57,75 +57,73 @@ Decision: **Pass**
 
 ### Test 1 — failed contract exposure
 
-All three responses produced valid normal Consumer analysis but failed the Visual Intent contract.
+All three responses produced valid normal Consumer analysis but failed the Visual Intent contract because the copied prompt omitted the contract after downstream Registry rebuilding. Those responses are excluded from stability scoring.
+
+### Test 2 — corrected contract
+
+| Run | JSON valid | Single core Brief | Primary Recipe | Planned status | Metrics empty | Recipe agreement | Notes |
+|---:|---|---|---|---|---|---|---|
+| 1 | Yes | Yes | friction-flow | Yes | Yes | Baseline | Valid independent response |
+| 2 | Yes | Yes | friction-flow | Yes | Yes | 100% across 2 runs | Valid independent response |
+| 3 | Yes | Yes | friction-flow | Yes | Yes | 100% across 3 runs | Valid independent response |
+
+Recipe agreement rate: **100%**
+
+Decision: **Pass**
+
+## Step 5 — Strategic Implication
+
+### Test 1 — failed contract exposure
 
 Observed defects:
 
-- the copied prompt ended after the locked Step 2 Competitor Registry and omitted the Step 3 Visual Intent contract;
-- models created multiple Briefs for Trend, Persona, JTBD, AIPL, Unmet Needs, and Identity Alignment;
-- responses used Step 0/2 Recipes or invented Recipe IDs such as persona, JTBD, funnel, and identity-map variants;
-- one response mixed different metric units inside a quantitative comparison;
-- the test cannot be used for stability scoring.
+- the copied prompt omitted the Step 5 Visual Intent contract after Creative History and locked-context prompt rebuilding;
+- Run 1 and Run 3 used the Step 2 `competitor-threat-system` Recipe and marked it `planned`;
+- Run 2 omitted the Visual Intent start/end markers entirely;
+- the three responses are excluded from stability scoring.
 
 Correction deployed:
 
-- the complete Step 3 contract is re-applied immediately before prompt copy, after downstream Registry locking;
-- normal analysis retains Trends, Persona, Identity Alignment, JTBD, AIPL Bottleneck, and Unmet Needs;
-- Visual Intent is limited to exactly one core consumer-decision Brief;
-- strict mapping:
-  - `consumer-journey` → `customer-journey`;
-  - `causal-relationship` → `friction-flow`;
-  - `priority-ranking` → `needs-hierarchy`;
-  - `evidence-gap` → `evidence-gap`;
-- every Step 3 Recipe must use `implementationStatus: planned`;
-- Step 3 Visual Intent metrics must be `[]`;
-- extra Briefs and other-Step Recipes block submission.
+- re-apply the complete Step 5 contract immediately before prompt copy;
+- keep SWOT, GAP, Root Cause, three ToT routes, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, and execution sequence in normal analysis;
+- limit Visual Intent to exactly one final strategy-decision Brief;
+- enforce exact evidenceType → Recipe mapping;
+- require `implementationStatus: planned`;
+- require `metrics: []` exactly;
+- block other-Step Recipes, invented Recipe IDs, and additional Briefs.
 
-| Run | JSON valid | Single core Brief | Recipe mapping | Planned status | Metrics empty | Notes |
+| Run | JSON valid | Single final Brief | Recipe mapping | Planned status | Metrics empty | Notes |
 |---:|---|---|---|---|---|---|
-| 1 | No | No | No | No | No | Pre-correction response; excluded |
-| 2 | No | No | No | Mixed | No | Pre-correction response; excluded |
-| 3 | No | No | No | Mixed | Mixed | Pre-correction response; excluded |
+| 1 | No | Yes | No | No | Yes | Pre-correction response; excluded |
+| 2 | No | No | N/A | N/A | N/A | Marked block missing; excluded |
+| 3 | No | Yes | No | No | Yes | Pre-correction response; excluded |
 
 Recipe agreement rate: **Not scored**
 
 Decision: **Revise and re-test**
 
-## Step 5 — Strategic Implication
-
-| Run | JSON valid | Recipe | Root Cause linkage | Trade-off or transition evidence | Missing execution inputs | SWOT-only failure | Notes |
-|---:|---|---|---|---|---|---|---|
-| 1 |  |  |  |  |  |  |  |
-| 2 |  |  |  |  |  |  |  |
-| 3 |  |  |  |  |  |  |  |
-
-Recipe agreement rate:
-
-Decision: **Pending**
-
 ## Aggregate score
 
 | Measure | Required | Actual so far | Pass |
 |---|---:|---:|---|
-| JSON parse rate | 100% | 100% for completed Steps 0 and 2; Step 3 re-test pending | Pending |
-| Step allowlist compliance | 100% | 100% for Steps 0 and 2; Step 3 re-test pending | Pending |
+| JSON parse rate | 100% | 100% for passed Steps 0, 2, and 3; Step 5 re-test pending | Pending |
+| Step allowlist compliance | 100% | 100% for passed Steps 0, 2, and 3; Step 5 re-test pending | Pending |
 | Step 2 Registry preservation | 100% | 100% within each response | Yes |
-| Required/available/missing separation | 100% | 100% for completed Steps 0 and 2 | Yes |
-| Metric metadata completeness | 100% when present | 100% in Step 2 test 5; Step 3 now requires empty metrics | Pending |
-| Unsupported recipe disclosure | 100% | No unsupported recipe mislabel in passed Steps | Pending |
+| Required/available/missing separation | 100% | 100% for passed Steps | Yes |
+| Metric metadata completeness | 100% when present | Step 2 complete; Steps 3 and 5 require empty metrics | Pending |
+| Unsupported recipe disclosure | 100% | No mislabel in passed Steps | Pending |
 | External template recipe IDs | 0 | 0 in passed Steps | Pending |
-| Primary recipe agreement | at least 80% | Step 0: 100%; Step 2 required roles: 100%; Step 3 pending | Pending |
+| Primary recipe agreement | at least 80% | Step 0: 100%; Step 2: 100%; Step 3: 100%; Step 5 pending | Pending |
 | Evidence invention | 0 | No blocking invention detected in passed Steps | Provisional |
 
 ## Gate 2A conclusion
 
 - Overall result: **In progress**
-- Passed Steps: **0, 2**
-- Re-test required: **3**
-- Pending Step: **5**
-- Open prompt revision: Step 3 correction deployed, awaiting owner validation
+- Passed Steps: **0, 2, 3**
+- Re-test required: **5**
+- Open prompt revision: Step 5 correction deployed, awaiting owner validation
 - Schema revisions required: none currently open
 - Allowlist revisions required: none currently open
-- Owner approval: Step 0 and Step 2 approved through submitted owner test results
+- Owner approval: Steps 0, 2, and 3 approved through submitted owner test results
 
-Gate 2B renderer work must not begin until Steps 3 and 5 also pass and the owner explicitly approves the complete Gate 2A result.
+Gate 2B renderer work must not begin until Step 5 also passes and the owner explicitly approves the complete Gate 2A result.
