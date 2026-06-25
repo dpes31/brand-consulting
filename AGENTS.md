@@ -30,8 +30,9 @@ Read `docs/PROJECT_HANDOFF.md`, `docs/phase5b-pilot-spec.md`, `docs/phase5b-gate
 - Gate 1.5 specification is approved.
 - Active gate: **Gate 2A — Visual Intent Brief prompt-contract testing**.
 - Step 0 owner validation passed with three independent responses and 100% primary-recipe agreement.
-- Step 2 role coverage passed the fourth owner test, but Metric completeness and stability calculation required a second correction.
-- The corrected Step 2 Metric contract and role-based stability audit are deployed for owner re-test; Step 2 is not yet approved.
+- Step 2 owner validation passed with three independent valid responses, complete Metric metadata, and 100% required-role recipe agreement.
+- Step 2 selected-competitor identities may differ across independent research runs; Gate 2A validates contract stability, while an actual report must use one chosen response and lock its single Registry.
+- Steps 3 and 5 remain untested. Step 3 is the next owner-validation target.
 
 Gate 2A adds Visual Intent requirements to Steps 0, 2, 3, and 5, validates the marked JSON during the manual workflow, and records temporary repeated-run recipe audit data.
 
