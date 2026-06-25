@@ -1,16 +1,28 @@
 [VISUAL INTENT BRIEF — GATE 2A TEST]
 일반 Consumer 분석 뒤에 VISUAL_INTENT_BRIEF를 작성하십시오. HTML/CSS/SVG는 작성하지 마십시오.
 
-허용 Recipe: customer-journey, friction-flow, needs-hierarchy, evidence-gap
+허용 evidenceType:
+- consumer-journey
+- sequential-process
+- causal-relationship
+- priority-ranking
+- evidence-gap
+
+허용 Recipe:
+- customer-journey
+- friction-flow
+- needs-hierarchy
+- evidence-gap
+
 현재 모두 planned이며 Renderer는 아직 없습니다.
 
 선택 기준:
-- 안정적인 행동 순서가 있으면 customer-journey
-- 특정 단계의 이탈·불안·지연이 핵심이면 friction-flow
-- 욕구의 위계가 핵심이면 needs-hierarchy
-- 행동 근거가 부족하면 evidence-gap
+- 안정적인 행동 순서가 있으면 consumer-journey → customer-journey
+- 특정 단계의 이탈·불안·지연이 핵심이면 causal-relationship → friction-flow
+- 검증된 욕구의 우선순위·위계가 핵심이면 priority-ranking → needs-hierarchy
+- 행동 근거가 부족하면 evidence-gap → evidence-gap
 
-Primary 1개와 Fallback 최대 1개만 선택하십시오. requiredInputs, availableInputs, missingInputs를 분리하십시오. 감정·행동·병목을 근거 없이 만들지 마십시오. 외부 템플릿 이름이나 번호를 recipeId로 사용하지 마십시오.
+Primary 1개와 Fallback 최대 1개만 선택하십시오. requiredInputs, availableInputs, missingInputs를 분리하십시오. 감정·행동·병목을 근거 없이 만들지 마십시오. 외부 템플릿 이름이나 번호를 recipeId로 사용하지 마십시오. 수치를 사용하면 metricId, label, value, unit, period, denominator, sourceLabel, verificationStatus를 모두 작성하고, 필요하지 않으면 metrics를 []로 두십시오.
 
 <!-- VISUAL_INTENT_BRIEF_START -->
 {
@@ -19,17 +31,17 @@ Primary 1개와 Fallback 최대 1개만 선택하십시오. requiredInputs, avai
   "step": 3,
   "visualBriefs": [
     {
-      "insightId": "CONSUMER_FLOW_01",
-      "section": "III. CONSUMER",
+      "insightId": "STEP3_FRICTION_01",
+      "section": "III. CONSUMER > Friction",
       "preferredSlideId": "slide-12",
       "decisionQuestion": "소비자는 어떤 단계에서 가장 크게 막히고 이탈하는가?",
-      "evidenceType": "consumer-journey",
+      "evidenceType": "causal-relationship",
       "coreMessage": "검증된 소비자 행동과 마찰이 말하는 핵심 병목",
       "primaryRecipe": { "recipeId": "friction-flow", "priority": 1 },
       "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
-      "selectionReason": "행동 단계와 마찰의 인과 흐름을 보여줘야 하기 때문",
+      "selectionReason": "행동 단계와 마찰의 원인·결과 흐름을 보여줘야 하기 때문",
       "confidence": "medium",
-      "requiredInputs": ["Trigger", "Job", "Action", "Friction", "Emotion", "Current Coping", "Opportunity"],
+      "requiredInputs": ["Trigger", "Job", "Action", "Friction", "Evidence", "Current Coping", "Opportunity"],
       "availableInputs": ["확보된 VOC 및 행동 근거"],
       "missingInputs": ["누락된 단계별 행동 근거"],
       "metrics": [],
