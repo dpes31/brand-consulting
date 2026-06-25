@@ -78,14 +78,17 @@ Owner validation status:
 - Step 2 test 3: failed because the copied prompt did not expose the exact evidenceType/Recipe mappings and allowed combined Deep Dive Briefs.
 - Step 2 test 4: required role coverage passed, but incomplete Metric objects were discarded and the stability score was distorted by different selected-competitor counts.
 - Step 2 test 5: passed with three independent valid responses, complete Metric metadata, and 100% required-role recipe agreement. Positioning Map appeared in all three responses and remained separately reported as optional.
-- Step 3 test 1: failed because locking the Step 2 Competitor Registry rebuilt the downstream prompt from a pre-Visual-Intent base and removed the Step 3 contract. The model then generated multiple Trend, Persona, JTBD, AIPL, and Identity Briefs with out-of-scope Recipes.
-- Step 3 prompt-copy and validation correction is deployed; owner re-test is required. Step 5 remains untested.
+- Step 3 test 1: failed because locking the Step 2 Competitor Registry rebuilt the downstream prompt from a pre-Visual-Intent base and removed the Step 3 contract.
+- Step 3 test 2: passed with three independent valid responses and 100% `friction-flow` agreement.
+- Step 5 test 1: failed because Creative History and locked-context prompt rebuilding removed the Visual Intent contract. Two responses reused `competitor-threat-system`; one omitted the marked block.
+- Step 5 prompt-copy and validation correction is deployed; owner re-test is required.
 
 Implemented files:
 
 - `src/lib/visualIntentBrief.ts`
 - `src/lib/installVisualIntentWorkflowGuard.ts`
 - `src/lib/installStep3VisualIntentContract.ts`
+- `src/lib/installStep5VisualIntentContract.ts`
 - `src/main.tsx`
 - `docs/phase5b-gate2a-test-script.md`
 - `docs/gate2a-prompts/step0-appendix.txt`
@@ -200,6 +203,38 @@ Corrections on the current branch:
 - all Step 3 Recipes must use `implementationStatus: planned`;
 - Step 3 Visual Intent `metrics` must be `[]`; quantitative evidence remains in the normal analysis;
 - extra section-level Briefs and other-Step Recipes are blocked before the existing Gate 2A validator records the run.
+
+### Step 3 owner-validation result
+
+Step 3 passed on the second owner test:
+
+- all three responses produced exactly one core consumer-decision Brief;
+- all three selected `causal-relationship` → `friction-flow`;
+- all three used `implementationStatus: planned` and empty metrics;
+- recipe agreement reached 100%.
+
+### Gate 2A usability correction after Step 5 test 1
+
+Step 5 test 1 exposed the same class of downstream prompt-order defect after Creative History and locked-context assembly:
+
+1. the copied Step 5 prompt omitted the Visual Intent contract;
+2. two responses reused the Step 2 `competitor-threat-system` Recipe and marked it `planned`;
+3. one response omitted the marked Visual Intent block entirely.
+
+Corrections on the current branch:
+
+- `installStep5VisualIntentContract.ts` re-applies the complete Step 5 contract immediately before manual prompt copy, after Creative History and locked-context prompt rebuilding;
+- general Strategy analysis retains SWOT, GAP, Root Cause, three ToT routes, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, and execution sequence;
+- Step 5 Visual Intent is limited to exactly one final strategy-decision Brief;
+- strict mappings are enforced:
+  - `strategic-choice` → `choice-architecture`;
+  - `causal-relationship` → `as-is-to-be`;
+  - `causal-relationship` → `swot-to-strategy` when diagnosis-to-action synthesis is primary;
+  - `execution-roadmap` → `roadmap`;
+  - `evidence-gap` → `evidence-gap`;
+- all Step 5 Recipes must use `implementationStatus: planned`;
+- Step 5 Visual Intent `metrics` must be exactly `[]`; quantitative evidence remains in the normal analysis;
+- extra section-level Briefs, invented Recipe IDs, and other-Step Recipes are blocked before the existing Gate 2A validator records the run.
 
 Three runs mean three independently generated AI responses from the same unchanged prompt and evidence. They do not mean submitting one identical response three times.
 
