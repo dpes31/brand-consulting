@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import UmbrexComparisonPilot from './pages/UmbrexComparisonPilot';
 import BiznupFullIntegrated from './pages/BiznupFullIntegrated';
+import './pages/BiznupFullIntegratedRefinement.css';
 import { AppProvider } from './context/AppContext';
 
 function App() {
