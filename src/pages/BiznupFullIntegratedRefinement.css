@@ -4,12 +4,36 @@
 @import './density-v2-competitor.css';
 @import './density-v2-consumer-a.css';
 @import './density-v2-consumer-b.css';
+@import './density-v2-hardening.css';
 
-.full-report-app,.full-report-app *{font-family:'Pretendard','Noto Sans KR',sans-serif!important}
-.full-title-row h2,.cover-copy h1,.back-cover-copy h1,.choice-final h2,.choice-final h3,.verdict-axis strong,.root-core h3,.root-opportunity h3{font-weight:900!important}
-.full-title-row h2{font-size:30px;line-height:1.18;letter-spacing:-.045em}
-.full-breadcrumb{font-size:10.5px;font-weight:800}
-.full-tag{padding:5px 11px;font-size:9.5px}
-.full-page{font-size:12px;font-weight:800}
-.full-source{font-size:10px;line-height:1.45}
-.full-slide-body p,.full-slide-body li,.full-slide-body td,.full-slide-body dd,.full-slide-body blockquote{font-size:max(12px,1em)}
+.full-report-app,
+.full-report-app * {
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif !important;
+}
+
+.full-title-row h2,
+.cover-copy h1,
+.back-cover-copy h1,
+.choice-final h2,
+.choice-final h3,
+.verdict-axis strong,
+.root-core h3,
+.root-opportunity h3 {
+  font-weight: 900 !important;
+}
+
+.full-title-row h2 {
+  font-size: 30px;
+  line-height: 1.18;
+  letter-spacing: -0.045em;
+}
+
+.full-breadcrumb { font-size: 10.5px; font-weight: 800; }
+.full-tag { padding: 5px 11px; font-size: 9.5px; }
+.full-page { font-size: 12px; font-weight: 800; }
+.full-source { font-size: 10px; line-height: 1.45; }
+.full-slide-body p,
+.full-slide-body li,
+.full-slide-body td,
+.full-slide-body dd,
+.full-slide-body blockquote { font-size: max(12px, 1em); }
