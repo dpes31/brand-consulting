@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import UmbrexComparisonPilot from './pages/UmbrexComparisonPilot';
+import BiznupFullIntegrated from './pages/BiznupFullIntegrated';
 import { AppProvider } from './context/AppContext';
 
 function App() {
@@ -10,6 +11,8 @@ function App() {
     <AppProvider>
       {pilot === 'umbrex-compare' ? (
         <UmbrexComparisonPilot />
+      ) : pilot === 'full-integrated' ? (
+        <BiznupFullIntegrated />
       ) : (
         <BrowserRouter>
           <Routes>
