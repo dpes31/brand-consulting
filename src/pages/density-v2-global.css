@@ -40,4 +40,43 @@
 #creative-insight .current-copy blockquote{font-size:31px}
 #creative-insight .current-copy>div p,#creative-insight .missing-character li{font-size:12px}
 #creative-insight .missing-character h3{font-size:24px}
+#strategy-swot.swot-light-v2{--full-ink:#121a2b;--full-text:#344052;--full-muted:#778195;--full-line:#d9dfe8;--full-line-strong:#bec7d4;background:#fff;color:var(--full-ink);padding:24px 36px 28px}
+#strategy-swot.swot-light-v2 .full-slide-header{border-color:var(--full-line-strong)}
+#strategy-swot.swot-light-v2 .full-breadcrumb{color:var(--full-muted)}
+#strategy-swot.swot-light-v2 .swot-governing{border-color:var(--full-line-strong);border-left-color:var(--full-accent);background:#f7f8fb;color:var(--full-ink);font-size:13px}
+#strategy-swot.swot-light-v2 .swot-grid{height:calc(100% - 64px);gap:13px}
+#strategy-swot.swot-light-v2 .swot-quadrant{padding:15px 18px;background:#fff}
+#strategy-swot.swot-light-v2 .swot-quadrant h3{font-size:14px;margin-bottom:5px}
+#strategy-swot.swot-light-v2 .swot-point{min-height:62px;display:grid;grid-template-columns:116px 1fr;align-items:center;gap:13px;margin-top:0;padding:9px 0;border-top:1px solid var(--full-line)}
+#strategy-swot.swot-light-v2 .swot-point strong{font-size:12.5px;color:var(--full-ink)}
+#strategy-swot.swot-light-v2 .swot-point p{margin:0;font-size:11.5px;line-height:1.45;color:var(--full-text)}
+#root-cause .root-cause-tree{width:100%;grid-template-columns:1.08fr 30px .76fr 30px 1.1fr 30px 1.17fr}
+#root-cause .root-evidence span{font-size:9.5px}
+#root-cause .root-evidence p{font-size:11px}
+#root-cause .root-gap p,#root-cause .root-gap strong{font-size:12px}
+#root-cause .root-core h3,#root-cause .root-opportunity h3{font-size:17px;line-height:1.48}
+#stp .stp-segments>div{padding:12px 13px}
+#stp .stp-segments b{font-size:12.5px}
+#stp .stp-segments p{font-size:11px}
+#stp .stp-segments small{font-size:9.5px}
+#stp .stp-target strong,#stp .stp-position strong{font-size:18px;line-height:1.48}
+#stp .stp-target p{font-size:11px}
+#strategy-routes .route-head{font-size:10.5px}
+#strategy-routes .route-row{min-height:92px}
+#strategy-routes .route-row>b{font-size:17px}
+#strategy-routes .route-row>b small{font-size:8px}
+#strategy-routes .route-row strong,#strategy-routes .route-row p,#strategy-routes .route-row>span{font-size:12px;line-height:1.42}
+#strategy-routes .route-row.is-selected strong{background:linear-gradient(transparent 42%,rgba(255,230,80,.72) 42%,rgba(255,230,80,.72) 90%,transparent 90%)}
+#appendix-premortem .premortem-row{min-height:78px}
+#appendix-premortem .premortem-row strong,#appendix-premortem .premortem-row p{font-size:12px}
+#appendix-roadmap .roadmap-step{min-height:355px;padding:23px 20px}
+#appendix-roadmap .roadmap-step h3{font-size:17px}
+#appendix-roadmap .roadmap-step p,#appendix-roadmap .roadmap-step strong{font-size:11.5px}
+#appendix-measure .matrix-table th,#appendix-measure .matrix-table td{padding:13px 14px;font-size:12px}
+#appendix-evidence .evidence-gap-grid>div{min-height:88px}
+#appendix-evidence .evidence-gap-grid p{font-size:12px}
+#appendix-sources .source-hierarchy>div{min-height:320px}
+#appendix-sources .source-hierarchy b{font-size:18px}
+#appendix-sources .source-hierarchy p{font-size:12px}
+#appendix-sources .source-hierarchy em{font-size:9.5px}
 @media print{.qa-font-floor-warning{text-decoration:none}.runtime-qa-badge{display:none!important}}
