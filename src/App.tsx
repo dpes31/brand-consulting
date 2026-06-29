@@ -1,15 +1,22 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
+import UmbrexComparisonPilot from './pages/UmbrexComparisonPilot';
 import { AppProvider } from './context/AppContext';
 
 function App() {
+  const pilot = new URLSearchParams(window.location.search).get('pilot');
+
   return (
     <AppProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-        </Routes>
-      </BrowserRouter>
+      {pilot === 'umbrex-compare' ? (
+        <UmbrexComparisonPilot />
+      ) : (
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+          </Routes>
+        </BrowserRouter>
+      )}
     </AppProvider>
   );
 }
