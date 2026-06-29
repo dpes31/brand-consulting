@@ -1,0 +1,25 @@
+#jtbd .matrix-table th,#jtbd .matrix-table td{padding:13px 14px;font-size:12.5px;line-height:1.48}
+#jtbd .identity-alignment{margin-top:16px;padding:14px 17px}
+#jtbd .identity-alignment span{font-size:9.5px}
+#jtbd .identity-alignment b{font-size:13px}
+#pain-needs .pain-head{font-size:11px}
+#pain-needs .pain-row{min-height:73px}
+#pain-needs .pain-row b,#pain-needs .pain-row p,#pain-needs .pain-row strong{font-size:12.5px;line-height:1.43}
+#pain-needs .pain-row em{min-width:54px;padding:7px 10px;font-size:10px;font-weight:800;text-align:center}
+#aipl .aipl-layout{width:100%;min-height:440px;grid-template-columns:1.33fr .67fr}
+#aipl .aipl-stage{min-height:78px;padding:10px 102px 10px 24px}
+#aipl .aipl-stage b{font-size:12px}
+#aipl .aipl-stage span{font-size:9.5px}
+#aipl .aipl-stage strong{font-size:12.5px}
+#aipl .aipl-stage p{font-size:11.5px;line-height:1.4}
+#aipl .aipl-stage em{font-size:10px}
+#aipl .friction-analysis>span{font-size:10px}
+#aipl .friction-analysis h3{font-size:25px}
+#aipl .friction-analysis li{padding:10px 0;font-size:12.5px}
+#loyalty .relationship-loop{width:100%;margin-top:0}
+#loyalty .relationship-loop>div{min-height:235px;padding:22px 18px}
+#loyalty .relationship-loop span{font-size:11px}
+#loyalty .relationship-loop b{font-size:15px}
+#loyalty .relationship-loop p{font-size:12px;line-height:1.45}
+#loyalty .product-principles{width:100%;margin-top:20px}
+#loyalty .product-principles b,#loyalty .product-principles span{padding-top:15px;padding-bottom:15px;font-size:11.5px}
