@@ -1,0 +1,22 @@
+/* High-density report template v2 — global layer */
+.full-report-app,
+.full-report-app * {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
+}
+.full-title-row h2,.cover-copy h1,.back-cover-copy h1{ text-wrap: balance; }
+.full-slide-body p,.full-slide-body li,.full-slide-body td,.full-slide-body dd,.full-slide-body blockquote,.full-slide-body strong{ text-wrap: pretty; }
+.text-highlight,.full-slide-body mark,.full-implication mark{padding:0 .16em;background:linear-gradient(transparent 42%,rgba(255,230,80,.72) 42%,rgba(255,230,80,.72) 90%,transparent 90%);color:inherit;font-weight:800}
+.full-nav-brand{display:flex;flex-direction:column;gap:4px}
+.full-nav-brand-name{font-size:20px;font-weight:900;letter-spacing:-.035em}
+.full-nav-brand span{margin-top:0}
+.full-report-toolbar .runtime-qa-badge{border-color:#e1b7b7;background:#fff4f4;color:#b33d3d;font-weight:800}
+.full-report-toolbar .runtime-qa-badge.is-pass{border-color:#a9d9c5;background:#edf9f3;color:#127455}
+.qa-font-floor-warning{text-decoration:underline dotted rgba(216,70,70,.5);text-underline-offset:3px}
+.full-slide-body{font-size:13px;padding-top:12px}
+.full-slide-header{padding-bottom:10px}
+.full-implication{min-height:48px;font-size:13.5px}
+#consumer-exec .full-slide-body,#consumer-target .full-slide-body,#persona-1 .full-slide-body,#persona-2 .full-slide-body,#persona-3 .full-slide-body,#jtbd .full-slide-body,#pain-needs .full-slide-body,#aipl .full-slide-body,#loyalty .full-slide-body,#creative-trajectory .full-slide-body,#creative-insight .full-slide-body,#root-cause .full-slide-body,#stp .full-slide-body,#strategy-routes .full-slide-body,#appendix-premortem .full-slide-body,#appendix-roadmap .full-slide-body,#appendix-measure .full-slide-body,#appendix-evidence .full-slide-body,#appendix-sources .full-slide-body{display:flex;flex-direction:column;justify-content:center;padding-top:0}
+.jtbd-note{margin:11px 0 0;padding:8px 11px;border-left:3px solid var(--full-accent);background:var(--full-accent-soft);color:var(--full-text);font-size:11.5px;line-height:1.45}
+@media print{.qa-font-floor-warning{text-decoration:none}.runtime-qa-badge{display:none!important}}
