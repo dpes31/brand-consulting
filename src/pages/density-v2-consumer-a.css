@@ -1,0 +1,23 @@
+#consumer-exec .consumer-question-shift{margin-top:0}
+#consumer-exec .consumer-question-shift>div{min-height:160px;padding:24px 22px}
+#consumer-exec .consumer-question-shift strong{font-size:19px}
+#consumer-exec .jtbd-mini{margin-top:18px}
+#consumer-exec .jtbd-mini th,#consumer-exec .jtbd-mini td{padding:12px 14px;font-size:13px;line-height:1.5}
+#consumer-trends .trend-stack{justify-content:center}
+#consumer-trends .trend-row{min-height:94px;grid-template-columns:38px 1.3fr 28px 1fr 28px 1.12fr;padding:10px 12px}
+#consumer-trends .trend-row h3{font-size:13px;line-height:1.38}
+#consumer-trends .trend-row p,#consumer-trends .trend-so strong{font-size:11.5px;line-height:1.45}
+#consumer-trends .trend-row span{font-size:9px}
+#consumer-target .target-spectrum{width:100%;min-height:355px}
+#consumer-target .target-spectrum>div{min-height:275px;padding:22px 19px}
+#consumer-target .target-spectrum>div.is-primary{min-height:330px}
+#consumer-target .target-spectrum b{font-size:15px}
+#consumer-target .target-spectrum p{font-size:11.5px;line-height:1.52}
+#consumer-target .target-profile{width:100%;margin-top:18px;padding:14px 0}
+#consumer-target .target-profile span{font-size:9px}
+#consumer-target .target-profile b{font-size:11.5px}
+#persona-1 .persona-layout,#persona-2 .persona-layout,#persona-3 .persona-layout{width:100%;min-height:430px;height:auto;align-items:center}
+.persona-label{font-size:10px}
+.persona-left li,.persona-fears p,.identity-shift p{font-size:12px;line-height:1.45}
+.persona-quote strong,.brand-role strong{font-size:13px}
+.persona-center h3{font-size:21px}
