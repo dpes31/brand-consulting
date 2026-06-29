@@ -1,0 +1,630 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+/*
+ * FULL report visual QA refinement
+ * - Keep the approved layouts.
+ * - Replace typography with Pretendard.
+ * - Improve legibility, vertical balance, timeline alignment and source proximity.
+ */
+
+.full-report-app,
+.full-report-app * {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+.full-title-row h2,
+.cover-copy h1,
+.back-cover-copy h1,
+.choice-final h2,
+.choice-final h3,
+.verdict-axis strong,
+.root-core h3,
+.root-opportunity h3 {
+  font-weight: 900 !important;
+}
+
+/* Global type scale */
+.full-title-row h2 {
+  font-size: 30px;
+  line-height: 1.18;
+  letter-spacing: -0.045em;
+}
+
+.full-breadcrumb {
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.full-tag {
+  padding: 5px 11px;
+  font-size: 9.5px;
+}
+
+.full-page {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.full-implication {
+  min-height: 46px;
+  padding: 10px 16px;
+  font-size: 13px;
+  line-height: 1.48;
+}
+
+.full-implication > span {
+  font-size: 9.5px;
+}
+
+.full-source {
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* Use the available 16:9 body area more evenly on compact analytical pages. */
+#inflection .full-slide-body,
+#portfolio .full-slide-body,
+#comp-landscape .full-slide-body,
+#comp-ranking .full-slide-body,
+#product-matrix .full-slide-body,
+#category-cliche .full-slide-body,
+#positioning .full-slide-body,
+#pain-needs .full-slide-body,
+#strategy-routes .full-slide-body,
+#appendix-measure .full-slide-body,
+#appendix-evidence .full-slide-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 0;
+}
+
+/* 0. BRAND FACT BOOK > GROWTH STORY
+   Every node is locked to the centerline. */
+#growth .full-slide-body {
+  padding-top: 0;
+}
+
+#growth .growth-timeline {
+  min-height: 500px;
+  padding-top: 0;
+}
+
+#growth .growth-axis {
+  top: 50%;
+  height: 4px;
+}
+
+#growth .growth-event {
+  top: 50%;
+  bottom: auto;
+  width: 110px;
+  height: 158px;
+  padding-left: 0;
+  padding-right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+#growth .growth-event.is-up {
+  top: calc(50% - 158px);
+  padding-top: 0;
+  padding-bottom: 49px;
+  justify-content: flex-end;
+}
+
+#growth .growth-event.is-down {
+  top: 50%;
+  padding-top: 49px;
+  padding-bottom: 0;
+  justify-content: flex-start;
+}
+
+#growth .growth-event::after {
+  height: 43px;
+}
+
+#growth .growth-event.is-up::after {
+  bottom: 0;
+}
+
+#growth .growth-event.is-down::after {
+  top: 0;
+}
+
+#growth .growth-dot {
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translateX(-50%);
+}
+
+#growth .growth-event.is-up .growth-dot {
+  top: auto;
+  bottom: -7px;
+}
+
+#growth .growth-event.is-down .growth-dot {
+  top: -7px;
+  bottom: auto;
+}
+
+#growth .growth-event b {
+  font-size: 9px;
+}
+
+#growth .growth-event strong {
+  margin-top: 5px;
+  font-size: 10.5px;
+  line-height: 1.32;
+}
+
+#growth .growth-event p {
+  margin-top: 5px;
+  font-size: 8.2px;
+  line-height: 1.38;
+}
+
+/* 0. BRAND FACT BOOK > CORE INFLECTION */
+#inflection .inflection-flow {
+  width: 100%;
+  margin: 0;
+}
+
+#inflection .inflection-flow > div {
+  min-height: 245px;
+  padding: 23px 24px;
+}
+
+#inflection .inflection-flow h3 {
+  font-size: 20px;
+}
+
+#inflection .inflection-flow p {
+  font-size: 12px;
+  line-height: 1.58;
+}
+
+#inflection .inflection-flow b {
+  font-size: 11px;
+}
+
+#inflection .inflection-gap {
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px 16px;
+}
+
+#inflection .inflection-gap span {
+  font-size: 9px;
+}
+
+#inflection .inflection-gap strong {
+  font-size: 12px;
+}
+
+/* PRODUCT USP & BEST SELF */
+#portfolio .portfolio-flow {
+  width: 100%;
+}
+
+#portfolio .portfolio-column {
+  min-height: 290px;
+  padding: 20px 21px;
+}
+
+#portfolio .portfolio-column h3 {
+  font-size: 19px;
+}
+
+#portfolio .portfolio-column dt {
+  font-size: 10px;
+}
+
+#portfolio .portfolio-column dd {
+  font-size: 11.5px;
+  line-height: 1.48;
+}
+
+#portfolio .best-self-line {
+  width: 100%;
+  margin-top: 21px;
+}
+
+#portfolio .best-self-line > span {
+  font-size: 9px;
+}
+
+#portfolio .best-self-line strong {
+  font-size: 14px;
+  line-height: 1.52;
+}
+
+/* LANDSCAPE */
+#comp-landscape .candidate-table {
+  width: 100%;
+}
+
+#comp-landscape .candidate-head {
+  font-size: 10px;
+}
+
+#comp-landscape .candidate-row {
+  min-height: 62px;
+}
+
+#comp-landscape .candidate-row b {
+  font-size: 13px;
+}
+
+#comp-landscape .candidate-row p {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+#comp-landscape .candidate-row em {
+  font-size: 9px;
+}
+
+#comp-landscape .category-job {
+  margin-top: 20px;
+}
+
+#comp-landscape .category-job span {
+  font-size: 9px;
+}
+
+#comp-landscape .category-job strong {
+  font-size: 14px;
+}
+
+/* THREAT RANKING */
+#comp-ranking .ranking-table {
+  width: 100%;
+}
+
+#comp-ranking .ranking-table th,
+#comp-ranking .ranking-table td {
+  padding: 13px 10px;
+  font-size: 11px;
+}
+
+#comp-ranking .ranking-table thead th:last-child {
+  font-size: 0;
+}
+
+#comp-ranking .ranking-table thead th:last-child::after {
+  content: '위협 점수';
+  font-size: 11px;
+  font-weight: 800;
+}
+
+#comp-ranking .ranking-table .is-total {
+  font-size: 17px;
+}
+
+#comp-ranking .ranking-interpretation {
+  width: 100%;
+  margin-top: 16px;
+}
+
+#comp-ranking .ranking-interpretation::before {
+  content: '위협 점수 = 공개된 침투·성장·선호·캠페인·변곡점·근거 신호를 합산한 전략 평가점수이며, 시장점유율이 아닙니다.';
+  grid-column: 1 / -1;
+  padding: 10px 13px;
+  border-bottom: 1px solid var(--full-line);
+  color: var(--full-muted);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+#comp-ranking .ranking-interpretation b {
+  font-size: 12px;
+}
+
+#comp-ranking .ranking-interpretation p {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+/* DEEP DIVE 1–3 */
+[id^='deep-'] .full-slide-body {
+  padding-top: 0;
+}
+
+[id^='deep-'] .deep-dive-layout {
+  height: 100%;
+  grid-template-columns: 136px 1fr;
+  grid-template-rows: auto auto;
+  align-content: center;
+  column-gap: 20px;
+  row-gap: 12px;
+}
+
+[id^='deep-'] .deep-dive-score span {
+  font-size: 10px;
+}
+
+[id^='deep-'] .deep-dive-score strong {
+  margin: 10px 0;
+  font-size: 58px;
+}
+
+[id^='deep-'] .deep-dive-score small {
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+[id^='deep-'] .deep-dive-flow {
+  min-height: 305px;
+  grid-template-columns: 1.25fr .9fr 1fr 1.32fr 1.4fr;
+}
+
+[id^='deep-'] .deep-node {
+  min-height: 305px;
+  padding: 23px 20px;
+}
+
+[id^='deep-'] .deep-node small {
+  font-size: 10.5px;
+  letter-spacing: .035em;
+}
+
+[id^='deep-'] .deep-node p {
+  margin-top: 18px;
+  font-size: 13px;
+  line-height: 1.48;
+  font-weight: 600;
+}
+
+[id^='deep-'] .deep-dive-layout > .full-source {
+  grid-column: 2;
+  align-self: start;
+  margin-top: 0;
+  padding: 0 2px;
+  font-size: 10px;
+}
+
+/* PRODUCT MATRIX */
+#product-matrix .matrix-table {
+  width: 100%;
+}
+
+#product-matrix .matrix-table th,
+#product-matrix .matrix-table td {
+  padding: 12px 13px;
+  font-size: 11.5px;
+  line-height: 1.43;
+}
+
+#product-matrix .matrix-table thead th {
+  font-size: 12px;
+}
+
+/* CATEGORY CLICHÉS */
+#category-cliche .cliche-head {
+  font-size: 10px;
+}
+
+#category-cliche .cliche-row {
+  min-height: 82px;
+}
+
+#category-cliche .cliche-row b {
+  font-size: 13px;
+}
+
+#category-cliche .cliche-row p,
+#category-cliche .cliche-row strong {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+/* POSITIONING */
+#positioning .position-map {
+  width: 90%;
+  height: 445px;
+  margin-top: 0;
+}
+
+#positioning .axis {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+#positioning .map-dot {
+  padding: 8px 13px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+#positioning .map-dot small {
+  font-size: 9.5px;
+}
+
+#positioning .map-arrow {
+  font-size: 60px;
+}
+
+/* General table and analytical text legibility */
+.jtbd-mini th,
+.jtbd-mini td,
+.jtbd-table th,
+.jtbd-table td,
+.measure-table th,
+.measure-table td {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.trend-row h3 {
+  font-size: 11px;
+}
+
+.trend-row p,
+.trend-so strong {
+  font-size: 9.5px;
+  line-height: 1.42;
+}
+
+.persona-left li,
+.persona-center .persona-fears p,
+.identity-shift p,
+.brand-role strong,
+.pain-row p,
+.pain-row strong,
+.aipl-stage p,
+.relationship-loop p,
+.route-row p,
+.roadmap-step p,
+.evidence-gap-grid p {
+  font-size: 10.5px;
+}
+
+.pain-head,
+.route-head,
+.premortem-head {
+  font-size: 9.5px;
+}
+
+.pain-row b,
+.route-row strong,
+.premortem-row strong,
+.premortem-row p {
+  font-size: 11px;
+}
+
+/* CREATIVE HISTORY — restore the original visual scale and spacing. */
+.history-original {
+  padding: 18px 22px 20px;
+}
+
+.history-original .full-slide-header {
+  padding-bottom: 9px;
+}
+
+.history-original .full-title-row h2 {
+  font-size: 30px;
+}
+
+.history-original .full-breadcrumb {
+  font-size: 10px;
+}
+
+.history-original .full-tag {
+  font-size: 9px;
+}
+
+.history-governing {
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.history-grid {
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.history-card {
+  padding: 11px 10px 9px;
+}
+
+.history-card h3 {
+  font-size: 15px;
+}
+
+.history-status {
+  min-height: 23px;
+  padding: 5px 4px;
+  font-size: 7.5px;
+}
+
+.history-card h4 {
+  min-height: 38px;
+  font-size: 11.5px;
+  line-height: 1.38;
+}
+
+.history-card blockquote {
+  min-height: 38px;
+  margin: 8px 0;
+  font-size: 10px;
+  line-height: 1.42;
+}
+
+.history-detail {
+  min-height: 96px;
+  padding: 10px 8px;
+  font-size: 8.5px;
+  line-height: 1.45;
+}
+
+.history-card .full-source {
+  margin-top: 6px;
+  font-size: 7.2px;
+}
+
+.history-bottom {
+  gap: 10px;
+  margin-top: 9px;
+}
+
+.history-bottom > div {
+  min-height: 56px;
+  padding: 10px 13px;
+}
+
+.history-bottom span {
+  font-size: 11px;
+}
+
+.history-bottom strong {
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+/* SWOT remains the original dark four-quadrant design, with readable type. */
+.swot-original .full-title-row h2 {
+  font-size: 30px;
+}
+
+.swot-governing {
+  font-size: 12px;
+}
+
+.swot-quadrant h3 {
+  font-size: 13px;
+}
+
+.swot-point strong {
+  font-size: 10.5px;
+}
+
+.swot-point p {
+  font-size: 9px;
+  line-height: 1.38;
+}
+
+/* Appendix and source-related text */
+.source-hierarchy b {
+  font-size: 17px;
+}
+
+.source-hierarchy p,
+.receipt-flow p,
+.receipt-ui strong,
+.roadmap-step strong {
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+/* Keep print output identical to the preview typography. */
+@media print {
+  .full-report-app,
+  .full-report-app * {
+    font-family: 'Pretendard', sans-serif !important;
+  }
+}
