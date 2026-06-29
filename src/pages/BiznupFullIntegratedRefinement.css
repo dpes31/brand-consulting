@@ -11,3 +11,4 @@
 .full-tag{padding:5px 11px;font-size:9.5px}
 .full-page{font-size:12px;font-weight:800}
 .full-source{font-size:10px;line-height:1.45}
+.full-slide-body p,.full-slide-body li,.full-slide-body td,.full-slide-body dd,.full-slide-body blockquote{font-size:max(12px,1em)}
