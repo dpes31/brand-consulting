@@ -1,0 +1,120 @@
+/* Targeted fixes from user visual review */
+
+/* Core Inflection: reduce Product Reality and widen Brand Gap. Support both v3 and v4 markup. */
+#inflection .inflection-gap.is-structured-v3,
+#inflection .inflection-gap.is-structured-v4 {
+  grid-template-columns: .82fr 1.38fr .78fr !important;
+  gap: 12px !important;
+  min-height: 104px !important;
+}
+
+#inflection .inflection-gap.is-structured-v3 .inflection-reality,
+#inflection .inflection-gap.is-structured-v3 .inflection-perception,
+#inflection .inflection-gap.is-structured-v3 .inflection-bridge,
+#inflection .inflection-reality-v4,
+#inflection .inflection-perception-v4,
+#inflection .inflection-gap-v4 {
+  min-width: 0;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+#inflection .inflection-gap.is-structured-v3 .inflection-reality,
+#inflection .inflection-reality-v4 {
+  padding: 14px 16px !important;
+}
+
+#inflection .inflection-gap.is-structured-v3 .inflection-bridge {
+  padding: 15px 46px 15px 20px !important;
+  clip-path: none !important;
+  border-top: 3px solid var(--full-red);
+  border-bottom: 1px solid #efb3ae;
+}
+
+#inflection .inflection-gap.is-structured-v3 .inflection-bridge strong,
+#inflection .inflection-gap-v4 strong {
+  display: block;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+#inflection .product-evolution {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+#inflection .product-evolution span {
+  padding: 6px 8px;
+  font-size: 10.5px;
+}
+
+/* Deep Dive 1–3: align every analytical node to one shared top and bottom line. */
+.deep-dive-layout {
+  grid-template-rows: 1fr !important;
+  align-items: center !important;
+}
+
+.deep-dive-flow {
+  height: 282px !important;
+  align-items: stretch !important;
+}
+
+.deep-node,
+.deep-node--1,
+.deep-node--2,
+.deep-node--3,
+.deep-node--4,
+.deep-node--5 {
+  min-height: 282px !important;
+  height: 282px !important;
+  box-sizing: border-box;
+  align-self: stretch;
+  border-top-width: 2px !important;
+  border-bottom-width: 1px !important;
+}
+
+.deep-node--1 ul {
+  flex: 1;
+  overflow: hidden;
+}
+
+.deep-node--1 .full-source {
+  margin-top: auto !important;
+  padding-top: 8px !important;
+  border-top: 1px solid var(--full-line) !important;
+}
+
+/* Persona 1–3: full border around Core Job and role height equal to the three fear rows. */
+.persona-center h3 {
+  padding: 15px 16px !important;
+  border: 2px solid var(--full-accent) !important;
+  border-radius: 9px !important;
+  background: var(--full-accent-soft) !important;
+  box-shadow: none !important;
+}
+
+.persona-fears p {
+  min-height: 40px;
+  box-sizing: border-box;
+}
+
+.persona-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.persona-right .identity-shift {
+  flex: 0 0 auto;
+}
+
+.persona-right .brand-role {
+  min-height: 142px !important;
+  height: 142px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
