@@ -6,6 +6,7 @@
 @import './density-v2-consumer-b.css';
 @import './density-v2-hardening.css';
 @import './density-v3-final.css';
+@import './density-v4-contextual.css';
 
 .full-report-app,.full-report-app *{font-family:'Pretendard','Noto Sans KR',sans-serif!important}
 .full-title-row h2,.cover-copy h1,.back-cover-copy h1,.choice-final h2,.choice-final h3,.verdict-axis strong,.root-core h3,.root-opportunity h3{font-weight:900!important}
