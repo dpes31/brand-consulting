@@ -2,13 +2,13 @@ const JTBD_NOTE = '*JTBD(Job To Be Done): 고객이 제품이나 서비스를 �
 
 function addHeaderNote(slideId: string): void {
   const slide = document.querySelector<HTMLElement>(slideId);
-  const header = slide?.querySelector<HTMLElement>('.full-slide-header');
-  if (!header || header.querySelector('.jtbd-header-note')) return;
+  const body = slide?.querySelector<HTMLElement>('.full-slide-body');
+  if (!body || body.querySelector('.jtbd-header-note')) return;
 
   const note = document.createElement('div');
   note.className = 'jtbd-header-note';
   note.textContent = JTBD_NOTE;
-  header.appendChild(note);
+  body.prepend(note);
 }
 
 function applyFullReportV2(): void {
@@ -74,24 +74,12 @@ function applyFullReportV2(): void {
     `;
   }
 
-  const rootCause = document.querySelector<HTMLElement>('#root-cause .root-cause-tree');
-  rootCause?.classList.add('root-cause-flow-v3');
-
-  const stp = document.querySelector<HTMLElement>('#stp .stp-layout');
-  stp?.classList.add('stp-convergence-v3');
-
-  const choice = document.querySelector<HTMLElement>('#strategy-choice .choice-layout');
-  choice?.classList.add('choice-layout-v3');
-
-  const coreTarget = document.querySelector<HTMLElement>('#consumer-target .target-spectrum');
-  coreTarget?.classList.add('target-spectrum-v3');
-
-  document.querySelectorAll<HTMLElement>('.persona-index').forEach((index) => {
-    index.classList.add('persona-index-v3');
-  });
-
-  const creativeInsight = document.querySelector<HTMLElement>('#creative-insight .creative-gap-layout');
-  creativeInsight?.classList.add('creative-gap-v3');
+  document.querySelector<HTMLElement>('#root-cause .root-cause-tree')?.classList.add('root-cause-flow-v3');
+  document.querySelector<HTMLElement>('#stp .stp-layout')?.classList.add('stp-convergence-v3');
+  document.querySelector<HTMLElement>('#strategy-choice .choice-layout')?.classList.add('choice-layout-v3');
+  document.querySelector<HTMLElement>('#consumer-target .target-spectrum')?.classList.add('target-spectrum-v3');
+  document.querySelectorAll<HTMLElement>('.persona-index').forEach((index) => index.classList.add('persona-index-v3'));
+  document.querySelector<HTMLElement>('#creative-insight .creative-gap-layout')?.classList.add('creative-gap-v3');
 
   const map = document.querySelector<HTMLElement>('#positioning .position-map');
   if (map && !map.querySelector('.positioning-arrow-v2')) {
