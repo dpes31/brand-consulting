@@ -3,6 +3,7 @@ import Dashboard from './pages/Dashboard';
 import UmbrexComparisonPilot from './pages/UmbrexComparisonPilot';
 import BiznupFullIntegrated from './pages/BiznupFullIntegrated';
 import './pages/BiznupFullIntegratedRefinement.css';
+import './pages/density-v5-fixes.css';
 import './pages/full-report-density-v2-runtime';
 import './pages/full-report-v4-runtime';
 import { AppProvider } from './context/AppContext';
