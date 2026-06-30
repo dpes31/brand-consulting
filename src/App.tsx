@@ -4,6 +4,7 @@ import UmbrexComparisonPilot from './pages/UmbrexComparisonPilot';
 import BiznupFullIntegrated from './pages/BiznupFullIntegrated';
 import './pages/BiznupFullIntegratedRefinement.css';
 import './pages/full-report-density-v2-runtime';
+import './pages/full-report-v4-runtime';
 import { AppProvider } from './context/AppContext';
 
 function App() {
