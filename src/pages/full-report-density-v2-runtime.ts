@@ -5,6 +5,13 @@ function applyFullReportV2(): void {
   const nav = document.querySelector<HTMLElement>('.full-nav-brand');
   if (nav) nav.innerHTML = `<b class="full-nav-brand-name">${brand}</b><span>FULL REPORT V2</span>`;
 
+  const executive = document.querySelector<HTMLElement>('#executive');
+  const executiveBreadcrumb = executive?.querySelector<HTMLElement>('.full-breadcrumb');
+  const executiveTag = executive?.querySelector<HTMLElement>('.full-tag');
+  if (executiveBreadcrumb) executiveBreadcrumb.textContent = '핵심 진단';
+  if (executiveTag) executiveTag.textContent = '핵심 진단';
+  executive?.querySelector<HTMLElement>('.report-map')?.remove();
+
   const swot = document.querySelector<HTMLElement>('#strategy-swot');
   swot?.classList.remove('full-slide--dark');
   swot?.classList.add('swot-light-v2');
