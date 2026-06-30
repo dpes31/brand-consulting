@@ -1,0 +1,19 @@
+#executive .full-slide-body {
+  display: flex;
+  align-items: center;
+  padding-top: 0;
+}
+
+#executive .verdict-layout {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+#executive .verdict-axis {
+  width: 100%;
+}
+
+#executive .report-map {
+  display: none !important;
+}
