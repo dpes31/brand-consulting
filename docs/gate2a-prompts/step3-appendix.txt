@@ -1,0 +1,51 @@
+[VISUAL INTENT BRIEF — GATE 2A TEST]
+일반 Consumer 분석에는 Trends, Persona, Identity Alignment, JTBD, AIPL Bottleneck, Unmet Needs를 모두 유지하십시오. 그 전체 분석을 끝낸 뒤, 가장 중요한 소비자 의사결정 구조 하나만 Visual Intent JSON으로 작성하십시오.
+
+Visual Intent 작성 규칙:
+- visualBriefs 배열에는 Step 3 핵심 Brief를 정확히 1개만 넣으십시오.
+- Trend, Persona, JTBD, Identity Alignment, AIPL, Unmet Needs별로 별도 Brief를 추가하지 마십시오.
+- 다른 Step의 Recipe를 사용하지 마십시오.
+- 행동 순서가 핵심이면 consumer-journey → customer-journey를 사용하십시오.
+- 특정 단계의 이탈·불안·지연·마찰이 핵심이면 causal-relationship → friction-flow를 사용하십시오.
+- 검증된 욕구의 우선순위·위계가 핵심이면 priority-ranking → needs-hierarchy를 사용하십시오.
+- 행동 근거가 부족하면 evidence-gap → evidence-gap을 사용하십시오.
+- Step 3의 모든 Recipe는 implementationStatus를 planned로 기록하십시오.
+- Step 3 핵심 Brief의 metrics는 반드시 []로 두십시오. 수치 자료는 일반 분석 본문에 유지하고 Visual Intent 안에서 서로 다른 단위를 혼합하지 마십시오.
+- Primary Recipe는 1개, Fallback Recipe는 최대 1개만 선택하십시오.
+- requiredInputs, availableInputs, missingInputs를 분리하십시오.
+- 감정·행동·병목을 근거 없이 만들지 마십시오.
+- 분석 본문과 Visual Intent JSON을 포함한 응답 전체를 웹 앱에 붙여 넣으십시오. JSON만 별도로 제출하지 마십시오.
+- HTML/CSS/SVG는 작성하지 마십시오.
+
+허용 evidenceType: consumer-journey, causal-relationship, priority-ranking, evidence-gap
+허용 Recipe: customer-journey, friction-flow, needs-hierarchy, evidence-gap
+출력 순서: 일반 분석 → VISUAL_INTENT_BRIEF
+
+<!-- VISUAL_INTENT_BRIEF_START -->
+{
+  "version": 1,
+  "brand": "조사 브랜드명",
+  "step": 3,
+  "visualBriefs": [
+    {
+      "insightId": "STEP3_CORE_01",
+      "section": "III. CONSUMER > Core Decision Structure",
+      "preferredSlideId": "slide-12",
+      "decisionQuestion": "소비자는 어떤 단계에서 가장 크게 막히고 왜 구매로 전환하지 못하는가?",
+      "evidenceType": "causal-relationship",
+      "coreMessage": "검증된 소비자 행동과 마찰이 말하는 가장 중요한 전환 병목",
+      "primaryRecipe": { "recipeId": "friction-flow", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "AIPL 전환 과정에서 특정 단계의 불안과 마찰이 구매 중단으로 이어지는 인과 구조를 보여줘야 하기 때문",
+      "confidence": "medium",
+      "requiredInputs": ["Trigger", "Action", "Friction", "Evidence", "Current Coping", "Opportunity"],
+      "availableInputs": ["확보된 VOC 및 행동 근거"],
+      "missingInputs": ["누락된 단계별 행동 근거"],
+      "metrics": [],
+      "entities": ["핵심 타겟"],
+      "timePeriods": ["인지부터 충성까지"],
+      "implementationStatus": "planned"
+    }
+  ]
+}
+<!-- VISUAL_INTENT_BRIEF_END -->

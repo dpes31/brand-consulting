@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brand-consulting.local/recipes/feature-matrix.schema.json",
+  "title": "Feature Matrix Recipe",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "recipeId",
+    "decisionQuestion",
+    "governingMessage",
+    "targetBrand",
+    "entities",
+    "axes",
+    "cells",
+    "legend",
+    "interpretation",
+    "implication"
+  ],
+  "properties": {
+    "recipeId": {
+      "const": "feature-matrix"
+    },
+    "decisionQuestion": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 240
+    },
+    "governingMessage": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 240
+    },
+    "targetBrand": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "entities": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      }
+    },
+    "axes": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/axis"
+      }
+    },
+    "cells": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 48,
+      "items": {
+        "$ref": "#/$defs/cell"
+      }
+    },
+    "legend": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": {
+        "$ref": "#/$defs/legendItem"
+      }
+    },
+    "interpretation": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 360
+    },
+    "implication": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 320
+    },
+    "sourceLabels": {
+      "type": "array",
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 220
+      }
+    }
+  },
+  "$defs": {
+    "axis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["axisId", "label", "definition", "valueType", "unit"],
+      "properties": {
+        "axisId": {
+          "type": "string",
+          "pattern": "^[A-Z0-9][A-Z0-9_-]{1,31}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 70
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 160
+        },
+        "valueType": {
+          "enum": ["categorical-strength", "boolean", "normalized-score"]
+        },
+        "unit": {
+          "enum": ["strength-level", "yes-no", "score-0-100"]
+        }
+      }
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity",
+        "axisId",
+        "value",
+        "displayLabel",
+        "verificationStatus",
+        "sourceLabel"
+      ],
+      "properties": {
+        "entity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "axisId": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32
+        },
+        "value": {
+          "oneOf": [
+            {
+              "enum": ["strong", "medium", "weak", "absent", "unknown"]
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          ]
+        },
+        "displayLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "evidenceNote": {
+          "type": ["string", "null"],
+          "maxLength": 140
+        },
+        "verificationStatus": {
+          "enum": ["verified", "partially-verified", "unverified"]
+        },
+        "sourceLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 220
+        }
+      }
+    },
+    "legendItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "label", "symbol"],
+      "properties": {
+        "value": {
+          "enum": ["strong", "medium", "weak", "absent", "unknown", "true", "false"]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 6
+        }
+      }
+    }
+  },
+  "x-recipe-metadata": {
+    "evidenceTypes": ["quantitative-comparison", "competitive-space"],
+    "minEntities": 2,
+    "maxEntities": 6,
+    "minAxes": 3,
+    "maxAxes": 8,
+    "allowedUnits": ["strength-level", "yes-no", "score-0-100"],
+    "unitPolicy": "each axis uses one declared value type and one unit across all entities",
+    "colorPolicy": "target column may use accent token; competitors use shared neutral surfaces; arbitrary entity colors are forbidden",
+    "accessibilityPolicy": "color is paired with symbol and displayLabel",
+    "overflowPolicy": "split after six entities or eight axes; move evidence notes to continuation or appendix",
+    "notSuitableFor": [
+      "entities evaluated on different axes",
+      "long prose comparison",
+      "unverified numerical scoring",
+      "chronological evidence"
+    ],
+    "requiredDomMetadata": {
+      "data-recipe-id": "feature-matrix",
+      "data-viz-type": "matrix"
+    }
+  }
+}

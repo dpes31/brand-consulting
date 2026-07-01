@@ -1,83 +1,61 @@
 import { GoogleGenAI } from '@google/genai';
 import { getBrandDesignReference } from './prompts';
+import {
+  buildReportCompilerPrompt,
+  normalizeDynamicReportHtml,
+} from './dynamicPagePlanner';
+import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
 
 export const compileReportToHTML = async (rawData: string, apiKey: string, brandName: string): Promise<string> => {
   if (!apiKey) {
     throw new Error('API 키가 렌더링에 필요합니다.');
   }
 
-  const ai = new GoogleGenAI({ apiKey: apiKey });
+  const ai = new GoogleGenAI({ apiKey });
 
-  // 1. Fetch the immutable master HTML template
   const response = await fetch('/template.html?t=' + Date.now());
   if (!response.ok) {
     throw new Error('의존성 파일(template.html)을 불러올 수 없습니다.');
   }
   let masterHtml = await response.text();
-  
-  // Inject Brand Design Reference CSS
+
   const designRef = getBrandDesignReference(brandName);
   const accentColor = designRef.match(/Accent: (#\w+)/)?.[1] || '#5e6ad2';
-  masterHtml = masterHtml.replace('--hds-brand-accent: #5e6ad2;', `--hds-brand-accent: ${accentColor}; /* Dynamically matched for ${brandName} */`);
+  masterHtml = masterHtml.replace(
+    '--hds-brand-accent: #5e6ad2;',
+    `--hds-brand-accent: ${accentColor}; /* Dynamically matched for ${brandName} */`,
+  );
 
-
-  const systemInstruction = `
-[Role & Identity]
-You are a "Master Strategic Compiler" and a "Strict HTML Molder".
-Your task is to take raw, fragmented research data, elevate it using top-tier consulting logic (McKinsey & Ogilvy level), and inject it perfectly into the provided [Immutable Master HTML Code].
-
-[Directives]
-1. Read the Raw Data thoroughly. Fact-check it, fix logical leaps (So What?), and synthesize it.
-2. Replace ALL {{PLACEHOLDERS}} in the HTML template with your high-density, professional Korean content.
-3. Content Density Rule: Inside every box (<dl>), aim for at least 3 detail points (<dd>) per topic (<dt>). Do not leave boxes empty. Infer logical connections if data is scarce.
-4. Tone & Manner: Use full, professional Korean sentences. Wrap critical phrases in governing-msg with <span class="highlight">...</span>.
-5. NO [cite], [source], or markdown citations in the output HTML.
-6. YOU MUST OUTPUT THE ENTIRE HTML from <!DOCTYPE html> to </html> IN A SINGLE RESPONSE. Do NOT truncate, do NOT split it into parts. It must be valid HTML.
-
-[CRITICAL: HTML Structure Integrity Rules]
-7. NEVER remove, merge, or skip any <div class="slide-wrapper"> block. The template contains exactly 22 slide-wrapper blocks (cover + f01~f03 + 01~18 + back-cover). Your output MUST contain ALL 22.
-8. Every opened <div> MUST have a matching </div>. Pay special attention to slide-17 (STP Strategy) — ensure its closing </div></div></div> sequence is complete BEFORE slide-18 begins.
-9. The LAST THREE blocks in your output MUST be: wrap-slide-17 → wrap-slide-18 → wrap-back-cover. If any of these are missing, your output is INVALID.
-10. After generating, mentally verify: does the output end with </main></body></html>? If not, you have truncated.
-
-[Immutable Master HTML Code]
-${masterHtml}
-`;
-
-  // Forcefully remove any [cite: ...] markers from the raw data before sending to AI
-  const cleanRawData = rawData.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, "");
-
-  const prompt = `
-[Raw Research Data]
-${cleanRawData}
-
-================
-Now, execute the compilation. Output the finalized HTML code enclosed in \`\`\`html ... \`\`\` formatting. 
-Make sure ALL {{PLACEHOLDERS}} are replaced with high-quality content derived from the raw data.
-This includes BOTH the original slides ({{S01_TITLE}}, {{S13_MSG1}}, etc.) AND the new Brand Fact Book slides ({{SF01_TITLE}}, {{SF01_KPI1_LABEL}}, {{SF02_TITLE}}, {{SF02_TIMELINE_CONTENT}}, {{SF03_TITLE}}, {{SF03_BESTSELL_QUOTE}}, etc.).
-`;
+  const basePrompt = buildReportCompilerPrompt(masterHtml, rawData, brandName);
+  const creativeDirective = buildCreativeHistoryCompilerDirective(rawData);
+  const compilerPrompt = basePrompt.replace(
+    '\n[Brand]\n',
+    `\n${creativeDirective}\n\n[Brand]\n`,
+  );
 
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {
-      systemInstruction,
-      temperature: 0.2, // Low temperature for consistent formatting
-      topP: 0.8,
-    }
+      systemInstruction: 'You are a strict strategic report compiler. Follow the complete page-planning, factual-verification, and Creative History contracts without truncation.',
+      temperature: 0.1,
+      topP: 0.7,
+    },
   });
 
-  const messageResponse = await chat.sendMessage({ message: prompt });
+  const messageResponse = await chat.sendMessage({ message: compilerPrompt });
   let htmlOutput = messageResponse.text || '';
 
-  // Extract HTML from markdown blocks if present
-  if (htmlOutput.includes('\`\`\`html')) {
-    htmlOutput = htmlOutput.split('\`\`\`html')[1].split('\`\`\`')[0].trim();
+  if (htmlOutput.includes('```html')) {
+    htmlOutput = htmlOutput.split('```html')[1].split('```')[0].trim();
   } else if (htmlOutput.includes('<!DOCTYPE html>')) {
     htmlOutput = htmlOutput.substring(htmlOutput.indexOf('<!DOCTYPE html>'));
   }
 
-  // Forcefully remove any lingering [cite: ...] or \cite markers regardless of AI behavior
-  htmlOutput = htmlOutput.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, "");
+  htmlOutput = htmlOutput.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, '');
 
-  return htmlOutput;
+  if (!htmlOutput.includes('<!DOCTYPE html>') || !htmlOutput.includes('</html>')) {
+    throw new Error('AI가 완전한 HTML 문서를 반환하지 않았습니다. 보고서가 잘리지 않도록 다시 생성해 주세요.');
+  }
+
+  return normalizeDynamicReportHtml(htmlOutput);
 };

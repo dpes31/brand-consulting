@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "status": "specification-only",
+  "flags": [
+    {
+      "key": "visualRecipePilot",
+      "type": "boolean",
+      "default": false,
+      "description": "Enables deterministic rendering only for validated pilot recipes and approved target slides.",
+      "productionBeforeOwnerApproval": false,
+      "allowedContexts": [
+        "owner-approved-local-test",
+        "owner-approved-preview"
+      ],
+      "forbiddenInferenceSources": [
+        "branch-name",
+        "url-fragment",
+        "dom-class",
+        "report-title"
+      ],
+      "behavior": {
+        "existingReportWithoutRecipeManifest": "legacy-phase-4-rendering",
+        "newReportWithSupportedRecipe": "deterministic-pilot-rendering",
+        "newReportWithUnsupportedRecipe": "blocking-validation-error",
+        "newReportWithInvalidRecipeData": "blocking-validation-error",
+        "pdfExportWithBlockingError": "blocked",
+        "flagOff": "legacy-phase-4-rendering"
+      },
+      "rollback": {
+        "immediate": "set flag false",
+        "branch": "delete or close feature-visual-recipe-pilot-v1 work after approval boundary",
+        "validatedBase": "feature-creative-history-contract-v1",
+        "productionFallback": "backup-production-stable-20260622"
+      }
+    }
+  ]
+}

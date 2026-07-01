@@ -1,15 +1,29 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
+import UmbrexComparisonPilot from './pages/UmbrexComparisonPilot';
+import BiznupFullIntegrated from './pages/BiznupFullIntegrated';
+import './pages/BiznupFullIntegratedRefinement.css';
+import './pages/density-v5-fixes.css';
+import './pages/full-report-density-v2-runtime';
+import './pages/full-report-v4-runtime';
 import { AppProvider } from './context/AppContext';
 
 function App() {
+  const pilot = new URLSearchParams(window.location.search).get('pilot');
+
   return (
     <AppProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-        </Routes>
-      </BrowserRouter>
+      {pilot === 'umbrex-compare' ? (
+        <UmbrexComparisonPilot />
+      ) : pilot === 'full-integrated' ? (
+        <BiznupFullIntegrated />
+      ) : (
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+          </Routes>
+        </BrowserRouter>
+      )}
     </AppProvider>
   );
 }

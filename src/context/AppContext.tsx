@@ -1,23 +1,50 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
+import {
+  installCompetitorSelectionPolicy,
+  syncCompetitorRegistryFromResearch,
+} from '../lib/competitorSelection';
+
+installCompetitorSelectionPolicy();
+
+const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
+
+function readSessionPhaseInputs(): Record<number, string> {
+  try {
+    const raw = sessionStorage.getItem(PHASE_INPUTS_SESSION_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.entries(parsed)
+        .filter(([, value]) => typeof value === 'string')
+        .map(([key, value]) => [Number(key), String(value)]),
+    );
+  } catch {
+    return {};
+  }
+}
+
+function writeSessionPhaseInputs(inputs: Record<number, string>): void {
+  try {
+    sessionStorage.setItem(PHASE_INPUTS_SESSION_KEY, JSON.stringify(inputs));
+  } catch {
+    // Session storage may be unavailable. React state remains the source of truth.
+  }
+}
 
 interface AppState {
   apiKey: string;
   setApiKey: (key: string) => void;
   brandName: string;
   setBrandName: (name: string) => void;
-  // [선택 입력] 필수 포함 경쟁사 (Step 2 Competitor 프롬프트에 주입)
   mustHaveCompetitors: string;
   setMustHaveCompetitors: (val: string) => void;
-  // [선택 입력] 광고주 핵심 니즈 / 캠페인 방향 (Step 5 Strategy 프롬프트에 주입)
   clientNeeds: string;
   setClientNeeds: (val: string) => void;
-  // [선택 입력] 첨부 참고자료 안내 메모 (Step 0/1 프롬프트에 첨부 지침으로 삽입)
   referenceNote: string;
   setReferenceNote: (val: string) => void;
   /** @deprecated referenceData는 하위호환용으로 유지 */
   referenceData: string;
   setReferenceData: (data: string) => void;
-  // [API 모드] 첨부 파일 — Step 0/1에서 Gemini API에 함께 전달됨 (RFP 등)
   attachedFiles: File[];
   setAttachedFiles: (files: File[]) => void;
   isProcessing: boolean;
@@ -35,6 +62,9 @@ interface AppState {
 const AppContext = createContext<AppState | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const initialPhaseInputs = readSessionPhaseInputs();
+  syncCompetitorRegistryFromResearch(initialPhaseInputs[2]);
+
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || '');
   const [brandName, setBrandName] = useState('');
   const [mustHaveCompetitors, setMustHaveCompetitors] = useState('');
@@ -46,11 +76,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [reportData, setReportData] = useState<string | null>(null);
   const [compiledHtml, setCompiledHtml] = useState<string | null>(null);
-  const [phaseInputs, setPhaseInputs] = useState<Record<number, string>>({});
+  const [phaseInputs, setPhaseInputsState] = useState<Record<number, string>>(initialPhaseInputs);
 
   const handleSetApiKey = (key: string) => {
     localStorage.setItem('gemini_api_key', key);
     setApiKey(key);
+  };
+
+  const handleSetPhaseInputs = (inputs: Record<number, string>) => {
+    syncCompetitorRegistryFromResearch(inputs[2]);
+    writeSessionPhaseInputs(inputs);
+    setPhaseInputsState(inputs);
   };
 
   return (
@@ -66,7 +102,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       currentStep, setCurrentStep,
       reportData, setReportData,
       compiledHtml, setCompiledHtml,
-      phaseInputs, setPhaseInputs
+      phaseInputs, setPhaseInputs: handleSetPhaseInputs,
     }}>
       {children}
     </AppContext.Provider>

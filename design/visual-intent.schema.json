@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brand-consulting.local/schemas/visual-intent.schema.json",
+  "title": "Brand Consulting Visual Intent Brief",
+  "description": "Specification-only schema for research-stage visual planning. It does not authorize renderer implementation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "brand", "step", "visualBriefs"],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "brand": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "step": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "visualBriefs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": {
+        "$ref": "#/$defs/visualBrief"
+      }
+    }
+  },
+  "$defs": {
+    "visualBrief": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "insightId",
+        "section",
+        "decisionQuestion",
+        "evidenceType",
+        "coreMessage",
+        "primaryRecipe",
+        "selectionReason",
+        "confidence",
+        "requiredInputs",
+        "availableInputs",
+        "missingInputs",
+        "metrics",
+        "implementationStatus"
+      ],
+      "properties": {
+        "insightId": {
+          "type": "string",
+          "pattern": "^[A-Z0-9][A-Z0-9_-]{2,63}$"
+        },
+        "section": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "preferredSlideId": {
+          "type": ["string", "null"],
+          "maxLength": 120
+        },
+        "decisionQuestion": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 240
+        },
+        "evidenceType": {
+          "enum": [
+            "time-change",
+            "quantitative-comparison",
+            "priority-ranking",
+            "causal-relationship",
+            "sequential-process",
+            "competitive-space",
+            "consumer-journey",
+            "strategic-choice",
+            "execution-roadmap",
+            "creative-trajectory",
+            "evidence-gap"
+          ]
+        },
+        "coreMessage": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 320
+        },
+        "primaryRecipe": {
+          "$ref": "#/$defs/recipeSelection"
+        },
+        "fallbackRecipe": {
+          "oneOf": [
+            { "$ref": "#/$defs/recipeSelection" },
+            { "type": "null" }
+          ]
+        },
+        "selectionReason": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 420
+        },
+        "confidence": {
+          "enum": ["high", "medium", "low"]
+        },
+        "requiredInputs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "availableInputs": {
+          "type": "array",
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "missingInputs": {
+          "type": "array",
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/metric"
+          }
+        },
+        "entities": {
+          "type": "array",
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "timePeriods": {
+          "type": "array",
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          }
+        },
+        "externalPatternNotes": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "description": "Non-executable pattern notes only. External template names must not be used as recipe IDs."
+        },
+        "implementationStatus": {
+          "enum": ["pilot-supported", "planned", "unsupported"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidenceType": {
+                "const": "quantitative-comparison"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "metrics": {
+                "minItems": 2
+              }
+            }
+          }
+        }
+      ]
+    },
+    "recipeSelection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipeId", "priority"],
+      "properties": {
+        "recipeId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{2,63}$"
+        },
+        "priority": {
+          "enum": [1, 2]
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metricId",
+        "label",
+        "value",
+        "unit",
+        "period",
+        "sourceLabel",
+        "verificationStatus"
+      ],
+      "properties": {
+        "metricId": {
+          "type": "string",
+          "pattern": "^[A-Z0-9][A-Z0-9_-]{2,63}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "period": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "denominator": {
+          "type": ["string", "null"],
+          "maxLength": 120
+        },
+        "sourceLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 220
+        },
+        "verificationStatus": {
+          "enum": ["verified", "partially-verified", "unverified"]
+        }
+      }
+    }
+  }
+}

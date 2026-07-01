@@ -1,0 +1,372 @@
+/* Final structure pass: remove decorative clutter, center compact pages, clarify flows. */
+
+#executive .full-slide-body,
+#kpi .full-slide-body,
+#inflection .full-slide-body,
+#portfolio .full-slide-body,
+#comp-landscape .full-slide-body,
+#comp-ranking .full-slide-body,
+#product-matrix .full-slide-body,
+#category-cliche .full-slide-body,
+#creative-method .full-slide-body,
+#appendix-receipt .full-slide-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 0;
+}
+
+#executive .verdict-layout {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+#executive .verdict-axis { width: 100%; }
+#executive .report-map { display: none !important; }
+
+/* Header-level JTBD note: quiet reference text, never a callout box. */
+.jtbd-header-note {
+  margin-top: 7px;
+  color: var(--full-muted);
+  font-size: 9.5px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+#identity .identity-jtbd {
+  position: relative;
+  padding-bottom: 28px;
+}
+
+.founding-jtbd-note {
+  position: absolute;
+  left: 16px;
+  bottom: 8px;
+  color: var(--full-muted);
+  font-size: 8.5px;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+/* Core Inflection: Umbrex-style bridge from product reality to current perception. */
+#inflection .full-slide-body { gap: 22px; }
+#inflection .inflection-flow { width: 100%; margin: 0; }
+#inflection .inflection-gap.is-structured-v3 {
+  width: 100%;
+  min-height: 128px;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1.2fr .9fr .78fr;
+  align-items: stretch;
+  gap: 0;
+  border: 0;
+  background: transparent;
+}
+
+#inflection .inflection-reality,
+#inflection .inflection-perception {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 22px;
+  border-top: 3px solid var(--full-line-strong);
+  border-bottom: 1px solid var(--full-line-strong);
+  background: #f7f8fb;
+}
+
+#inflection .inflection-perception {
+  border-top-color: var(--full-orange);
+  background: #fff8f1;
+}
+
+#inflection .inflection-bridge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px 32px 18px 24px;
+  background: linear-gradient(90deg, var(--full-red-soft), #fff8f1);
+  clip-path: polygon(0 0, 88% 0, 100% 50%, 88% 100%, 0 100%, 10% 50%);
+}
+
+#inflection .inflection-bridge i {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--full-red);
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+#inflection .inflection-gap small {
+  color: var(--full-muted);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .035em;
+}
+
+#inflection .inflection-gap strong {
+  margin-top: 9px;
+  color: var(--full-ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+#inflection .inflection-bridge strong { color: var(--full-red); }
+
+/* Core Target: same-height spectrum, no empty extension or stray box. */
+#consumer-target .target-spectrum-v3 {
+  width: 100%;
+  min-height: 0;
+  height: 300px;
+  align-items: stretch;
+  gap: 0;
+}
+
+#consumer-target .target-spectrum-v3 > div,
+#consumer-target .target-spectrum-v3 > div.is-primary {
+  min-height: 0;
+  height: 300px;
+  padding: 21px 18px;
+  border: 0;
+  border-top: 3px solid var(--full-line-strong);
+  border-bottom: 1px solid var(--full-line);
+  background: #fff;
+}
+
+#consumer-target .target-spectrum-v3 > div + div {
+  border-left: 1px solid var(--full-line);
+}
+
+#consumer-target .target-spectrum-v3 > div.is-primary {
+  border-top-color: var(--full-accent);
+  background: var(--full-accent-soft);
+  box-shadow: inset 0 0 0 2px var(--full-accent);
+}
+
+#consumer-target .target-spectrum-v3 b { font-size: 15px; }
+#consumer-target .target-spectrum-v3 p { font-size: 11.5px; line-height: 1.5; }
+#consumer-target .target-profile { margin-top: 17px; }
+
+/* Persona: prevent 02/03 wrapping and align all panel rules. */
+.persona-index-v3 {
+  min-width: 64px;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+#persona-1 .persona-layout,
+#persona-2 .persona-layout,
+#persona-3 .persona-layout {
+  align-items: start;
+}
+
+.persona-left,
+.persona-center { border-top-width: 2px; }
+.persona-right { border-top: 0; }
+.persona-right .identity-shift > div:first-child { border-top: 2px solid var(--full-line-strong); }
+.persona-right .identity-shift > div.is-target { border-top: 3px solid var(--full-accent); }
+
+/* Creative History status wording after Korean replacement. */
+.history-status {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 7.5px;
+  letter-spacing: -.02em;
+}
+
+/* Creative Insight: remove the decorative grey top rule on the left panel. */
+#creative-insight .creative-gap-v3 .current-copy {
+  border-top: 0;
+}
+
+/* SWOT heading hierarchy. */
+#strategy-swot .swot-quadrant h3 {
+  font-weight: 900;
+  letter-spacing: -.025em;
+}
+
+/* Root Cause: evidence → visible gap → real cause → strategic opportunity. */
+#root-cause .root-cause-flow-v3 {
+  width: 100%;
+  min-height: 390px;
+  display: grid;
+  grid-template-columns: 1.18fr 42px .72fr 42px 1fr 42px 1.08fr;
+  align-items: center;
+  gap: 0;
+}
+
+#root-cause .root-cause-flow-v3 > i {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--full-accent-soft);
+  color: var(--full-accent);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 900;
+  z-index: 2;
+}
+
+#root-cause .root-evidence {
+  padding: 0;
+  border-top: 0;
+}
+
+#root-cause .root-evidence span {
+  display: block;
+  margin: 0;
+  padding: 8px 11px 3px;
+  color: var(--full-accent);
+  font-size: 9.5px;
+}
+
+#root-cause .root-evidence p {
+  margin: 0;
+  padding: 0 11px 9px;
+  border-bottom: 1px solid var(--full-line);
+  font-size: 11.5px;
+  line-height: 1.42;
+}
+
+#root-cause .root-gap,
+#root-cause .root-core,
+#root-cause .root-opportunity {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 23px 20px;
+  border: 0;
+  border-top: 4px solid var(--full-line-strong);
+  border-bottom: 1px solid var(--full-line-strong);
+  background: #fff;
+}
+
+#root-cause .root-gap { background: #f7f8fb; }
+#root-cause .root-core { border-top-color: var(--full-red); background: var(--full-red-soft); }
+#root-cause .root-opportunity { border-top-color: var(--full-green); background: var(--full-green-soft); }
+
+#root-cause .root-gap small,
+#root-cause .root-core small,
+#root-cause .root-opportunity small {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .03em;
+}
+
+#root-cause .root-gap strong,
+#root-cause .root-gap p { font-size: 12px; }
+#root-cause .root-core h3,
+#root-cause .root-opportunity h3 { font-size: 17px; line-height: 1.48; }
+
+/* STP: visibly converge many segments into one target and one position. */
+#stp .stp-convergence-v3 {
+  width: 100%;
+  min-height: 390px;
+  display: grid;
+  grid-template-columns: 1.25fr 70px .82fr 70px 1fr;
+  align-items: center;
+  gap: 0;
+}
+
+#stp .stp-segments {
+  border-top: 0;
+  padding-top: 0;
+}
+
+#stp .stp-segments > div {
+  margin: 5px 0;
+  padding: 10px 13px;
+  border: 0;
+  border-left: 4px solid var(--full-line-strong);
+  background: #f7f8fb;
+}
+
+#stp .stp-segments > div.is-selected {
+  border-left-color: var(--full-accent);
+  background: var(--full-accent-soft);
+}
+
+#stp .stp-arrow {
+  position: relative;
+  font-size: 0;
+  height: 170px;
+}
+
+#stp .stp-arrow::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 50%;
+  height: 3px;
+  background: var(--full-accent);
+}
+
+#stp .stp-arrow::after {
+  content: '';
+  position: absolute;
+  right: 7px;
+  top: calc(50% - 7px);
+  border-left: 12px solid var(--full-accent);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
+
+#stp .stp-target,
+#stp .stp-position {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 22px;
+  border: 0;
+  border-top: 4px solid var(--full-accent);
+  border-bottom: 1px solid var(--full-line-strong);
+}
+
+#stp .stp-target { background: var(--full-accent-soft); }
+#stp .stp-position { background: #eef8f5; border-top-color: var(--full-green); }
+
+/* Final Choice: no decorative vertical line; separate areas by spacing and surface. */
+#strategy-choice .choice-layout-v3 {
+  grid-template-columns: .8fr 1.2fr;
+  gap: 34px;
+}
+
+#strategy-choice .choice-criteria {
+  border-top: 0;
+  padding: 22px 24px;
+  background: #f7f8fb;
+  border-radius: 10px;
+}
+
+#strategy-choice .choice-final {
+  border-left: 0;
+  border-top: 5px solid var(--full-accent);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(55, 65, 95, .10);
+}
+
+/* Assigned compact pages: optical vertical center. */
+#kpi .metric-strip,
+#portfolio .portfolio-flow,
+#comp-landscape .candidate-table,
+#comp-ranking .ranking-table,
+#product-matrix .matrix-table,
+#category-cliche .cliche-table,
+#creative-method .factuality-system,
+#appendix-receipt .receipt-flow {
+  width: 100%;
+}

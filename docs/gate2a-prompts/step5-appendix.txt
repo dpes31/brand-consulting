@@ -1,0 +1,53 @@
+[VISUAL INTENT BRIEF — GATE 2A TEST]
+일반 Strategy 분석에는 SWOT, GAP, Root Cause, 기능적·정서적·문화적 ToT 3개 경로, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, 실행 순서를 모두 유지하십시오. 그 전체 분석을 끝낸 뒤, 최종 전략 의사결정 구조 하나만 Visual Intent JSON으로 작성하십시오.
+
+Visual Intent 작성 규칙:
+- visualBriefs 배열에는 Step 5 핵심 Brief를 정확히 1개만 넣으십시오.
+- SWOT, GAP, Root Cause, ToT 각 경로, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, 실행 순서별로 별도 Brief를 추가하지 마십시오.
+- 다른 Step의 Recipe를 사용하지 마십시오. competitor-threat-system, feature-matrix, rank-scorecard, positioning-map, milestone-timeline, customer-journey, friction-flow, needs-hierarchy는 Step 5에서 금지합니다.
+- 전략 대안과 선택 기준·Trade-off가 핵심이면 strategic-choice → choice-architecture를 사용하십시오.
+- 현재 상태에서 목표 상태로의 전환이 핵심이면 causal-relationship → as-is-to-be를 사용하십시오.
+- SWOT·GAP·Root Cause 진단에서 전략 행동을 도출하는 연결이 핵심이면 causal-relationship → swot-to-strategy를 사용하십시오.
+- 검증된 실행 순서와 단계가 핵심이면 execution-roadmap → roadmap을 사용하십시오.
+- 전략 근거가 부족하면 evidence-gap → evidence-gap을 사용하십시오.
+- Step 5의 모든 Recipe는 implementationStatus를 planned로 기록하십시오.
+- Step 5 핵심 Brief의 metrics는 반드시 []로 두십시오. 수치 자료는 일반 분석 본문에 유지하십시오.
+- Primary Recipe는 1개, Fallback Recipe는 최대 1개만 선택하십시오.
+- requiredInputs, availableInputs, missingInputs를 분리하십시오.
+- SWOT 네 칸 자체를 최종 전략 장표로 사용하지 마십시오.
+- Winning Move는 Root Cause와 연결돼야 하며, 검증되지 않은 실행 순서나 효과를 만들지 마십시오.
+- 분석 본문과 Visual Intent JSON을 포함한 응답 전체를 웹 앱에 붙여 넣으십시오. JSON만 별도로 제출하지 마십시오.
+- HTML/CSS/SVG는 작성하지 마십시오.
+
+허용 evidenceType: strategic-choice, causal-relationship, execution-roadmap, evidence-gap
+허용 Recipe: choice-architecture, as-is-to-be, swot-to-strategy, roadmap, evidence-gap
+출력 순서: 일반 분석 → VISUAL_INTENT_BRIEF
+
+<!-- VISUAL_INTENT_BRIEF_START -->
+{
+  "version": 1,
+  "brand": "위에서 지정한 조사 브랜드명",
+  "step": 5,
+  "visualBriefs": [
+    {
+      "insightId": "STEP5_CORE_01",
+      "section": "V. STRATEGY > Final Strategic Choice",
+      "preferredSlideId": "slide-17",
+      "decisionQuestion": "조사 브랜드는 어떤 전략을 선택하고 무엇을 포기해야 하는가?",
+      "evidenceType": "strategic-choice",
+      "coreMessage": "Root Cause와 선택 기준·Trade-off를 통과한 최종 Winning Move",
+      "primaryRecipe": { "recipeId": "choice-architecture", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "기능적·정서적·문화적 대안을 비교하고 선택 기준과 Trade-off를 거쳐 하나의 전략을 결정해야 하기 때문",
+      "confidence": "medium",
+      "requiredInputs": ["SWOT", "GAP", "Root Cause", "전략 대안", "선택 기준", "Trade-off", "Big IdeaL", "Winning Move", "Via Negativa", "Pre-mortem", "실행 순서"],
+      "availableInputs": ["앞 단계에서 확보한 시장·경쟁·소비자·크리에이티브 근거"],
+      "missingInputs": ["누락된 비용·담당자·실행 시점·효과 검증 근거"],
+      "metrics": [],
+      "entities": ["위에서 지정한 조사 브랜드명"],
+      "timePeriods": ["단기", "중기", "장기"],
+      "implementationStatus": "planned"
+    }
+  ]
+}
+<!-- VISUAL_INTENT_BRIEF_END -->
