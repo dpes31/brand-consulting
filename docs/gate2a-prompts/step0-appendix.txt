@@ -1,0 +1,42 @@
+[VISUAL INTENT BRIEF — GATE 2A TEST]
+일반 분석 뒤에 시각화 의도를 JSON으로 작성하십시오. HTML/CSS/SVG는 작성하지 마십시오.
+
+웹 앱에는 일반 분석 본문과 아래 마커·JSON을 포함한 AI 응답 전체를 붙여 넣어야 합니다. JSON만 따로 제출하지 마십시오.
+
+허용 Recipe: milestone-timeline, growth-trajectory, before-after, evidence-gap
+pilot-supported: milestone-timeline
+
+이번 Gate 2A Step 0 테스트의 visualBriefs 배열에는 Growth Story용 Brief 정확히 1개만 작성하십시오. Brand Identity, KPI Snapshot, Product USP용 Visual Brief는 만들지 말고 일반 분석 본문에만 작성하십시오.
+
+사건·성장 단계·변곡점 중심이면 milestone-timeline을 우선 선택하십시오. 동일 기준의 연속 정량 시계열이 부족하면 growth-trajectory를 선택하지 마십시오. milestone-timeline을 선택하면 metrics는 반드시 빈 배열([])로 두십시오.
+
+Primary 1개와 Fallback 최대 1개만 선택하십시오. requiredInputs, availableInputs, missingInputs를 분리하십시오. 실제로 시각화에 사용할 수치를 넣는 경우에만 value, unit, period, denominator, sourceLabel, verificationStatus를 모두 기록하십시오. 외부 템플릿 이름이나 번호를 recipeId로 사용하지 마십시오.
+
+<!-- VISUAL_INTENT_BRIEF_START -->
+{
+  "version": 1,
+  "brand": "조사 브랜드명",
+  "step": 0,
+  "visualBriefs": [
+    {
+      "insightId": "BF_GROWTH_01",
+      "section": "0. BRAND FACT BOOK > Growth Story",
+      "preferredSlideId": "slide-f02",
+      "decisionQuestion": "브랜드의 성장 방식은 어떤 단계와 변곡점을 거쳐 진화했는가?",
+      "evidenceType": "time-change",
+      "coreMessage": "근거가 말하는 핵심 성장 구조와 변곡점",
+      "primaryRecipe": { "recipeId": "milestone-timeline", "priority": 1 },
+      "fallbackRecipe": { "recipeId": "evidence-gap", "priority": 2 },
+      "selectionReason": "연도별 사건과 성장 단계, 변곡점의 흐름을 보여줘야 하기 때문",
+      "confidence": "medium",
+      "requiredInputs": ["연도", "사건", "사업적 의미", "성장 단계", "변곡점"],
+      "availableInputs": ["확보된 성장 이력"],
+      "missingInputs": ["누락된 성장 근거"],
+      "metrics": [],
+      "entities": ["조사 브랜드명"],
+      "timePeriods": ["설립~현재"],
+      "implementationStatus": "pilot-supported"
+    }
+  ]
+}
+<!-- VISUAL_INTENT_BRIEF_END -->

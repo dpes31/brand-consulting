@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brand-consulting.local/recipes/competitor-threat-system.schema.json",
+  "title": "Competitor Threat System Recipe",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "recipeId",
+    "competitor",
+    "decisionQuestion",
+    "governingMessage",
+    "threatScore",
+    "evidenceSignals",
+    "coreDesire",
+    "appeal",
+    "dominantThreatMechanism",
+    "attackPoint",
+    "interpretation",
+    "implication"
+  ],
+  "properties": {
+    "recipeId": {
+      "const": "competitor-threat-system"
+    },
+    "competitor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "decisionQuestion": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 240
+    },
+    "governingMessage": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 240
+    },
+    "threatScore": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "evidenceSignals": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/evidenceSignal"
+      }
+    },
+    "coreDesire": {
+      "$ref": "#/$defs/shortBlock"
+    },
+    "appeal": {
+      "$ref": "#/$defs/shortBlock"
+    },
+    "dominantThreatMechanism": {
+      "$ref": "#/$defs/mechanismBlock"
+    },
+    "attackPoint": {
+      "$ref": "#/$defs/attackBlock"
+    },
+    "interpretation": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 320
+    },
+    "implication": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 320
+    }
+  },
+  "$defs": {
+    "evidenceSignal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "signalId",
+        "label",
+        "evidence",
+        "evidenceType",
+        "verificationStatus",
+        "sourceLabel"
+      ],
+      "properties": {
+        "signalId": {
+          "type": "string",
+          "pattern": "^[A-Z0-9][A-Z0-9_-]{1,31}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 160
+        },
+        "evidenceType": {
+          "enum": [
+            "market-penetration",
+            "growth-momentum",
+            "consumer-preference",
+            "campaign-aggression",
+            "market-inflection",
+            "partnership",
+            "product-expansion"
+          ]
+        },
+        "verificationStatus": {
+          "enum": ["verified", "partially-verified", "unverified"]
+        },
+        "sourceLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 220
+        },
+        "metric": {
+          "oneOf": [
+            { "$ref": "#/$defs/metric" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit", "period", "verificationStatus"],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "period": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "denominator": {
+          "type": ["string", "null"],
+          "maxLength": 120
+        },
+        "verificationStatus": {
+          "enum": ["verified", "partially-verified", "unverified"]
+        }
+      }
+    },
+    "shortBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "statement", "evidenceStatus"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 180
+        },
+        "evidenceStatus": {
+          "enum": ["verified", "inferred-from-evidence", "unverified"]
+        }
+      }
+    },
+    "mechanismBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statement", "causalChain", "confidence"],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 200
+        },
+        "causalChain": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          }
+        },
+        "confidence": {
+          "enum": ["high", "medium", "low"]
+        }
+      }
+    },
+    "attackBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vulnerableMoment", "brandRisk", "responseDirection"],
+      "properties": {
+        "vulnerableMoment": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 120
+        },
+        "brandRisk": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 160
+        },
+        "responseDirection": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 180
+        }
+      }
+    }
+  },
+  "x-recipe-metadata": {
+    "evidenceTypes": ["causal-relationship", "priority-ranking"],
+    "fixedReadingFlow": [
+      "evidenceSignals",
+      "coreDesire",
+      "appeal",
+      "dominantThreatMechanism",
+      "attackPoint"
+    ],
+    "minItems": 1,
+    "maxItems": 3,
+    "allowedUnits": ["score-0-100", "verified-signal-metric", "qualitative-evidence"],
+    "overflowPolicy": "limit evidence to three ranked signals; create evidence appendix instead of shrinking core mechanism",
+    "symmetryPolicy": "coreDesire and appeal occupy equal grid tracks; evidence cards occupy equal tracks",
+    "notSuitableFor": [
+      "feature-by-feature comparison",
+      "competitor ranking overview",
+      "competitor not present in locked registry"
+    ],
+    "requiredDomMetadata": {
+      "data-recipe-id": "competitor-threat-system",
+      "data-viz-type": "system-map"
+    }
+  }
+}
