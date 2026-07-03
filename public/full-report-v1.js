@@ -43,7 +43,7 @@
       }
       case 'creative-history':
         return `<div class="history-grid">${(slide.years || []).map((year) => `
-          <article class="history-card ${year.status === 'verified' ? 'verified' : ''}"><h3>${rich(year.year)}</h3><span class="history-status">${rich(year.status)}</span><h4>${rich(year.campaign)}</h4><blockquote>${rich(year.copy)}</blockquote><p>${rich(year.detail)}</p></article>`).join('')}</div>
+          <article class="history-card ${year.status === 'verified-verbatim' ? 'verified' : ''}"><h3>${rich(year.year)}</h3><span class="history-status">${rich(year.status)}</span><h4>${rich(year.campaign)}</h4><blockquote>${rich(year.copy)}</blockquote><p>${rich(year.detail)}</p></article>`).join('')}</div>
           <div class="history-bottom"><div><span>MESSAGE TRAJECTORY</span><strong>${rich(slide.trajectory || '')}</strong></div><div class="history-strategy"><span>STRATEGIC SO WHAT</span><strong>${rich(slide.strategicSoWhat || '')}</strong></div></div>`;
       case 'swot':
         return `<div class="swot-grid">${['strength', 'weakness', 'opportunity', 'threat'].map((key) => `
@@ -86,8 +86,10 @@
   const ids = new Set();
   const pages = new Set();
   slides.forEach((slide, index) => {
-    if (!slide.id || ids.has(slide.id)) fail(`페이지 ${index + 1}의 ID가 없거나 중복되었습니다.`);
+    const expectedPage = index + 1;
+    if (!slide.id || ids.has(slide.id)) fail(`페이지 ${expectedPage}의 ID가 없거나 중복되었습니다.`);
     if (!Number.isInteger(slide.page) || pages.has(slide.page)) fail(`페이지 번호 ${slide.page}가 없거나 중복되었습니다.`);
+    if (slide.page !== expectedPage) fail(`페이지 순서 오류: 위치 ${expectedPage}에 페이지 ${slide.page}가 있습니다.`);
     ids.add(slide.id);
     pages.add(slide.page);
     const expectedZone = index < 40 ? 'main' : 'appendix';
@@ -104,6 +106,7 @@
   document.getElementById('report-brand').textContent = report.brand;
   const content = document.getElementById('content');
   const nav = document.getElementById('report-nav-groups');
+  if (!content || !nav) fail('FULL 보고서 Renderer의 필수 DOM이 없습니다.');
   let currentChapter = '';
 
   slides.forEach((slide) => {
@@ -120,6 +123,7 @@
     content.insertAdjacentHTML('beforeend', slideHtml);
   });
 
+  document.documentElement.dataset.fullReportRendered = String(slides.length);
   const links = [...document.querySelectorAll('.nav-item')];
   const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
     if (entry.isIntersecting) {
