@@ -5,25 +5,8 @@ export const PRODUCTION_APPENDIX_PAGE_COUNT = 8;
 export type ReportZone = 'main' | 'appendix';
 export type Tone = 'neutral' | 'risk' | 'opportunity' | 'target';
 
-export type SourceLabel = {
-  publisher: string;
-  title?: string;
-  year?: string;
-  status?: 'verified' | 'source-found-copy-unverified' | 'not-found';
-};
-
-export type BaseSlide = {
-  id: string;
-  page: number;
-  zone: ReportZone;
-  chapter: string;
-  title: string;
-  tag?: string;
-  note?: string;
-  implication?: string;
-  sources?: SourceLabel[];
-};
-
+export type SourceLabel = { publisher: string; title?: string; year?: string; status?: 'verified' | 'source-found-copy-unverified' | 'not-found' };
+export type BaseSlide = { id: string; page: number; zone: ReportZone; chapter: string; title: string; tag?: string; note?: string; implication?: string; sources?: SourceLabel[] };
 export type CoverSlide = BaseSlide & { recipe: 'cover'; kicker: string; subtitle: string };
 export type MetricStripSlide = BaseSlide & { recipe: 'metric-strip'; metrics: Array<{ label: string; value: string; period?: string; interpretation: string }> };
 export type TimelineSlide = BaseSlide & { recipe: 'milestone-timeline'; events: Array<{ period: string; title: string; detail: string; verified?: boolean }> };
@@ -36,9 +19,7 @@ export type ChoiceSlide = BaseSlide & { recipe: 'choice-architecture'; options: 
 export type CreativeHistorySlide = BaseSlide & { recipe: 'creative-history'; brand: string; years: Array<{ year: string; campaign: string; copy: string; detail: string; status: 'verified' | 'source-found-copy-unverified' | 'not-found'; source: SourceLabel }>; trajectory: string; strategicSoWhat: string };
 export type EvidenceSlide = BaseSlide & { recipe: 'evidence-list' | 'evidence-gap' | 'roadmap'; items: Array<{ label: string; headline: string; detail?: string; status?: string; tone?: Tone }> };
 export type GenericSlide = BaseSlide & { recipe: 'structured-summary'; sections: Array<{ label: string; headline: string; bullets: string[]; tone?: Tone }> };
-
 export type ProductionReportSlide = CoverSlide | MetricStripSlide | TimelineSlide | FlowSlide | MatrixSlide | PersonaSlide | SwotSlide | StpSlide | ChoiceSlide | CreativeHistorySlide | EvidenceSlide | GenericSlide;
-
 export type ProductionReportV1 = { version: typeof PRODUCTION_REPORT_VERSION; brand: string; generatedAt: string; mainSlides: ProductionReportSlide[]; appendixSlides: ProductionReportSlide[] };
 export type ProductionReportValidation = { ok: boolean; errors: string[] };
 
