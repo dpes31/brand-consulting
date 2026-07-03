@@ -12,6 +12,8 @@ import { installVisualIntentWorkflowGuard } from './lib/installVisualIntentWorkf
 import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
 import { installFullReportPhase6Bridge } from './lib/installFullReportPhase6Bridge'
+import { installFullReportRuntimeCompatibility } from './lib/installFullReportRuntimeCompatibility'
+import { installDeploymentStatus } from './lib/installDeploymentStatus'
 
 installIframePreRepair()
 installIframeLayoutSafety()
@@ -23,6 +25,8 @@ installVisualIntentWorkflowGuard()
 installPromptWorkflowGuard()
 installReportViewerUX()
 installFullReportPhase6Bridge()
+installFullReportRuntimeCompatibility()
+installDeploymentStatus()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
