@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "test:full-report": "node scripts/test-full-report-contract.mjs",
-    "build": "npm run test:full-report && tsc -b && vite build",
+    "test:full-report-runtime": "node scripts/test-full-report-runtime.mjs",
+    "build": "npm run test:full-report && npm run test:full-report-runtime && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
