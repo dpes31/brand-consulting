@@ -7,6 +7,7 @@ import {
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
 const ACTIVE_BRAND_SESSION_KEY = 'brand-consulting:active-brand';
+const REQUIRED_PHASE_STEPS = ['0', '1', '2', '3', '4', '5'] as const;
 
 let installed = false;
 let replayingRenderClick = false;
@@ -23,18 +24,33 @@ function readBrandName(): string {
   }
 }
 
-function readRawResearch(): string {
+function normalizeStepKey(value: string): string | null {
+  const match = value.match(/(?:^|\D)([0-5])(?:\D|$)/);
+  return match?.[1] ?? null;
+}
+
+function readResearchSnapshot(): { rawResearch: string; missingSteps: string[] } {
   try {
     const raw = sessionStorage.getItem(PHASE_INPUTS_SESSION_KEY);
-    if (!raw) return '';
+    if (!raw) return { rawResearch: '', missingSteps: [...REQUIRED_PHASE_STEPS] };
     const parsed = JSON.parse(raw) as Record<string, unknown>;
-    return Object.entries(parsed)
-      .filter(([, value]) => typeof value === 'string' && value.trim())
-      .sort(([a], [b]) => Number(a) - Number(b))
-      .map(([step, value]) => `\n\n## STEP ${step}\n${String(value)}`)
+    const values = new Map<string, string>();
+
+    Object.entries(parsed).forEach(([key, value]) => {
+      if (typeof value !== 'string' || !value.trim()) return;
+      const normalizedKey = normalizeStepKey(key);
+      if (normalizedKey) values.set(normalizedKey, value.trim());
+    });
+
+    const missingSteps = REQUIRED_PHASE_STEPS.filter((step) => !values.get(step));
+    const rawResearch = REQUIRED_PHASE_STEPS
+      .filter((step) => values.has(step))
+      .map((step) => `\n\n## STEP ${step}\n${values.get(step)}`)
       .join('');
+
+    return { rawResearch, missingSteps };
   } catch {
-    return '';
+    return { rawResearch: '', missingSteps: [...REQUIRED_PHASE_STEPS] };
   }
 }
 
@@ -80,9 +96,13 @@ function stopReactClick(event: MouseEvent): void {
 async function handlePromptExport(event: MouseEvent): Promise<void> {
   stopReactClick(event);
   const brandName = readBrandName();
-  const rawResearch = readRawResearch();
+  const { rawResearch, missingSteps } = readResearchSnapshot();
   if (!brandName) {
     window.alert('브랜드명을 확인할 수 없습니다. Phase 0으로 돌아가 브랜드명을 다시 입력해 주세요.');
+    return;
+  }
+  if (missingSteps.length > 0) {
+    window.alert(`Step 0~5 조사 결과가 완전하지 않습니다. 누락 단계: ${missingSteps.join(', ')}\n\n누락된 단계의 조사 결과를 저장한 뒤 다시 추출해 주세요.`);
     return;
   }
   if (!rawResearch.trim()) {
@@ -95,7 +115,7 @@ async function handlePromptExport(event: MouseEvent): Promise<void> {
   await navigator.clipboard.writeText(prompt);
   downloadPrompt(prompt, brandName);
   window.alert(
-    'FULL 보고서 Phase 6 프롬프트를 복사하고 파일로 저장했습니다.\n\n외부 AI 결과의 ```json ... ``` 전체를 아래 입력창에 붙여넣으세요. 앱이 승인된 40페이지 Main Deck + 8페이지 Appendix HTML로 변환합니다.',
+    'FULL 보고서 Phase 6 프롬프트를 복사하고 파일로 저장했습니다.\n\nStep 0~5가 모두 포함됐습니다. 외부 AI 결과의 ```json ... ``` 전체를 아래 입력창에 붙여넣으세요. 앱이 승인된 40페이지 Main Deck + 8페이지 Appendix HTML로 변환합니다.',
   );
 }
 
