@@ -4,7 +4,6 @@ export const PRODUCTION_APPENDIX_PAGE_COUNT = 8;
 
 export type ReportZone = 'main' | 'appendix';
 export type Tone = 'neutral' | 'risk' | 'opportunity' | 'target';
-
 export type SourceLabel = { publisher: string; title?: string; year?: string; status?: 'verified' | 'source-found-copy-unverified' | 'not-found' };
 export type BaseSlide = { id: string; page: number; zone: ReportZone; chapter: string; title: string; tag?: string; note?: string; implication?: string; sources?: SourceLabel[] };
 export type CoverSlide = BaseSlide & { recipe: 'cover'; kicker: string; subtitle: string };
