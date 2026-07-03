@@ -11,6 +11,7 @@ import { installStep5VisualIntentContract } from './lib/installStep5VisualIntent
 import { installVisualIntentWorkflowGuard } from './lib/installVisualIntentWorkflowGuard'
 import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
+import { installFullReportPhase6Bridge } from './lib/installFullReportPhase6Bridge'
 
 installIframePreRepair()
 installIframeLayoutSafety()
@@ -21,6 +22,7 @@ installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
 installPromptWorkflowGuard()
 installReportViewerUX()
+installFullReportPhase6Bridge()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
