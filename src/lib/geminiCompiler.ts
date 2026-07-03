@@ -1,61 +1,39 @@
 import { GoogleGenAI } from '@google/genai';
 import { getBrandDesignReference } from './prompts';
-import {
-  buildReportCompilerPrompt,
-  normalizeDynamicReportHtml,
-} from './dynamicPagePlanner';
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
+import {
+  assembleFullReportHtml,
+  buildFullReportDataPrompt,
+} from '../report/fullReportCompiler';
 
-export const compileReportToHTML = async (rawData: string, apiKey: string, brandName: string): Promise<string> => {
-  if (!apiKey) {
-    throw new Error('API 키가 렌더링에 필요합니다.');
-  }
+export const compileReportToHTML = async (
+  rawData: string,
+  apiKey: string,
+  brandName: string,
+): Promise<string> => {
+  if (!apiKey) throw new Error('API 키가 렌더링에 필요합니다.');
+  if (!brandName.trim()) throw new Error('브랜드명이 필요합니다.');
 
   const ai = new GoogleGenAI({ apiKey });
-
-  const response = await fetch('/template.html?t=' + Date.now());
-  if (!response.ok) {
-    throw new Error('의존성 파일(template.html)을 불러올 수 없습니다.');
-  }
-  let masterHtml = await response.text();
-
   const designRef = getBrandDesignReference(brandName);
-  const accentColor = designRef.match(/Accent: (#\w+)/)?.[1] || '#5e6ad2';
-  masterHtml = masterHtml.replace(
-    '--hds-brand-accent: #5e6ad2;',
-    `--hds-brand-accent: ${accentColor}; /* Dynamically matched for ${brandName} */`,
-  );
-
-  const basePrompt = buildReportCompilerPrompt(masterHtml, rawData, brandName);
+  const accentColor = designRef.match(/Accent:\s*(#\w+)/i)?.[1] || '#5e6ad2';
   const creativeDirective = buildCreativeHistoryCompilerDirective(rawData);
-  const compilerPrompt = basePrompt.replace(
-    '\n[Brand]\n',
-    `\n${creativeDirective}\n\n[Brand]\n`,
-  );
+  const compilerPrompt = buildFullReportDataPrompt(rawData, brandName, creativeDirective);
 
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {
-      systemInstruction: 'You are a strict strategic report compiler. Follow the complete page-planning, factual-verification, and Creative History contracts without truncation.',
+      systemInstruction:
+        'You are a strict Phase 6 strategic report compiler. Return only the complete ProductionReportV1 JSON. Preserve factuality, page-plan, Visual Intent, and Creative History contracts without truncation.',
       temperature: 0.1,
       topP: 0.7,
+      maxOutputTokens: 65536,
     },
   });
 
   const messageResponse = await chat.sendMessage({ message: compilerPrompt });
-  let htmlOutput = messageResponse.text || '';
+  const output = messageResponse.text || '';
+  if (!output.trim()) throw new Error('AI가 Phase 6 보고서 데이터를 반환하지 않았습니다.');
 
-  if (htmlOutput.includes('```html')) {
-    htmlOutput = htmlOutput.split('```html')[1].split('```')[0].trim();
-  } else if (htmlOutput.includes('<!DOCTYPE html>')) {
-    htmlOutput = htmlOutput.substring(htmlOutput.indexOf('<!DOCTYPE html>'));
-  }
-
-  htmlOutput = htmlOutput.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, '');
-
-  if (!htmlOutput.includes('<!DOCTYPE html>') || !htmlOutput.includes('</html>')) {
-    throw new Error('AI가 완전한 HTML 문서를 반환하지 않았습니다. 보고서가 잘리지 않도록 다시 생성해 주세요.');
-  }
-
-  return normalizeDynamicReportHtml(htmlOutput);
+  return assembleFullReportHtml(output, brandName, accentColor);
 };
