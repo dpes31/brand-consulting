@@ -1,7 +1,6 @@
 export const PRODUCTION_REPORT_VERSION = '1.0.0' as const;
 export const PRODUCTION_MAIN_PAGE_COUNT = 40;
 export const PRODUCTION_APPENDIX_PAGE_COUNT = 8;
-
 export type ReportZone = 'main' | 'appendix';
 export type Tone = 'neutral' | 'risk' | 'opportunity' | 'target';
 export type SourceLabel = { publisher: string; title?: string; year?: string; status?: 'verified' | 'source-found-copy-unverified' | 'not-found' };
@@ -21,7 +20,6 @@ export type GenericSlide = BaseSlide & { recipe: 'structured-summary'; sections:
 export type ProductionReportSlide = CoverSlide | MetricStripSlide | TimelineSlide | FlowSlide | MatrixSlide | PersonaSlide | SwotSlide | StpSlide | ChoiceSlide | CreativeHistorySlide | EvidenceSlide | GenericSlide;
 export type ProductionReportV1 = { version: typeof PRODUCTION_REPORT_VERSION; brand: string; generatedAt: string; mainSlides: ProductionReportSlide[]; appendixSlides: ProductionReportSlide[] };
 export type ProductionReportValidation = { ok: boolean; errors: string[] };
-
 export function validateProductionReport(report: ProductionReportV1, expectedBrand?: string): ProductionReportValidation {
   const errors: string[] = [];
   if (report.version !== PRODUCTION_REPORT_VERSION) errors.push(`Unsupported report version: ${String(report.version)}`);
