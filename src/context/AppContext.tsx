@@ -7,6 +7,7 @@ import {
 installCompetitorSelectionPolicy();
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
+const ACTIVE_BRAND_SESSION_KEY = 'brand-consulting:active-brand';
 
 function readSessionPhaseInputs(): Record<number, string> {
   try {
@@ -28,6 +29,23 @@ function writeSessionPhaseInputs(inputs: Record<number, string>): void {
     sessionStorage.setItem(PHASE_INPUTS_SESSION_KEY, JSON.stringify(inputs));
   } catch {
     // Session storage may be unavailable. React state remains the source of truth.
+  }
+}
+
+function readSessionBrandName(): string {
+  try {
+    return sessionStorage.getItem(ACTIVE_BRAND_SESSION_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+function writeSessionBrandName(name: string): void {
+  try {
+    if (name.trim()) sessionStorage.setItem(ACTIVE_BRAND_SESSION_KEY, name);
+    else sessionStorage.removeItem(ACTIVE_BRAND_SESSION_KEY);
+  } catch {
+    // React state remains the source of truth.
   }
 }
 
@@ -66,7 +84,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   syncCompetitorRegistryFromResearch(initialPhaseInputs[2]);
 
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || '');
-  const [brandName, setBrandName] = useState('');
+  const [brandName, setBrandNameState] = useState(readSessionBrandName);
   const [mustHaveCompetitors, setMustHaveCompetitors] = useState('');
   const [clientNeeds, setClientNeeds] = useState('');
   const [referenceNote, setReferenceNote] = useState('');
@@ -83,6 +101,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setApiKey(key);
   };
 
+  const handleSetBrandName = (name: string) => {
+    writeSessionBrandName(name);
+    setBrandNameState(name);
+  };
+
   const handleSetPhaseInputs = (inputs: Record<number, string>) => {
     syncCompetitorRegistryFromResearch(inputs[2]);
     writeSessionPhaseInputs(inputs);
@@ -92,7 +115,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider value={{
       apiKey, setApiKey: handleSetApiKey,
-      brandName, setBrandName,
+      brandName, setBrandName: handleSetBrandName,
       mustHaveCompetitors, setMustHaveCompetitors,
       clientNeeds, setClientNeeds,
       referenceNote, setReferenceNote,
