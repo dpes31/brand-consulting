@@ -5,6 +5,10 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
+const gitBlobSha = (content) => createHash('sha1')
+  .update(`blob ${Buffer.byteLength(content)}\0`)
+  .update(content)
+  .digest('hex');
 
 const runtime = read('src/lib/installFullReportRuntimeCompatibility.ts');
 const deploymentStatus = read('src/lib/installDeploymentStatus.ts');
@@ -17,7 +21,7 @@ const packageJson = JSON.parse(read('package.json'));
 const legacyTemplate = read('public/template.html');
 
 assert.equal(
-  createHash('sha1').update(legacyTemplate).digest('hex'),
+  gitBlobSha(legacyTemplate),
   '22bc6937b3d672e063d4b240c5a39b9c61700fec',
   'Legacy public/template.html SHA changed',
 );
