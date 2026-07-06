@@ -81,4 +81,27 @@
 - Merged PR #12 with a regular merge, preserving both branch histories.
 - Integration merge commit: `e607e397819b061c4676e3a2bdfb210f9d1b349b`.
 - Updated `AGENTS.md` and created the consolidated handoff documents.
-- Final step: merge PR #11 into `main` after documentation and final diff review.
+- Final step at that time: merge PR #11 into `main` after documentation and final diff review.
+
+## 2026-07-06 — Phase 6 approved renderer correction
+
+- Continued on `fix-phase6-approved-full-renderer-v2` with Draft PR #14.
+- Confirmed the approved Pilot design worked in the normal Phase 6 flow but found a critical content-contamination defect: the completed Biznup report HTML was embedded as the immutable Base HTML.
+- Replaced visible Pilot content with more than 1,400 neutral `CONTENT SLOT` tokens before prompt export.
+- Generalized competitor-dependent IDs and CSS selectors.
+- Added the same content contract to manual external-AI and internal API paths.
+- Added blocking validation for unresolved slots, missing brand name, missing Step 0 KPI evidence, and missing top Step 2 direct competitors.
+- Reworked E2E so copying the neutral template fails and only research-filled HTML succeeds.
+- Verified with non-Biznup brand `모노랩`:
+  - KPI values `123만 명`, `456억 원`
+  - competitors `알파원`, `베타랩`, `감마코`
+  - 48 slides and 48 navigation links
+  - 1280×720 geometry
+  - zero overflow
+  - Persona, Creative History, SWOT, and STP layouts
+  - save/reopen
+  - two consecutive 48-page PDF exports
+- Functional validation head: `4957c168a51549cbe69c33db5be7c687f7467afd`.
+- Updated `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, and `docs/REPORT_TEMPLATE_SPEC.md` for the PR #14 architecture.
+- Known separate follow-up: color inconsistencies on some detailed pages. Handle through a new preview-first visual-correction branch after the Phase 6 baseline merge.
+- `AGENTS.md` still requires a manual/current-tool update because the connector blocked modification of the agent-instruction file.
