@@ -12,6 +12,7 @@ import {
   assertResearchEvidencePresent,
   createResearchOnlyLayoutTemplate,
 } from '../report/researchContentTemplate';
+import { addResearchSlotRules } from '../report/researchSlotPrompt';
 
 export const compileReportToHTML = async (
   rawData: string,
@@ -24,7 +25,9 @@ export const compileReportToHTML = async (
   const capturedPilot = await loadApprovedPilotBaseHtml(brandName);
   const researchOnlyTemplate = createResearchOnlyLayoutTemplate(capturedPilot, brandName);
   const creativeDirective = buildCreativeHistoryCompilerDirective(rawData);
-  const compilerPrompt = buildFullReportHtmlPrompt(rawData, brandName, researchOnlyTemplate, creativeDirective);
+  const compilerPrompt = addResearchSlotRules(
+    buildFullReportHtmlPrompt(rawData, brandName, researchOnlyTemplate, creativeDirective),
+  );
   const ai = new GoogleGenAI({ apiKey });
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
