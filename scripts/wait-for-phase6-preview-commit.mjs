@@ -1,11 +1,26 @@
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { chromium } from 'playwright';
 
 const previewUrl = process.env.PREVIEW_URL;
-const expectedSha = process.env.EXPECTED_SHA;
 if (!previewUrl) throw new Error('PREVIEW_URL is required.');
-if (!expectedSha) throw new Error('EXPECTED_SHA is required.');
+
+async function resolveExpectedSha() {
+  const eventPath = process.env.GITHUB_EVENT_PATH;
+  if (eventPath) {
+    try {
+      const event = JSON.parse(await readFile(eventPath, 'utf8'));
+      const eventSha = event?.pull_request?.head?.sha || event?.after;
+      if (typeof eventSha === 'string' && eventSha.length >= 7) return eventSha;
+    } catch {
+      // Fall back to the explicit workflow SHA below.
+    }
+  }
+  return process.env.EXPECTED_SHA || process.env.GITHUB_SHA || '';
+}
+
+const expectedSha = await resolveExpectedSha();
+if (!expectedSha) throw new Error('Expected deployment SHA could not be resolved.');
 
 const expectedShort = expectedSha.slice(0, 7);
 const artifactDir = path.resolve('phase6-v2-e2e-artifacts');
