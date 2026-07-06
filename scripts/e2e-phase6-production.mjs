@@ -100,6 +100,28 @@ try {
   await page.waitForTimeout(300);
   assert.equal(await frame.locator('html').evaluate(() => location.hash), '#qa-page-48');
 
+  const pdfRuntimeState = await page.evaluate(() => {
+    const iframe = document.getElementById('fullscreen-viewer-iframe');
+    const documentRef = iframe?.contentDocument;
+    const windowRef = iframe?.contentWindow;
+    return {
+      bridgeMarker: document.documentElement.dataset.fullPdfButtonBridge || null,
+      frameExists: Boolean(iframe),
+      bodyReportVersion: documentRef?.body?.dataset.reportVersion || null,
+      fullSlideCount: documentRef?.querySelectorAll('.full-slide').length || 0,
+      fullReportPageCount: documentRef?.documentElement.dataset.fullReportPageCount || null,
+      fullRuntime: Boolean(windowRef?.__FULL_REPORT_RUNTIME__),
+      fullRuntimeVersion: windowRef?.__FULL_REPORT_RUNTIME__?.version || null,
+      preflightFunction: String(windowRef?.__REPORT_PREFLIGHT__ || '').slice(0, 300),
+      printFunction: String(windowRef?.print || '').slice(0, 300),
+    };
+  });
+  await writeFile(path.join(artifactDir, 'pdf-runtime-state.json'), JSON.stringify(pdfRuntimeState, null, 2));
+  assert.equal(pdfRuntimeState.bridgeMarker, 'installed');
+  assert.equal(pdfRuntimeState.bodyReportVersion, 'full-report-v1');
+  assert.equal(pdfRuntimeState.fullSlideCount, 48);
+  assert.equal(pdfRuntimeState.fullRuntime, true);
+
   const exportButton = page.getByRole('button', { name: 'Export PDF' }).last();
   const firstPdfPromise = page.waitForEvent('download', { timeout: 360000 });
   await exportButton.click();
@@ -147,6 +169,7 @@ try {
     overflowPages: overflow,
     geometry,
     dialogs,
+    pdfRuntimeState,
   };
   await writeFile(path.join(artifactDir, 'e2e-summary.json'), JSON.stringify(summary, null, 2));
   console.log(JSON.stringify(summary, null, 2));
