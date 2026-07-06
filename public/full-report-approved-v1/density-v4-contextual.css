@@ -1,0 +1,462 @@
+/* V4 contextual refinement — hierarchy, density and semantic emphasis. */
+
+/* 1. Core target: remove the empty lower half and keep one compact comparison band. */
+#consumer-target .full-slide-body {
+  justify-content: center;
+}
+#consumer-target .target-spectrum,
+#consumer-target .target-spectrum-v3 {
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  align-items: stretch;
+  gap: 0;
+}
+#consumer-target .target-spectrum > div,
+#consumer-target .target-spectrum-v3 > div,
+#consumer-target .target-spectrum > div.is-primary,
+#consumer-target .target-spectrum-v3 > div.is-primary {
+  min-height: 184px !important;
+  height: 184px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px 17px !important;
+  border-top-width: 3px;
+  box-sizing: border-box;
+}
+#consumer-target .target-spectrum > div.is-primary,
+#consumer-target .target-spectrum-v3 > div.is-primary {
+  box-shadow: inset 0 0 0 2px var(--full-accent);
+}
+#consumer-target .target-spectrum b { margin-top: 12px; font-size: 15px; }
+#consumer-target .target-spectrum p { margin-top: 9px; font-size: 12px; line-height: 1.48; }
+#consumer-target .target-profile {
+  margin-top: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--full-line-strong);
+  border-bottom: 1px solid var(--full-line);
+}
+#consumer-target .target-profile span { font-size: 9.5px; font-weight: 700; }
+#consumer-target .target-profile b { font-size: 12px; }
+
+/* 2. Core inflection: compact reality → gap → perception diagram without clipping. */
+#inflection .inflection-flow > div { min-height: 235px; }
+#inflection .inflection-gap.is-structured-v4 {
+  width: 100%;
+  min-height: 106px;
+  display: grid;
+  grid-template-columns: 1.18fr .86fr .72fr;
+  align-items: stretch;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#inflection .inflection-reality-v4,
+#inflection .inflection-perception-v4 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 15px 18px;
+  border-top: 3px solid var(--full-line-strong);
+  border-bottom: 1px solid var(--full-line-strong);
+  background: #f7f8fb;
+}
+#inflection .inflection-perception-v4 {
+  border-top-color: var(--full-orange);
+  background: #fff8f1;
+}
+#inflection .inflection-reality-v4 small,
+#inflection .inflection-perception-v4 small,
+#inflection .inflection-gap-v4 small {
+  color: var(--full-muted);
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: .025em;
+}
+#inflection .product-evolution {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+#inflection .product-evolution span {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--full-line-strong);
+  color: var(--full-ink);
+  font-size: 11.5px;
+  font-weight: 800;
+}
+#inflection .product-evolution i {
+  color: var(--full-accent);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 900;
+}
+#inflection .inflection-gap-v4 {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 15px 38px 15px 18px;
+  border-top: 3px solid var(--full-red);
+  border-bottom: 1px solid #efb3ae;
+  background: var(--full-red-soft);
+}
+#inflection .inflection-gap-v4 strong {
+  margin-top: 8px;
+  color: var(--full-red);
+  font-size: 13px;
+  line-height: 1.42;
+}
+#inflection .inflection-gap-v4::after {
+  content: '→';
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--full-red);
+  font-size: 22px;
+  font-weight: 900;
+}
+#inflection .inflection-perception-v4 strong {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+/* 3. Growth Story: extend the axis across the safe area. */
+#growth .growth-timeline { padding-left: 0; padding-right: 0; overflow: visible; }
+#growth .growth-axis {
+  left: 0 !important;
+  right: 1.2% !important;
+  overflow: visible;
+}
+#growth .growth-axis::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: -4px;
+  width: 0;
+  height: 0;
+  border-right: 9px solid #aab4c2;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+#growth .growth-axis::after { right: -11px; }
+
+/* 4. Product USP: visual rows, numbered circles and semantic pills. */
+#portfolio .portfolio-flow { align-items: stretch; }
+#portfolio .portfolio-column {
+  min-height: 300px;
+  padding: 18px 16px 16px;
+}
+#portfolio .portfolio-column > span {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--full-accent-soft);
+  color: var(--full-accent-deep);
+  font-size: 11px;
+}
+#portfolio .portfolio-column h3 { margin: 13px 0 16px; font-size: 17px; }
+#portfolio .portfolio-column dl {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px 9px;
+}
+#portfolio .portfolio-column dt {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 900;
+}
+#portfolio .portfolio-column dt:nth-of-type(1) { background: #fff0ef; color: #c84d43; }
+#portfolio .portfolio-column dt:nth-of-type(2) { background: #eef0ff; color: var(--full-accent-deep); }
+#portfolio .portfolio-column dt:nth-of-type(3) { background: #eaf7f2; color: #08775c; }
+#portfolio .portfolio-column dd {
+  margin: 0;
+  color: var(--full-ink);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 650;
+}
+#portfolio .best-self-line { margin-top: 14px; }
+
+/* 5. Competitor Landscape: readable headings and a compact judgment column. */
+#comp-landscape .candidate-head,
+#comp-landscape .candidate-row {
+  grid-template-columns: .72fr 2.05fr .28fr;
+  gap: 10px;
+}
+#comp-landscape .candidate-head {
+  padding: 10px 13px;
+  font-size: 11px;
+  font-weight: 900;
+}
+#comp-landscape .candidate-row { min-height: 55px; padding: 8px 13px; }
+#comp-landscape .candidate-row b { font-size: 12.5px; }
+#comp-landscape .candidate-row p { font-size: 12px; line-height: 1.4; }
+#comp-landscape .candidate-row em {
+  justify-self: center;
+  padding: 5px 9px;
+  font-size: 9.5px;
+  white-space: nowrap;
+}
+#comp-landscape .category-job { margin-top: 14px; }
+
+/* 6. Deep Dive: evidence as scannable bullets; source attached to evidence. */
+.deep-dive-score small {
+  display: block;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #f4f5f8;
+  color: var(--full-text);
+  font-size: 10px;
+  line-height: 1.4;
+  font-weight: 750;
+}
+.deep-node { display: flex; flex-direction: column; }
+.deep-node--1 ul {
+  margin: 13px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.deep-node--1 li {
+  position: relative;
+  margin: 0;
+  padding: 7px 0 7px 12px;
+  border-bottom: 1px solid var(--full-line);
+  color: var(--full-ink);
+  font-size: 11px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.deep-node--1 li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 13px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--full-accent);
+}
+.deep-node--1 mark,
+.trend-row .auto-number-highlight {
+  padding: 0 .08em;
+  background: linear-gradient(transparent 46%, rgba(255,230,80,.76) 46%, rgba(255,230,80,.76) 91%, transparent 91%);
+  color: inherit;
+  font-weight: 900;
+}
+.deep-node--1 .full-source {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--full-line-strong);
+  color: var(--full-muted);
+  font-size: 9.5px;
+  line-height: 1.35;
+}
+.deep-dive-layout > .full-source { display: none; }
+
+/* 7. Trends: semantically emphasize each implication automatically. */
+#consumer-trends .trend-row { min-height: 94px; }
+#consumer-trends .trend-row h3 { font-size: 12.5px; font-weight: 850; }
+#consumer-trends .trend-row p { font-size: 11.5px; line-height: 1.45; }
+#consumer-trends .trend-so {
+  padding: 10px 11px;
+  border-radius: 5px;
+}
+#consumer-trends .trend-so strong,
+.auto-semantic-highlight {
+  display: inline;
+  background: linear-gradient(transparent 48%, rgba(255,230,80,.72) 48%, rgba(255,230,80,.72) 91%, transparent 91%);
+  color: var(--full-ink);
+  font-size: 12px;
+  line-height: 1.48;
+  font-weight: 900;
+}
+
+/* 8. Persona: one dominant Job, one identity shift, one clear brand role. */
+#persona-1 .persona-layout,
+#persona-2 .persona-layout,
+#persona-3 .persona-layout {
+  grid-template-columns: 52px .82fr 1.12fr 1.06fr;
+  gap: 20px;
+  min-height: 390px;
+  align-items: center;
+}
+.persona-index {
+  align-self: start;
+  padding-top: 14px;
+  font-size: 40px;
+}
+.persona-left,
+.persona-center,
+.persona-right {
+  padding-top: 0;
+  border-top: 0;
+}
+.persona-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #eef0ff;
+  color: var(--full-accent-deep);
+  font-size: 9.5px;
+  letter-spacing: 0;
+}
+.persona-left li { font-size: 11.5px; line-height: 1.4; }
+.persona-quote {
+  margin-top: 14px;
+  padding: 11px 12px;
+  border-left: 0;
+  border-radius: 7px;
+  background: #f5f6f8;
+}
+.persona-quote span { font-size: 9px; font-weight: 800; }
+.persona-quote strong { font-size: 12px; line-height: 1.45; }
+.persona-center h3 {
+  margin: 16px 0 14px;
+  padding: 15px 16px;
+  border-radius: 8px;
+  background: var(--full-accent-soft);
+  color: var(--full-ink);
+  font-size: 19px;
+  line-height: 1.48;
+  box-shadow: inset 4px 0 0 var(--full-accent);
+}
+.persona-fears > span { font-size: 9.5px; font-weight: 900; }
+.persona-fears p {
+  margin: 7px 0;
+  padding: 9px 11px 9px 28px;
+  border-radius: 5px;
+  background: #fff3f1;
+  font-size: 11.5px;
+  line-height: 1.38;
+}
+.persona-fears p::before {
+  content: '!';
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-left: -20px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #ffd9d5;
+  color: var(--full-red);
+  font-size: 10px;
+  font-weight: 900;
+}
+.identity-shift {
+  grid-template-columns: 1fr 30px 1fr;
+  border: 0;
+}
+.identity-shift > div,
+.persona-right .identity-shift > div:first-child,
+.persona-right .identity-shift > div.is-target {
+  min-height: 120px;
+  padding: 15px;
+  border: 0;
+  border-radius: 8px;
+  background: #f5f6f8;
+}
+.identity-shift > div.is-target,
+.persona-right .identity-shift > div.is-target {
+  background: var(--full-accent-soft);
+  box-shadow: inset 0 0 0 2px var(--full-accent);
+}
+.identity-shift span { font-size: 9px; }
+.identity-shift p { font-size: 12px; line-height: 1.45; font-weight: 700; }
+.brand-role {
+  margin-top: 14px;
+  padding: 15px 17px;
+  border-left: 0;
+  border-top: 4px solid var(--full-accent);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(45,55,80,.08);
+}
+.brand-role span { font-size: 9.5px; font-weight: 900; }
+.brand-role strong {
+  font-size: 13px;
+  line-height: 1.48;
+  background: linear-gradient(transparent 54%, rgba(255,230,80,.72) 54%, rgba(255,230,80,.72) 91%, transparent 91%);
+}
+
+/* 9. AIPL: explain the model and turn the right panel into a conclusion. */
+#aipl .aipl-layout { grid-template-columns: 1.35fr .65fr; }
+#aipl .friction-analysis {
+  padding: 24px 26px;
+  border-left: 0;
+  border-top: 5px solid var(--full-red);
+  border-radius: 9px;
+  background: var(--full-red-soft);
+  box-shadow: 0 10px 24px rgba(100,45,40,.08);
+}
+#aipl .friction-analysis > span {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--full-red);
+  font-size: 9.5px;
+}
+#aipl .friction-analysis h3 {
+  margin: 15px 0 12px;
+  font-size: 25px;
+  line-height: 1.2;
+}
+#aipl .friction-analysis h3::before {
+  content: '핵심 병목';
+  display: block;
+  margin-bottom: 7px;
+  color: var(--full-red);
+  font-size: 10px;
+  font-weight: 900;
+}
+#aipl .friction-analysis li {
+  padding: 9px 0 9px 15px;
+  font-size: 11.5px;
+  font-weight: 650;
+}
+#aipl .friction-analysis li::before {
+  content: '•';
+  margin-left: -14px;
+  margin-right: 7px;
+  color: var(--full-red);
+  font-weight: 900;
+}
+
+/* 10. Creative methodology: remove non-decision metadata. */
+#creative-method .history-scope { display: none !important; }
+#creative-method .factuality-system > div { min-height: 225px; }
+
+/* 11. Message trajectory: no thin grey labels. */
+#creative-trajectory .trajectory-brand span {
+  color: var(--full-ink);
+  font-size: 11.5px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+#creative-trajectory .trajectory-brand b { font-size: 13px; font-weight: 900; }
+
+/* Global: body copy must not visually fall below the page number. */
+.full-slide:not(.history-original) .full-slide-body p,
+.full-slide:not(.history-original) .full-slide-body dd,
+.full-slide:not(.history-original) .full-slide-body td,
+.full-slide:not(.history-original) .full-slide-body li {
+  min-font-size: 12px;
+}

@@ -1,0 +1,42 @@
+#comp-landscape .full-slide-body,
+#consumer-exec .full-slide-body,
+#persona-1 .full-slide-body,
+#persona-2 .full-slide-body,
+#persona-3 .full-slide-body,
+#jtbd .full-slide-body {
+  position: relative;
+}
+
+.jtbd-header-note {
+  position: absolute;
+  top: 7px;
+  left: 0;
+  margin: 0;
+  color: var(--full-muted);
+  font-size: 9.5px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+#identity .identity-jtbd {
+  position: relative;
+  padding-bottom: 18px;
+}
+
+.founding-jtbd-note {
+  position: absolute;
+  left: 16px;
+  top: 35px;
+  width: 105px;
+  color: var(--full-muted);
+  font-size: 8px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+#strategy-choice .choice-layout-v3::before,
+#strategy-choice .choice-layout-v3::after,
+#creative-insight .creative-gap-v3::before,
+#creative-insight .creative-gap-v3::after {
+  display: none !important;
+}
