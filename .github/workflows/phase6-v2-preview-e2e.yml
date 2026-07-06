@@ -1,0 +1,73 @@
+name: Phase 6 V2 Preview E2E
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix-phase6-approved-full-renderer-v2
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      VERCEL_PREVIEW_URL: https://brand-consulting-git-fix-phase6-approve-06a944-dpes31s-projects.vercel.app/
+      LOCAL_E2E_URL: http://127.0.0.1:4173/
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install application dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-audit --no-fund playwright
+          npx playwright install --with-deps chromium
+      - name: Capture protected Vercel Preview entry
+        env:
+          PREVIEW_URL: ${{ env.VERCEL_PREVIEW_URL }}
+        run: node scripts/diagnose-phase6-preview.mjs
+      - name: Build and run Phase 6 E2E
+        shell: bash
+        env:
+          PREVIEW_URL: ${{ env.LOCAL_E2E_URL }}
+        run: |
+          mkdir -p phase6-v2-e2e-artifacts
+          set +e
+          npm run build > phase6-v2-e2e-artifacts/local-build.log 2>&1
+          build_code=$?
+          if [ "$build_code" != "0" ]; then
+            echo "$build_code" > phase6-v2-e2e-artifacts/e2e.exit
+            tail -n 160 phase6-v2-e2e-artifacts/local-build.log
+            exit 0
+          fi
+          npx vite preview --host 127.0.0.1 --port 4173 > phase6-v2-e2e-artifacts/local-server.log 2>&1 &
+          server_pid=$!
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "$PREVIEW_URL" > /dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          node scripts/e2e-phase6-production.mjs > phase6-v2-e2e-artifacts/e2e.log 2>&1
+          code=$?
+          kill "$server_pid" || true
+          echo "$code" > phase6-v2-e2e-artifacts/e2e.exit
+          tail -n 160 phase6-v2-e2e-artifacts/e2e.log
+          exit 0
+      - name: Upload E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6-v2-preview-e2e-evidence
+          path: phase6-v2-e2e-artifacts
+      - name: Enforce E2E result
+        shell: bash
+        run: test "$(cat phase6-v2-e2e-artifacts/e2e.exit)" = "0"

@@ -44,6 +44,8 @@
 
 **Decision:** Preserve 23 mandatory legacy wrappers. Main Deck may expand to 40 pages; later evidence continues in the same report as Appendix.
 
+**Status:** Historical contract for the legacy generator. Superseded for the current Phase 6 production target by D-013.
+
 ## D-007 — Reject heuristic visualization engine
 
 **Decision:** Do not merge `feature-visualization-engine-v1` / PR #6.
@@ -90,7 +92,7 @@ Research → Visual Intent Brief → Semantic Slide Plan → constrained Recipe 
 
 **Reason:** The generator's production HTML/PDF path requires separate migration and regression testing.
 
-**Future requirement:** Validate legacy 23-page reports, dynamic pages, Appendix, navigation, source handling, and PDF before adopting the 40+8 component system as the universal generated-report renderer.
+**Status:** Historical boundary. The separate migration and regression testing were completed in PR #14; see D-013 and D-014.
 
 ## D-012 — Final consolidation source
 
@@ -101,3 +103,39 @@ Research → Visual Intent Brief → Semantic Slide Plan → constrained Recipe 
 **Excluded:** failed PR #6 and superseded report experiments PR #8, #9, and #10.
 
 **Merge anchor:** `e607e397819b061c4676e3a2bdfb210f9d1b349b`.
+
+## D-013 — Fixed 48-page Phase 6 production contract
+
+**Decision:** The normal `/` Phase 6 product path uses exactly 40 Main Deck pages and 8 Appendix pages.
+
+**Consequences:**
+
+- Production output is one standalone HTML document with exactly 48 `.full-slide` elements.
+- Every slide remains 1280×720.
+- The approved Pilot page-specific DOM, CSS, components, page order, navigation, and print rules are the layout source.
+- `public/template.html` remains a protected rollback asset and is not overwritten.
+
+## D-014 — Separate approved layout from sample content
+
+**Decision:** The approved Pilot may provide layout structure only. Its completed Biznup report wording is not a valid content source for generated reports.
+
+**Implementation:**
+
+- Visible sample text is neutralized into `CONTENT SLOT` tokens before prompt export.
+- All slots are filled from the current Step 0–5 research.
+- External-AI and internal-API paths use the same content contract.
+- Unresolved slots block rendering.
+- Missing Step 0 KPI evidence and missing top Step 2 direct competitors block rendering.
+
+**Reason:** Embedding completed sample content caused external models to reproduce the Pilot's Biznup conclusions even when the research differed.
+
+## D-015 — Visual color correction is a separate follow-up
+
+**Decision:** Known color inconsistencies on detailed pages are handled after the Phase 6 content-neutral baseline is merged.
+
+**Scope boundary:**
+
+- Use a new preview-first branch and Draft PR from updated `main`.
+- Correct color tokens, contrast, page-specific overrides, and PDF color consistency.
+- Do not alter the 48-page contract, content-slot validation, Step 0–5 research logic, or protected legacy template.
+- Merge only after actual generated-page review and explicit owner approval.

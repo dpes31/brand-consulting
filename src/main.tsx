@@ -11,21 +11,29 @@ import { installStep5VisualIntentContract } from './lib/installStep5VisualIntent
 import { installVisualIntentWorkflowGuard } from './lib/installVisualIntentWorkflowGuard'
 import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
+import { installPhase6InputGuard } from './lib/installPhase6InputGuard'
 import { installFullReportPhase6Bridge } from './lib/installFullReportPhase6Bridge'
+import { installFullReportSourceRegistry } from './lib/installFullReportSourceRegistry'
+import { installFullReportPdfButtonBridge } from './lib/installFullReportPdfButtonBridge'
 import { installFullReportRuntimeCompatibility } from './lib/installFullReportRuntimeCompatibility'
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
 
 installIframePreRepair()
 installIframeLayoutSafety()
-installCreativeHistoryContract()
 installVisualIntentBriefPolicy()
 installStep3VisualIntentContract()
 installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
+// Phase 6 owns the generic prompt and render controls. Install it before every
+// legacy module that still listens for the same button text.
+installPhase6InputGuard()
+installFullReportPhase6Bridge()
+installFullReportSourceRegistry()
+installCreativeHistoryContract()
 installPromptWorkflowGuard()
 installReportViewerUX()
-installFullReportPhase6Bridge()
 installFullReportRuntimeCompatibility()
+installFullReportPdfButtonBridge()
 installDeploymentStatus()
 
 createRoot(document.getElementById('root')!).render(

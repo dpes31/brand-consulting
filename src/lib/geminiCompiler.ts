@@ -1,30 +1,38 @@
 import { GoogleGenAI } from '@google/genai';
-import { getBrandDesignReference } from './prompts';
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
 import {
-  assembleFullReportHtml,
-  buildFullReportDataPrompt,
+  assertApprovedFullReportHtml,
+  buildFullReportHtmlPrompt,
+  extractCompleteFullReportHtml,
+  loadApprovedPilotBaseHtml,
 } from '../report/fullReportCompiler';
+import { normalizeApprovedFullReportHtml } from '../report/normalizeApprovedFullReportHtml';
+import {
+  assertAllResearchSlotsFilled,
+  assertResearchEvidencePresent,
+  createResearchOnlyLayoutTemplate,
+} from '../report/researchContentTemplate';
+import { addResearchSlotRules } from '../report/researchSlotPrompt';
 
 export const compileReportToHTML = async (
   rawData: string,
   apiKey: string,
   brandName: string,
 ): Promise<string> => {
-  if (!apiKey) throw new Error('API 키가 렌더링에 필요합니다.');
-  if (!brandName.trim()) throw new Error('브랜드명이 필요합니다.');
+  if (!apiKey) throw new Error('API key is required.');
+  if (!brandName.trim()) throw new Error('Brand name is required.');
 
-  const ai = new GoogleGenAI({ apiKey });
-  const designRef = getBrandDesignReference(brandName);
-  const accentColor = designRef.match(/Accent:\s*(#\w+)/i)?.[1] || '#5e6ad2';
+  const capturedPilot = await loadApprovedPilotBaseHtml(brandName);
+  const researchOnlyTemplate = createResearchOnlyLayoutTemplate(capturedPilot, brandName);
   const creativeDirective = buildCreativeHistoryCompilerDirective(rawData);
-  const compilerPrompt = buildFullReportDataPrompt(rawData, brandName, creativeDirective);
-
+  const compilerPrompt = addResearchSlotRules(
+    buildFullReportHtmlPrompt(rawData, brandName, researchOnlyTemplate, creativeDirective),
+  );
+  const ai = new GoogleGenAI({ apiKey });
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {
-      systemInstruction:
-        'You are a strict Phase 6 strategic report compiler. Return only the complete ProductionReportV1 JSON. Preserve factuality, page-plan, Visual Intent, and Creative History contracts without truncation.',
+      systemInstruction: 'Preserve the supplied approved 48-page layout. Replace every CONTENT SLOT only with the supplied Step 0-5 research. Return the complete finalized HTML.',
       temperature: 0.1,
       topP: 0.7,
       maxOutputTokens: 65536,
@@ -33,7 +41,11 @@ export const compileReportToHTML = async (
 
   const messageResponse = await chat.sendMessage({ message: compilerPrompt });
   const output = messageResponse.text || '';
-  if (!output.trim()) throw new Error('AI가 Phase 6 보고서 데이터를 반환하지 않았습니다.');
+  if (!output.trim()) throw new Error('The Phase 6 HTML response is empty.');
 
-  return assembleFullReportHtml(output, brandName, accentColor);
+  const html = normalizeApprovedFullReportHtml(extractCompleteFullReportHtml(output));
+  assertApprovedFullReportHtml(html, brandName);
+  assertAllResearchSlotsFilled(html);
+  assertResearchEvidencePresent(html, rawData, brandName);
+  return html;
 };
