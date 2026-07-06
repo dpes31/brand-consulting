@@ -6,6 +6,7 @@ import {
   extractCompleteFullReportHtml,
   loadApprovedPilotBaseHtml,
 } from '../report/fullReportCompiler';
+import { normalizeApprovedFullReportHtml } from '../report/normalizeApprovedFullReportHtml';
 
 export const compileReportToHTML = async (
   rawData: string,
@@ -15,7 +16,7 @@ export const compileReportToHTML = async (
   if (!apiKey) throw new Error('API key is required.');
   if (!brandName.trim()) throw new Error('Brand name is required.');
 
-  const approvedBaseHtml = await loadApprovedPilotBaseHtml(brandName);
+  const approvedBaseHtml = normalizeApprovedFullReportHtml(await loadApprovedPilotBaseHtml(brandName));
   const creativeDirective = buildCreativeHistoryCompilerDirective(rawData);
   const compilerPrompt = buildFullReportHtmlPrompt(rawData, brandName, approvedBaseHtml, creativeDirective);
   const ai = new GoogleGenAI({ apiKey });
@@ -33,7 +34,7 @@ export const compileReportToHTML = async (
   const output = messageResponse.text || '';
   if (!output.trim()) throw new Error('The Phase 6 HTML response is empty.');
 
-  const html = extractCompleteFullReportHtml(output);
+  const html = normalizeApprovedFullReportHtml(extractCompleteFullReportHtml(output));
   assertApprovedFullReportHtml(html, brandName);
   return html;
 };
