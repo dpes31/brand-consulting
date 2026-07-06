@@ -3,11 +3,13 @@
 ## Current release checkpoint
 
 - Repository: `dpes31/brand-consulting`
-- Active branch: `fix-phase6-approved-full-renderer-v2`
-- Draft PR: #14 `Separate approved Phase 6 layout from research content`
-- PR base: `main`
-- Functionally validated head before documentation updates: `4957c168a51549cbe69c33db5be7c687f7467afd`
-- Production URL currently used by the owner: `https://brand-consulting.vercel.app/`
+- Production branch: `main`
+- Phase 6 integration PR: #14 `Separate approved Phase 6 layout from research content`
+- PR #14 status: merged
+- PR #14 head: `22862482059266c1b385a44794575a40ec7327ec`
+- Main merge commit: `7614e18bf007ad64c398ff3cfc2eb665f3ca341b`
+- Production URL: `https://brand-consulting.vercel.app/`
+- Vercel status for the merge commit: success
 - Immutable rollback branches:
   - `backup/main-before-full-report-v1-2026-07-01`
   - `backup-production-stable-20260622`
@@ -15,7 +17,7 @@
 
 ## Current Phase 6 architecture
 
-The normal `/` application flow now targets:
+The normal `/` application flow now uses:
 
 `Step 0–5 research`
 → `approved Pilot DOM/CSS capture`
@@ -91,47 +93,31 @@ The same content contract is applied to the manual external-AI route and the int
 
 ## PR #14 verification completed
 
-The following passed on the validated functional head:
-
-- Production build
-- Vercel Preview deployment
-- Non-Biznup test brand `모노랩`
-- Previous Biznup sample wording removed from the Base HTML
-- Unresolved 1,453-slot template rejected
-- New KPI values `123만 명`, `456억 원` reflected
-- New competitors `알파원`, `베타랩`, `감마코` reflected
-- 48 pages and 48 navigation links
-- 1280×720 geometry
-- zero slide overflow
-- Persona, Creative History, SWOT, and STP layouts retained
-- save and reopen
-- two consecutive 48-page PDF exports
+- Production build passed
+- Phase 6 Preview E2E passed
+- Vercel deployment passed
+- Non-Biznup brand replacement passed
+- Previous Biznup sample wording removal passed
+- Unresolved 1,453-slot template rejection passed
+- 48 pages and 48 navigation links passed
+- 1280×720 geometry and zero overflow passed
+- Persona, Creative History, SWOT, and STP layouts passed
+- save/reopen passed
+- two consecutive 48-page PDF exports passed
 
 ## Known visual follow-up
 
-The owner confirmed the Phase 6 content-replacement flow works. Some detailed pages still show color inconsistencies. These are accepted as a separate visual-polish task, not a reason to reopen the content-neutral renderer architecture.
+Some detailed generated pages show color inconsistencies. This is the next separate visual task.
 
-The next visual task should:
+Recommended next branch: `fix/phase6-report-color-consistency-v1`.
 
-- start from updated `main` after PR #14 is merged;
-- use a new preview-first branch and Draft PR;
-- inspect actual generated report pages, not only the Pilot route;
-- correct color tokens, contrast, page-specific overrides, and print/PDF color consistency;
-- avoid changing the Phase 6 content-slot contract, page count, or research logic;
-- keep `main` unmerged until the owner approves the new Preview.
+The next task starts from updated `main`, uses a new Draft PR, inspects actual generated report pages, and limits changes to color tokens, contrast, selector conflicts, brand Accent behavior, and screen/PDF color consistency.
 
-## Documentation warning
+## Documentation note
 
-`AGENTS.md` still contains pre-PR #14 architecture language because the current connector could not update that agent-instruction file. Before or immediately after merge, update it to state that the normal `/` Phase 6 path now uses the approved 48-page content-neutral HTML flow. Do not treat its older `23–40 page` and `future migration` language as current truth.
+`AGENTS.md` still contains pre-PR #14 architecture language because the connected repository tool blocks writes to that agent-instruction file. Use this handoff and `docs/REPORT_TEMPLATE_SPEC.md` as the current Phase 6 architecture reference.
 
 ## Excluded experiments
 
 - `feature-visualization-engine-v1` / PR #6: failed audit implementation; never merge
 - PR #8, #9, #10: superseded experiments; never restore as product code
-
-## Merge rule
-
-- PR #14 remains Draft until explicit owner approval.
-- Use a regular merge or fast-forward; do not squash this milestone.
-- Do not delete test, audit, or backup branches.
-- Confirm the Production deployment at `https://brand-consulting.vercel.app/` after merge.

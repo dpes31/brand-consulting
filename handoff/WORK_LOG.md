@@ -85,7 +85,7 @@
 
 ## 2026-07-06 — Phase 6 approved renderer correction
 
-- Continued on `fix-phase6-approved-full-renderer-v2` with Draft PR #14.
+- Continued on `fix-phase6-approved-full-renderer-v2` with PR #14.
 - Confirmed the approved Pilot design worked in the normal Phase 6 flow but found a critical content-contamination defect: the completed Biznup report HTML was embedded as the immutable Base HTML.
 - Replaced visible Pilot content with more than 1,400 neutral `CONTENT SLOT` tokens before prompt export.
 - Generalized competitor-dependent IDs and CSS selectors.
@@ -102,6 +102,9 @@
   - save/reopen
   - two consecutive 48-page PDF exports
 - Functional validation head: `4957c168a51549cbe69c33db5be7c687f7467afd`.
-- Updated `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, and `docs/REPORT_TEMPLATE_SPEC.md` for the PR #14 architecture.
-- Known separate follow-up: color inconsistencies on some detailed pages. Handle through a new preview-first visual-correction branch after the Phase 6 baseline merge.
-- `AGENTS.md` still requires a manual/current-tool update because the connector blocked modification of the agent-instruction file.
+- Final PR head after documentation: `22862482059266c1b385a44794575a40ec7327ec`.
+- PR #14 was merged to `main` with a regular merge commit: `7614e18bf007ad64c398ff3cfc2eb665f3ca341b`.
+- Vercel reported success for the merge commit.
+- The owner confirmed the Phase 6 flow works in actual use.
+- Known separate follow-up: color inconsistencies on some detailed generated pages.
+- `AGENTS.md` could not be updated because the connected repository tool blocks writes to agent-instruction files; the current architecture is recorded in `handoff/PROJECT_HANDOFF.md` and `docs/REPORT_TEMPLATE_SPEC.md`.

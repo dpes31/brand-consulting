@@ -139,3 +139,17 @@ Research → Visual Intent Brief → Semantic Slide Plan → constrained Recipe 
 - Correct color tokens, contrast, page-specific overrides, and PDF color consistency.
 - Do not alter the 48-page contract, content-slot validation, Step 0–5 research logic, or protected legacy template.
 - Merge only after actual generated-page review and explicit owner approval.
+
+## D-016 — Merge Phase 6 content-neutral baseline to production
+
+**Decision:** Merge PR #14 into `main` with a regular merge commit after owner confirmation, successful CI, successful E2E, and successful Vercel Preview deployment.
+
+**Merge record:**
+
+- PR: #14 `Separate approved Phase 6 layout from research content`
+- PR head: `22862482059266c1b385a44794575a40ec7327ec`
+- Merge commit: `7614e18bf007ad64c398ff3cfc2eb665f3ca341b`
+- Merge method: regular merge commit
+- Production deployment status: success
+
+**Next boundary:** Detailed color correction begins in a separate preview-first branch and does not reopen the Phase 6 content architecture.
