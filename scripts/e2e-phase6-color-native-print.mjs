@@ -96,7 +96,7 @@ try {
   const approvedBaseHtml = promptText.slice(start + baseStartMarker.length, end).trim();
   const simulatedExternalHtml = fillResearchSlots(approvedBaseHtml);
   assert.doesNotMatch(simulatedExternalHtml, /\[\[CONTENT:/);
-  await writeFile(path.join(artifactDir, 'generated-report.html'), simulatedExternalHtml);
+  await writeFile(path.join(artifactDir, 'generated-report-before-conditional-history.html'), simulatedExternalHtml);
 
   const phase6Input = page.locator('textarea:visible').last();
   await phase6Input.fill(`\`\`\`html\n${simulatedExternalHtml}\n\`\`\``);
@@ -107,6 +107,49 @@ try {
 
   assert.equal(await frame.locator('.full-slide').count(), 48);
   assert.equal(await frame.locator('.full-nav a').count(), 48);
+
+  // The approved page plan conditionally reuses Creative History on A2/A4 when
+  // competitors 4–5 exist. Model that exact reuse so the shared dark-page token
+  // is verified on both Main and Appendix history placements.
+  await frame.locator('body').evaluate(() => {
+    const reuseHistory = (sourceId, targetId, pageLabel, tagLabel) => {
+      const source = document.getElementById(sourceId);
+      const target = document.getElementById(targetId);
+      if (!source || !target) throw new Error(`Missing conditional history fixture: ${sourceId} -> ${targetId}`);
+      const targetPage = target.dataset.page;
+      const targetZone = target.dataset.zone;
+      target.className = source.className;
+      target.innerHTML = source.innerHTML;
+      target.dataset.page = targetPage;
+      target.dataset.zone = targetZone;
+      const pageNode = target.querySelector('.full-page');
+      const tagNode = target.querySelector('.full-tag');
+      if (pageNode) pageNode.textContent = pageLabel;
+      if (tagNode) tagNode.textContent = tagLabel;
+    };
+    reuseHistory('creative-history-1', 'appendix-negative', 'A2', 'CONDITIONAL HISTORY');
+    reuseHistory('creative-history-2', 'appendix-roadmap', 'A4', 'CONDITIONAL HISTORY');
+
+    const evidenceLabels = [
+      'GAP 01 · 퍼널',
+      'GAP 02 · 전문가',
+      'GAP 03 · 공개 가능성',
+      'GAP 04 · 제품 연결',
+      'STOP 01 · 최대 환급',
+      'STOP 02 · 쉽고 빠름',
+      'STOP 03 · AI 만능론',
+      'STOP 04 · 선언 선행',
+    ];
+    document.querySelectorAll('#appendix-evidence .evidence-gap-grid span').forEach((node, index) => {
+      if (evidenceLabels[index]) node.textContent = evidenceLabels[index];
+    });
+  });
+
+  const transformedHtml = await page.evaluate(() => {
+    const iframe = document.getElementById('fullscreen-viewer-iframe');
+    return `<!DOCTYPE html>\n${iframe.contentDocument.documentElement.outerHTML}`;
+  });
+  await writeFile(path.join(artifactDir, 'generated-report.html'), transformedHtml);
 
   const geometry = await frame.locator('.full-slide').evaluateAll((elements) => elements.map((element) => ({
     page: element.getAttribute('data-page'),
@@ -238,7 +281,7 @@ try {
 
   const printPage = await context.newPage();
   await printPage.setViewportSize({ width: 1280, height: 720 });
-  await printPage.setContent(simulatedExternalHtml, { waitUntil: 'networkidle', timeout: 120000 });
+  await printPage.setContent(transformedHtml, { waitUntil: 'networkidle', timeout: 120000 });
   await printPage.waitForFunction(() => document.querySelectorAll('.full-slide').length === 48, { timeout: 60000 });
   await printPage.evaluate(async () => { if (document.fonts?.ready) await document.fonts.ready; });
   await printPage.emulateMedia({ media: 'print' });
