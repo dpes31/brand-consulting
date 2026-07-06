@@ -39,6 +39,8 @@ jobs:
             sleep 10
           done
           exit 1
+      - name: Capture Preview entry
+        run: node scripts/diagnose-phase6-preview.mjs
       - name: Run Phase 6 Preview E2E and preserve log
         shell: bash
         run: |
