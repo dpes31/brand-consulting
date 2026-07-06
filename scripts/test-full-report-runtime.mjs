@@ -63,6 +63,13 @@ assert.doesNotMatch(bridge, /fetch\('\/template\.html/);
 assert.match(legacyGuard, /buildReportCompilerPrompt/);
 assert.match(compiler, /Return JSON only/);
 assert.match(compiler, /The application, not the AI, owns the final HTML\/CSS renderer/);
+assert.match(compiler, /IMMEDIATE EXECUTION DIRECTIVE — THIS ATTACHMENT IS THE COMPLETE USER REQUEST/);
+assert.match(compiler, /may send it with an empty chat message/);
+assert.match(compiler, /Do not acknowledge the file/);
+assert.match(compiler, /별도 채팅 메시지가 비어 있어도/);
+assert.match(compiler, /FINAL EXECUTION TRIGGER/);
+assert.match(compiler, /Execute the compilation now/);
+assert.match(compiler, /Do not respond with "file checked"/);
 
 assert.match(template, /full-report-approved-v1\.css/);
 assert.match(template, /class="full-report-app"/);
