@@ -1,0 +1,71 @@
+/* Phase 6 color and layout corrections from generated-report review.
+ * Scope is intentionally limited to the affected pages and shared dark-slide token.
+ */
+
+body[data-report-version="full-report-v1"],
+body[data-report-version="full-report-v1"] .full-report-app {
+  color-scheme: light;
+}
+
+/* Creative History pages 30-33 and conditional Appendix history pages.
+ * The final shared .full-slide rule reads --full-paper, so the dark variant must
+ * override the paper token rather than only declaring an earlier background.
+ */
+.full-slide--dark {
+  --full-paper: #090a0c;
+  --paper: #090a0c;
+  background: var(--full-paper) !important;
+  color: var(--full-ink) !important;
+}
+
+/* Page 40: the approved final-choice surface is light. Prevent the legacy dark
+ * choice component's white foreground from surviving into this page.
+ */
+#strategy-choice .choice-final {
+  background: var(--full-accent-soft) !important;
+  color: var(--full-ink) !important;
+}
+
+#strategy-choice .choice-final h2,
+#strategy-choice .choice-final h3 {
+  color: var(--full-ink) !important;
+}
+
+/* Page 3: keep the evidence note below the FOUNDING JTBD label instead of
+ * positioning it over the label and statement.
+ */
+#identity .identity-jtbd {
+  grid-template-columns: 126px minmax(0, 1.3fr) minmax(0, 1fr);
+}
+
+#identity .identity-jtbd > span {
+  align-self: flex-start;
+  padding-top: 3px;
+}
+
+#identity .founding-jtbd-note {
+  top: auto !important;
+  bottom: 8px !important;
+  left: 18px !important;
+  width: 116px !important;
+  color: var(--full-muted);
+  font-size: 7.5px;
+  line-height: 1.25;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* Appendix A6: reserve a useful label column so GAP / STOP subtitles wrap once
+ * instead of fragmenting into three or four narrow lines.
+ */
+#appendix-evidence .evidence-gap-grid > div {
+  grid-template-columns: 118px minmax(0, 1fr) !important;
+  column-gap: 14px;
+}
+
+#appendix-evidence .evidence-gap-grid span {
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  line-height: 1.3;
+}
