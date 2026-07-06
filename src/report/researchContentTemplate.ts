@@ -61,6 +61,16 @@ function neutralizeNavigation(documentRef: Document, idMap: Map<string, string>)
   });
 }
 
+function neutralizeStyleSelectors(documentRef: Document, idMap: Map<string, string>): void {
+  documentRef.querySelectorAll<HTMLStyleElement>('style').forEach((style) => {
+    let css = style.textContent || '';
+    idMap.forEach((nextId, oldId) => {
+      css = css.split(`#${oldId}`).join(`#${nextId}`);
+    });
+    style.textContent = css;
+  });
+}
+
 export function createResearchOnlyLayoutTemplate(source: string, brandName: string): string {
   if (typeof DOMParser === 'undefined') throw new Error('HTML 템플릿 변환기를 사용할 수 없습니다.');
   const documentRef = new DOMParser().parseFromString(source, 'text/html');
@@ -82,6 +92,7 @@ export function createResearchOnlyLayoutTemplate(source: string, brandName: stri
   });
 
   neutralizeNavigation(documentRef, idMap);
+  neutralizeStyleSelectors(documentRef, idMap);
   documentRef.querySelectorAll<HTMLElement>('[title],[aria-label],img[alt]').forEach((element) => {
     if (element.hasAttribute('title')) element.setAttribute('title', 'Report element');
     if (element.hasAttribute('aria-label')) element.setAttribute('aria-label', 'Report element');
