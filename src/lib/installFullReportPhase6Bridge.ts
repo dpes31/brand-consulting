@@ -6,6 +6,11 @@ import {
   loadApprovedPilotBaseHtml,
 } from '../report/fullReportCompiler';
 import { normalizeApprovedFullReportHtml } from '../report/normalizeApprovedFullReportHtml';
+import {
+  assertAllResearchSlotsFilled,
+  assertResearchEvidencePresent,
+  createResearchOnlyLayoutTemplate,
+} from '../report/researchContentTemplate';
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
 const ACTIVE_BRAND_SESSION_KEYS = [
@@ -138,18 +143,19 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
 
   const originalText = normalizeText(clickedButton.textContent) || '프롬프트 추출';
   clickedButton.disabled = true;
-  clickedButton.textContent = '승인 48페이지 양식 포함 중...';
+  clickedButton.textContent = '48페이지 레이아웃 중립화 중...';
 
   try {
-    const approvedBaseHtml = normalizeApprovedFullReportHtml(await loadApprovedPilotBaseHtml(brandName));
+    const capturedPilot = await loadApprovedPilotBaseHtml(brandName);
+    const researchOnlyTemplate = createResearchOnlyLayoutTemplate(capturedPilot, brandName);
     const creativeDirective = buildCreativeHistoryCompilerDirective(rawResearch);
-    const prompt = buildFullReportHtmlPrompt(rawResearch, brandName, approvedBaseHtml, creativeDirective);
+    const prompt = buildFullReportHtmlPrompt(rawResearch, brandName, researchOnlyTemplate, creativeDirective);
     await copyText(prompt);
     downloadPrompt(prompt, brandName);
     window.alert(
       'FULL 보고서 Phase 6 프롬프트를 복사하고 파일로 저장했습니다.\n\n' +
-      '승인된 Pilot의 48페이지 HTML/CSS와 Step 0~5 조사 결과가 모두 포함됐습니다. ' +
-      '외부 AI가 반환한 ```html ... ``` 전체를 아래 입력창에 붙여넣으세요. 앱은 레이아웃을 재조립하지 않고 완성 HTML을 그대로 검증·저장·출력합니다.',
+      '승인 Pilot의 48페이지 레이아웃은 유지하되 기존 비즈넵 문장·수치·경쟁사명은 제거했습니다. ' +
+      '외부 AI는 모든 CONTENT SLOT을 Step 0~5 조사 내용으로 새로 채워야 합니다.',
     );
   } catch (error) {
     window.alert(`Phase 6 프롬프트 생성 오류: ${error instanceof Error ? error.message : String(error)}`);
@@ -168,6 +174,7 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
   stopReactClick(event);
   const textarea = findPhase6Textarea();
   const brandName = readBrandName();
+  const { rawResearch, missingSteps } = readResearchSnapshot();
   if (!textarea || !textarea.value.trim()) {
     window.alert('외부 AI가 생성한 완성 HTML 전체를 입력창에 붙여넣어 주세요.');
     return;
@@ -176,11 +183,15 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
     window.alert('브랜드명을 확인할 수 없습니다. Phase 0으로 돌아가 브랜드명을 다시 입력해 주세요.');
     return;
   }
+  if (missingSteps.length > 0 || !rawResearch.trim()) {
+    window.alert('Step 0~5 조사 원문을 확인할 수 없어 내용 반영 여부를 검증할 수 없습니다.');
+    return;
+  }
 
   const originalText = normalizeText(clickedButton.textContent);
   clickedButton.disabled = true;
   clickedButton.dataset.fullReportBusy = 'true';
-  clickedButton.textContent = '48페이지 HTML 검증 중...';
+  clickedButton.textContent = '레이아웃·조사 반영 검증 중...';
 
   try {
     let html = normalizeApprovedFullReportHtml(extractCompleteFullReportHtml(textarea.value));
@@ -189,6 +200,8 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
       .replace(/\[cite_start\]/g, '')
       .replace(/\\cite\{[^}]*\}/g, '');
     assertApprovedFullReportHtml(html, brandName);
+    assertAllResearchSlotsFilled(html);
+    assertResearchEvidencePresent(html, rawResearch, brandName);
 
     textarea.dataset.fullReportValidatedHtml = 'true';
     setControlledTextareaValue(textarea, html);
@@ -205,24 +218,24 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
     clickedButton.disabled = false;
     delete clickedButton.dataset.fullReportBusy;
     clickedButton.textContent = originalText || '결과물 뷰어에 렌더링하기';
-    window.alert(`FULL 보고서 HTML 검증 오류: ${error instanceof Error ? error.message : String(error)}`);
+    window.alert(`FULL 보고서 검증 오류: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 function refreshPhase6Copy(): void {
   const textarea = findPhase6Textarea();
   if (textarea) {
-    textarea.placeholder = '외부 AI가 반환한 ```html ... ``` 전체를 붙여넣으세요. 승인된 48페이지 HTML을 그대로 검증·저장합니다.';
+    textarea.placeholder = '외부 AI가 모든 CONTENT SLOT을 조사 내용으로 채운 완성 HTML 전체를 붙여넣으세요.';
   }
 
   document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
     const text = normalizeText(element.textContent);
     if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI 완성 HTML 생성';
     if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.') {
-      element.textContent = '외부 AI가 승인된 48페이지 양식에 조사 내용을 채운 완성 HTML을 생성합니다.';
+      element.textContent = '승인 레이아웃의 빈 콘텐츠 슬롯을 Step 0~5 조사 내용으로 채웁니다.';
     }
     if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
-      element.textContent = 'Step 0~5 조사 결과를 승인된 40페이지 Main Deck + 8페이지 Appendix HTML로 생성합니다.';
+      element.textContent = '레이아웃은 고정하고, 모든 결론·수치·경쟁사·전략은 현재 조사 결과로 교체합니다.';
     }
   });
 }
