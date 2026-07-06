@@ -1,141 +1,137 @@
 # Brand Consulting Generator — Project Handoff
 
-## Current release transition
+## Current release checkpoint
 
 - Repository: `dpes31/brand-consulting`
-- Final integration branch: `feature-main-full-report-integration-v1`
-- Final report PR: #11
-- Validated Prompt/Visual Intent integration PR: #12
-- Prompt-contract integration merge anchor: `e607e397819b061c4676e3a2bdfb210f9d1b349b`
-- Pre-transition production backup: `backup/main-before-full-report-v1-2026-07-01`
-- Older production rollback: `backup-production-stable-20260622`
-- Both rollback branches are immutable.
+- Active branch: `fix-phase6-approved-full-renderer-v2`
+- Draft PR: #14 `Separate approved Phase 6 layout from research content`
+- PR base: `main`
+- Functionally validated head before documentation updates: `4957c168a51549cbe69c33db5be7c687f7467afd`
+- Production URL currently used by the owner: `https://brand-consulting.vercel.app/`
+- Immutable rollback branches:
+  - `backup/main-before-full-report-v1-2026-07-01`
+  - `backup-production-stable-20260622`
+- `public/template.html` remains the legacy rollback asset. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
 
-## Application structure
+## Current Phase 6 architecture
 
-### Default product path
+The normal `/` application flow now targets:
 
-- Entry: `src/main.tsx`
-- Application shell: `src/App.tsx`
-- Default route: `/`
-- Main UI: `src/pages/Dashboard.tsx`
-- Research prompts: `src/lib/prompts.ts`
-- Research execution: `src/lib/gemini.ts`
-- HTML compilation: `src/lib/geminiCompiler.ts`
-- Production HTML shell: `public/template.html`
-- PDF and layout safety:
-  - `src/lib/exportReportPdf.ts`
-  - `src/lib/installIframePreRepair.ts`
-  - `src/lib/installLayoutSafety.ts`
-  - `src/lib/installReportViewerUX.ts`
+`Step 0–5 research`
+→ `approved Pilot DOM/CSS capture`
+→ `sample report text neutralized into CONTENT SLOT tokens`
+→ `external AI or internal API fills every slot from current research`
+→ `blocking validation`
+→ `48-page standalone HTML`
+→ `Viewer / save / reopen / PDF`
 
-### Approved report reference path
+The approved Pilot is a layout source only. Its Biznup conclusions, figures, competitors, personas, Creative History, sources, SWOT, STP, and strategy are removed before the Phase 6 prompt is exported.
 
-- Preview route: `/?pilot=full-integrated&brand=<exact user-entered brand>`
-- Main component: `src/pages/BiznupFullIntegrated.tsx`
-- Report data: `src/pages/biznupFullReportData.ts`
-- Base styles: `src/pages/BiznupFullIntegrated.css`
-- Refinement entry: `src/pages/BiznupFullIntegratedRefinement.css`
-- Density/refinement layers: `src/pages/density-v2-*.css` through `density-v5-fixes.css`
-- Runtime refinements:
-  - `src/pages/full-report-density-v2-runtime.ts`
-  - `src/pages/full-report-v4-runtime.ts`
-- Report structure: 40-page Main Deck + 8-page Appendix
-- Logical canvas: 1280×720, exact 16:9
+## Blocking validation
 
-### Other reference route
+Phase 6 rejects results when:
 
-- `/?pilot=umbrex-compare`
-- Files: `src/pages/UmbrexComparisonPilot.tsx` and `.css`
-- Purpose: structural pattern comparison only; not a production dependency.
+- any `CONTENT SLOT` remains unresolved;
+- the report does not contain exactly 48 `.full-slide` pages;
+- page IDs or page labels are missing or duplicated;
+- required approved layouts are missing;
+- the exact user-entered brand name is absent;
+- Step 0 KPI evidence is not sufficiently reflected;
+- the highest-ranked Step 2 direct competitors are missing;
+- an unapproved script is included.
 
-## Validated development phases
+The same content contract is applied to the manual external-AI route and the internal API route.
 
-- Phase 1: layout and exact 16:9 PDF safety.
-- Phase 2: threat-ranked Competitor Registry; 2–5 direct competitors.
-- Phase 3: dynamic 23–40 page Main Deck and Appendix planning.
-- Phase 4: six-year Creative History factuality contract.
-- Gate 1.5: Visual Intent schema, recipe-selection matrix, and initial recipe schemas.
-- Gate 2A: owner validation completed and passed for Steps 0, 2, 3, and 5.
+## Fixed report contract
 
-## Step-level Prompt and Recipe status
+- Main Deck: exactly 40 pages
+- Appendix: exactly 8 pages
+- Total: exactly 48 pages
+- Canvas: 1280×720, exact 16:9
+- Typeface: Pretendard
+- Major titles: weight 900
+- Korean copy: `word-break: keep-all`
+- Exact user-entered brand name; no translation or romanization
+- Every analytical page retains a conclusion-led title and `SO WHAT` implication where the approved layout provides one
+- Raw URLs are not exposed
+- Unverified advertising copy is not quoted
 
-### Step 0 — Brand Fact Book
+## Validated Step contracts
 
-- Visual Intent contains exactly one Growth Story Brief.
-- Accepted recipe: `milestone-timeline` for event-led chronology.
-- Three accepted runs: 100% agreement.
+### Step 0
 
-### Step 2 — Competitor Strategy
+- Exactly one Growth Story Visual Intent Brief
+- Accepted recipe: `milestone-timeline`
+- Three accepted runs: 100% agreement
 
-- Threat Ranking: `rank-scorecard`.
-- One independent selected-competitor Deep Dive: `competitor-threat-system` per Registry entry.
-- Product Matrix: `feature-matrix`.
-- Positioning Map: optional and only with two defensible common axes.
-- Complete Metric metadata is mandatory when metrics are present.
-- Three accepted runs: 100% required-role agreement.
+### Step 2
 
-### Step 3 — Consumer
+- Threat Ranking: `rank-scorecard`
+- 2–5 direct competitors selected through the Registry
+- Independent Deep Dive per selected competitor
+- Product Matrix: `feature-matrix`
+- Positioning Map only when common axes are defensible
+- Independent six-year Creative History per selected competitor
 
-- Normal analysis retains Trends, Persona, Identity Alignment, JTBD, AIPL, and Unmet Needs.
-- Visual Intent contains exactly one core consumer-decision Brief.
-- Accepted test recipe: `friction-flow`.
-- All Step 3 recipes remain `planned`; `metrics` must be `[]`.
-- Three accepted runs: 100% agreement.
+### Step 3
 
-### Step 5 — Strategy
+- Trends, Persona, Identity Alignment, JTBD, AIPL, and Unmet Needs remain in the analysis
+- Exactly one core consumer-decision Brief
+- Accepted recipe: `friction-flow`
+- `implementationStatus: planned`
+- `metrics: []`
 
-- Normal analysis retains SWOT, GAP, Root Cause, three ToT routes, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, and execution sequence.
-- Visual Intent contains exactly one final strategy-decision Brief.
-- Accepted test recipe: `choice-architecture`.
-- All Step 5 recipes remain `planned`; `metrics` must be `[]`.
-- Three accepted runs: 100% agreement.
+### Step 5
 
-## Approved report template
+- SWOT, GAP, Root Cause, three ToT routes, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, and execution sequence remain
+- Exactly one final strategy-decision Brief
+- Accepted recipe: `choice-architecture`
+- `implementationStatus: planned`
+- `metrics: []`
 
-- Pretendard is the standard typeface; major titles use weight 900.
-- The exact user-entered brand name is preserved without automatic translation.
-- Korean body copy uses keep-all wrapping and semantic line breaks.
-- Body copy normally remains at least page-number size; sources and caveats may be smaller.
-- Critical governing phrases and decision implications can use yellow highlighting.
-- Use evidence-appropriate structures: timelines, scorecards, matrices, causal flows, consumer friction flows, AS-IS/TO-BE, STP convergence, choice architecture, roadmap, and evidence-gap panels.
-- Avoid decorative card walls, unexplained vertical rules, arbitrary box sizes, and prose-only layouts where a structure is available.
-- Equal-hierarchy elements require equal tracks and aligned top/bottom rules.
-- Creative History preserves six-year coverage, source status, and quotation rules.
+## PR #14 verification completed
 
-## Known limitations and technical debt
+The following passed on the validated functional head:
 
-1. The approved 40+8 report is currently a React reference route. It is not yet a full replacement for every report generated through `public/template.html` and the compiler.
-2. The report refinement is split across several CSS and runtime layers. A later refactor should consolidate tokens and remove redundant overrides without changing approved appearance.
-3. Gate 2A validates the manual external-AI response workflow. API-mode acceptance is not governed by the same complete blocking validator.
-4. `scripts/report-visual-qa.mjs` exists as a QA utility; its presence does not prove that every future report was visually approved.
-5. Navigation and repeat PDF-export behavior must continue to be regression-tested when the production report compiler is changed.
+- Production build
+- Vercel Preview deployment
+- Non-Biznup test brand `모노랩`
+- Previous Biznup sample wording removed from the Base HTML
+- Unresolved 1,453-slot template rejected
+- New KPI values `123만 명`, `456억 원` reflected
+- New competitors `알파원`, `베타랩`, `감마코` reflected
+- 48 pages and 48 navigation links
+- 1280×720 geometry
+- zero slide overflow
+- Persona, Creative History, SWOT, and STP layouts retained
+- save and reopen
+- two consecutive 48-page PDF exports
+
+## Known visual follow-up
+
+The owner confirmed the Phase 6 content-replacement flow works. Some detailed pages still show color inconsistencies. These are accepted as a separate visual-polish task, not a reason to reopen the content-neutral renderer architecture.
+
+The next visual task should:
+
+- start from updated `main` after PR #14 is merged;
+- use a new preview-first branch and Draft PR;
+- inspect actual generated report pages, not only the Pilot route;
+- correct color tokens, contrast, page-specific overrides, and print/PDF color consistency;
+- avoid changing the Phase 6 content-slot contract, page count, or research logic;
+- keep `main` unmerged until the owner approves the new Preview.
+
+## Documentation warning
+
+`AGENTS.md` still contains pre-PR #14 architecture language because the current connector could not update that agent-instruction file. Before or immediately after merge, update it to state that the normal `/` Phase 6 path now uses the approved 48-page content-neutral HTML flow. Do not treat its older `23–40 page` and `future migration` language as current truth.
 
 ## Excluded experiments
 
-- `feature-visualization-engine-v1` / PR #6: failed heuristic visualization engine; retained only for audit.
-- PR #8: superseded report-refinement pilot.
-- PR #9: superseded merge-gate visual QA experiment.
-- PR #10: superseded visual-QA continuation; reusable QA concepts are represented in the final report branch, but the obsolete branch is not merged as a product implementation.
+- `feature-visualization-engine-v1` / PR #6: failed audit implementation; never merge
+- PR #8, #9, #10: superseded experiments; never restore as product code
 
-## Rollback
+## Merge rule
 
-### Full rollback to pre-transition production
-
-Move `main` back to the commit referenced by:
-
-`backup/main-before-full-report-v1-2026-07-01`
-
-This branch points to the former production `main` commit and must never be rewritten.
-
-### Older stable fallback
-
-Use `backup-production-stable-20260622` only when the newer backup is unsuitable.
-
-### Feature-level rollback
-
-Prefer reverting the relevant merge commit rather than deleting branches. Preserve PR #7, PR #11, PR #12, and all audit branches.
-
-## Next implementation boundary
-
-A future task may connect the approved 40+8 reference component system to the production compiler/template. That work must be separately specified, previewed, and regression-tested across legacy 23-page reports, dynamic reports, Appendix generation, navigation, and PDF export.
+- PR #14 remains Draft until explicit owner approval.
+- Use a regular merge or fast-forward; do not squash this milestone.
+- Do not delete test, audit, or backup branches.
+- Confirm the Production deployment at `https://brand-consulting.vercel.app/` after merge.
