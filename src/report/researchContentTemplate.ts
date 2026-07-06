@@ -115,9 +115,10 @@ export function assertAllResearchSlotsFilled(html: string): void {
   const incomplete: number[] = [];
   slides.forEach((slide, index) => {
     const title = slide.querySelector<HTMLElement>('.full-title-row h2')?.textContent?.trim() || '';
-    const implication = slide.querySelector<HTMLElement>('.full-implication > div')?.textContent?.trim() || '';
+    const implicationNode = slide.querySelector<HTMLElement>('.full-implication > div');
+    const implication = implicationNode?.textContent?.trim() || '';
     const text = (slide.textContent || '').replace(/\s+/g, ' ').trim();
-    if (title.length < 6 || text.length < 80 || (index < 47 && implication.length < 8)) incomplete.push(index + 1);
+    if (title.length < 6 || text.length < 80 || (implicationNode && implication.length < 8)) incomplete.push(index + 1);
   });
   if (incomplete.length) throw new Error(`조사 내용이 충분히 채워지지 않은 페이지: ${incomplete.join(', ')}`);
 }
