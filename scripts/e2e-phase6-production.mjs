@@ -2,15 +2,16 @@ import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { chromium } from 'playwright';
-import { buildPhase6StepFixtures, buildProductionReportFixture } from './phase6-e2e-fixtures.mjs';
+import { buildPhase6StepFixtures } from './phase6-e2e-fixtures.mjs';
 
 const appUrl = process.env.PREVIEW_URL;
 if (!appUrl) throw new Error('PREVIEW_URL is required.');
 const brand = '모노랩';
 const artifactDir = path.resolve('phase6-v2-e2e-artifacts');
 await mkdir(artifactDir, { recursive: true });
-const report = buildProductionReportFixture(brand);
 const stepFixtures = buildPhase6StepFixtures(brand);
+const baseStartMarker = '[IMMUTABLE APPROVED BASE HTML — START]';
+const baseEndMarker = '[IMMUTABLE APPROVED BASE HTML — END]';
 
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1600, height: 1000 } });
@@ -40,30 +41,50 @@ try {
   await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });
   await page.screenshot({ path: path.join(artifactDir, '01-phase6-screen.png'), fullPage: true });
 
-  const promptDownloadPromise = page.waitForEvent('download', { timeout: 30000 });
+  const promptDownloadPromise = page.waitForEvent('download', { timeout: 60000 });
   await page.getByRole('button', { name: /프롬프트 추출/ }).click();
   const promptDownload = await promptDownloadPromise;
   const promptPath = path.join(artifactDir, 'phase6-prompt.txt');
   await promptDownload.saveAs(promptPath);
   const promptText = await readFile(promptPath, 'utf8');
-  assert.match(promptText, /Return JSON only/);
-  assert.match(promptText, /ProductionReportV1 JSON only/);
+
+  assert.match(promptText, /The final product is ONE complete standalone HTML document, not JSON/);
+  assert.match(promptText, /Return the complete HTML only/);
+  assert.match(promptText, /VISUAL INTENT BRIEF INTERPRETATION/);
+  assert.match(promptText, /It does NOT mean that the final output should be JSON/);
   assert.match(promptText, /## STEP 0/);
   assert.match(promptText, /## STEP 5/);
-  assert.doesNotMatch(promptText, /<!DOCTYPE html>/i);
-  assert.doesNotMatch(promptText, /slide-wrapper/);
-  assert.doesNotMatch(promptText, /Immutable Base HTML Code/);
+  assert.match(promptText, /<!DOCTYPE html>/i);
+  assert.match(promptText, /class="full-slide/);
+  assert.match(promptText, /class="growth-timeline/);
+  assert.match(promptText, /class="persona-layout/);
+  assert.match(promptText, /class="history-grid/);
+  assert.match(promptText, /class="swot-grid/);
+  assert.match(promptText, /class="stp-layout/);
+  assert.doesNotMatch(promptText, /Return JSON only/);
+  assert.doesNotMatch(promptText, /ProductionReportV1 JSON only/);
+
+  const start = promptText.indexOf(baseStartMarker);
+  const end = promptText.indexOf(baseEndMarker);
+  assert.ok(start >= 0 && end > start, 'Approved Base HTML markers are missing');
+  const approvedBaseHtml = promptText.slice(start + baseStartMarker.length, end).trim();
+  assert.equal((approvedBaseHtml.match(/class="full-slide/g) || []).length, 48);
 
   const phase6Input = page.locator('textarea:visible').last();
-  await phase6Input.fill('<!DOCTYPE html><html><style>:root{--hds-brand-accent:#000}</style><body><div class="slide-wrapper"></div></body></html>');
+  await phase6Input.fill('```json\n{"version":"1.0.0","brand":"모노랩","mainSlides":[],"appendixSlides":[]}\n```');
   await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
   await page.waitForTimeout(500);
-  assert.ok(dialogs.some((message) => message.includes('이전 HTML 생성 프롬프트로 만든 구형 HTML')));
+  assert.ok(dialogs.some((message) => message.includes('이전 Phase 6의 ProductionReportV1 JSON')));
 
-  await phase6Input.fill(`\`\`\`json\n${JSON.stringify(report)}\n\`\`\``);
+  const simulatedExternalHtml = approvedBaseHtml
+    .replaceAll('비즈넵', brand)
+    .replaceAll('BIZNUP', brand)
+    .replaceAll('Biznup', brand);
+  await phase6Input.fill(`\`\`\`html\n${simulatedExternalHtml}\n\`\`\``);
   await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(1800);
   await writeFile(path.join(artifactDir, 'render-dialogs.json'), JSON.stringify(dialogs, null, 2));
+
   if (await page.locator('#fullscreen-viewer-iframe').count() === 0) {
     throw new Error(`Phase 6 viewer did not open. Dialogs: ${JSON.stringify(dialogs)}`);
   }
@@ -72,7 +93,7 @@ try {
   await frame.locator('.full-slide').first().waitFor({ timeout: 60000 });
 
   assert.equal(await frame.locator('.full-slide').count(), 48);
-  assert.equal(await frame.locator('.nav-item').count(), 48);
+  assert.equal(await frame.locator('.full-nav a').count(), 48);
   assert.equal(await frame.locator('.persona-layout').count(), 3);
   assert.equal(await frame.locator('.history-grid').count(), 4);
   assert.equal(await frame.locator('.history-bottom').count(), 4);
@@ -91,14 +112,14 @@ try {
   const overflow = geometry.filter((item) => item.overflowX > 1 || item.overflowY > 1);
   assert.deepEqual(overflow, []);
 
-  await frame.locator('#qa-page-22').screenshot({ path: path.join(artifactDir, '02-persona.png') });
-  await frame.locator('#qa-page-31').screenshot({ path: path.join(artifactDir, '03-creative-history.png') });
-  await frame.locator('#qa-page-37').screenshot({ path: path.join(artifactDir, '04-swot.png') });
-  await frame.locator('#qa-page-39').screenshot({ path: path.join(artifactDir, '05-stp.png') });
+  await frame.locator('#persona-1').screenshot({ path: path.join(artifactDir, '02-persona.png') });
+  await frame.locator(`#creative-${brand}`).screenshot({ path: path.join(artifactDir, '03-creative-history.png') });
+  await frame.locator('#strategy-swot').screenshot({ path: path.join(artifactDir, '04-swot.png') });
+  await frame.locator('#stp').screenshot({ path: path.join(artifactDir, '05-stp.png') });
 
-  await frame.locator('.nav-item').last().click();
+  await frame.locator('.full-nav a').last().click();
   await page.waitForTimeout(300);
-  assert.equal(await frame.locator('html').evaluate(() => location.hash), '#qa-page-48');
+  assert.equal(await frame.locator('html').evaluate(() => location.hash), '#appendix-back');
 
   const pdfRuntimeState = await page.evaluate(() => {
     const iframe = document.getElementById('fullscreen-viewer-iframe');
@@ -145,14 +166,15 @@ try {
   const reopened = page.frameLocator('#fullscreen-viewer-iframe');
   await reopened.locator('.full-slide').first().waitFor({ timeout: 60000 });
   assert.equal(await reopened.locator('.full-slide').count(), 48);
-  assert.equal(await reopened.locator('#qa-page-31 .history-bottom').count(), 1);
+  assert.equal(await reopened.locator(`#creative-${brand} .history-bottom`).count(), 1);
 
   const summary = {
     appUrl,
     brand,
-    promptJsonOnly: true,
+    promptCompleteHtml: true,
+    promptContainsApprovedPilotHtml: true,
     promptContainsSteps0To5: true,
-    legacyHtmlRejected: true,
+    jsonInputRejected: true,
     renderedPages: 48,
     navigationLinks: 48,
     personaPages: 3,
