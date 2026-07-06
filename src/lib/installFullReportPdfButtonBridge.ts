@@ -18,15 +18,16 @@ function isFullReportFrame(iframe: HTMLIFrameElement): boolean {
   const documentRef = iframe.contentDocument;
   return Boolean(
     documentRef?.body?.dataset.reportVersion === 'full-report-v1'
-    || documentRef?.querySelector('.full-slide'),
+    || documentRef?.querySelectorAll('.full-slide').length === 48,
   );
 }
 
 export function installFullReportPdfButtonBridge(): void {
   if (installed || typeof document === 'undefined') return;
   installed = true;
+  document.documentElement.dataset.fullPdfButtonBridge = 'installed';
 
-  document.addEventListener('click', (event) => {
+  window.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
     const button = target.closest('button');
