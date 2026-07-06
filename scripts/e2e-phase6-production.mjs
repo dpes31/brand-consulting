@@ -62,6 +62,11 @@ try {
 
   await phase6Input.fill(`\`\`\`json\n${JSON.stringify(report)}\n\`\`\``);
   await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
+  await page.waitForTimeout(1500);
+  await writeFile(path.join(artifactDir, 'render-dialogs.json'), JSON.stringify(dialogs, null, 2));
+  if (await page.locator('#fullscreen-viewer-iframe').count() === 0) {
+    throw new Error(`Phase 6 viewer did not open. Dialogs: ${JSON.stringify(dialogs)}`);
+  }
   await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 60000 });
   const frame = page.frameLocator('#fullscreen-viewer-iframe');
   await frame.locator('.full-slide').first().waitFor({ timeout: 60000 });
@@ -147,6 +152,7 @@ try {
   console.log(JSON.stringify(summary, null, 2));
 } catch (error) {
   await page.screenshot({ path: path.join(artifactDir, '99-failure.png'), fullPage: true }).catch(() => undefined);
+  await writeFile(path.join(artifactDir, 'render-dialogs.json'), JSON.stringify(dialogs, null, 2));
   await writeFile(path.join(artifactDir, '99-failure.txt'), error instanceof Error ? `${error.stack || error.message}\n` : `${String(error)}\n`);
   throw error;
 } finally {
