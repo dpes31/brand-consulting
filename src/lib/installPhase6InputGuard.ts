@@ -33,6 +33,11 @@ export function installPhase6InputGuard(): void {
     if (!label.includes('결과물 뷰어에 렌더링하기')) return;
 
     const textarea = findPhase6Textarea(button);
+    if (textarea?.dataset.fullReportAssembled === 'true') {
+      delete textarea.dataset.fullReportAssembled;
+      return;
+    }
+
     const value = textarea?.value.trim() || '';
     if (!looksLikeLegacyHtml(value)) return;
 
