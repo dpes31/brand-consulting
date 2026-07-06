@@ -36,9 +36,7 @@ function getFullReportSlides(documentRef: Document): HTMLElement[] {
 }
 
 function slideBodyOverflows(slide: HTMLElement): boolean {
-  const body = slide.querySelector<HTMLElement>('.full-slide-body');
-  if (!body) return false;
-  return body.scrollHeight > body.clientHeight + 2 || body.scrollWidth > body.clientWidth + 2;
+  return slide.scrollHeight > slide.clientHeight + 2 || slide.scrollWidth > slide.clientWidth + 2;
 }
 
 export function runFullReportPreflight(documentRef: Document): FullReportPreflightResult {
