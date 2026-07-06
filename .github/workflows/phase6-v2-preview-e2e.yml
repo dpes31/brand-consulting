@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
-      PREVIEW_URL: https://brand-consulting-git-fix-phase6-approve-06a944-dpes31s-projects.vercel.app/
+      VERCEL_PREVIEW_URL: https://brand-consulting-git-fix-phase6-approve-06a944-dpes31s-projects.vercel.app/
+      LOCAL_E2E_URL: http://127.0.0.1:4173/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,25 +30,35 @@ jobs:
         run: |
           npm install --no-save --no-audit --no-fund playwright
           npx playwright install --with-deps chromium
-      - name: Wait for Preview
-        shell: bash
-        run: |
-          for attempt in {1..30}; do
-            if curl --fail --silent --show-error "$PREVIEW_URL" > /dev/null; then
-              exit 0
-            fi
-            sleep 10
-          done
-          exit 1
-      - name: Capture Preview entry
+      - name: Capture protected Vercel Preview entry
+        env:
+          PREVIEW_URL: ${{ env.VERCEL_PREVIEW_URL }}
         run: node scripts/diagnose-phase6-preview.mjs
-      - name: Run Phase 6 Preview E2E and preserve log
+      - name: Build and run Phase 6 E2E
         shell: bash
+        env:
+          PREVIEW_URL: ${{ env.LOCAL_E2E_URL }}
         run: |
           mkdir -p phase6-v2-e2e-artifacts
           set +e
+          npm run build > phase6-v2-e2e-artifacts/local-build.log 2>&1
+          build_code=$?
+          if [ "$build_code" != "0" ]; then
+            echo "$build_code" > phase6-v2-e2e-artifacts/e2e.exit
+            tail -n 160 phase6-v2-e2e-artifacts/local-build.log
+            exit 0
+          fi
+          npx vite preview --host 127.0.0.1 --port 4173 > phase6-v2-e2e-artifacts/local-server.log 2>&1 &
+          server_pid=$!
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "$PREVIEW_URL" > /dev/null; then
+              break
+            fi
+            sleep 2
+          done
           node scripts/e2e-phase6-preview.mjs > phase6-v2-e2e-artifacts/e2e.log 2>&1
           code=$?
+          kill "$server_pid" || true
           echo "$code" > phase6-v2-e2e-artifacts/e2e.exit
           tail -n 160 phase6-v2-e2e-artifacts/e2e.log
           exit 0
