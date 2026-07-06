@@ -1,0 +1,25 @@
+#growth .growth-timeline{position:relative;min-height:500px;height:100%;padding:0 18px}
+#growth .growth-axis{left:3.5%;right:4.5%;top:50%;height:3px}
+#growth .growth-event{top:50%;bottom:auto;width:112px;height:154px;display:flex;flex-direction:column;align-items:center;text-align:center}
+#growth .growth-event.is-up{top:calc(50% - 154px);padding:0 0 42px;justify-content:flex-end}
+#growth .growth-event.is-down{top:50%;padding:42px 0 0;justify-content:flex-start}
+#growth .growth-event::after{left:50%;width:1px;height:36px;transform:translateX(-50%)}
+#growth .growth-event.is-up::after{bottom:0;top:auto}
+#growth .growth-event.is-down::after{top:0;bottom:auto}
+#growth .growth-dot{left:50%;width:14px;height:14px;transform:translateX(-50%)}
+#growth .growth-event.is-up .growth-dot{top:auto;bottom:-7px}
+#growth .growth-event.is-down .growth-dot{top:-7px;bottom:auto}
+#growth .growth-event:first-of-type{left:5%!important}
+#growth .growth-event:nth-last-child(2){left:87%!important}
+#growth .growth-event:last-child{left:94%!important}
+#growth .growth-event strong{font-size:11.5px}
+#growth .growth-event p{font-size:9px;line-height:1.42}
+#inflection .full-slide-body{justify-content:center;gap:22px}
+#inflection .inflection-flow{width:100%;margin:0}
+#inflection .inflection-gap{width:100%;min-height:104px;margin:0;display:grid;grid-template-columns:108px 1.35fr 116px 118px .9fr;align-items:stretch;gap:0;padding:0;border:1px solid var(--full-line-strong);background:#fff}
+#inflection .inflection-gap>span,#inflection .inflection-gap>strong,#inflection .inflection-gap>i{display:flex;align-items:center;padding:14px 16px}
+#inflection .inflection-gap>span:first-child,#inflection .inflection-gap>strong:nth-child(2){background:#f5f7fa}
+#inflection .inflection-gap>i{justify-content:center;background:var(--full-red-soft);color:var(--full-red);font-size:18px}
+#inflection .inflection-gap>span:nth-child(4),#inflection .inflection-gap>strong:nth-child(5){background:#fff9f3}
+#inflection .inflection-gap span{font-size:10px}
+#inflection .inflection-gap strong{font-size:14px;line-height:1.45}
