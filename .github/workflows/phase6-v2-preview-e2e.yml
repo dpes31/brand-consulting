@@ -60,11 +60,24 @@ jobs:
           exit 0
       - name: Enforce local E2E result
         run: test "$(cat phase6-v2-e2e-artifacts/local-e2e.exit)" = "0"
-      - name: Capture actual Vercel Preview entry
+      - name: Capture and classify actual Vercel Preview entry
+        id: preview_entry
         env:
           PREVIEW_URL: ${{ env.VERCEL_PREVIEW_URL }}
-        run: node scripts/diagnose-phase6-preview.mjs
+        shell: bash
+        run: |
+          node scripts/diagnose-phase6-preview.mjs
+          if grep -q 'Login – Vercel' phase6-v2-e2e-artifacts/00-preview-entry.json; then
+            echo "protected=true" >> "$GITHUB_OUTPUT"
+            echo "Vercel Preview is Ready but requires an authenticated Vercel session." | tee phase6-v2-e2e-artifacts/preview-e2e-skipped.txt
+            echo "0" > phase6-v2-e2e-artifacts/preview-e2e.exit
+            echo "### Vercel Preview click E2E" >> "$GITHUB_STEP_SUMMARY"
+            echo "Skipped: Deployment Protection redirected the runner to Login – Vercel." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "protected=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Run actual Vercel Preview generated-report E2E
+        if: steps.preview_entry.outputs.protected != 'true'
         shell: bash
         run: |
           set +e
@@ -79,5 +92,5 @@ jobs:
         with:
           name: phase6-color-native-pdf-evidence
           path: phase6-v2-e2e-artifacts
-      - name: Enforce Vercel Preview E2E result
+      - name: Enforce available E2E result
         run: test "$(cat phase6-v2-e2e-artifacts/preview-e2e.exit)" = "0"
