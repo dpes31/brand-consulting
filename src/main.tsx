@@ -22,9 +22,11 @@ installVisualIntentBriefPolicy()
 installStep3VisualIntentContract()
 installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
+// Phase 6 owns the generic prompt/render controls. Install it before the
+// legacy research prompt guard so the old HTML compiler cannot intercept them.
+installFullReportPhase6Bridge()
 installPromptWorkflowGuard()
 installReportViewerUX()
-installFullReportPhase6Bridge()
 installFullReportRuntimeCompatibility()
 installDeploymentStatus()
 
