@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - fix-phase6-approved-full-renderer-v2
+  pull_request:
+    branches:
+      - main
 
 jobs:
   e2e:
