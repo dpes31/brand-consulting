@@ -5,6 +5,7 @@ import {
   extractCompleteFullReportHtml,
   loadApprovedPilotBaseHtml,
 } from '../report/fullReportCompiler';
+import { normalizeApprovedFullReportHtml } from '../report/normalizeApprovedFullReportHtml';
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
 const ACTIVE_BRAND_SESSION_KEYS = [
@@ -140,7 +141,7 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
   clickedButton.textContent = '승인 48페이지 양식 포함 중...';
 
   try {
-    const approvedBaseHtml = await loadApprovedPilotBaseHtml(brandName);
+    const approvedBaseHtml = normalizeApprovedFullReportHtml(await loadApprovedPilotBaseHtml(brandName));
     const creativeDirective = buildCreativeHistoryCompilerDirective(rawResearch);
     const prompt = buildFullReportHtmlPrompt(rawResearch, brandName, approvedBaseHtml, creativeDirective);
     await copyText(prompt);
@@ -182,7 +183,7 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
   clickedButton.textContent = '48페이지 HTML 검증 중...';
 
   try {
-    let html = extractCompleteFullReportHtml(textarea.value);
+    let html = normalizeApprovedFullReportHtml(extractCompleteFullReportHtml(textarea.value));
     html = html
       .replace(/\[cite[:\s]*\d*[\],]*/g, '')
       .replace(/\[cite_start\]/g, '')
