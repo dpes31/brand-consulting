@@ -10,8 +10,40 @@ const brand = '모노랩';
 const artifactDir = path.resolve('phase6-v2-e2e-artifacts');
 await mkdir(artifactDir, { recursive: true });
 const stepFixtures = buildPhase6StepFixtures(brand);
+stepFixtures[0] += '\n핵심 KPI는 **123만 명**과 **456억 원**입니다.';
+stepFixtures[2] += '\n1. **알파원 — 91점:** 유통 위협\n2. **베타랩 — 83점:** 제품 위협\n3. **감마코 — 75점:** 메시지 위협';
 const baseStartMarker = '[IMMUTABLE APPROVED BASE HTML — START]';
 const baseEndMarker = '[IMMUTABLE APPROVED BASE HTML — END]';
+const slotPattern = /\[\[CONTENT:P(\d{2}):([A-Z0-9_-]+):(\d{3})\]\]/g;
+
+function fillResearchSlots(template) {
+  let filled = template;
+  const inject = (pageNumber, text) => {
+    const pattern = new RegExp(`\\[\\[CONTENT:P${pageNumber}:[^\\]]+\\]\\]`);
+    filled = filled.replace(pattern, text);
+  };
+
+  inject('04', `${brand} KPI 123만 명`);
+  inject('04', `${brand} 관리 규모 456억 원`);
+  inject('13', '알파원 직접 경쟁 위협');
+  inject('14', '베타랩 직접 경쟁 위협');
+  inject('15', '감마코 직접 경쟁 위협');
+
+  return filled.replace(slotPattern, (_slot, pageNumber, role, index) => {
+    if (role === 'I') return Number(index) % 2 === 0 ? '→' : '≠';
+    if (role === 'B') return String((Number(index) % 5) + 1).padStart(2, '0');
+    if (role === 'H1') return `${brand} 조사 전략`;
+    if (role === 'H2') return `${brand} P${pageNumber} 조사 결론`;
+    if (role.includes('FULL-BREADCRUMB')) return `STEP ${pageNumber} RESEARCH`;
+    if (role.includes('FULL-TAG')) return 'RESEARCH';
+    if (role.includes('FULL-SOURCE')) return 'QA Fixture · Step 0–5 · 2026';
+    if (role === 'STRONG') return '핵심 판단';
+    if (role === 'SMALL') return '검증 근거';
+    if (role === 'SPAN') return '조사 항목';
+    if (role === 'P') return '현재 조사에서 확인된 핵심 근거와 실행 의미';
+    return `${brand} 조사 근거 ${pageNumber}-${index}`;
+  });
+}
 
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1600, height: 1000 } });
@@ -49,9 +81,9 @@ try {
   const promptText = await readFile(promptPath, 'utf8');
 
   assert.match(promptText, /The final product is ONE complete standalone HTML document, not JSON/);
-  assert.match(promptText, /Return the complete HTML only/);
-  assert.match(promptText, /VISUAL INTENT BRIEF INTERPRETATION/);
-  assert.match(promptText, /It does NOT mean that the final output should be JSON/);
+  assert.match(promptText, /RESEARCH CONTENT SLOT CONTRACT/);
+  assert.match(promptText, /Every token beginning with \[\[CONTENT:/);
+  assert.match(promptText, /Do not copy, restore, reconstruct, or guess any wording from a previous Pilot report/);
   assert.match(promptText, /## STEP 0/);
   assert.match(promptText, /## STEP 5/);
   assert.match(promptText, /<!DOCTYPE html>/i);
@@ -69,6 +101,11 @@ try {
   assert.ok(start >= 0 && end > start, 'Approved Base HTML markers are missing');
   const approvedBaseHtml = promptText.slice(start + baseStartMarker.length, end).trim();
   assert.equal((approvedBaseHtml.match(/<section[^>]*class="full-slide\b/g) || []).length, 48);
+  assert.ok((approvedBaseHtml.match(/\[\[CONTENT:/g) || []).length > 200);
+  assert.match(approvedBaseHtml, /data-content-contract="research-slots-v1"/);
+  assert.match(approvedBaseHtml, /id="deep-dive-1"/);
+  assert.match(approvedBaseHtml, /id="creative-history-target"/);
+  assert.doesNotMatch(approvedBaseHtml, /환급을 넘어|세무판정서|삼쩜삼|국세청 원클릭/);
 
   const phase6Input = page.locator('textarea:visible').last();
   await phase6Input.fill('```json\n{"version":"1.0.0","brand":"모노랩","mainSlides":[],"appendixSlides":[]}\n```');
@@ -76,10 +113,19 @@ try {
   await page.waitForTimeout(500);
   assert.ok(dialogs.some((message) => message.includes('이전 Phase 6의 ProductionReportV1 JSON')));
 
-  const simulatedExternalHtml = approvedBaseHtml
-    .replaceAll('비즈넵', brand)
-    .replaceAll('BIZNUP', brand)
-    .replaceAll('Biznup', brand);
+  await phase6Input.fill(`\`\`\`html\n${approvedBaseHtml}\n\`\`\``);
+  await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
+  await page.waitForTimeout(500);
+  assert.ok(dialogs.some((message) => message.includes('CONTENT SLOT')));
+
+  const simulatedExternalHtml = fillResearchSlots(approvedBaseHtml);
+  assert.doesNotMatch(simulatedExternalHtml, /\[\[CONTENT:/);
+  assert.match(simulatedExternalHtml, /123만 명/);
+  assert.match(simulatedExternalHtml, /456억 원/);
+  assert.match(simulatedExternalHtml, /알파원/);
+  assert.match(simulatedExternalHtml, /베타랩/);
+  assert.match(simulatedExternalHtml, /감마코/);
+
   await phase6Input.fill(`\`\`\`html\n${simulatedExternalHtml}\n\`\`\``);
   await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
   await page.waitForTimeout(1800);
@@ -100,6 +146,8 @@ try {
   assert.equal(await frame.locator('.swot-grid').count(), 1);
   assert.equal(await frame.locator('.stp-layout').count(), 1);
   assert.ok((await frame.locator('mark').count()) > 20);
+  assert.equal(await frame.getByText('123만 명', { exact: false }).count() > 0, true);
+  assert.equal(await frame.getByText('알파원', { exact: false }).count() > 0, true);
 
   const geometry = await frame.locator('.full-slide').evaluateAll((elements) => elements.map((element) => ({
     page: element.getAttribute('data-page'),
@@ -113,7 +161,7 @@ try {
   assert.deepEqual(overflow, []);
 
   await frame.locator('#persona-1').screenshot({ path: path.join(artifactDir, '02-persona.png') });
-  await frame.locator(`#creative-${brand}`).screenshot({ path: path.join(artifactDir, '03-creative-history.png') });
+  await frame.locator('#creative-history-target').screenshot({ path: path.join(artifactDir, '03-creative-history.png') });
   await frame.locator('#strategy-swot').screenshot({ path: path.join(artifactDir, '04-swot.png') });
   await frame.locator('#stp').screenshot({ path: path.join(artifactDir, '05-stp.png') });
 
@@ -166,14 +214,19 @@ try {
   const reopened = page.frameLocator('#fullscreen-viewer-iframe');
   await reopened.locator('.full-slide').first().waitFor({ timeout: 60000 });
   assert.equal(await reopened.locator('.full-slide').count(), 48);
-  assert.equal(await reopened.locator(`#creative-${brand} .history-bottom`).count(), 1);
+  assert.equal(await reopened.locator('#creative-history-target .history-bottom').count(), 1);
+  assert.equal(await reopened.getByText('123만 명', { exact: false }).count() > 0, true);
 
   const summary = {
     appUrl,
     brand,
     promptCompleteHtml: true,
-    promptContainsApprovedPilotHtml: true,
+    promptContainsResearchOnlyPilotLayout: true,
     promptContainsSteps0To5: true,
+    legacySampleContentRemoved: true,
+    unresolvedSlotsRejected: true,
+    researchKpiVerified: ['123만 명', '456억 원'],
+    researchCompetitorsVerified: ['알파원', '베타랩', '감마코'],
     jsonInputRejected: true,
     renderedPages: 48,
     navigationLinks: 48,
