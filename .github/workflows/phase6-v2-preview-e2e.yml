@@ -56,7 +56,7 @@ jobs:
             fi
             sleep 2
           done
-          node scripts/e2e-phase6-preview.mjs > phase6-v2-e2e-artifacts/e2e.log 2>&1
+          node scripts/e2e-phase6-production.mjs > phase6-v2-e2e-artifacts/e2e.log 2>&1
           code=$?
           kill "$server_pid" || true
           echo "$code" > phase6-v2-e2e-artifacts/e2e.exit
