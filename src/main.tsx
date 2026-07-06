@@ -18,15 +18,15 @@ import { installDeploymentStatus } from './lib/installDeploymentStatus'
 
 installIframePreRepair()
 installIframeLayoutSafety()
-installCreativeHistoryContract()
 installVisualIntentBriefPolicy()
 installStep3VisualIntentContract()
 installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
-// Phase 6 owns the generic prompt/render controls. Install it before the
-// legacy research prompt guard so the old HTML compiler cannot intercept them.
+// Phase 6 owns the generic prompt and render controls. Install it before every
+// legacy module that still listens for the same button text.
 installPhase6InputGuard()
 installFullReportPhase6Bridge()
+installCreativeHistoryContract()
 installPromptWorkflowGuard()
 installReportViewerUX()
 installFullReportRuntimeCompatibility()
