@@ -1,0 +1,154 @@
+import assert from 'node:assert/strict';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { chromium } from 'playwright';
+import { buildPhase6StepFixtures, buildProductionReportFixture } from './phase6-e2e-fixtures.mjs';
+
+const appUrl = process.env.PREVIEW_URL;
+if (!appUrl) throw new Error('PREVIEW_URL is required.');
+const brand = '모노랩';
+const artifactDir = path.resolve('phase6-v2-e2e-artifacts');
+await mkdir(artifactDir, { recursive: true });
+const report = buildProductionReportFixture(brand);
+const stepFixtures = buildPhase6StepFixtures(brand);
+
+const browser = await chromium.launch({ headless: true });
+const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1600, height: 1000 } });
+await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(appUrl).origin });
+const page = await context.newPage();
+const dialogs = [];
+page.on('dialog', async (dialog) => { dialogs.push(dialog.message()); await dialog.accept(); });
+
+try {
+  await page.goto(appUrl, { waitUntil: 'networkidle', timeout: 120000 });
+  await page.getByPlaceholder('Enter brand name for deep-dive analysis...').fill(brand);
+  await page.getByRole('button', { name: 'Start Engine' }).click();
+
+  for (let step = 0; step < stepFixtures.length; step += 1) {
+    const textarea = page.locator('textarea:visible').last();
+    await textarea.waitFor({ timeout: 30000 });
+    await textarea.fill(stepFixtures[step]);
+    await page.getByRole('button', { name: 'Submit & Continue' }).click();
+    if (step < 5) {
+      await page.waitForFunction((submitted) => {
+        const area = [...document.querySelectorAll('textarea')].find((element) => element.offsetParent !== null);
+        return area && area.value !== submitted;
+      }, stepFixtures[step], { timeout: 30000 });
+    }
+  }
+
+  await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });
+  await page.screenshot({ path: path.join(artifactDir, '01-phase6-screen.png'), fullPage: true });
+
+  const promptDownloadPromise = page.waitForEvent('download', { timeout: 30000 });
+  await page.getByRole('button', { name: /프롬프트 추출/ }).click();
+  const promptDownload = await promptDownloadPromise;
+  const promptPath = path.join(artifactDir, 'phase6-prompt.txt');
+  await promptDownload.saveAs(promptPath);
+  const promptText = await readFile(promptPath, 'utf8');
+  assert.match(promptText, /Return JSON only/);
+  assert.match(promptText, /ProductionReportV1 JSON only/);
+  assert.match(promptText, /## STEP 0/);
+  assert.match(promptText, /## STEP 5/);
+  assert.doesNotMatch(promptText, /<!DOCTYPE html>/i);
+  assert.doesNotMatch(promptText, /slide-wrapper/);
+  assert.doesNotMatch(promptText, /Immutable Base HTML Code/);
+
+  const phase6Input = page.locator('textarea:visible').last();
+  await phase6Input.fill('<!DOCTYPE html><html><style>:root{--hds-brand-accent:#000}</style><body><div class="slide-wrapper"></div></body></html>');
+  await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
+  await page.waitForTimeout(500);
+  assert.ok(dialogs.some((message) => message.includes('이전 HTML 생성 프롬프트로 만든 구형 HTML')));
+
+  await phase6Input.fill(`\`\`\`json\n${JSON.stringify(report)}\n\`\`\``);
+  await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
+  await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 60000 });
+  const frame = page.frameLocator('#fullscreen-viewer-iframe');
+  await frame.locator('.full-slide').first().waitFor({ timeout: 60000 });
+
+  assert.equal(await frame.locator('.full-slide').count(), 48);
+  assert.equal(await frame.locator('.nav-item').count(), 48);
+  assert.equal(await frame.locator('.persona-layout').count(), 3);
+  assert.equal(await frame.locator('.history-grid').count(), 4);
+  assert.equal(await frame.locator('.history-bottom').count(), 4);
+  assert.equal(await frame.locator('.swot-grid').count(), 1);
+  assert.equal(await frame.locator('.stp-layout').count(), 1);
+  assert.ok((await frame.locator('mark').count()) > 20);
+
+  const geometry = await frame.locator('.full-slide').evaluateAll((elements) => elements.map((element) => ({
+    page: element.getAttribute('data-page'),
+    width: element.getBoundingClientRect().width,
+    height: element.getBoundingClientRect().height,
+    overflowX: element.scrollWidth - element.clientWidth,
+    overflowY: element.scrollHeight - element.clientHeight,
+  })));
+  assert.ok(geometry.every((item) => Math.round(item.width) === 1280 && Math.round(item.height) === 720));
+  const overflow = geometry.filter((item) => item.overflowX > 1 || item.overflowY > 1);
+  assert.deepEqual(overflow, []);
+
+  await frame.locator('#qa-page-22').screenshot({ path: path.join(artifactDir, '02-persona.png') });
+  await frame.locator('#qa-page-31').screenshot({ path: path.join(artifactDir, '03-creative-history.png') });
+  await frame.locator('#qa-page-37').screenshot({ path: path.join(artifactDir, '04-swot.png') });
+  await frame.locator('#qa-page-39').screenshot({ path: path.join(artifactDir, '05-stp.png') });
+
+  await frame.locator('.nav-item').last().click();
+  await page.waitForTimeout(300);
+  assert.equal(await frame.locator('html').evaluate(() => location.hash), '#qa-page-48');
+
+  const exportButton = page.getByRole('button', { name: 'Export PDF' }).last();
+  const firstPdfPromise = page.waitForEvent('download', { timeout: 360000 });
+  await exportButton.click();
+  const firstPdf = await firstPdfPromise;
+  const firstPdfPath = path.join(artifactDir, 'mono-lab-report-1.pdf');
+  await firstPdf.saveAs(firstPdfPath);
+  const firstBytes = await readFile(firstPdfPath);
+  const firstText = firstBytes.toString('latin1');
+  assert.equal((firstText.match(/\/Type\s*\/Page\b/g) || []).length, 48);
+  assert.match(firstText, /\/MediaBox \[0 0 960 540\]/);
+
+  const secondPdfPromise = page.waitForEvent('download', { timeout: 180000 });
+  await exportButton.click();
+  const secondPdf = await secondPdfPromise;
+  const secondPdfPath = path.join(artifactDir, 'mono-lab-report-2.pdf');
+  await secondPdf.saveAs(secondPdfPath);
+  const secondBytes = await readFile(secondPdfPath);
+  assert.equal((secondBytes.toString('latin1').match(/\/Type\s*\/Page\b/g) || []).length, 48);
+
+  await page.waitForTimeout(1200);
+  await page.reload({ waitUntil: 'networkidle', timeout: 120000 });
+  await page.getByText(brand, { exact: true }).first().click();
+  await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 60000 });
+  const reopened = page.frameLocator('#fullscreen-viewer-iframe');
+  await reopened.locator('.full-slide').first().waitFor({ timeout: 60000 });
+  assert.equal(await reopened.locator('.full-slide').count(), 48);
+  assert.equal(await reopened.locator('#qa-page-31 .history-bottom').count(), 1);
+
+  const summary = {
+    appUrl,
+    brand,
+    promptJsonOnly: true,
+    promptContainsSteps0To5: true,
+    legacyHtmlRejected: true,
+    renderedPages: 48,
+    navigationLinks: 48,
+    personaPages: 3,
+    creativeHistoryPages: 4,
+    swotPages: 1,
+    stpPages: 1,
+    pdfExports: 2,
+    pdfPageCount: 48,
+    pdfMediaBox: '960×540pt (1280×720 CSS px at 96dpi)',
+    saveReopenPages: 48,
+    overflowPages: overflow,
+    geometry,
+    dialogs,
+  };
+  await writeFile(path.join(artifactDir, 'e2e-summary.json'), JSON.stringify(summary, null, 2));
+  console.log(JSON.stringify(summary, null, 2));
+} catch (error) {
+  await page.screenshot({ path: path.join(artifactDir, '99-failure.png'), fullPage: true }).catch(() => undefined);
+  await writeFile(path.join(artifactDir, '99-failure.txt'), error instanceof Error ? `${error.stack || error.message}\n` : `${String(error)}\n`);
+  throw error;
+} finally {
+  await browser.close();
+}
