@@ -12,6 +12,10 @@ type ReportFrameWindow = Window & {
   };
 };
 
+type FullReportSourceWindow = Window & {
+  __FULL_REPORT_SOURCE__?: string;
+};
+
 function normalized(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
 }
@@ -53,6 +57,8 @@ async function waitForFullReportFrame(iframe: HTMLIFrameElement, timeoutMs = 300
 }
 
 function reportSource(iframe: HTMLIFrameElement): string {
+  const retained = (window as FullReportSourceWindow).__FULL_REPORT_SOURCE__ || '';
+  if (retained.includes('data-report-version="full-report-v1"')) return retained;
   return iframe.srcdoc || iframe.getAttribute('srcdoc') || '';
 }
 
@@ -78,7 +84,6 @@ async function createStableExportFrame(source: string): Promise<HTMLIFrameElemen
     'width:1280px',
     'height:720px',
     'border:0',
-    'visibility:hidden',
     'pointer-events:none',
     'z-index:-1',
   ].join(';');
@@ -121,7 +126,7 @@ export function installFullReportPdfButtonBridge(): void {
 
     // The visible iframe can briefly reload after project persistence. Always
     // intercept before React reaches iframe.print(), then export from either the
-    // ready viewer or a reusable offscreen frame built from the same srcDoc.
+    // ready viewer or a reusable offscreen frame built from the retained srcDoc.
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
