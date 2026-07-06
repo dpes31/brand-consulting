@@ -11,6 +11,7 @@ import { installStep5VisualIntentContract } from './lib/installStep5VisualIntent
 import { installVisualIntentWorkflowGuard } from './lib/installVisualIntentWorkflowGuard'
 import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
+import { installPhase6InputGuard } from './lib/installPhase6InputGuard'
 import { installFullReportPhase6Bridge } from './lib/installFullReportPhase6Bridge'
 import { installFullReportRuntimeCompatibility } from './lib/installFullReportRuntimeCompatibility'
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
@@ -24,6 +25,7 @@ installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
 // Phase 6 owns the generic prompt/render controls. Install it before the
 // legacy research prompt guard so the old HTML compiler cannot intercept them.
+installPhase6InputGuard()
 installFullReportPhase6Bridge()
 installPromptWorkflowGuard()
 installReportViewerUX()
