@@ -39,11 +39,22 @@ jobs:
             sleep 10
           done
           exit 1
-      - name: Run Phase 6 Preview E2E
-        run: node scripts/e2e-phase6-preview.mjs
+      - name: Run Phase 6 Preview E2E and preserve log
+        shell: bash
+        run: |
+          mkdir -p phase6-v2-e2e-artifacts
+          set +e
+          node scripts/e2e-phase6-preview.mjs > phase6-v2-e2e-artifacts/e2e.log 2>&1
+          code=$?
+          echo "$code" > phase6-v2-e2e-artifacts/e2e.exit
+          tail -n 160 phase6-v2-e2e-artifacts/e2e.log
+          exit 0
       - name: Upload E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: phase6-v2-preview-e2e-evidence
           path: phase6-v2-e2e-artifacts
+      - name: Enforce E2E result
+        shell: bash
+        run: test "$(cat phase6-v2-e2e-artifacts/e2e.exit)" = "0"
