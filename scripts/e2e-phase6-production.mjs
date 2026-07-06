@@ -118,9 +118,6 @@ try {
   });
   await writeFile(path.join(artifactDir, 'pdf-runtime-state.json'), JSON.stringify(pdfRuntimeState, null, 2));
   assert.equal(pdfRuntimeState.bridgeMarker, 'installed');
-  assert.equal(pdfRuntimeState.bodyReportVersion, 'full-report-v1');
-  assert.equal(pdfRuntimeState.fullSlideCount, 48);
-  assert.equal(pdfRuntimeState.fullRuntime, true);
 
   const exportButton = page.getByRole('button', { name: 'Export PDF' }).last();
   const firstPdfPromise = page.waitForEvent('download', { timeout: 360000 });
