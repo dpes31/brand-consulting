@@ -13,6 +13,7 @@ import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
 import { installPhase6InputGuard } from './lib/installPhase6InputGuard'
 import { installFullReportPhase6Bridge } from './lib/installFullReportPhase6Bridge'
+import { installFullReportSourceRegistry } from './lib/installFullReportSourceRegistry'
 import { installFullReportPdfButtonBridge } from './lib/installFullReportPdfButtonBridge'
 import { installFullReportRuntimeCompatibility } from './lib/installFullReportRuntimeCompatibility'
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
@@ -27,6 +28,7 @@ installVisualIntentWorkflowGuard()
 // legacy module that still listens for the same button text.
 installPhase6InputGuard()
 installFullReportPhase6Bridge()
+installFullReportSourceRegistry()
 installCreativeHistoryContract()
 installPromptWorkflowGuard()
 installReportViewerUX()
