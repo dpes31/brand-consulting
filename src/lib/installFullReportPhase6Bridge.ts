@@ -146,6 +146,7 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
     const designRef = getBrandDesignReference(brandName);
     const accentColor = designRef.match(/Accent:\s*(#\w+)/i)?.[1] || '#5e6ad2';
     const html = await assembleFullReportHtml(textarea.value, brandName, accentColor);
+    textarea.dataset.fullReportAssembled = 'true';
     setControlledTextareaValue(textarea, html);
 
     window.setTimeout(() => {
