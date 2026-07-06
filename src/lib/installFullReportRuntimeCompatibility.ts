@@ -1,5 +1,3 @@
-import { exportReportPdf } from './exportReportPdf';
-
 const FULL_REPORT_SELECTOR = '.full-slide:not([data-full-report-export-clone="true"])';
 const FULL_REPORT_PAGE_COUNT = 48;
 const MAIN_DECK_PAGE_COUNT = 40;
@@ -100,76 +98,40 @@ export function runFullReportPreflight(documentRef: Document): FullReportPreflig
   return result;
 }
 
-function copyComputedBoxStyles(source: HTMLElement, target: HTMLElement, windowRef: Window): void {
-  const style = windowRef.getComputedStyle(source);
-  [
-    'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-    'background-color', 'background-image', 'color', 'border-radius',
-  ].forEach((property) => target.style.setProperty(property, style.getPropertyValue(property), 'important'));
-  target.style.setProperty('width', `${SLIDE_WIDTH_PX}px`, 'important');
-  target.style.setProperty('height', `${SLIDE_HEIGHT_PX}px`, 'important');
-  target.style.setProperty('min-width', `${SLIDE_WIDTH_PX}px`, 'important');
-  target.style.setProperty('min-height', `${SLIDE_HEIGHT_PX}px`, 'important');
-  target.style.setProperty('margin', '0', 'important');
-  target.style.setProperty('transform', 'none', 'important');
-  target.style.setProperty('box-shadow', 'none', 'important');
-  target.style.setProperty('overflow', 'hidden', 'important');
+async function waitForFonts(documentRef: Document): Promise<void> {
+  if (!documentRef.fonts?.ready) return;
+  await documentRef.fonts.ready;
 }
 
-function installTemporaryLegacyExportAdapters(
-  documentRef: Document,
-  windowRef: Window,
-): HTMLElement[] {
-  const slides = getFullReportSlides(documentRef);
-  return slides.map((slide, index) => {
-    const wrapper = documentRef.createElement('div');
-    wrapper.className = 'slide-wrapper full-report-export-adapter';
-    wrapper.dataset.fullReportExportAdapter = 'true';
-    wrapper.style.setProperty('position', 'fixed', 'important');
-    wrapper.style.setProperty('left', '-30000px', 'important');
-    wrapper.style.setProperty('top', '0', 'important');
-    wrapper.style.setProperty('width', `${SLIDE_WIDTH_PX}px`, 'important');
-    wrapper.style.setProperty('height', `${SLIDE_HEIGHT_PX}px`, 'important');
-    wrapper.style.setProperty('overflow', 'hidden', 'important');
-    wrapper.style.setProperty('pointer-events', 'none', 'important');
-    wrapper.style.setProperty('z-index', '-2147483647', 'important');
-
-    const clone = slide.cloneNode(true) as HTMLElement;
-    clone.id = `${slide.id || `page-${index + 1}`}-pdf-clone`;
-    clone.classList.add('slide');
-    clone.dataset.fullReportExportClone = 'true';
-    delete clone.dataset.layoutOverflow;
-    copyComputedBoxStyles(slide, clone, windowRef);
-    clone.querySelectorAll<HTMLImageElement>('img').forEach((image) => {
-      image.crossOrigin = 'anonymous';
-      image.referrerPolicy = 'no-referrer';
-    });
-
-    wrapper.appendChild(clone);
-    documentRef.body.appendChild(wrapper);
-    return wrapper;
-  });
-}
-
+/**
+ * FULL report PDF output deliberately uses the browser's native print engine.
+ * The former html2canvas/JPEG path converted every page into a full-page image,
+ * which removed font objects, softened text, and could diverge from the viewer's
+ * computed CSS. Native print preserves the live DOM, vector text, exact colors,
+ * and the approved @page 16:9 contract. The user completes the browser's
+ * standard "Save as PDF" action from the print dialog.
+ */
 export async function exportFullReportPdf(
   iframe: HTMLIFrameElement,
   filename?: string,
 ): Promise<void> {
   const documentRef = iframe.contentDocument;
-  const windowRef = iframe.contentWindow;
+  const windowRef = iframe.contentWindow as FullReportWindow | null;
   if (!documentRef || !windowRef) throw new Error('FULL 보고서 iframe에 접근할 수 없습니다.');
 
   const preflight = runFullReportPreflight(documentRef);
   if (!preflight.ok) throw new Error(`FULL PDF 사전검사 실패\n${preflight.issues.join('\n')}`);
 
-  const adapters = installTemporaryLegacyExportAdapters(documentRef, windowRef);
-  try {
-    await exportReportPdf(iframe, filename || documentRef.title || 'Brand Consulting FULL Report');
-    documentRef.documentElement.dataset.lastPdfPageCount = String(FULL_REPORT_PAGE_COUNT);
-    documentRef.documentElement.dataset.lastPdfExportAt = new Date().toISOString();
-  } finally {
-    adapters.forEach((adapter) => adapter.remove());
-  }
+  await waitForFonts(documentRef);
+
+  const nativePrint = windowRef.__FULL_REPORT_NATIVE_PRINT__;
+  if (!nativePrint) throw new Error('브라우저 네이티브 PDF 인쇄 기능을 준비하지 못했습니다.');
+
+  documentRef.documentElement.dataset.lastPdfPageCount = String(FULL_REPORT_PAGE_COUNT);
+  documentRef.documentElement.dataset.lastPdfExportMode = 'native-print';
+  documentRef.documentElement.dataset.lastPdfExportAt = new Date().toISOString();
+  documentRef.documentElement.dataset.lastPdfFilename = filename || documentRef.title || 'Brand Consulting FULL Report';
+  nativePrint();
 }
 
 async function exportWithAlert(iframe: HTMLIFrameElement): Promise<void> {
@@ -208,7 +170,7 @@ function installIntoFrame(iframe: HTMLIFrameElement): void {
 
     const result = runFullReportPreflight(documentRef);
     if (!result.ok) console.warn('[FULL Report Runtime] Preflight issues', result);
-    else console.info('[FULL Report Runtime] 48 pages passed preflight.');
+    else console.info('[FULL Report Runtime] 48 pages passed preflight. Native PDF print is ready.');
     return true;
   };
 
