@@ -13,6 +13,8 @@ const gitBlobSha = (content) => createHash('sha1')
 const legacyTemplate = read('public/template.html');
 const fullTemplate = read('public/template-full-report-v1.html');
 const fullCss = read('public/full-report-v1.css');
+const approvedCss = read('public/full-report-approved-v1.css');
+const pilotCss = read('src/pages/BiznupFullIntegrated.css');
 const enhancementCss = read('public/full-report-v1-enhancements.css');
 const fullRuntime = read('public/full-report-v1.js');
 const contract = read('src/report/productionReportContract.ts');
@@ -27,7 +29,10 @@ assert(
 );
 assert(fullTemplate.includes('data-report-version="full-report-v1"'), 'FULL template version marker is missing.');
 assert(fullTemplate.includes('{{REPORT_JSON}}'), 'FULL template data placeholder is missing.');
-assert(fullTemplate.includes('/full-report-v1.css'), 'FULL template does not load its base stylesheet.');
+assert(fullTemplate.includes('/full-report-approved-v1.css'), 'FULL template does not load the shared approved stylesheet.');
+assert(approvedCss.includes("@import url('/full-report-v1.css')"), 'Approved stylesheet does not retain the deterministic recipe base.');
+assert(approvedCss.includes('/full-report-approved-v1/base.css'), 'Approved stylesheet does not include the approved Pilot base.');
+assert(pilotCss.trim() === "@import url('/full-report-approved-v1.css');", 'Pilot and Production do not share the same approved stylesheet entrypoint.');
 assert(fullTemplate.includes('/full-report-v1-enhancements.css'), 'FULL template does not load its refinement stylesheet.');
 assert(fullTemplate.includes('/full-report-v1.js'), 'FULL template does not load its deterministic renderer.');
 assert(fullCss.includes('--slide-w:1280px') && fullCss.includes('--slide-h:720px'), 'FULL template is not locked to 1280×720.');
@@ -35,6 +40,7 @@ assert(enhancementCss.includes('.history-bottom'), 'Creative History conclusion 
 assert(fullRuntime.includes('report.mainSlides.length !== 40'), 'Runtime Main Deck validator is missing.');
 assert(fullRuntime.includes('report.appendixSlides.length !== 8'), 'Runtime Appendix validator is missing.');
 assert(fullRuntime.includes("style.setProperty('--accent'"), 'Dynamic brand accent binding is missing.');
+assert(fullRuntime.includes("style.setProperty('--full-accent'"), 'Approved Pilot accent binding is missing.');
 assert(contract.includes('PRODUCTION_MAIN_PAGE_COUNT = 40'), 'TypeScript Main Deck contract is not 40 pages.');
 assert(contract.includes('PRODUCTION_APPENDIX_PAGE_COUNT = 8'), 'TypeScript Appendix contract is not 8 pages.');
 
@@ -49,6 +55,7 @@ assert(apiCompiler.includes('buildFullReportDataPrompt'), 'API compiler is not w
 assert(apiCompiler.includes('assembleFullReportHtml'), 'API compiler is not wired to deterministic HTML assembly.');
 assert(bridge.includes('buildFullReportDataPrompt'), 'Manual Phase 6 prompt extraction is not wired to the FULL contract.');
 assert(bridge.includes('assembleFullReportHtml'), 'Manual Phase 6 result import is not wired to deterministic HTML assembly.');
+assert(mainEntry.includes('installPhase6InputGuard()'), 'The normal app does not reject legacy HTML before JSON parsing.');
 assert(mainEntry.includes('installFullReportPhase6Bridge()'), 'The normal app does not install the Phase 6 FULL report bridge.');
 
-console.log('FULL report contract PASS: legacy backup preserved, Phase 6 uses 40+8 structured data, and both API/manual paths use the deterministic renderer.');
+console.log('FULL report contract PASS: legacy backup preserved, Phase 6 uses one JSON contract, and Pilot/Production share the approved renderer source.');
