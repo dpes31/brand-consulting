@@ -11,6 +11,7 @@ import {
   assertResearchEvidencePresent,
   createResearchOnlyLayoutTemplate,
 } from '../report/researchContentTemplate';
+import { addResearchSlotRules } from '../report/researchSlotPrompt';
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
 const ACTIVE_BRAND_SESSION_KEYS = [
@@ -149,7 +150,9 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
     const capturedPilot = await loadApprovedPilotBaseHtml(brandName);
     const researchOnlyTemplate = createResearchOnlyLayoutTemplate(capturedPilot, brandName);
     const creativeDirective = buildCreativeHistoryCompilerDirective(rawResearch);
-    const prompt = buildFullReportHtmlPrompt(rawResearch, brandName, researchOnlyTemplate, creativeDirective);
+    const prompt = addResearchSlotRules(
+      buildFullReportHtmlPrompt(rawResearch, brandName, researchOnlyTemplate, creativeDirective),
+    );
     await copyText(prompt);
     downloadPrompt(prompt, brandName);
     window.alert(
