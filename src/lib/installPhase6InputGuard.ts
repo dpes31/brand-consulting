@@ -4,8 +4,13 @@ function normalized(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
 }
 
-function looksLikeLegacyHtml(value: string): boolean {
-  return /<!doctype\s+html|<html\b|<style\b|<script\b|class=["'][^"']*slide-wrapper|--hds-brand-accent/i.test(value);
+function looksLikeHtml(value: string): boolean {
+  return /<!doctype\s+html|<html\b/i.test(value);
+}
+
+function looksLikeJson(value: string): boolean {
+  const text = value.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+  return text.startsWith('{') && /"(?:mainSlides|appendixSlides|version|brand)"\s*:/.test(text);
 }
 
 function findPhase6Textarea(button: HTMLButtonElement): HTMLTextAreaElement | null {
@@ -15,7 +20,7 @@ function findPhase6Textarea(button: HTMLButtonElement): HTMLTextAreaElement | nu
 
   return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea')).find((textarea) => {
     const placeholder = textarea.placeholder || '';
-    return placeholder.includes('외부') || placeholder.includes('html') || placeholder.includes('JSON');
+    return placeholder.includes('외부') || placeholder.includes('html') || placeholder.includes('HTML');
   }) || null;
 }
 
@@ -33,21 +38,29 @@ export function installPhase6InputGuard(): void {
     if (!label.includes('결과물 뷰어에 렌더링하기')) return;
 
     const textarea = findPhase6Textarea(button);
-    if (textarea?.dataset.fullReportAssembled === 'true') {
-      delete textarea.dataset.fullReportAssembled;
+    if (textarea?.dataset.fullReportValidatedHtml === 'true') {
+      delete textarea.dataset.fullReportValidatedHtml;
       return;
     }
 
     const value = textarea?.value.trim() || '';
-    if (!looksLikeLegacyHtml(value)) return;
+    if (looksLikeJson(value)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      window.alert(
+        '이 결과는 이전 Phase 6의 ProductionReportV1 JSON입니다.\n\n' +
+        '현재 Phase 6는 승인된 48페이지 양식에 조사 내용을 채운 완성 HTML 전체가 필요합니다. ' +
+        '앱에서 Phase 6 프롬프트를 다시 다운로드한 뒤, 외부 AI가 반환한 ```html ... ``` 전체를 붙여넣어 주세요.',
+      );
+      return;
+    }
 
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    window.alert(
-      '이 결과는 이전 HTML 생성 프롬프트로 만든 구형 HTML입니다.\n\n' +
-      '현재 Phase 6에는 ProductionReportV1 JSON이 필요합니다. ' +
-      '앱에서 새 Phase 6 프롬프트를 다시 다운로드한 뒤, 외부 AI가 반환한 ```json ... ``` 전체를 붙여넣어 주세요.',
-    );
+    if (!looksLikeHtml(value)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      window.alert('완성 HTML을 확인할 수 없습니다. <!DOCTYPE html>부터 </html>까지 포함된 전체 결과를 붙여넣어 주세요.');
+    }
   }, true);
 }
