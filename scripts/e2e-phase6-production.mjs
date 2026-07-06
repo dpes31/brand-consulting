@@ -68,7 +68,7 @@ try {
   const end = promptText.indexOf(baseEndMarker);
   assert.ok(start >= 0 && end > start, 'Approved Base HTML markers are missing');
   const approvedBaseHtml = promptText.slice(start + baseStartMarker.length, end).trim();
-  assert.equal((approvedBaseHtml.match(/class="full-slide/g) || []).length, 48);
+  assert.equal((approvedBaseHtml.match(/<section[^>]*class="full-slide\b/g) || []).length, 48);
 
   const phase6Input = page.locator('textarea:visible').last();
   await phase6Input.fill('```json\n{"version":"1.0.0","brand":"모노랩","mainSlides":[],"appendixSlides":[]}\n```');
