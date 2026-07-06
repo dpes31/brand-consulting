@@ -37,26 +37,31 @@ function isFullReportFrame(iframe: HTMLIFrameElement): boolean {
   );
 }
 
-function armFullReportPrint(iframe: HTMLIFrameElement): boolean {
-  if (!isFullReportFrame(iframe)) return false;
-  const frameWindow = iframe.contentWindow as ReportFrameWindow | null;
-  if (!frameWindow) return false;
+async function waitForFullReportFrame(iframe: HTMLIFrameElement, timeoutMs = 15000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (isFullReportFrame(iframe)) return;
+    await new Promise((resolve) => window.setTimeout(resolve, 100));
+  }
+  throw new Error('FULL 보고서 Viewer가 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+}
 
-  frameWindow.print = () => {
-    const previousPreflight = frameWindow.__REPORT_PREFLIGHT__;
-    delete frameWindow.__REPORT_PREFLIGHT__;
-    const exportPromise = frameWindow.__FULL_REPORT_RUNTIME__?.exportPdf()
-      ?? exportFullReportPdf(iframe, iframe.contentDocument?.title);
-    void exportPromise
-      .catch((error) => {
-        const message = error instanceof Error ? error.message : String(error);
-        window.alert(`FULL PDF 생성 오류\n\n${message}`);
-      })
-      .finally(() => {
-        if (previousPreflight) frameWindow.__REPORT_PREFLIGHT__ = previousPreflight;
-      });
-  };
-  return true;
+async function exportFromStableFrame(iframe: HTMLIFrameElement): Promise<void> {
+  await waitForFullReportFrame(iframe);
+  const frameWindow = iframe.contentWindow as ReportFrameWindow | null;
+  if (!frameWindow) throw new Error('FULL 보고서 iframe에 접근할 수 없습니다.');
+
+  const previousPreflight = frameWindow.__REPORT_PREFLIGHT__;
+  delete frameWindow.__REPORT_PREFLIGHT__;
+  try {
+    if (frameWindow.__FULL_REPORT_RUNTIME__) {
+      await frameWindow.__FULL_REPORT_RUNTIME__.exportPdf();
+    } else {
+      await exportFullReportPdf(iframe, iframe.contentDocument?.title);
+    }
+  } finally {
+    if (previousPreflight) frameWindow.__REPORT_PREFLIGHT__ = previousPreflight;
+  }
 }
 
 export function installFullReportPdfButtonBridge(): void {
@@ -64,25 +69,21 @@ export function installFullReportPdfButtonBridge(): void {
   installed = true;
   document.documentElement.dataset.fullPdfButtonBridge = 'installed';
 
-  const armFromEvent = (event: Event) => {
-    if (!findExportButton(event)) return;
-    const iframe = findFullscreenFrame();
-    if (iframe) armFullReportPrint(iframe);
-  };
-
-  // React's onClick calls iframe.contentWindow.print(). Arm that function on
-  // pointer-down first so the later React click cannot reach the Legacy path.
-  window.addEventListener('pointerdown', armFromEvent, true);
-  window.addEventListener('mousedown', armFromEvent, true);
-
   window.addEventListener('click', (event) => {
     if (!findExportButton(event)) return;
     const iframe = findFullscreenFrame();
-    if (!iframe || !armFullReportPrint(iframe)) return;
+    if (!iframe) return;
 
+    // Never allow the old React handler to call iframe.print() for the FULL viewer.
+    // The frame can be briefly blank while React saves/re-renders the project, so
+    // wait for the 48-page document instead of falling back to the Legacy path.
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    iframe.contentWindow?.print();
+
+    void exportFromStableFrame(iframe).catch((error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      window.alert(`FULL PDF 생성 오류\n\n${message}`);
+    });
   }, true);
 }
