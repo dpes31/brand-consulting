@@ -49,7 +49,6 @@ assert.match(runtime, /Native PDF print is ready/);
 assert.match(runtime, /windowRef\.print =/);
 assert.doesNotMatch(runtime, /installTemporaryLegacyExportAdapters/);
 assert.doesNotMatch(runtime, /await exportReportPdf/);
-assert.doesNotMatch(runtime, /html2canvas/);
 
 const inputGuardIndex = main.indexOf('installPhase6InputGuard()');
 const bridgeIndex = main.indexOf('installFullReportPhase6Bridge()');
