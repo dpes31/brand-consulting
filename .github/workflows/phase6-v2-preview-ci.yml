@@ -1,9 +1,9 @@
-name: Phase 6 V2 Preview CI
+name: Phase 6 Color Correction Preview CI
 
 on:
   push:
     branches:
-      - fix-phase6-approved-full-renderer-v2
+      - fix/phase6-report-color-consistency-v1
   pull_request:
     branches:
       - main
@@ -26,19 +26,19 @@ jobs:
         shell: bash
         run: |
           set +e
-          npm run build > phase6-v2-build.log 2>&1
+          npm run build > phase6-color-build.log 2>&1
           code=$?
-          echo "$code" > phase6-v2-build.exit
-          tail -n 120 phase6-v2-build.log
+          echo "$code" > phase6-color-build.exit
+          tail -n 160 phase6-color-build.log
           exit 0
       - name: Upload build diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase6-v2-build-diagnostics
+          name: phase6-color-build-diagnostics
           path: |
-            phase6-v2-build.log
-            phase6-v2-build.exit
+            phase6-color-build.log
+            phase6-color-build.exit
       - name: Enforce build result
         shell: bash
-        run: test "$(cat phase6-v2-build.exit)" = "0"
+        run: test "$(cat phase6-color-build.exit)" = "0"
