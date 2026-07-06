@@ -124,7 +124,7 @@ ${rawData.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, '')}
 [FINAL EXECUTION TRIGGER]
 All required instructions and inputs are contained above. Execute the compilation now.
 Do not respond with "file checked", "please provide instructions", a summary, a plan, or a confirmation.
-Return only the complete validated ProductionReportV1 JSON enclosed in one \`\`\`json code block. Begin now.`;
+Return the complete validated ProductionReportV1 JSON only, enclosed in one \`\`\`json code block. Begin now.`;
 }
 
 export function extractProductionReportJson(output: string): ProductionReportV1 {
