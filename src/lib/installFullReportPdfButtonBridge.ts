@@ -2,6 +2,10 @@ import { exportFullReportPdf } from './installFullReportRuntimeCompatibility';
 
 let installed = false;
 
+type ReportFrameWindow = Window & {
+  __REPORT_PREFLIGHT__?: () => { ok: boolean; issues: string[] };
+};
+
 function normalized(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
 }
@@ -35,9 +39,18 @@ export function installFullReportPdfButtonBridge(): void {
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    void exportFullReportPdf(iframe, iframe.contentDocument?.title).catch((error) => {
-      const message = error instanceof Error ? error.message : String(error);
-      window.alert(`FULL PDF 생성 오류\n\n${message}`);
-    });
+
+    const frameWindow = iframe.contentWindow as ReportFrameWindow | null;
+    const previousPreflight = frameWindow?.__REPORT_PREFLIGHT__;
+    if (frameWindow) delete frameWindow.__REPORT_PREFLIGHT__;
+
+    void exportFullReportPdf(iframe, iframe.contentDocument?.title)
+      .catch((error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        window.alert(`FULL PDF 생성 오류\n\n${message}`);
+      })
+      .finally(() => {
+        if (frameWindow && previousPreflight) frameWindow.__REPORT_PREFLIGHT__ = previousPreflight;
+      });
   }, true);
 }
