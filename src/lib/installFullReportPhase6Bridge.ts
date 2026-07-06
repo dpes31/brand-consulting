@@ -1,12 +1,16 @@
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
-import { getBrandDesignReference } from './prompts';
 import {
-  assembleFullReportHtml,
-  buildFullReportDataPrompt,
+  assertApprovedFullReportHtml,
+  buildFullReportHtmlPrompt,
+  extractCompleteFullReportHtml,
+  loadApprovedPilotBaseHtml,
 } from '../report/fullReportCompiler';
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
-const ACTIVE_BRAND_SESSION_KEY = 'brand-consulting:active-brand';
+const ACTIVE_BRAND_SESSION_KEYS = [
+  'brand-consulting:active-brand',
+  'brand-consulting:brand-name',
+] as const;
 const REQUIRED_PHASE_STEPS = ['0', '1', '2', '3', '4', '5'] as const;
 
 let installed = false;
@@ -17,11 +21,18 @@ function normalizeText(value: string | null | undefined): string {
 }
 
 function readBrandName(): string {
+  const visible = document.querySelector<HTMLInputElement>('input[placeholder*="Enter brand name"]')?.value.trim();
+  if (visible) return visible;
+
   try {
-    return sessionStorage.getItem(ACTIVE_BRAND_SESSION_KEY)?.trim() || '';
+    for (const key of ACTIVE_BRAND_SESSION_KEYS) {
+      const value = sessionStorage.getItem(key)?.trim();
+      if (value) return value;
+    }
   } catch {
-    return '';
+    // Visible input remains the fallback when storage is unavailable.
   }
+  return '';
 }
 
 function normalizeStepKey(value: string): string | null {
@@ -66,6 +77,20 @@ function downloadPrompt(prompt: string, brandName: string): void {
   URL.revokeObjectURL(url);
 }
 
+async function copyText(text: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+  }
+}
+
 function setControlledTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
   const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
   if (!setter) throw new Error('결과 입력창을 갱신할 수 없습니다.');
@@ -78,7 +103,7 @@ function findPhase6Textarea(): HTMLTextAreaElement | null {
   const textareas = Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'));
   return textareas.find((textarea) => {
     const placeholder = textarea.getAttribute('placeholder') || '';
-    return placeholder.includes('외부') || placeholder.includes('html') || placeholder.includes('제미나이');
+    return placeholder.includes('외부') || placeholder.includes('html') || placeholder.includes('HTML');
   }) || null;
 }
 
@@ -93,7 +118,7 @@ function stopReactClick(event: MouseEvent): void {
   event.stopImmediatePropagation();
 }
 
-async function handlePromptExport(event: MouseEvent): Promise<void> {
+async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonElement): Promise<void> {
   stopReactClick(event);
   const brandName = readBrandName();
   const { rawResearch, missingSteps } = readResearchSnapshot();
@@ -110,13 +135,27 @@ async function handlePromptExport(event: MouseEvent): Promise<void> {
     return;
   }
 
-  const creativeDirective = buildCreativeHistoryCompilerDirective(rawResearch);
-  const prompt = buildFullReportDataPrompt(rawResearch, brandName, creativeDirective);
-  await navigator.clipboard.writeText(prompt);
-  downloadPrompt(prompt, brandName);
-  window.alert(
-    'FULL 보고서 Phase 6 프롬프트를 복사하고 파일로 저장했습니다.\n\nStep 0~5가 모두 포함됐습니다. 외부 AI 결과의 ```json ... ``` 전체를 아래 입력창에 붙여넣으세요. 앱이 승인된 40페이지 Main Deck + 8페이지 Appendix HTML로 변환합니다.',
-  );
+  const originalText = normalizeText(clickedButton.textContent) || '프롬프트 추출';
+  clickedButton.disabled = true;
+  clickedButton.textContent = '승인 48페이지 양식 포함 중...';
+
+  try {
+    const approvedBaseHtml = await loadApprovedPilotBaseHtml(brandName);
+    const creativeDirective = buildCreativeHistoryCompilerDirective(rawResearch);
+    const prompt = buildFullReportHtmlPrompt(rawResearch, brandName, approvedBaseHtml, creativeDirective);
+    await copyText(prompt);
+    downloadPrompt(prompt, brandName);
+    window.alert(
+      'FULL 보고서 Phase 6 프롬프트를 복사하고 파일로 저장했습니다.\n\n' +
+      '승인된 Pilot의 48페이지 HTML/CSS와 Step 0~5 조사 결과가 모두 포함됐습니다. ' +
+      '외부 AI가 반환한 ```html ... ``` 전체를 아래 입력창에 붙여넣으세요. 앱은 레이아웃을 재조립하지 않고 완성 HTML을 그대로 검증·저장·출력합니다.',
+    );
+  } catch (error) {
+    window.alert(`Phase 6 프롬프트 생성 오류: ${error instanceof Error ? error.message : String(error)}`);
+  } finally {
+    clickedButton.disabled = false;
+    clickedButton.textContent = originalText;
+  }
 }
 
 async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonElement): Promise<void> {
@@ -129,7 +168,7 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
   const textarea = findPhase6Textarea();
   const brandName = readBrandName();
   if (!textarea || !textarea.value.trim()) {
-    window.alert('외부 AI가 생성한 Phase 6 JSON 결과를 입력창에 붙여넣어 주세요.');
+    window.alert('외부 AI가 생성한 완성 HTML 전체를 입력창에 붙여넣어 주세요.');
     return;
   }
   if (!brandName) {
@@ -140,13 +179,17 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
   const originalText = normalizeText(clickedButton.textContent);
   clickedButton.disabled = true;
   clickedButton.dataset.fullReportBusy = 'true';
-  clickedButton.textContent = 'FULL 보고서 조립 중...';
+  clickedButton.textContent = '48페이지 HTML 검증 중...';
 
   try {
-    const designRef = getBrandDesignReference(brandName);
-    const accentColor = designRef.match(/Accent:\s*(#\w+)/i)?.[1] || '#5e6ad2';
-    const html = await assembleFullReportHtml(textarea.value, brandName, accentColor);
-    textarea.dataset.fullReportAssembled = 'true';
+    let html = extractCompleteFullReportHtml(textarea.value);
+    html = html
+      .replace(/\[cite[:\s]*\d*[\],]*/g, '')
+      .replace(/\[cite_start\]/g, '')
+      .replace(/\\cite\{[^}]*\}/g, '');
+    assertApprovedFullReportHtml(html, brandName);
+
+    textarea.dataset.fullReportValidatedHtml = 'true';
     setControlledTextareaValue(textarea, html);
 
     window.setTimeout(() => {
@@ -161,24 +204,24 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
     clickedButton.disabled = false;
     delete clickedButton.dataset.fullReportBusy;
     clickedButton.textContent = originalText || '결과물 뷰어에 렌더링하기';
-    window.alert(`FULL 보고서 생성 오류: ${error instanceof Error ? error.message : String(error)}`);
+    window.alert(`FULL 보고서 HTML 검증 오류: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 function refreshPhase6Copy(): void {
   const textarea = findPhase6Textarea();
   if (textarea) {
-    textarea.placeholder = '외부 AI가 반환한 ```json ... ``` 전체를 붙여넣으세요. 앱이 승인된 FULL HTML 양식으로 조립합니다.';
+    textarea.placeholder = '외부 AI가 반환한 ```html ... ``` 전체를 붙여넣으세요. 승인된 48페이지 HTML을 그대로 검증·저장합니다.';
   }
 
   document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
     const text = normalizeText(element.textContent);
-    if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI FULL 보고서 생성';
+    if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI 완성 HTML 생성';
     if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.') {
-      element.textContent = '외부 AI는 구조화 데이터만 생성하고, HTML 양식은 앱이 고정 적용합니다.';
+      element.textContent = '외부 AI가 승인된 48페이지 양식에 조사 내용을 채운 완성 HTML을 생성합니다.';
     }
     if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
-      element.textContent = 'Step 0~5 조사 결과를 승인된 40페이지 Main Deck + 8페이지 Appendix 양식으로 생성합니다.';
+      element.textContent = 'Step 0~5 조사 결과를 승인된 40페이지 Main Deck + 8페이지 Appendix HTML로 생성합니다.';
     }
   });
 }
@@ -195,7 +238,7 @@ export function installFullReportPhase6Bridge(): void {
 
     const label = normalizeText(button.textContent);
     if (label.includes('프롬프트 추출')) {
-      void handlePromptExport(event);
+      void handlePromptExport(event, button);
       return;
     }
     if (label.includes('결과물 뷰어에 렌더링하기')) {
