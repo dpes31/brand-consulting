@@ -13,6 +13,7 @@ import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
 import { installPhase6InputGuard } from './lib/installPhase6InputGuard'
 import { installFullReportPhase6Bridge } from './lib/installFullReportPhase6Bridge'
+import { installFullReportPdfButtonBridge } from './lib/installFullReportPdfButtonBridge'
 import { installFullReportRuntimeCompatibility } from './lib/installFullReportRuntimeCompatibility'
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
 
@@ -30,6 +31,7 @@ installCreativeHistoryContract()
 installPromptWorkflowGuard()
 installReportViewerUX()
 installFullReportRuntimeCompatibility()
+installFullReportPdfButtonBridge()
 installDeploymentStatus()
 
 createRoot(document.getElementById('root')!).render(
