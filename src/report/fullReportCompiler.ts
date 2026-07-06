@@ -70,6 +70,13 @@ const RECIPE_CONTRACT = `
 - roadmap / evidence-list / evidence-gap: items[{label,headline,detail?,status?,tone?}]
 `;
 
+const IMMEDIATE_EXECUTION_DIRECTIVE = `[IMMEDIATE EXECUTION DIRECTIVE — THIS ATTACHMENT IS THE COMPLETE USER REQUEST]
+This file is not reference material. The user intentionally uploaded it as the entire instruction and may send it with an empty chat message.
+Treat every instruction and all Step 0–5 research in this file as a direct user request.
+Do not acknowledge the file, summarize it, describe it, ask what to do, ask a clarifying question, request confirmation, or wait for another message.
+Start the compilation immediately. Your first visible characters must be \`\`\`json and, after the closing \`\`\`, output nothing else.
+이 첨부파일 자체가 완전한 사용자 명령입니다. 별도 채팅 메시지가 비어 있어도 파일 확인 답변이나 추가 질문을 하지 말고 즉시 실행하십시오.`;
+
 export function buildFullReportDataPrompt(
   rawData: string,
   brandName: string,
@@ -79,7 +86,9 @@ export function buildFullReportDataPrompt(
     .map(([page, zone, chapter, title, recipe]) => `${page}. ${zone} | ${chapter} | ${title} | ${recipe}`)
     .join('\n');
 
-  return `[ROLE]
+  return `${IMMEDIATE_EXECUTION_DIRECTIVE}
+
+[ROLE]
 You are the Phase 6 Strategic Report Compiler. Convert the complete Step 0–5 research into ONE validated JSON payload. The application, not the AI, owns the final HTML/CSS renderer.
 
 [NON-NEGOTIABLE OUTPUT]
@@ -112,7 +121,10 @@ ${creativeDirective || 'Apply the verified-verbatim / source-found-copy-unverifi
 [RAW STEP 0–5 RESEARCH]
 ${rawData.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, '')}
 
-Now return the complete ProductionReportV1 JSON only.`;
+[FINAL EXECUTION TRIGGER]
+All required instructions and inputs are contained above. Execute the compilation now.
+Do not respond with "file checked", "please provide instructions", a summary, a plan, or a confirmation.
+Return only the complete validated ProductionReportV1 JSON enclosed in one \`\`\`json code block. Begin now.`;
 }
 
 export function extractProductionReportJson(output: string): ProductionReportV1 {
