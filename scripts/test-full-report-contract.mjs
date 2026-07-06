@@ -21,6 +21,7 @@ const contract = read('src/report/productionReportContract.ts');
 const compiler = read('src/report/fullReportCompiler.ts');
 const apiCompiler = read('src/lib/geminiCompiler.ts');
 const bridge = read('src/lib/installFullReportPhase6Bridge.ts');
+const inputGuard = read('src/lib/installPhase6InputGuard.ts');
 const mainEntry = read('src/main.tsx');
 
 assert(
@@ -28,7 +29,7 @@ assert(
   'Legacy public/template.html changed. Restore it from the immutable backup before continuing.',
 );
 assert(fullTemplate.includes('data-report-version="full-report-v1"'), 'FULL template version marker is missing.');
-assert(fullTemplate.includes('{{REPORT_JSON}}'), 'FULL template data placeholder is missing.');
+assert(fullTemplate.includes('{{REPORT_JSON}}'), 'Internal API compatibility template data placeholder is missing.');
 assert(fullTemplate.includes('/full-report-approved-v1.css'), 'FULL template does not load the shared approved stylesheet.');
 assert(approvedCss.includes("@import url('/full-report-v1.css')"), 'Approved stylesheet does not retain the deterministic recipe base.');
 assert(approvedCss.includes('/full-report-approved-v1/base.css'), 'Approved stylesheet does not include the approved Pilot base.');
@@ -48,14 +49,23 @@ const pageRows = [...compiler.matchAll(/^\s*\[(\d+),\s*'(main|appendix)'/gm)];
 assert(pageRows.length === 48, `Phase 6 page plan has ${pageRows.length} entries instead of 48.`);
 assert(pageRows.filter(([, , zone]) => zone === 'main').length === 40, 'Phase 6 page plan must contain 40 Main Deck entries.');
 assert(pageRows.filter(([, , zone]) => zone === 'appendix').length === 8, 'Phase 6 page plan must contain 8 Appendix entries.');
-assert(compiler.includes('The application, not the AI, owns the final HTML/CSS renderer.'), 'Phase 6 prompt still lets the AI own HTML layout.');
+assert(compiler.includes('The final product is ONE complete standalone HTML document, not JSON.'), 'External Phase 6 prompt does not require complete HTML.');
+assert(compiler.includes('IMMUTABLE APPROVED BASE HTML — START'), 'External Phase 6 prompt does not embed the approved Base HTML.');
+assert(compiler.includes('VISUAL INTENT BRIEF INTERPRETATION'), 'External Phase 6 prompt does not interpret Visual Intent Briefs.');
+assert(compiler.includes('It does NOT mean that the final output should be JSON.'), 'Visual Intent Brief is incorrectly treated as final JSON output.');
 assert(compiler.includes('Step 0–5 research'), 'Phase 6 prompt does not explicitly consolidate all research steps.');
-assert(!apiCompiler.includes("fetch('/template.html"), 'API compiler still loads the legacy template.');
-assert(apiCompiler.includes('buildFullReportDataPrompt'), 'API compiler is not wired to the FULL Phase 6 prompt.');
-assert(apiCompiler.includes('assembleFullReportHtml'), 'API compiler is not wired to deterministic HTML assembly.');
-assert(bridge.includes('buildFullReportDataPrompt'), 'Manual Phase 6 prompt extraction is not wired to the FULL contract.');
-assert(bridge.includes('assembleFullReportHtml'), 'Manual Phase 6 result import is not wired to deterministic HTML assembly.');
-assert(mainEntry.includes('installPhase6InputGuard()'), 'The normal app does not reject legacy HTML before JSON parsing.');
+assert(compiler.includes('loadApprovedPilotBaseHtml'), 'Approved Pilot DOM/CSS capture is missing.');
+assert(compiler.includes('assertApprovedFullReportHtml'), 'Complete HTML validation is missing.');
+
+assert(apiCompiler.includes('buildFullReportDataPrompt'), 'Internal API compatibility compiler is not wired to its structured-data prompt.');
+assert(apiCompiler.includes('assembleFullReportHtml'), 'Internal API compatibility compiler is not wired to deterministic assembly.');
+assert(bridge.includes('buildFullReportHtmlPrompt'), 'Manual Phase 6 prompt extraction is not wired to the complete HTML contract.');
+assert(bridge.includes('loadApprovedPilotBaseHtml'), 'Manual Phase 6 does not include the approved Pilot HTML/CSS.');
+assert(bridge.includes('extractCompleteFullReportHtml'), 'Manual Phase 6 does not import complete HTML.');
+assert(!bridge.includes('assembleFullReportHtml'), 'Manual Phase 6 must not rebuild external HTML through the JSON renderer.');
+assert(inputGuard.includes('looksLikeJson'), 'Phase 6 does not reject obsolete JSON input.');
+assert(inputGuard.includes('완성 HTML'), 'Phase 6 input guidance does not require complete HTML.');
+assert(mainEntry.includes('installPhase6InputGuard()'), 'The normal app does not install the Phase 6 input contract guard.');
 assert(mainEntry.includes('installFullReportPhase6Bridge()'), 'The normal app does not install the Phase 6 FULL report bridge.');
 
-console.log('FULL report contract PASS: legacy backup preserved, Phase 6 uses one JSON contract, and Pilot/Production share the approved renderer source.');
+console.log('FULL report contract PASS: legacy backup preserved, external Phase 6 embeds approved 48-page HTML, and Viewer accepts complete HTML directly.');
