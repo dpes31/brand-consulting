@@ -1,15 +1,13 @@
 # Brand Consulting Generator — Project Handoff
 
-## Current release checkpoint
+## Current checkpoint
 
 - Repository: `dpes31/brand-consulting`
 - Production branch: `main`
-- Phase 6 integration PR: #14 `Separate approved Phase 6 layout from research content`
-- PR #14 status: merged
-- PR #14 head: `22862482059266c1b385a44794575a40ec7327ec`
-- Main merge commit: `7614e18bf007ad64c398ff3cfc2eb665f3ca341b`
+- Active correction branch: `fix/phase6-report-color-consistency-v1`
+- Draft PR: #16 `Correct Phase 6 report colors, structure, and PDF fidelity`
 - Production URL: `https://brand-consulting.vercel.app/`
-- Vercel status for the merge commit: success
+- Preview-first only; do not merge PR #16 without explicit owner approval.
 - Immutable rollback branches:
   - `backup/main-before-full-report-v1-2026-07-01`
   - `backup-production-stable-20260622`
@@ -17,32 +15,17 @@
 
 ## Current Phase 6 architecture
 
-The normal `/` application flow now uses:
+The normal `/` application flow is:
 
 `Step 0–5 research`
-→ `approved Pilot DOM/CSS capture`
+→ `approved Pilot DOM/CSS capture after Page Plan V2 is ready`
 → `sample report text neutralized into CONTENT SLOT tokens`
 → `external AI or internal API fills every slot from current research`
 → `blocking validation`
 → `48-page standalone HTML`
-→ `Viewer / save / reopen / PDF`
+→ `Viewer / save / reopen / native PDF`
 
 The approved Pilot is a layout source only. Its Biznup conclusions, figures, competitors, personas, Creative History, sources, SWOT, STP, and strategy are removed before the Phase 6 prompt is exported.
-
-## Blocking validation
-
-Phase 6 rejects results when:
-
-- any `CONTENT SLOT` remains unresolved;
-- the report does not contain exactly 48 `.full-slide` pages;
-- page IDs or page labels are missing or duplicated;
-- required approved layouts are missing;
-- the exact user-entered brand name is absent;
-- Step 0 KPI evidence is not sufficiently reflected;
-- the highest-ranked Step 2 direct competitors are missing;
-- an unapproved script is included.
-
-The same content contract is applied to the manual external-AI route and the internal API route.
 
 ## Fixed report contract
 
@@ -54,9 +37,64 @@ The same content contract is applied to the manual external-AI route and the int
 - Major titles: weight 900
 - Korean copy: `word-break: keep-all`
 - Exact user-entered brand name; no translation or romanization
-- Every analytical page retains a conclusion-led title and `SO WHAT` implication where the approved layout provides one
 - Raw URLs are not exposed
 - Unverified advertising copy is not quoted
+
+## Five-competitor Page Plan V2
+
+Step 2 selects 2–5 direct competitors. Five is maximum capacity and must never be filled through invention.
+
+Main Deck:
+
+- 11: Threat Ranking, up to five direct competitors
+- 12–16: Deep Dive 1–5
+- 17: Product Matrix, target + up to five competitors
+- 18: Positioning, target + up to five competitors
+- 19–28: Consumer
+- 29: Target Brand Creative History
+- 30–34: Competitor Creative History 1–5
+- 35: Message Trajectory, target + up to five competitors
+- 36–40: SWOT, Root Cause, STP, Four Directions, Final Choice
+
+Appendix:
+
+- A1: Appendix divider
+- A2: Winning Move Specification
+- A3: Via Negativa
+- A4: Pre-mortem
+- A5: Execution Roadmap
+- A6: Measurement Plan
+- A7: Evidence Gaps + Source Labels
+- A8: Decision Receipt / Close
+
+Appendix is not competitor overflow. If fewer than five direct competitors are supported, unused approved competitor pages disclose evidence gaps.
+
+## Current PR #16 corrections
+
+- Restored Page 40 Final Choice to a left Selection Criteria / right Big IdeaL & Winning Move composition.
+- Added up-to-five competitor capacity to Threat Ranking, Deep Dive, Product Matrix, Positioning, Creative History, and Message Trajectory.
+- Moved competitors 4–5 from Appendix overflow into the Main Deck competitor and creative sections.
+- Added an Appendix divider at A1 while preserving exact 40+8 totals.
+- Combined Evidence Gaps and Source Labels at A7.
+- Prevented Persona indices `02` and `03` from wrapping.
+- Preserved dark Creative History color tokens.
+- Preserved Chromium native-print PDF export.
+
+## Blocking validation
+
+Phase 6 rejects results when:
+
+- any `CONTENT SLOT` remains unresolved;
+- the report does not contain exactly 48 `.full-slide` pages;
+- Main/Appendix count is not 40/8;
+- page IDs or labels are missing or duplicated;
+- required approved layouts are missing;
+- the exact user-entered brand name is absent;
+- Step 0 KPI evidence is insufficient;
+- any selected Step 2 direct competitor is missing;
+- an unapproved script is included.
+
+The same content contract applies to manual external-AI and internal API paths.
 
 ## Validated Step contracts
 
@@ -69,7 +107,7 @@ The same content contract is applied to the manual external-AI route and the int
 ### Step 2
 
 - Threat Ranking: `rank-scorecard`
-- 2–5 direct competitors selected through the Registry
+- 2–5 direct competitors selected through Registry/Threat Ranking
 - Independent Deep Dive per selected competitor
 - Product Matrix: `feature-matrix`
 - Positioning Map only when common axes are defensible
@@ -77,7 +115,7 @@ The same content contract is applied to the manual external-AI route and the int
 
 ### Step 3
 
-- Trends, Persona, Identity Alignment, JTBD, AIPL, and Unmet Needs remain in the analysis
+- Trends, Persona, Identity Alignment, JTBD, AIPL, and Unmet Needs remain
 - Exactly one core consumer-decision Brief
 - Accepted recipe: `friction-flow`
 - `implementationStatus: planned`
@@ -91,33 +129,41 @@ The same content contract is applied to the manual external-AI route and the int
 - `implementationStatus: planned`
 - `metrics: []`
 
-## PR #14 verification completed
+## Creative History factuality
 
-- Production build passed
-- Phase 6 Preview E2E passed
-- Vercel deployment passed
-- Non-Biznup brand replacement passed
-- Previous Biznup sample wording removal passed
-- Unresolved 1,453-slot template rejection passed
-- 48 pages and 48 navigation links passed
-- 1280×720 geometry and zero overflow passed
-- Persona, Creative History, SWOT, and STP layouts passed
-- save/reopen passed
-- two consecutive 48-page PDF exports passed
+- Target brand and every selected competitor retain independent 2021–2026 pages.
+- Allowed statuses:
+  - `verified-verbatim`
+  - `source-found-copy-unverified`
+  - `not-found`
+- Only verified-verbatim copy may use quotation marks.
+- Message Trajectory and Strategic So What remain mandatory.
 
-## Known visual follow-up
+## PDF contract
 
-Some detailed generated pages show color inconsistencies. This is the next separate visual task.
+- FULL report PDF uses Chromium native print, not full-page JPEG rasterization.
+- Exactly 48 pages at 960×540pt.
+- Embedded font objects required.
+- No 2560×1440 full-page image rows.
+- Viewer, save/reopen, and PDF use the same HTML document.
 
-Recommended next branch: `fix/phase6-report-color-consistency-v1`.
+## Verification gate for PR #16
 
-The next task starts from updated `main`, uses a new Draft PR, inspects actual generated report pages, and limits changes to color tokens, contrast, selector conflicts, brand Accent behavior, and screen/PDF color consistency.
+Before owner review, the current PR head must pass:
 
-## Documentation note
-
-`AGENTS.md` still contains pre-PR #14 architecture language because the connected repository tool blocks writes to that agent-instruction file. Use this handoff and `docs/REPORT_TEMPLATE_SPEC.md` as the current Phase 6 architecture reference.
+- Production build and contract tests
+- Five-competitor generated-report E2E
+- exact page order and 48 navigation links
+- 1280×720 geometry and zero overflow
+- Persona `02`/`03` one-line rendering
+- Page 40 two-column geometry
+- Appendix divider presence
+- six Creative History pages with dark contrast
+- save/reopen
+- native 48-page PDF inspection
+- Viewer and PDF screenshot inspection
 
 ## Excluded experiments
 
 - `feature-visualization-engine-v1` / PR #6: failed audit implementation; never merge
-- PR #8, #9, #10: superseded experiments; never restore as product code
+- PR #8, #9, #10: superseded experiments; never restore
