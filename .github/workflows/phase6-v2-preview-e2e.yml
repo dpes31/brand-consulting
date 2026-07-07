@@ -1,4 +1,4 @@
-name: Phase 6 Color and Native PDF E2E
+name: Phase 6 Five-Competitor and Native PDF E2E
 
 on:
   workflow_dispatch:
@@ -52,11 +52,11 @@ jobs:
             fi
             sleep 2
           done
-          PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-color-native-print.mjs > phase6-v2-e2e-artifacts/local-e2e.log 2>&1
+          PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-five-competitor-native-print.mjs > phase6-v2-e2e-artifacts/local-e2e.log 2>&1
           code=$?
           kill "$server_pid" || true
           echo "$code" > phase6-v2-e2e-artifacts/local-e2e.exit
-          tail -n 220 phase6-v2-e2e-artifacts/local-e2e.log
+          tail -n 240 phase6-v2-e2e-artifacts/local-e2e.log
           exit 0
       - name: Enforce local E2E result
         run: test "$(cat phase6-v2-e2e-artifacts/local-e2e.exit)" = "0"
@@ -81,16 +81,16 @@ jobs:
         shell: bash
         run: |
           set +e
-          PREVIEW_URL="$VERCEL_PREVIEW_URL" node scripts/e2e-phase6-color-native-print.mjs > phase6-v2-e2e-artifacts/preview-e2e.log 2>&1
+          PREVIEW_URL="$VERCEL_PREVIEW_URL" node scripts/e2e-phase6-five-competitor-native-print.mjs > phase6-v2-e2e-artifacts/preview-e2e.log 2>&1
           code=$?
           echo "$code" > phase6-v2-e2e-artifacts/preview-e2e.exit
-          tail -n 240 phase6-v2-e2e-artifacts/preview-e2e.log
+          tail -n 260 phase6-v2-e2e-artifacts/preview-e2e.log
           exit 0
       - name: Upload E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase6-color-native-pdf-evidence
+          name: phase6-five-competitor-native-pdf-evidence
           path: phase6-v2-e2e-artifacts
       - name: Enforce available E2E result
         run: test "$(cat phase6-v2-e2e-artifacts/preview-e2e.exit)" = "0"
