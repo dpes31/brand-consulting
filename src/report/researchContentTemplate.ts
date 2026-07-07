@@ -42,6 +42,10 @@ function serialize(documentRef: Document): string {
 }
 
 function roleOf(element: Element | null): string {
+  // Connector glyphs must stay short symbols even when the <i> element has a
+  // descriptive class. Giving every <i> slot the stable I role prevents an AI
+  // response from placing prose inside arrows or comparison-axis connectors.
+  if (element?.tagName === 'I') return 'I';
   const raw = element
     ? Array.from(element.classList).find((name) => !name.startsWith('is-')) || element.tagName
     : 'TEXT';
