@@ -102,13 +102,12 @@
 - PR #14 merged to `main` with regular merge commit `7614e18bf007ad64c398ff3cfc2eb665f3ca341b`.
 - Owner confirmed the Phase 6 flow works in actual use.
 
-## 2026-07-06 to 2026-07-07 — PR #16 color, structure, and PDF correction
+## 2026-07-06 to 2026-07-07 — PR #16 report correction
 
-- Opened Draft PR #16 on `fix/phase6-report-color-consistency-v1`.
+- Opened PR #16 on `fix/phase6-report-color-consistency-v1`.
 - Corrected Page 3 FOUNDING JTBD source-note overlap.
 - Restored dark-paper tokens for target and competitor Creative History pages.
-- Replaced FULL report PDF raster export with Chromium native print after 48-page preflight.
-- Added PDF checks for 48 pages, 960×540pt, embedded fonts, and no 2560×1440 full-page JPEG rows.
+- Added local native-print PDF implementation and inspection checks.
 - User reviewed an actual Phase 6-generated Biznup HTML and requested four additional corrections:
   1. Restore Final Choice to the approved left-criteria/right-final-choice layout.
   2. Support up to five selected direct competitors consistently through Threat Ranking, Deep Dive, Product Matrix, Positioning, Creative History, and Message Trajectory.
@@ -120,5 +119,25 @@
 - Added A1 Appendix divider and consolidated Evidence Gaps + Source Labels at A7.
 - Updated Page Plan, Prompt contract, research-slot mapping, production report contract, runtime contract, and repository documentation.
 - Added `scripts/e2e-phase6-five-competitor-native-print.mjs` with a five-competitor non-Biznup fixture.
-- E2E discovered that a legacy `grid-column: 1 / -1` rule still made Final Choice span both columns; added an explicit `grid-column: auto !important` correction.
-- PR remains Draft and unmerged pending final CI, generated Viewer/PDF screenshots, and owner Preview approval.
+- E2E found a legacy `grid-column: 1 / -1` rule that made Final Choice span both columns; corrected it with `grid-column: auto !important`.
+
+## 2026-07-07 — Reload icon-font stabilization and production approval
+
+- Diagnosed the reload defect as a Material Symbols FOUC: ligature source strings such as `insights`, `search`, and `picture_as_pdf` were painted before the icon font loaded.
+- Added `installMaterialSymbolsReady` before React render.
+- Added fixed 1em icon boxes and hidden ligature text until verified font readiness.
+- Added Google Fonts preconnect and changed Material Symbols loading to `display=block`.
+- Added `test-material-symbols-stability.mjs` to the production build.
+- Added `e2e-material-symbols-first-paint.mjs` with an intentionally delayed Material Symbols font request.
+- Verified before font readiness:
+  - zero visible ligature words;
+  - ten sampled icon boxes fixed at 24×24;
+  - Export PDF button at x 1491, y 9.5, width 157, height 44.
+- Verified after font readiness:
+  - Material Symbols font applied;
+  - identical icon dimensions;
+  - identical Export PDF button position and dimensions.
+- Production build and the complete five-competitor E2E passed.
+- Vercel Preview deployment passed.
+- Owner approved applying PR #16 to production after this correction.
+- Known deferred issue: the actual app `Export PDF` action can still report `출력할 슬라이드를 찾지 못했습니다.` This is not resolved by PR #16 and must be handled in a separate follow-up.
