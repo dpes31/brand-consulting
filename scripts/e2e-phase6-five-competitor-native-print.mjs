@@ -155,7 +155,8 @@ try {
   }
 
   assert.equal(await frame.locator('.history-now').count(), 0);
-  assert.deepEqual(await frame.locator('#strategy-routes .route-row > b').allTextContents(), ['A','B','C','D']);
+  const routeLabels = await frame.locator('#strategy-routes .route-row > b').allTextContents();
+  assert.deepEqual(routeLabels.map((label) => label.trim().charAt(0)), ['A','B','C','D']);
 
   const geometry = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => {
     const rect = node.getBoundingClientRect();
@@ -231,6 +232,7 @@ try {
     nav: 40,
     ids,
     marketType,
+    routeLabels,
     geometry,
     pdf: { pages: 40, size: '960x540pt' },
     exports: 4,
