@@ -22,4 +22,9 @@ assert.match(bridge, /PDF로 출력할 FULL 보고서를 먼저 생성하거나 
 assert.match(bridge, /event\.stopImmediatePropagation\(\)/);
 assert.match(bridge, /exportFullReportPdf/);
 
-console.log('Phase 6 PDF runtime routing contract passed.');
+assert.match(main, /window\.addEventListener\('keydown'/);
+assert.match(main, /Export PDF/);
+assert.match(main, /button\.click\(\)/);
+assert.ok(main.indexOf("window.addEventListener('keydown'") < main.indexOf('createRoot('));
+
+console.log('Phase 6 PDF routing contract passed for button and print shortcut paths.');
