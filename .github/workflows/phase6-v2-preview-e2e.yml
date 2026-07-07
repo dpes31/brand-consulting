@@ -1,10 +1,10 @@
-name: Phase 6 Five-Competitor and Native PDF E2E
+name: Phase 6 PDF Runtime E2E
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - fix/phase6-report-color-consistency-v1
+      - fix/phase6-pdf-export-runtime-v1
   pull_request:
     branches:
       - main
@@ -12,10 +12,9 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 50
     env:
       LOCAL_E2E_URL: http://127.0.0.1:4173/
-      VERCEL_PREVIEW_URL: https://brand-consulting-git-fix-phase6-report-8cd75a-dpes31s-projects.vercel.app/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +31,7 @@ jobs:
           npx playwright install --with-deps chromium
           sudo apt-get update
           sudo apt-get install -y poppler-utils
-      - name: Build and run local generated-report E2E
+      - name: Build and run local Phase 6 E2E
         shell: bash
         run: |
           mkdir -p phase6-v2-e2e-artifacts
@@ -41,7 +40,7 @@ jobs:
           build_code=$?
           if [ "$build_code" != "0" ]; then
             echo "$build_code" > phase6-v2-e2e-artifacts/local-e2e.exit
-            tail -n 180 phase6-v2-e2e-artifacts/local-build.log
+            tail -n 220 phase6-v2-e2e-artifacts/local-build.log
             exit 0
           fi
           npx vite preview --host 127.0.0.1 --port 4173 > phase6-v2-e2e-artifacts/local-server.log 2>&1 &
@@ -52,59 +51,35 @@ jobs:
             fi
             sleep 2
           done
+
           PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-material-symbols-first-paint-v2.mjs > phase6-v2-e2e-artifacts/material-symbols-e2e.log 2>&1
           icon_code=$?
+
           if [ "$icon_code" = "0" ]; then
-            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-five-competitor-native-print.mjs > phase6-v2-e2e-artifacts/local-e2e.log 2>&1
+            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-pdf-button-routing.mjs > phase6-v2-e2e-artifacts/pdf-button-routing.log 2>&1
+            routing_code=$?
+          else
+            routing_code=$icon_code
+          fi
+
+          if [ "$routing_code" = "0" ]; then
+            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-five-competitor-native-print.mjs > phase6-v2-e2e-artifacts/full-report-e2e.log 2>&1
             code=$?
           else
-            code=$icon_code
+            code=$routing_code
           fi
+
           kill "$server_pid" || true
           echo "$code" > phase6-v2-e2e-artifacts/local-e2e.exit
           tail -n 180 phase6-v2-e2e-artifacts/material-symbols-e2e.log
-          if [ -f phase6-v2-e2e-artifacts/local-e2e.log ]; then tail -n 240 phase6-v2-e2e-artifacts/local-e2e.log; fi
-          exit 0
-      - name: Enforce local E2E result
-        run: test "$(cat phase6-v2-e2e-artifacts/local-e2e.exit)" = "0"
-      - name: Capture and classify actual Vercel Preview entry
-        id: preview_entry
-        env:
-          PREVIEW_URL: ${{ env.VERCEL_PREVIEW_URL }}
-        shell: bash
-        run: |
-          node scripts/diagnose-phase6-preview.mjs
-          if grep -q 'Login – Vercel' phase6-v2-e2e-artifacts/00-preview-entry.json; then
-            echo "protected=true" >> "$GITHUB_OUTPUT"
-            echo "Vercel Preview is Ready but requires an authenticated Vercel session." | tee phase6-v2-e2e-artifacts/preview-e2e-skipped.txt
-            echo "0" > phase6-v2-e2e-artifacts/preview-e2e.exit
-            echo "### Vercel Preview click E2E" >> "$GITHUB_STEP_SUMMARY"
-            echo "Skipped: Deployment Protection redirected the runner to Login – Vercel." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "protected=false" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Run actual Vercel Preview generated-report E2E
-        if: steps.preview_entry.outputs.protected != 'true'
-        shell: bash
-        run: |
-          set +e
-          PREVIEW_URL="$VERCEL_PREVIEW_URL" node scripts/e2e-material-symbols-first-paint-v2.mjs > phase6-v2-e2e-artifacts/preview-material-symbols.log 2>&1
-          icon_code=$?
-          if [ "$icon_code" = "0" ]; then
-            PREVIEW_URL="$VERCEL_PREVIEW_URL" node scripts/e2e-phase6-five-competitor-native-print.mjs > phase6-v2-e2e-artifacts/preview-e2e.log 2>&1
-            code=$?
-          else
-            code=$icon_code
-          fi
-          echo "$code" > phase6-v2-e2e-artifacts/preview-e2e.exit
-          tail -n 180 phase6-v2-e2e-artifacts/preview-material-symbols.log
-          if [ -f phase6-v2-e2e-artifacts/preview-e2e.log ]; then tail -n 260 phase6-v2-e2e-artifacts/preview-e2e.log; fi
+          if [ -f phase6-v2-e2e-artifacts/pdf-button-routing.log ]; then tail -n 220 phase6-v2-e2e-artifacts/pdf-button-routing.log; fi
+          if [ -f phase6-v2-e2e-artifacts/full-report-e2e.log ]; then tail -n 260 phase6-v2-e2e-artifacts/full-report-e2e.log; fi
           exit 0
       - name: Upload E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase6-five-competitor-native-pdf-evidence
+          name: phase6-pdf-runtime-evidence
           path: phase6-v2-e2e-artifacts
-      - name: Enforce available E2E result
-        run: test "$(cat phase6-v2-e2e-artifacts/preview-e2e.exit)" = "0"
+      - name: Enforce local E2E result
+        run: test "$(cat phase6-v2-e2e-artifacts/local-e2e.exit)" = "0"

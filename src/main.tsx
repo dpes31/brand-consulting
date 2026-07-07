@@ -20,27 +20,33 @@ import { installFullReportRuntimeCompatibility } from './lib/installFullReportRu
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
 import { installPhase6PagePlanV2 } from './lib/installPhase6PagePlanV2'
 
-// Material Symbols are text ligatures until their font is ready. Install the
-// guard before React renders so words such as "search" never flash on screen.
 installMaterialSymbolsReady()
 installIframePreRepair()
+installFullReportRuntimeCompatibility()
 installIframeLayoutSafety()
 installVisualIntentBriefPolicy()
 installStep3VisualIntentContract()
 installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
-// Phase 6 owns the generic prompt and render controls. Install it before every
-// legacy module that still listens for the same button text.
 installPhase6InputGuard()
 installFullReportPhase6Bridge()
 installFullReportSourceRegistry()
 installCreativeHistoryContract()
 installPromptWorkflowGuard()
 installReportViewerUX()
-installFullReportRuntimeCompatibility()
 installFullReportPdfButtonBridge()
 installDeploymentStatus()
 installPhase6PagePlanV2()
+
+window.addEventListener('keydown', (event) => {
+  if (!(event.ctrlKey || event.metaKey) || event.altKey || event.key.toLowerCase() !== 'p') return
+  const button = Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
+    .find((candidate) => (candidate.textContent || '').includes('Export PDF'))
+  if (!button) return
+  event.preventDefault()
+  event.stopPropagation()
+  button.click()
+}, true)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

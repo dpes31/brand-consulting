@@ -140,4 +140,32 @@
 - Production build and the complete five-competitor E2E passed.
 - Vercel Preview deployment passed.
 - Owner approved applying PR #16 to production after this correction.
-- Known deferred issue: the actual app `Export PDF` action can still report `출력할 슬라이드를 찾지 못했습니다.` This is not resolved by PR #16 and must be handled in a separate follow-up.
+- PR #16 merged with regular merge commit `e22de49396a1ccb3590c5d7eb751b4d0edf759fc`.
+
+## 2026-07-07 — PR #17 Phase 6 PDF runtime routing correction
+
+- Opened branch `fix/phase6-pdf-export-runtime-v1` and Draft PR #17.
+- Reproduced the actual user-facing error `PDF 생성 오류 — 출력할 슬라이드를 찾지 못했습니다.`
+- Confirmed the root cause:
+  - legacy layout runtime installed first;
+  - legacy runtime replaced `iframe.contentWindow.print()` with a raster exporter that searches only `.slide-wrapper > .slide`;
+  - FULL report runtime then captured that legacy function as if it were browser-native print;
+  - Phase 6 FULL reports contain `.full-slide`, so the legacy selector returned zero slides.
+- Corrected runtime ownership:
+  - FULL runtime now installs before the legacy layout/PDF guard;
+  - FULL documents mark the legacy guard as handled;
+  - real native print is retained from `window.print` or the legacy native backup;
+  - all host `Export PDF` buttons resolve the active FULL iframe or a stable offscreen FULL frame.
+- Replaced the zero-slide fallback with a clear no-report message when no FULL report exists.
+- Added build contract `scripts/test-phase6-pdf-runtime-routing.mjs`.
+- Added browser E2E `scripts/e2e-phase6-pdf-button-routing.mjs` that clicks the actual app button twice.
+- Verification passed:
+  - production build and all report contracts;
+  - actual Export PDF button routing;
+  - two consecutive native-print calls;
+  - 48-page preflight;
+  - complete five-competitor Phase 6 regression;
+  - native PDF: 48 pages, 960×540pt, embedded fonts, zero full-page raster rows;
+  - save/reopen: 48 pages.
+- Vercel Preview deployment reached Ready.
+- PR remains Draft and unmerged pending owner Preview approval.

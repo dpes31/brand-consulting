@@ -216,6 +216,34 @@ Page 40 retains the approved composition:
 - No 2560×1440 full-page image rows are allowed.
 - Viewer, saved HTML, reopened project, and PDF must use the same report document.
 
+## PDF runtime separation
+
+Two runtime families coexist and must be mutually exclusive:
+
+### Legacy report runtime
+
+- DOM selector: `.slide-wrapper > .slide`
+- Guard: `installIframeLayoutSafety`
+- Exporter: `exportReportPdf`
+- Used only for legacy report documents.
+
+### Phase 6 FULL report runtime
+
+- DOM selector: `.full-slide`
+- Guard: `installFullReportRuntimeCompatibility`
+- Exporter: Chromium browser-native print
+- Used for normal Phase 6 FULL reports.
+
+Rules:
+
+- Install the FULL runtime before the legacy layout/PDF guard.
+- A FULL document marks the legacy guard as handled before the legacy load listener can replace `window.print`.
+- Retain the real native print function from `window.print` or the legacy native backup.
+- Never pass a FULL report into the legacy `.slide-wrapper > .slide` selector.
+- Every host `Export PDF` button must resolve the fullscreen FULL iframe, another active FULL iframe, or a stable offscreen FULL iframe rebuilt from retained HTML.
+- When no FULL report exists, show a clear instruction instead of `출력할 슬라이드를 찾지 못했습니다`.
+- Repeated export must remain valid.
+
 ## Runtime and QA
 
 Primary implementation files:
@@ -228,6 +256,9 @@ Primary implementation files:
 - `src/report/researchSlotPrompt.ts`
 - `src/report/productionReportContract.ts`
 - `src/lib/installFullReportPhase6Bridge.ts`
+- `src/lib/installFullReportRuntimeCompatibility.ts`
+- `src/lib/installFullReportPdfButtonBridge.ts`
+- `src/lib/installLayoutSafety.ts`
 - `src/lib/geminiCompiler.ts`
 - `public/full-report-approved-v1.css`
 - `public/full-report-approved-v1/color-consistency-v1.css`
@@ -235,6 +266,8 @@ Primary implementation files:
 - `public/template-full-report-v1.html`
 - `scripts/test-full-report-contract.mjs`
 - `scripts/test-full-report-runtime.mjs`
+- `scripts/test-phase6-pdf-runtime-routing.mjs`
+- `scripts/e2e-phase6-pdf-button-routing.mjs`
 - `scripts/e2e-phase6-five-competitor-native-print.mjs`
 
 Minimum QA checks:
@@ -253,6 +286,9 @@ Minimum QA checks:
 - Appendix divider presence;
 - Creative History dark-page contrast;
 - save and reopen;
+- actual host Export PDF button invocation;
+- two consecutive FULL native-print invocations;
+- no legacy zero-slide alert;
 - native 48-page PDF with embedded fonts and no full-page raster rows;
 - actual Viewer and PDF screenshots before declaring visual completion.
 
