@@ -21,7 +21,6 @@ const ACTIVE_BRAND_SESSION_KEYS = [
 const REQUIRED_PHASE_STEPS = ['0', '1', '2', '3', '4', '5'] as const;
 
 let installed = false;
-let replayingRenderClick = false;
 
 function normalizeText(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
@@ -30,7 +29,6 @@ function normalizeText(value: string | null | undefined): string {
 function readBrandName(): string {
   const visible = document.querySelector<HTMLInputElement>('input[placeholder*="Enter brand name"]')?.value.trim();
   if (visible) return visible;
-
   try {
     for (const key of ACTIVE_BRAND_SESSION_KEYS) {
       const value = sessionStorage.getItem(key)?.trim();
@@ -53,19 +51,16 @@ function readResearchSnapshot(): { rawResearch: string; missingSteps: string[] }
     if (!raw) return { rawResearch: '', missingSteps: [...REQUIRED_PHASE_STEPS] };
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const values = new Map<string, string>();
-
     Object.entries(parsed).forEach(([key, value]) => {
       if (typeof value !== 'string' || !value.trim()) return;
       const normalizedKey = normalizeStepKey(key);
       if (normalizedKey) values.set(normalizedKey, value.trim());
     });
-
     const missingSteps = REQUIRED_PHASE_STEPS.filter((step) => !values.get(step));
     const rawResearch = REQUIRED_PHASE_STEPS
       .filter((step) => values.has(step))
       .map((step) => `\n\n## STEP ${step}\n${values.get(step)}`)
       .join('');
-
     return { rawResearch, missingSteps };
   } catch {
     return { rawResearch: '', missingSteps: [...REQUIRED_PHASE_STEPS] };
@@ -99,16 +94,10 @@ async function copyText(text: string): Promise<void> {
 }
 
 function findPhase6Textarea(): HTMLTextAreaElement | null {
-  const textareas = Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'));
-  return textareas.find((textarea) => {
+  return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea')).find((textarea) => {
     const placeholder = textarea.getAttribute('placeholder') || '';
     return placeholder.includes('외부') || placeholder.includes('html') || placeholder.includes('HTML');
   }) || null;
-}
-
-function findButtonByText(text: string): HTMLButtonElement | null {
-  return Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
-    .find((button) => normalizeText(button.textContent).includes(text)) || null;
 }
 
 function stopReactClick(event: MouseEvent): void {
@@ -137,7 +126,6 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
   const originalText = normalizeText(clickedButton.textContent) || '프롬프트 추출';
   clickedButton.disabled = true;
   clickedButton.textContent = '40페이지 레이아웃 중립화 중...';
-
   try {
     const capturedPilot = await loadApprovedPilotBaseHtml(brandName);
     const researchOnlyTemplate = createResearchOnlyLayoutTemplate(capturedPilot, brandName);
@@ -159,35 +147,16 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
   }
 }
 
-async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonElement): Promise<void> {
-  if (replayingRenderClick) {
-    replayingRenderClick = false;
-    return;
-  }
-
-  stopReactClick(event);
+function validateManualRender(event: MouseEvent): void {
   const textarea = findPhase6Textarea();
   const brandName = readBrandName();
   const { rawResearch, missingSteps } = readResearchSnapshot();
-  if (!textarea || !textarea.value.trim()) {
-    window.alert('외부 AI가 생성한 완성 HTML 전체를 입력창에 붙여넣어야 한다.');
-    return;
-  }
-  if (!brandName) {
-    window.alert('브랜드명을 확인할 수 없다. Phase 0에서 브랜드명을 다시 입력해야 한다.');
-    return;
-  }
-  if (missingSteps.length > 0 || !rawResearch.trim()) {
-    window.alert('Step 0~5 조사 원문을 확인할 수 없어 내용 반영 여부를 검증할 수 없다.');
-    return;
-  }
-
-  const originalText = normalizeText(clickedButton.textContent);
-  clickedButton.disabled = true;
-  clickedButton.dataset.fullReportBusy = 'true';
-  clickedButton.textContent = '레이아웃·조사 반영 검증 중...';
 
   try {
+    if (!textarea || !textarea.value.trim()) throw new Error('외부 AI가 생성한 완성 HTML 전체를 입력창에 붙여넣어야 한다.');
+    if (!brandName) throw new Error('브랜드명을 확인할 수 없다. Phase 0에서 브랜드명을 다시 입력해야 한다.');
+    if (missingSteps.length > 0 || !rawResearch.trim()) throw new Error('Step 0~5 조사 원문을 확인할 수 없어 내용 반영 여부를 검증할 수 없다.');
+
     let html = normalizeApprovedFullReportHtml(extractCompleteFullReportHtml(textarea.value));
     html = html
       .replace(/\[cite[:\s]*\d*[\],]*/g, '')
@@ -197,23 +166,12 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
     assertAllResearchSlotsFilled(html);
     assertResearchEvidencePresent(html, rawResearch, brandName);
 
-    // Keep the original React-controlled textarea value intact. The Dashboard
-    // already owns fenced-HTML extraction and citation cleanup. Replacing the
-    // value here can race React state updates and prevent the Viewer from opening.
+    // Validation succeeded. Do not replay or mutate the controlled textarea.
+    // Let this original click continue into Dashboard's React onClick handler,
+    // which owns fenced-HTML extraction, state update, Viewer opening and save.
     textarea.dataset.fullReportValidatedHtml = 'true';
-
-    window.setTimeout(() => {
-      const currentButton = findButtonByText('결과물 뷰어에 렌더링하기') || clickedButton;
-      currentButton.disabled = false;
-      delete currentButton.dataset.fullReportBusy;
-      currentButton.textContent = originalText || '결과물 뷰어에 렌더링하기';
-      replayingRenderClick = true;
-      currentButton.click();
-    }, 120);
   } catch (error) {
-    clickedButton.disabled = false;
-    delete clickedButton.dataset.fullReportBusy;
-    clickedButton.textContent = originalText || '결과물 뷰어에 렌더링하기';
+    stopReactClick(event);
     window.alert(`FULL 보고서 검증 오류: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
@@ -223,7 +181,6 @@ function refreshPhase6Copy(): void {
   if (textarea) {
     textarea.placeholder = '외부 AI가 모든 CONTENT SLOT을 조사 내용으로 채운 40페이지 완성 HTML 전체를 붙여넣는다.';
   }
-
   document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
     const text = normalizeText(element.textContent);
     if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI 완성 HTML 생성';
@@ -251,9 +208,7 @@ export function installFullReportPhase6Bridge(): void {
       void handlePromptExport(event, button);
       return;
     }
-    if (label.includes('결과물 뷰어에 렌더링하기')) {
-      void handleManualRender(event, button);
-    }
+    if (label.includes('결과물 뷰어에 렌더링하기')) validateManualRender(event);
   }, true);
 
   const observer = new MutationObserver(refreshPhase6Copy);
