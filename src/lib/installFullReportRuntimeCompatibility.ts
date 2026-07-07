@@ -105,14 +105,6 @@ async function waitForFonts(documentRef: Document): Promise<void> {
   await documentRef.fonts.ready;
 }
 
-/**
- * FULL report PDF output deliberately uses the browser's native print engine.
- * The former html2canvas/JPEG path converted every page into a full-page image,
- * which removed font objects, softened text, and could diverge from the viewer's
- * computed CSS. Native print preserves the live DOM, vector text, exact colors,
- * and the approved @page 16:9 contract. The user completes the browser's
- * standard "Save as PDF" action from the print dialog.
- */
 export async function exportFullReportPdf(
   iframe: HTMLIFrameElement,
   filename?: string,
@@ -150,14 +142,14 @@ function installIntoFrame(iframe: HTMLIFrameElement): void {
   const windowRef = iframe.contentWindow as FullReportWindow | null;
   if (!documentRef?.documentElement || !windowRef || !isFullReportDocument(documentRef)) return;
 
+  // Claim FULL report ownership immediately, even before all 48 slides have
+  // finished parsing. This prevents the legacy load listener from replacing
+  // window.print during the short gap before the slide DOM is complete.
+  documentRef.documentElement.dataset[LEGACY_LAYOUT_MARKER] = 'installed';
+
   const activate = () => {
     if (getFullReportSlides(documentRef).length === 0) return false;
 
-    // FULL reports must never enter the legacy `.slide-wrapper > .slide` PDF
-    // runtime. Mark the legacy guard as already handled before its load listener
-    // runs, and recover the browser-native print function from its backup when
-    // an older listener happened to run first.
-    documentRef.documentElement.dataset[LEGACY_LAYOUT_MARKER] = 'installed';
     windowRef.__REPORT_PREFLIGHT__ = () => runFullReportPreflight(documentRef);
 
     const nativePrint = windowRef.__NATIVE_REPORT_PRINT__ || windowRef.print.bind(windowRef);
