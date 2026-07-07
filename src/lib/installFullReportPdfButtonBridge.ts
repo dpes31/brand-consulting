@@ -28,23 +28,47 @@ function findExportButton(event: Event): HTMLButtonElement | null {
   return normalized(button.textContent).includes('Export PDF') ? button : null;
 }
 
-function findFullscreenFrame(): HTMLIFrameElement | null {
-  return document.getElementById('fullscreen-viewer-iframe') as HTMLIFrameElement | null;
+function fullSlideCount(iframe: HTMLIFrameElement): number {
+  try {
+    return iframe.contentDocument?.querySelectorAll('.full-slide').length ?? 0;
+  } catch {
+    return 0;
+  }
 }
 
-function fullSlideCount(iframe: HTMLIFrameElement): number {
-  return iframe.contentDocument?.querySelectorAll('.full-slide').length ?? 0;
+function frameSource(iframe: HTMLIFrameElement): string {
+  return iframe.srcdoc || iframe.getAttribute('srcdoc') || '';
+}
+
+function hasFullReportSource(iframe: HTMLIFrameElement): boolean {
+  const source = frameSource(iframe);
+  return source.includes('data-report-version="full-report-v1"')
+    || source.includes('data-approved-pilot="full-integrated"')
+    || source.includes('class="full-slide');
 }
 
 function isFullReportFrame(iframe: HTMLIFrameElement): boolean {
-  const documentRef = iframe.contentDocument;
-  const windowRef = iframe.contentWindow as ReportFrameWindow | null;
-  return Boolean(
-    windowRef?.__FULL_REPORT_RUNTIME__
-    || documentRef?.body?.dataset.reportVersion === 'full-report-v1'
-    || documentRef?.documentElement.dataset.fullReportPageCount === '48'
-    || fullSlideCount(iframe) === 48,
-  );
+  try {
+    const documentRef = iframe.contentDocument;
+    const windowRef = iframe.contentWindow as ReportFrameWindow | null;
+    return Boolean(
+      windowRef?.__FULL_REPORT_RUNTIME__
+      || documentRef?.body?.dataset.reportVersion === 'full-report-v1'
+      || documentRef?.documentElement.dataset.fullReportPageCount === '48'
+      || fullSlideCount(iframe) === 48,
+    );
+  } catch {
+    return false;
+  }
+}
+
+function findViewerFrame(): HTMLIFrameElement | null {
+  const fullscreen = document.getElementById('fullscreen-viewer-iframe') as HTMLIFrameElement | null;
+  if (fullscreen && (isFullReportFrame(fullscreen) || hasFullReportSource(fullscreen))) return fullscreen;
+
+  return Array.from(document.querySelectorAll<HTMLIFrameElement>('iframe'))
+    .filter((iframe) => iframe.id !== 'full-report-pdf-export-frame')
+    .find((iframe) => isFullReportFrame(iframe) || hasFullReportSource(iframe)) || null;
 }
 
 async function waitForFullReportFrame(iframe: HTMLIFrameElement, timeoutMs = 30000): Promise<void> {
@@ -59,7 +83,7 @@ async function waitForFullReportFrame(iframe: HTMLIFrameElement, timeoutMs = 300
 function reportSource(iframe: HTMLIFrameElement): string {
   const retained = (window as FullReportSourceWindow).__FULL_REPORT_SOURCE__ || '';
   if (retained.includes('data-report-version="full-report-v1"')) return retained;
-  return iframe.srcdoc || iframe.getAttribute('srcdoc') || '';
+  return frameSource(iframe);
 }
 
 async function createStableExportFrame(source: string): Promise<HTMLIFrameElement> {
@@ -120,20 +144,29 @@ export function installFullReportPdfButtonBridge(): void {
   document.documentElement.dataset.fullPdfButtonBridge = 'installed';
 
   window.addEventListener('click', (event) => {
-    if (!findExportButton(event)) return;
-    const iframe = findFullscreenFrame();
-    if (!iframe) return;
+    const button = findExportButton(event);
+    if (!button) return;
 
-    // The visible iframe can briefly reload after project persistence. Always
-    // intercept before React reaches iframe.print(), then export from either the
-    // ready viewer or a reusable offscreen frame built from the retained srcDoc.
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    void exportFromStableFrame(iframe).catch((error) => {
-      const message = error instanceof Error ? error.message : String(error);
-      window.alert(`FULL PDF 생성 오류\n\n${message}`);
-    });
+    const iframe = findViewerFrame();
+    if (!iframe) {
+      window.alert('PDF로 출력할 FULL 보고서를 먼저 생성하거나 저장된 프로젝트를 열어 주세요.');
+      return;
+    }
+
+    button.disabled = true;
+    button.dataset.pdfExportBusy = 'true';
+    void exportFromStableFrame(iframe)
+      .catch((error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        window.alert(`FULL PDF 생성 오류\n\n${message}`);
+      })
+      .finally(() => {
+        button.disabled = false;
+        delete button.dataset.pdfExportBusy;
+      });
   }, true);
 }
