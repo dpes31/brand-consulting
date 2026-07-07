@@ -6,6 +6,7 @@
 @import url('/full-report-approved-v1/base.css');
 @import url('/full-report-approved-v1/refinement.css');
 @import url('/full-report-approved-v1/density-v5-fixes.css');
+@import url('/full-report-approved-v1/color-consistency-v1.css');
 
 /* Production standalone shell aliases to the approved Pilot shell. */
 body.full-report-app{min-height:100vh;background:var(--full-bg);color:var(--full-ink);font-family:'Pretendard','Noto Sans KR',sans-serif}
@@ -48,11 +49,21 @@ mark,.highlight{background:linear-gradient(transparent 48%,var(--full-yellow) 48
 .full-slide[data-page="40"] .choice-final p{margin:0 0 5px;font-size:10.5px;line-height:1.35}
 .full-slide[data-page="40"] .choice-final ul{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0;padding-left:16px}
 .full-slide[data-page="40"] .choice-final li{font-size:9.5px;line-height:1.3}
+#strategy-choice .choice-final{grid-column:auto!important}
 
+/* Native Chromium print is the FULL report PDF source. Keep the screen DOM and
+ * its computed typography intact; remove only viewer chrome and frame scaling.
+ */
 @media print{
-  .report-nav{display:none!important}
-  .report-content.full-report-content{margin:0!important;padding:0!important;gap:0!important}
-  .full-slide{width:1280px!important;height:720px!important;box-shadow:none!important;break-after:page;page-break-after:always}
-  .full-slide:last-child{break-after:auto!important;page-break-after:auto!important}
+  html,body{width:1280px!important;min-width:1280px!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important}
+  body[data-report-version="full-report-v1"],.full-report-app{width:1280px!important;min-width:1280px!important;margin:0!important;padding:0!important;background:#fff!important}
+  .report-nav,.full-nav,.full-report-toolbar,.full-report-section-label{display:none!important}
+  .report-content.full-report-content,.full-report-content{display:block!important;width:1280px!important;min-width:1280px!important;margin:0!important;padding:0!important;gap:0!important}
+  .full-frame{position:relative!important;width:1280px!important;height:720px!important;min-width:1280px!important;min-height:720px!important;margin:0!important;overflow:hidden!important;box-shadow:none!important;break-after:page!important;page-break-after:always!important}
+  .full-frame-inner{position:relative!important;top:0!important;left:0!important;width:1280px!important;height:720px!important;transform:none!important;transform-origin:top left!important}
+  .full-frame .full-slide{break-after:auto!important;page-break-after:auto!important}
+  .full-report-content>.full-slide{break-after:page!important;page-break-after:always!important}
+  .full-report-content>.full-frame:last-child,.full-report-content>.full-slide:last-child{break-after:auto!important;page-break-after:auto!important}
+  .full-slide{width:1280px!important;height:720px!important;min-width:1280px!important;min-height:720px!important;margin:0!important;box-shadow:none!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   @page{size:13.333in 7.5in;margin:0}
 }

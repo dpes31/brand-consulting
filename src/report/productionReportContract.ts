@@ -25,16 +25,18 @@ export type ProductionReportValidation = { ok: boolean; errors: string[] };
 const REQUIRED_RECIPES_BY_PAGE = new Map<number, ProductionReportSlide['recipe']>([
   [1, 'cover'],
   [6, 'milestone-timeline'],
-  [12, 'rank-scorecard'],
+  [11, 'rank-scorecard'],
   [22, 'persona'],
   [23, 'persona'],
   [24, 'persona'],
+  [29, 'creative-history'],
+  [30, 'creative-history'],
   [31, 'creative-history'],
   [32, 'creative-history'],
   [33, 'creative-history'],
   [34, 'creative-history'],
-  [37, 'swot'],
-  [39, 'stp-convergence'],
+  [36, 'swot'],
+  [38, 'stp-convergence'],
   [40, 'choice-architecture'],
 ]);
 
@@ -65,9 +67,7 @@ export function validateProductionReport(report: ProductionReportV1, expectedBra
     if (!Array.isArray(slide.sources)) errors.push(`Slide ${slide.id} must include sources[].`);
 
     const requiredRecipe = REQUIRED_RECIPES_BY_PAGE.get(expectedPage);
-    if (requiredRecipe && slide.recipe !== requiredRecipe) {
-      errors.push(`Page ${expectedPage} must use recipe "${requiredRecipe}", received "${slide.recipe}".`);
-    }
+    if (requiredRecipe && slide.recipe !== requiredRecipe) errors.push(`Page ${expectedPage} must use recipe "${requiredRecipe}", received "${slide.recipe}".`);
 
     if (slide.recipe === 'creative-history') {
       if (!slide.brand?.trim()) errors.push(`Creative History page ${slide.id} has no brand.`);

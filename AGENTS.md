@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Read `handoff/PROJECT_HANDOFF.md`, `handoff/DECISION_LOG.md`, `docs/REPORT_TEMPLATE_SPEC.md`, `docs/phase5b-gate2a-results.md`, and the files under `design/` before changing this repository.
+Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, `docs/REPORT_TEMPLATE_SPEC.md`, `docs/phase5b-gate2a-results.md`, and the files under `design/` before changing this repository.
 
 ## Safety
 
@@ -9,16 +9,57 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/DECISION_LOG.md`, `docs/REPORT_TEMPL
 - Never modify or delete `backup-production-stable-20260622` or `backup/main-before-full-report-v1-2026-07-01`.
 - Preserve validated and audit branches.
 - `feature-visualization-engine-v1` and PR #6 are failed audit records and must not be merged.
+- Do not restore discarded implementations from PR #8, #9, or #10.
+- Preserve `public/template.html` as the legacy rollback asset. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
+
+## Current Phase 6 release
+
+- Branch: `fix/phase6-report-color-consistency-v1`
+- PR: `#16`
+- Scope: five-competitor page plan, Final Choice restoration, Persona index wrapping, Appendix divider, Creative History contrast, and reload-time Material Symbols stabilization.
+- Owner explicitly approved production application after the reload-flash fix.
+- Use regular merge only; do not squash.
+- The actual app `Export PDF` button remains a known deferred defect and can report `출력할 슬라이드를 찾지 못했습니다.` Do not claim it is resolved.
 
 ## Product invariants
 
-- Preserve the 23 mandatory legacy wrappers and exact 16:9 PDF behavior.
-- The production generator supports a 23–40 page Main Deck plus Appendix.
-- Step 2 locks 2–5 direct competitors.
-- Preserve one Deep Dive and one six-year Creative History page per selected competitor.
+- Final report is exactly 48 slides: 40-page Main Deck + 8-page Appendix.
+- Every slide is exactly 1280×720, 16:9.
+- Use Pretendard; major titles use weight 900.
+- Preserve Korean word units with `word-break: keep-all`.
+- Preserve the exact user-entered brand name without translation or romanization.
+- Step 2 locks 2–5 direct competitors. Five is the maximum, not a mandatory invented count.
+- Preserve one independent Deep Dive and one independent six-year Creative History per selected direct competitor.
 - Do not invent figures, dates, models, scores, axes, sources, or copy.
-- Only verified verbatim copy may use quotation marks.
+- Only `verified-verbatim` copy may use quotation marks.
 - Do not expose raw source URLs in final reports.
+
+## Fixed five-competitor page plan
+
+Main Deck:
+
+- 11: Threat Ranking, up to five direct competitors.
+- 12–16: Deep Dive 1–5 in Threat Ranking order.
+- 17: Product Matrix, target brand + up to five direct competitors.
+- 18: Positioning, target brand + up to five direct competitors.
+- 19–28: Consumer section.
+- 29: Target Brand Creative History.
+- 30–34: Competitor Creative History 1–5.
+- 35: Message Trajectory, target brand + up to five direct competitors.
+- 36–40: SWOT, GAP & Root Cause, STP, Four Strategic Directions, Final Choice.
+
+Appendix:
+
+- A1: Appendix divider.
+- A2: Winning Move Specification.
+- A3: Via Negativa.
+- A4: Pre-mortem.
+- A5: Execution Roadmap.
+- A6: Measurement Plan.
+- A7: Evidence Gaps + Source Labels.
+- A8: Decision Receipt / Close.
+
+Appendix pages are never competitor overflow slots. If Step 2 supports fewer than five direct competitors, preserve unused approved pages as explicit evidence gaps; never invent a competitor.
 
 ## Validated Visual Intent contracts
 
@@ -31,18 +72,46 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/DECISION_LOG.md`, `docs/REPORT_TEMPL
 ## Approved report reference
 
 - Route: `/?pilot=full-integrated&brand=<exact user-entered brand>`.
-- Structure: 40-page Main Deck plus 8-page Appendix, 1280×720.
-- Typography: Pretendard; major titles use weight 900.
-- Preserve Korean word units with `word-break: keep-all`.
-- Body text normally remains at least page-number size; source labels and caveats are exceptions.
+- The Phase 6 prompt captures this route after the five-competitor page-plan transform is complete.
+- The captured DOM is neutralized into `[[CONTENT:...]]` slots and then filled only from current Step 0–5 research.
+- External AI returns one complete standalone HTML document, not JSON.
+- Final Choice must retain the approved two-column selection-criteria / final-choice composition.
+- Persona indices `02` and `03` must remain on one line.
 - Use yellow highlighting for governing phrases and decision implications.
 - Prefer timelines, matrices, causal flows, convergence diagrams, and choice architecture over prose card walls.
 - Equal-hierarchy elements use equal tracks and aligned geometry.
-- Preserve the exact user-entered brand name without automatic translation.
+
+## Material Symbols first-paint rule
+
+- Material Symbols ligature strings must never be visible before the icon font loads.
+- Reserve a fixed icon box from first paint.
+- Keep `.material-symbols-outlined` hidden until `document.fonts.check(...)` confirms readiness.
+- Install the readiness guard before React renders.
+- Preserve the cold-load E2E that delays the Material Symbols font and checks zero ligature flash and zero button movement.
+
+## Creative History factuality
+
+- Target brand and every selected direct competitor require an independent 2021–2026 Creative History.
+- Allowed statuses:
+  - `verified-verbatim`
+  - `source-found-copy-unverified`
+  - `not-found`
+- Preserve Message Trajectory and Strategic So What.
+- Dark Creative History pages must retain dark paper and readable foreground.
+
+## PDF status
+
+- Local native-print code and PDF inspection tests exist.
+- The user-facing app Export PDF action is not yet reliable and is explicitly deferred to a separate follow-up.
+- Do not treat local 48-page PDF inspection as proof that the production button works.
 
 ## Architecture boundary
 
-The repository contains the production research/prompt/compiler path and the approved 40+8 React reference report route. The reference route does not by itself mean every `public/template.html`-generated report uses the same component system. Any full compiler/template migration requires separate implementation and regression testing.
+The production Phase 6 flow is:
+
+`Step 0–5 research → captured approved Pilot DOM → research-only CONTENT SLOT template → complete standalone HTML → Viewer / save / reopen`.
+
+The legacy `public/template.html` remains a protected rollback asset and must not be overwritten or deleted.
 
 ## Documentation
 

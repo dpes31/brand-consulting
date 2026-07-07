@@ -74,6 +74,39 @@ html {
   color-scheme: dark;
 }
 
+/* Material Symbols are ligature words until the icon font is available.
+ * Reserve the final icon box from the first paint and keep the words hidden,
+ * preventing both the English-text flash and the resulting layout shift.
+ */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  min-width: 1em;
+  height: 1em;
+  overflow: hidden;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  visibility: hidden;
+  flex: 0 0 auto;
+}
+
+html.material-symbols-ready .material-symbols-outlined {
+  visibility: visible;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }

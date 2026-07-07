@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
+import { installMaterialSymbolsReady } from './lib/installMaterialSymbolsReady'
 import { installIframePreRepair } from './lib/installIframePreRepair'
 import { installIframeLayoutSafety } from './lib/installLayoutSafety'
 import { installCreativeHistoryContract } from './lib/installCreativeHistoryContract'
@@ -17,7 +18,11 @@ import { installFullReportSourceRegistry } from './lib/installFullReportSourceRe
 import { installFullReportPdfButtonBridge } from './lib/installFullReportPdfButtonBridge'
 import { installFullReportRuntimeCompatibility } from './lib/installFullReportRuntimeCompatibility'
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
+import { installPhase6PagePlanV2 } from './lib/installPhase6PagePlanV2'
 
+// Material Symbols are text ligatures until their font is ready. Install the
+// guard before React renders so words such as "search" never flash on screen.
+installMaterialSymbolsReady()
 installIframePreRepair()
 installIframeLayoutSafety()
 installVisualIntentBriefPolicy()
@@ -35,6 +40,7 @@ installReportViewerUX()
 installFullReportRuntimeCompatibility()
 installFullReportPdfButtonBridge()
 installDeploymentStatus()
+installPhase6PagePlanV2()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

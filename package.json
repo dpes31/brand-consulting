@@ -7,7 +7,8 @@
     "dev": "vite",
     "test:full-report": "node scripts/test-full-report-contract.mjs",
     "test:full-report-runtime": "node scripts/test-full-report-runtime.mjs",
-    "build": "npm run test:full-report && npm run test:full-report-runtime && tsc -b && vite build",
+    "test:material-symbols": "node scripts/test-material-symbols-stability.mjs",
+    "build": "npm run test:full-report && npm run test:full-report-runtime && npm run test:material-symbols && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -28,7 +29,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.0",
     "eslint": "^9.39.4",
-    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-hooks": "^7.1.0",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
     "tailwindcss": "^4.2.2",

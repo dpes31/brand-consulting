@@ -41,7 +41,11 @@ check(pages.filter(([, , zone]) => zone === 'appendix').length === 8, 'Appendix 
 check(compiler.includes('ONE complete standalone HTML document, not JSON'), 'Complete HTML output rule missing.');
 check(compiler.includes('IMMUTABLE APPROVED BASE HTML — START'), 'Approved Base HTML marker missing.');
 check(compiler.includes('VISUAL INTENT BRIEF INTERPRETATION'), 'Visual Intent interpretation missing.');
-check(compiler.includes('It does NOT mean that the final output should be JSON.'), 'Visual Intent final-output rule missing.');
+check(
+  compiler.includes('It does NOT mean that the final output should be JSON.') ||
+  compiler.includes('Visual Intent Brief JSON is an intermediate assignment brief, not the final output format.'),
+  'Visual Intent final-output rule missing.',
+);
 check(compiler.includes('loadApprovedPilotBaseHtml'), 'Pilot capture missing.');
 check(compiler.includes('assertApprovedFullReportHtml'), 'HTML validator missing.');
 
@@ -57,5 +61,6 @@ check(inputGuard.includes('looksLikeJson'), 'Obsolete JSON guard missing.');
 check(inputGuard.includes('완성 HTML'), 'Complete HTML guidance missing.');
 check(main.includes('installPhase6InputGuard()'), 'Phase 6 input guard not installed.');
 check(main.includes('installFullReportPhase6Bridge()'), 'Phase 6 HTML bridge not installed.');
+check(main.includes('installPhase6PagePlanV2()'), 'Five-competitor Phase 6 page plan not installed.');
 
-console.log('FULL report contract PASS: both Phase 6 paths use the approved 48-page HTML.');
+console.log('FULL report contract PASS: approved 40+8 HTML uses the five-competitor page plan.');
