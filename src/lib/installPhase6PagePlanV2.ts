@@ -61,13 +61,41 @@ function restoreApprovedLabels(documentRef: Document): void {
 
   documentRef.querySelectorAll<HTMLElement>('#market-shift .ladder-step > span').forEach((label, index) => {
     label.textContent = `LEVEL ${index + 1}`;
+    label.style.fontSize = '9px';
+    label.style.whiteSpace = 'nowrap';
   });
 
   ['persona-1', 'persona-2', 'persona-3'].forEach((id) => {
     getSlide(documentRef, id).dataset.personaTitleSource = 'core-target';
   });
+}
 
+function restoreApprovedVisuals(documentRef: Document): void {
+  documentRef.querySelectorAll<HTMLElement>('#market-context .market-force strong').forEach((node) => {
+    node.style.fontSize = '12px';
+    node.style.lineHeight = '1.5';
+  });
+  documentRef.querySelectorAll<HTMLElement>('.persona-index').forEach((node) => {
+    node.style.minWidth = '62px';
+    node.style.whiteSpace = 'nowrap';
+    node.style.wordBreak = 'normal';
+    node.style.overflowWrap = 'normal';
+  });
   documentRef.querySelectorAll('.history-now').forEach((node) => node.remove());
+  documentRef.querySelectorAll<HTMLElement>('.history-original .history-card').forEach((node) => {
+    node.style.alignItems = 'center';
+    node.style.textAlign = 'center';
+    node.style.borderRadius = '0';
+  });
+  const creative = documentRef.querySelector<HTMLElement>('#creative-insight .creative-gap-layout');
+  if (creative) creative.style.alignItems = 'center';
+  const stp = documentRef.querySelector<HTMLElement>('#stp .stp-layout');
+  if (stp) stp.style.alignItems = 'center';
+  const choice = documentRef.querySelector<HTMLElement>('#strategy-choice .choice-final');
+  if (choice) {
+    choice.style.gridColumn = 'auto';
+    choice.style.marginTop = '0';
+  }
 }
 
 function promoteDecisionClose(documentRef: Document): void {
@@ -157,6 +185,7 @@ function transform(documentRef: Document): boolean {
   applyLabels(documentRef);
   reorder(documentRef);
   rebuildNav(documentRef);
+  restoreApprovedVisuals(documentRef);
 
   if (documentRef.querySelectorAll('.full-slide').length !== MAIN_COUNT) {
     throw new Error('Phase 6 Main Deck must contain exactly 40 slides after restoration.');
