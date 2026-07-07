@@ -5,9 +5,10 @@
 - Repository: `dpes31/brand-consulting`
 - Production branch: `main`
 - Active correction branch: `fix/phase6-report-color-consistency-v1`
-- Draft PR: #16 `Correct Phase 6 report colors, structure, and PDF fidelity`
+- PR: #16 `Finalize Phase 6 report structure and remove icon-font reload flash`
 - Production URL: `https://brand-consulting.vercel.app/`
-- Preview-first only; do not merge PR #16 without explicit owner approval.
+- Owner approved production application after the reload-flash correction.
+- Merge method: regular merge only; do not squash.
 - Immutable rollback branches:
   - `backup/main-before-full-report-v1-2026-07-01`
   - `backup-production-stable-20260622`
@@ -23,7 +24,7 @@ The normal `/` application flow is:
 → `external AI or internal API fills every slot from current research`
 → `blocking validation`
 → `48-page standalone HTML`
-→ `Viewer / save / reopen / native PDF`
+→ `Viewer / save / reopen`
 
 The approved Pilot is a layout source only. Its Biznup conclusions, figures, competitors, personas, Creative History, sources, SWOT, STP, and strategy are removed before the Phase 6 prompt is exported.
 
@@ -69,7 +70,7 @@ Appendix:
 
 Appendix is not competitor overflow. If fewer than five direct competitors are supported, unused approved competitor pages disclose evidence gaps.
 
-## Current PR #16 corrections
+## PR #16 corrections
 
 - Restored Page 40 Final Choice to a left Selection Criteria / right Big IdeaL & Winning Move composition.
 - Added up-to-five competitor capacity to Threat Ranking, Deep Dive, Product Matrix, Positioning, Creative History, and Message Trajectory.
@@ -78,7 +79,11 @@ Appendix is not competitor overflow. If fewer than five direct competitors are s
 - Combined Evidence Gaps and Source Labels at A7.
 - Prevented Persona indices `02` and `03` from wrapping.
 - Preserved dark Creative History color tokens.
-- Preserved Chromium native-print PDF export.
+- Corrected the app reload FOUC caused by Material Symbols ligature text:
+  - fixed 1em icon boxes from first paint;
+  - hidden ligature strings until font readiness;
+  - Google Fonts preconnect and Material Symbols block loading;
+  - font-readiness guard installed before React render.
 
 ## Blocking validation
 
@@ -139,29 +144,27 @@ The same content contract applies to manual external-AI and internal API paths.
 - Only verified-verbatim copy may use quotation marks.
 - Message Trajectory and Strategic So What remain mandatory.
 
-## PDF contract
+## Verified for PR #16
 
-- FULL report PDF uses Chromium native print, not full-page JPEG rasterization.
-- Exactly 48 pages at 960×540pt.
-- Embedded font objects required.
-- No 2560×1440 full-page image rows.
-- Viewer, save/reopen, and PDF use the same HTML document.
+- Production build and contract tests: PASS
+- Five-competitor generated-report E2E: PASS
+- Exact page order and 48 navigation links: PASS
+- 1280×720 geometry and zero overflow: PASS
+- Persona `02`/`03` one-line rendering: PASS
+- Page 40 two-column geometry: PASS
+- Appendix divider: PASS
+- Save/reopen: PASS
+- Material Symbols cold-load test with delayed font: PASS
+- No visible ligature words before font readiness: PASS
+- Export PDF button position and size unchanged before/after icon font load: PASS
 
-## Verification gate for PR #16
+## Known deferred issue
 
-Before owner review, the current PR head must pass:
+The actual app/Preview `Export PDF` action can still show:
 
-- Production build and contract tests
-- Five-competitor generated-report E2E
-- exact page order and 48 navigation links
-- 1280×720 geometry and zero overflow
-- Persona `02`/`03` one-line rendering
-- Page 40 two-column geometry
-- Appendix divider presence
-- six Creative History pages with dark contrast
-- save/reopen
-- native 48-page PDF inspection
-- Viewer and PDF screenshot inspection
+`PDF 생성 오류 — 출력할 슬라이드를 찾지 못했습니다.`
+
+The owner explicitly deferred this issue to a separate follow-up after PR #16 production deployment. Do not describe the user-facing PDF button as resolved. The existing local native-print contract and PDF inspection evidence do not supersede the actual app failure report.
 
 ## Excluded experiments
 
