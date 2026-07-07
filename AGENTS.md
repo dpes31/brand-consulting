@@ -12,13 +12,14 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Do not restore discarded implementations from PR #8, #9, or #10.
 - Preserve `public/template.html` as the legacy rollback asset. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
 
-## Current Phase 6 correction
+## Current Phase 6 release
 
 - Branch: `fix/phase6-report-color-consistency-v1`
-- Draft PR: `#16`
-- Scope: Phase 6 five-competitor page plan, Final Choice layout restoration, Persona index wrapping, Appendix divider, and native PDF fidelity.
-- Keep the PR in Draft until Viewer, save/reopen, and native PDF evidence pass.
-- Do not merge to `main` without explicit owner approval.
+- PR: `#16`
+- Scope: five-competitor page plan, Final Choice restoration, Persona index wrapping, Appendix divider, Creative History contrast, and reload-time Material Symbols stabilization.
+- Owner explicitly approved production application after the reload-flash fix.
+- Use regular merge only; do not squash.
+- The actual app `Export PDF` button remains a known deferred defect and can report `출력할 슬라이드를 찾지 못했습니다.` Do not claim it is resolved.
 
 ## Product invariants
 
@@ -80,6 +81,14 @@ Appendix pages are never competitor overflow slots. If Step 2 supports fewer tha
 - Prefer timelines, matrices, causal flows, convergence diagrams, and choice architecture over prose card walls.
 - Equal-hierarchy elements use equal tracks and aligned geometry.
 
+## Material Symbols first-paint rule
+
+- Material Symbols ligature strings must never be visible before the icon font loads.
+- Reserve a fixed icon box from first paint.
+- Keep `.material-symbols-outlined` hidden until `document.fonts.check(...)` confirms readiness.
+- Install the readiness guard before React renders.
+- Preserve the cold-load E2E that delays the Material Symbols font and checks zero ligature flash and zero button movement.
+
 ## Creative History factuality
 
 - Target brand and every selected direct competitor require an independent 2021–2026 Creative History.
@@ -90,19 +99,17 @@ Appendix pages are never competitor overflow slots. If Step 2 supports fewer tha
 - Preserve Message Trajectory and Strategic So What.
 - Dark Creative History pages must retain dark paper and readable foreground.
 
-## PDF contract
+## PDF status
 
-- FULL report PDF uses Chromium native print, not full-page html2canvas JPEG rasterization.
-- Output must remain exactly 48 pages at 960×540pt.
-- Embedded font objects must be present.
-- No 2560×1440 full-page image rows are allowed.
-- Viewer, PDF, save, and reopen must use the same 48-page HTML.
+- Local native-print code and PDF inspection tests exist.
+- The user-facing app Export PDF action is not yet reliable and is explicitly deferred to a separate follow-up.
+- Do not treat local 48-page PDF inspection as proof that the production button works.
 
 ## Architecture boundary
 
 The production Phase 6 flow is:
 
-`Step 0–5 research → captured approved Pilot DOM → research-only CONTENT SLOT template → complete standalone HTML → Viewer / save / reopen / native PDF`.
+`Step 0–5 research → captured approved Pilot DOM → research-only CONTENT SLOT template → complete standalone HTML → Viewer / save / reopen`.
 
 The legacy `public/template.html` remains a protected rollback asset and must not be overwritten or deleted.
 
