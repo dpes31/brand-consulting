@@ -27,7 +27,6 @@ function fillSlots(template) {
   const inject = (page, value) => {
     result = result.replace(new RegExp(`\\[\\[CONTENT:P${page}:[^\\]]+\\]\\]`), value);
   };
-
   inject('04', `${brand} 이용자 123만 명`);
   inject('04', `${brand} 관리 규모 456억 원`);
   candidates.forEach((name) => inject('11', `${name} 경쟁 후보`));
@@ -98,8 +97,18 @@ try {
 
   const phase6Input = page.locator('textarea:visible').last();
   await phase6Input.fill(`\`\`\`html\n${html}\n\`\`\``);
+  const dialogsBeforeRender = dialogs.length;
   await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
-  await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 60000 });
+  await page.waitForTimeout(1200);
+  if ((await page.locator('#fullscreen-viewer-iframe').count()) === 0) {
+    const validationState = await page.evaluate(() => ({
+      validated: document.querySelector('textarea[data-full-report-validated-html="true"]') !== null,
+      buttonText: [...document.querySelectorAll('button')].map((button) => button.textContent?.replace(/\s+/g, ' ').trim()).find((value) => value?.includes('결과물 뷰어에 렌더링하기')) || '',
+    }));
+    throw new Error(`Viewer did not open. New dialogs: ${JSON.stringify(dialogs.slice(dialogsBeforeRender))}. State: ${JSON.stringify(validationState)}`);
+  }
+
+  await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 30000 });
   const frame = page.frameLocator('#fullscreen-viewer-iframe');
   await frame.locator('.full-slide').first().waitFor({ timeout: 60000 });
 
@@ -109,15 +118,9 @@ try {
   assert.equal(await frame.locator('#creative-method').count(), 0);
 
   const ids = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => node.id));
-  assert.deepEqual(ids.slice(10, 18), [
-    'comp-landscape','comp-ranking','deep-dive-1','deep-dive-2','deep-dive-3','product-matrix','category-cliche','positioning',
-  ]);
-  assert.deepEqual(ids.slice(28, 34), [
-    'creative-history-target','creative-history-1','creative-history-2','creative-history-3','creative-trajectory','creative-insight',
-  ]);
-  assert.deepEqual(ids.slice(34), [
-    'strategy-swot','root-cause','stp','strategy-routes','strategy-choice','decision-close',
-  ]);
+  assert.deepEqual(ids.slice(10, 18), ['comp-landscape','comp-ranking','deep-dive-1','deep-dive-2','deep-dive-3','product-matrix','category-cliche','positioning']);
+  assert.deepEqual(ids.slice(28, 34), ['creative-history-target','creative-history-1','creative-history-2','creative-history-3','creative-trajectory','creative-insight']);
+  assert.deepEqual(ids.slice(34), ['strategy-swot','root-cause','stp','strategy-routes','strategy-choice','decision-close']);
 
   assert.match(await frame.locator('#executive .full-breadcrumb').textContent(), /핵심 진단/);
   assert.match(await frame.locator('#kpi .full-breadcrumb').textContent(), /FACTS/);
@@ -127,15 +130,10 @@ try {
 
   const allText = await frame.locator('body').innerText();
   candidates.forEach((name) => assert.match(allText, new RegExp(name)));
-  for (let index = 0; index < core.length; index += 1) {
-    assert.match(await frame.locator(`#deep-dive-${index + 1}`).innerText(), new RegExp(core[index]));
-  }
+  for (let index = 0; index < core.length; index += 1) assert.match(await frame.locator(`#deep-dive-${index + 1}`).innerText(), new RegExp(core[index]));
 
   for (const id of ['persona-2','persona-3']) {
-    const persona = await frame.locator(`#${id} .persona-index`).evaluate((node) => ({
-      text: node.textContent.trim(),
-      whiteSpace: getComputedStyle(node).whiteSpace,
-    }));
+    const persona = await frame.locator(`#${id} .persona-index`).evaluate((node) => ({ text: node.textContent.trim(), whiteSpace: getComputedStyle(node).whiteSpace }));
     assert.match(persona.text, /^0[23]$/);
     assert.equal(persona.whiteSpace, 'nowrap');
   }
@@ -194,27 +192,14 @@ try {
   assert.equal(await reopened.locator('.full-slide').count(), 40);
   assert.equal(await reopened.locator('#decision-close').count(), 1);
 
-  const summary = {
-    appUrl,
-    brand,
-    candidates,
-    core,
-    pages: 40,
-    nav: 40,
-    ids,
-    geometry,
-    pdf: { pages: 40, size: '960x540pt' },
-    exports: 2,
-    reopened: 40,
-    dialogs,
-  };
+  const summary = { appUrl, brand, candidates, core, pages: 40, nav: 40, ids, geometry, pdf: { pages: 40, size: '960x540pt' }, exports: 2, reopened: 40, dialogs };
   await writeFile(path.join(artifactDir, 'e2e-summary.json'), JSON.stringify(summary, null, 2));
   await writeFile(path.join(artifactDir, 'pdffonts.txt'), fonts);
   await writeFile(path.join(artifactDir, 'pdfimages.txt'), images);
   console.log(JSON.stringify(summary, null, 2));
 } catch (error) {
   await page.screenshot({ path: path.join(artifactDir, '99-failure.png'), fullPage: true }).catch(() => undefined);
-  await writeFile(path.join(artifactDir, '99-failure.txt'), error instanceof Error ? `${error.stack || error.message}\n` : `${String(error)}\n`);
+  await writeFile(path.join(artifactDir, '99-failure.txt'), `${error instanceof Error ? error.stack || error.message : String(error)}\n\nDialogs:\n${JSON.stringify(dialogs, null, 2)}\n`);
   throw error;
 } finally {
   await browser.close();
