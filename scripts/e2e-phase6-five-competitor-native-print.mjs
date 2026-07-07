@@ -27,6 +27,7 @@ function fillSlots(template) {
   const inject = (page, value) => {
     result = result.replace(new RegExp(`\\[\\[CONTENT:P${page}:[^\\]]+\\]\\]`), value);
   };
+
   inject('04', `${brand} 이용자 123만 명`);
   inject('04', `${brand} 관리 규모 456억 원`);
   candidates.forEach((name) => inject('11', `${name} 경쟁 후보`));
@@ -87,6 +88,7 @@ try {
   assert.match(prompt, /top three core Direct Competitors/);
   assert.match(prompt, /Category Clichés/);
   assert.match(prompt, /Decision Receipt \/ Close/);
+  assert.match(prompt, /~한다/);
 
   const start = prompt.indexOf(startMarker);
   const end = prompt.indexOf(endMarker);
@@ -99,16 +101,11 @@ try {
   await phase6Input.fill(`\`\`\`html\n${html}\n\`\`\``);
   const dialogsBeforeRender = dialogs.length;
   await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(500);
   if ((await page.locator('#fullscreen-viewer-iframe').count()) === 0) {
-    const validationState = await page.evaluate(() => ({
-      validated: document.querySelector('textarea[data-full-report-validated-html="true"]') !== null,
-      buttonText: [...document.querySelectorAll('button')].map((button) => button.textContent?.replace(/\s+/g, ' ').trim()).find((value) => value?.includes('결과물 뷰어에 렌더링하기')) || '',
-    }));
-    throw new Error(`Viewer did not open. New dialogs: ${JSON.stringify(dialogs.slice(dialogsBeforeRender))}. State: ${JSON.stringify(validationState)}`);
+    throw new Error(`Viewer did not open. New dialogs: ${JSON.stringify(dialogs.slice(dialogsBeforeRender))}`);
   }
 
-  await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 30000 });
   const frame = page.frameLocator('#fullscreen-viewer-iframe');
   await frame.locator('.full-slide').first().waitFor({ timeout: 60000 });
 
@@ -118,10 +115,18 @@ try {
   assert.equal(await frame.locator('#creative-method').count(), 0);
 
   const ids = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => node.id));
-  assert.deepEqual(ids.slice(10, 18), ['comp-landscape','comp-ranking','deep-dive-1','deep-dive-2','deep-dive-3','product-matrix','category-cliche','positioning']);
-  assert.deepEqual(ids.slice(28, 34), ['creative-history-target','creative-history-1','creative-history-2','creative-history-3','creative-trajectory','creative-insight']);
-  assert.deepEqual(ids.slice(34), ['strategy-swot','root-cause','stp','strategy-routes','strategy-choice','decision-close']);
+  assert.deepEqual(ids.slice(10, 18), [
+    'comp-landscape','comp-ranking','deep-dive-1','deep-dive-2','deep-dive-3','product-matrix','category-cliche','positioning',
+  ]);
+  assert.deepEqual(ids.slice(28, 34), [
+    'creative-history-target','creative-history-1','creative-history-2','creative-history-3','creative-trajectory','creative-insight',
+  ]);
+  assert.deepEqual(ids.slice(34), [
+    'strategy-swot','root-cause','stp','strategy-routes','strategy-choice','decision-close',
+  ]);
 
+  const navBrand = (await frame.locator('.full-nav-brand').textContent())?.replace(/FULL REPORT V1/g, '').trim();
+  assert.equal(navBrand, brand);
   assert.match(await frame.locator('#executive .full-breadcrumb').textContent(), /핵심 진단/);
   assert.match(await frame.locator('#kpi .full-breadcrumb').textContent(), /FACTS/);
   assert.match(await frame.locator('#category-target .full-breadcrumb').textContent(), /CATEGORY & TARGET/);
@@ -130,22 +135,43 @@ try {
 
   const allText = await frame.locator('body').innerText();
   candidates.forEach((name) => assert.match(allText, new RegExp(name)));
-  for (let index = 0; index < core.length; index += 1) assert.match(await frame.locator(`#deep-dive-${index + 1}`).innerText(), new RegExp(core[index]));
+  for (let index = 0; index < core.length; index += 1) {
+    assert.match(await frame.locator(`#deep-dive-${index + 1}`).innerText(), new RegExp(core[index]));
+  }
+
+  const marketType = await frame.locator('#market-context').evaluate((slide) => ({
+    implication: Number.parseFloat(getComputedStyle(slide.querySelector('.market-force strong')).fontSize),
+    pageNumber: Number.parseFloat(getComputedStyle(slide.querySelector('.full-page')).fontSize),
+  }));
+  assert.ok(marketType.implication >= marketType.pageNumber);
 
   for (const id of ['persona-2','persona-3']) {
-    const persona = await frame.locator(`#${id} .persona-index`).evaluate((node) => ({ text: node.textContent.trim(), whiteSpace: getComputedStyle(node).whiteSpace }));
+    const persona = await frame.locator(`#${id} .persona-index`).evaluate((node) => ({
+      text: node.textContent.trim(),
+      whiteSpace: getComputedStyle(node).whiteSpace,
+    }));
     assert.match(persona.text, /^0[23]$/);
     assert.equal(persona.whiteSpace, 'nowrap');
   }
 
-  const geometry = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => ({
-    id: node.id,
-    width: node.getBoundingClientRect().width,
-    height: node.getBoundingClientRect().height,
-    overflowX: node.scrollWidth - node.clientWidth,
-    overflowY: node.scrollHeight - node.clientHeight,
-  })));
-  assert.ok(geometry.every((item) => Math.round(item.width) === 1280 && Math.round(item.height) === 720));
+  assert.equal(await frame.locator('.history-now').count(), 0);
+  assert.deepEqual(await frame.locator('#strategy-routes .route-row > b').allTextContents(), ['A','B','C','D']);
+
+  const geometry = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => {
+    const rect = node.getBoundingClientRect();
+    return {
+      id: node.id,
+      logicalWidth: node.offsetWidth,
+      logicalHeight: node.offsetHeight,
+      renderedWidth: rect.width,
+      renderedHeight: rect.height,
+      scale: rect.width / node.offsetWidth,
+      overflowX: node.scrollWidth - node.clientWidth,
+      overflowY: node.scrollHeight - node.clientHeight,
+    };
+  }));
+  assert.ok(geometry.every((item) => item.logicalWidth === 1280 && item.logicalHeight === 720));
+  assert.ok(geometry.every((item) => item.scale > 0 && item.scale <= 1.01));
   assert.deepEqual(geometry.filter((item) => item.overflowX > 1 || item.overflowY > 1), []);
 
   await frame.locator('#comp-landscape').screenshot({ path: path.join(artifactDir, 'screen-landscape.png') });
@@ -167,6 +193,10 @@ try {
   await page.waitForFunction(() => document.getElementById('fullscreen-viewer-iframe')?.contentDocument?.documentElement.dataset.calls === '1');
   await exportButton.click();
   await page.waitForFunction(() => document.getElementById('fullscreen-viewer-iframe')?.contentDocument?.documentElement.dataset.calls === '2');
+  await page.keyboard.press('Control+P');
+  await page.waitForFunction(() => document.getElementById('fullscreen-viewer-iframe')?.contentDocument?.documentElement.dataset.calls === '3');
+  await page.keyboard.press('Meta+P');
+  await page.waitForFunction(() => document.getElementById('fullscreen-viewer-iframe')?.contentDocument?.documentElement.dataset.calls === '4');
 
   const transformed = await page.evaluate(() => `<!DOCTYPE html>\n${document.getElementById('fullscreen-viewer-iframe').contentDocument.documentElement.outerHTML}`);
   const printPage = await context.newPage();
@@ -192,7 +222,21 @@ try {
   assert.equal(await reopened.locator('.full-slide').count(), 40);
   assert.equal(await reopened.locator('#decision-close').count(), 1);
 
-  const summary = { appUrl, brand, candidates, core, pages: 40, nav: 40, ids, geometry, pdf: { pages: 40, size: '960x540pt' }, exports: 2, reopened: 40, dialogs };
+  const summary = {
+    appUrl,
+    brand,
+    candidates,
+    core,
+    pages: 40,
+    nav: 40,
+    ids,
+    marketType,
+    geometry,
+    pdf: { pages: 40, size: '960x540pt' },
+    exports: 4,
+    reopened: 40,
+    dialogs,
+  };
   await writeFile(path.join(artifactDir, 'e2e-summary.json'), JSON.stringify(summary, null, 2));
   await writeFile(path.join(artifactDir, 'pdffonts.txt'), fonts);
   await writeFile(path.join(artifactDir, 'pdfimages.txt'), images);
