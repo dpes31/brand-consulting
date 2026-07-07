@@ -60,7 +60,8 @@ for (const source of [apiCompiler, bridge]) {
   assert.match(source, /extractCompleteFullReportHtml/);
   assert.match(source, /assertApprovedFullReportHtml/);
 }
-assert.match(normalizer, /const COUNT = 40/);
+assert.match(normalizer, /FULL_REPORT_PAGE_COUNT = 40/);
+assert.match(normalizer, /querySelectorAll<HTMLElement>\('\.full-slide'\)/);
 assert.match(main, /installFullReportRuntimeCompatibility/);
 assert.match(main, /installFullReportPhase6Bridge/);
 assert.match(main, /installPhase6PagePlanV2/);
