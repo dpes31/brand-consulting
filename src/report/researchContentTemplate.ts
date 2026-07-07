@@ -4,13 +4,17 @@ const SLOT_PREFIX = '[[CONTENT:';
 const SLOT_PATTERN = /\[\[CONTENT:P\d{2}:[A-Z0-9_-]+:\d{3}\]\]/g;
 
 const DYNAMIC_IDS: Record<number, string> = {
-  13: 'deep-dive-1',
-  14: 'deep-dive-2',
-  15: 'deep-dive-3',
-  30: 'creative-history-target',
-  31: 'creative-history-1',
-  32: 'creative-history-2',
-  33: 'creative-history-3',
+  12: 'deep-dive-1',
+  13: 'deep-dive-2',
+  14: 'deep-dive-3',
+  15: 'deep-dive-4',
+  16: 'deep-dive-5',
+  29: 'creative-history-target',
+  30: 'creative-history-1',
+  31: 'creative-history-2',
+  32: 'creative-history-3',
+  33: 'creative-history-4',
+  34: 'creative-history-5',
 };
 
 function serialize(documentRef: Document): string {
@@ -110,6 +114,7 @@ export function createResearchOnlyLayoutTemplate(source: string, brandName: stri
   documentRef.body.dataset.contentContract = 'research-slots-v1';
   documentRef.body.dataset.contentSlotCount = String(slotCount);
   documentRef.body.dataset.contentState = 'template';
+  documentRef.body.dataset.phase6PagePlan = 'competitor5-main40-appendix8-v2';
 
   if (slotCount < 200) throw new Error(`콘텐츠 중립화 슬롯이 충분하지 않습니다. 현재 ${slotCount}개입니다.`);
   return serialize(documentRef);
@@ -143,7 +148,7 @@ function directCompetitors(raw: string): string[] {
   const names = Array.from(step2.matchAll(/^\s*\d+\.\s*\*\*([^*\n—-]+?)(?:\s*[—-]|\*\*)/gm))
     .map((match) => match[1].trim())
     .filter(Boolean);
-  return Array.from(new Set(names)).slice(0, 3);
+  return Array.from(new Set(names)).slice(0, 5);
 }
 
 function kpiValues(raw: string): string[] {
