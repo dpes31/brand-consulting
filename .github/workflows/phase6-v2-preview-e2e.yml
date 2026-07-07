@@ -52,7 +52,7 @@ jobs:
             fi
             sleep 2
           done
-          PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-material-symbols-first-paint.mjs > phase6-v2-e2e-artifacts/material-symbols-e2e.log 2>&1
+          PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-material-symbols-first-paint-v2.mjs > phase6-v2-e2e-artifacts/material-symbols-e2e.log 2>&1
           icon_code=$?
           if [ "$icon_code" = "0" ]; then
             PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-five-competitor-native-print.mjs > phase6-v2-e2e-artifacts/local-e2e.log 2>&1
@@ -88,7 +88,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          PREVIEW_URL="$VERCEL_PREVIEW_URL" node scripts/e2e-material-symbols-first-paint.mjs > phase6-v2-e2e-artifacts/preview-material-symbols.log 2>&1
+          PREVIEW_URL="$VERCEL_PREVIEW_URL" node scripts/e2e-material-symbols-first-paint-v2.mjs > phase6-v2-e2e-artifacts/preview-material-symbols.log 2>&1
           icon_code=$?
           if [ "$icon_code" = "0" ]; then
             PREVIEW_URL="$VERCEL_PREVIEW_URL" node scripts/e2e-phase6-five-competitor-native-print.mjs > phase6-v2-e2e-artifacts/preview-e2e.log 2>&1
