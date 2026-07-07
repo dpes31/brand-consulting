@@ -31,6 +31,7 @@ const FIXED_TEXT_SELECTORS = [
   '#aipl .friction-analysis > span',
   '#creative-insight .current-copy > span',
   '#creative-insight .missing-character > span',
+  '#creative-insight .gap-arrow',
   '#stp .stp-layout > div > span',
   '#strategy-routes .route-head',
   '#strategy-routes .route-row > b',
