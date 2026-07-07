@@ -129,43 +129,54 @@
 - Added Google Fonts preconnect and changed Material Symbols loading to `display=block`.
 - Added `test-material-symbols-stability.mjs` to the production build.
 - Added `e2e-material-symbols-first-paint.mjs` with an intentionally delayed Material Symbols font request.
-- Verified before font readiness:
-  - zero visible ligature words;
-  - ten sampled icon boxes fixed at 24×24;
-  - Export PDF button at x 1491, y 9.5, width 157, height 44.
-- Verified after font readiness:
-  - Material Symbols font applied;
-  - identical icon dimensions;
-  - identical Export PDF button position and dimensions.
-- Production build and the complete five-competitor E2E passed.
-- Vercel Preview deployment passed.
-- Owner approved applying PR #16 to production after this correction.
+- Verified before and after font readiness with zero ligature flash and zero Export PDF button movement.
+- Production build and complete E2E passed.
 - PR #16 merged with regular merge commit `e22de49396a1ccb3590c5d7eb751b4d0edf759fc`.
 
 ## 2026-07-07 — PR #17 Phase 6 PDF runtime routing correction
 
-- Opened branch `fix/phase6-pdf-export-runtime-v1` and Draft PR #17.
-- Reproduced the actual user-facing error `PDF 생성 오류 — 출력할 슬라이드를 찾지 못했습니다.`
-- Confirmed the root cause:
-  - legacy layout runtime installed first;
-  - legacy runtime replaced `iframe.contentWindow.print()` with a raster exporter that searches only `.slide-wrapper > .slide`;
-  - FULL report runtime then captured that legacy function as if it were browser-native print;
-  - Phase 6 FULL reports contain `.full-slide`, so the legacy selector returned zero slides.
-- Corrected runtime ownership:
-  - FULL runtime now installs before the legacy layout/PDF guard;
-  - FULL documents mark the legacy guard as handled;
-  - real native print is retained from `window.print` or the legacy native backup;
-  - all host `Export PDF` buttons resolve the active FULL iframe or a stable offscreen FULL frame.
-- Replaced the zero-slide fallback with a clear no-report message when no FULL report exists.
-- Added build contract `scripts/test-phase6-pdf-runtime-routing.mjs`.
-- Added browser E2E `scripts/e2e-phase6-pdf-button-routing.mjs` that clicks the actual app button twice.
-- Verification passed:
-  - production build and all report contracts;
-  - actual Export PDF button routing;
-  - two consecutive native-print calls;
-  - 48-page preflight;
-  - complete five-competitor Phase 6 regression;
-  - native PDF: 48 pages, 960×540pt, embedded fonts, zero full-page raster rows;
-  - save/reopen: 48 pages.
-- Vercel Preview deployment reached Ready.
-- PR remains Draft and unmerged pending owner Preview approval.
+- Opened branch `fix/phase6-pdf-export-runtime-v1` and PR #17.
+- Reproduced `PDF 생성 오류 — 출력할 슬라이드를 찾지 못했습니다.`
+- Separated Legacy `.slide-wrapper > .slide` and FULL `.full-slide` runtime ownership.
+- Routed the actual `Export PDF` button, Windows `Ctrl+P`, and macOS `Cmd+P` to browser-native FULL printing.
+- Added actual-button, repeat-export, and native-PDF checks.
+- PR #17 merged to `main` with regular merge commit `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`.
+
+## 2026-07-07 — PR #20 approved Main40 restoration
+
+- Owner reviewed an actual generated HTML against the original approved reference and approved the recommended structural correction.
+- Created active branch `fix/phase6-approved-main40-no-appendix-v3` and Draft PR #20.
+- Closed superseded PR #18 and PR #19; neither should be merged.
+- Changed the final contract from 40 Main + 8 Appendix to exactly 40 Main and zero Appendix.
+- Promoted Decision Receipt / Close to page 40.
+- Restored Competitive Landscape, Category Clichés, and Creative Insight.
+- Removed Creative Methodology and Appendix A1–A7.
+- Changed competitor logic:
+  - Landscape reviews up to five candidates;
+  - Threat Ranking selects the core three;
+  - Deep Dive, Matrix, Positioning, Creative History, and Trajectory use the same core three.
+- Restored fixed labels and page grammar for pages 2, 4, 5, 9, 10, Persona, Pain Points, AIPL, Creative History, STP, Four Directions, Final Choice, and Decision Close.
+- Added decisive Korean consulting-tone rules.
+- Corrected manual render validation so the original React click owns Viewer opening and save state.
+- Replaced raw-regex page counting with DOM-based exact `.full-slide` counting.
+- Preserved the exact user-entered brand in report navigation and toolbar.
+- Locked connector glyphs, including Creative Insight comparison arrows, so prose cannot enter them.
+- Updated native PDF preflight and button routing from 48 to 40 pages.
+- Validated head `7d94b1895c47e9db7268c9d181060e0a735c1d9b` with non-Biznup brand `모노랩`:
+  - five Landscape candidates and the same top-three downstream set;
+  - 40 pages and 40 navigation links;
+  - zero Appendix pages;
+  - exact 1280×720 logical geometry;
+  - zero overflow;
+  - Page 9 text 12px vs page number 12px;
+  - Persona 02/03 nowrap;
+  - no decorative History NOW elements;
+  - actual Export PDF, second consecutive export, Ctrl+P, and Cmd+P;
+  - native PDF 40 pages, 960×540pt;
+  - six embedded Pretendard font objects;
+  - zero full-page raster rows;
+  - save/reload/reopen at 40 pages;
+  - Material Symbols cold-load regression.
+- Production build/contracts and Phase 6 browser/PDF E2E both passed.
+- Current Vercel deployment is temporarily blocked by the account build-rate limit; no product build failure remains.
+- PR #20 remains Draft and unmerged pending Preview availability and owner review.
