@@ -12,14 +12,14 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Do not restore discarded implementations from PR #8, #9, or #10.
 - Preserve `public/template.html` as the legacy rollback asset. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
 
-## Current Phase 6 release
+## Current Phase 6 PDF correction
 
-- Branch: `fix/phase6-report-color-consistency-v1`
-- PR: `#16`
-- Scope: five-competitor page plan, Final Choice restoration, Persona index wrapping, Appendix divider, Creative History contrast, and reload-time Material Symbols stabilization.
-- Owner explicitly approved production application after the reload-flash fix.
-- Use regular merge only; do not squash.
-- The actual app `Export PDF` button remains a known deferred defect and can report `출력할 슬라이드를 찾지 못했습니다.` Do not claim it is resolved.
+- Branch: `fix/phase6-pdf-export-runtime-v1`
+- Draft PR: `#17`
+- Scope: resolve `출력할 슬라이드를 찾지 못했습니다` by separating legacy and FULL PDF runtimes.
+- Preview URL: `https://brand-consulting-git-fix-phase6-pdf-exp-e3547f-dpes31s-projects.vercel.app/`
+- Build and local browser E2E are passing.
+- Keep PR #17 in Draft and do not merge to `main` without explicit owner approval.
 
 ## Product invariants
 
@@ -99,17 +99,30 @@ Appendix pages are never competitor overflow slots. If Step 2 supports fewer tha
 - Preserve Message Trajectory and Strategic So What.
 - Dark Creative History pages must retain dark paper and readable foreground.
 
-## PDF status
+## PDF runtime boundary
 
-- Local native-print code and PDF inspection tests exist.
-- The user-facing app Export PDF action is not yet reliable and is explicitly deferred to a separate follow-up.
-- Do not treat local 48-page PDF inspection as proof that the production button works.
+- Legacy reports use `.slide-wrapper > .slide`, `installIframeLayoutSafety`, and `exportReportPdf`.
+- Phase 6 FULL reports use `.full-slide`, `installFullReportRuntimeCompatibility`, and browser-native print.
+- Install the FULL runtime before the legacy layout/PDF guard.
+- A FULL document must mark the legacy runtime as handled before the legacy load listener can replace `window.print`.
+- Never pass a FULL report to the legacy slide selector.
+- Every host `Export PDF` button must resolve an active FULL iframe or a stable offscreen FULL frame.
+- When no FULL report exists, show guidance instead of `출력할 슬라이드를 찾지 못했습니다`.
+- Preserve actual-button E2E with two consecutive native-print calls.
+
+## Native PDF acceptance
+
+- Preflight must pass exactly 48 `.full-slide` pages.
+- PDF page size is 960×540pt.
+- Embedded font objects must be present.
+- No 2560×1440 full-page raster rows are allowed.
+- Viewer, saved project, reopened project, and PDF use the same FULL HTML.
 
 ## Architecture boundary
 
 The production Phase 6 flow is:
 
-`Step 0–5 research → captured approved Pilot DOM → research-only CONTENT SLOT template → complete standalone HTML → Viewer / save / reopen`.
+`Step 0–5 research → captured approved Pilot DOM → research-only CONTENT SLOT template → complete standalone HTML → Viewer / save / reopen / Export PDF`.
 
 The legacy `public/template.html` remains a protected rollback asset and must not be overwritten or deleted.
 
