@@ -1,136 +1,171 @@
 # AGENTS.md
 
-Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, `docs/REPORT_TEMPLATE_SPEC.md`, `docs/phase5b-gate2a-results.md`, and the files under `design/` before changing this repository.
+Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, `docs/REPORT_TEMPLATE_SPEC.md`, `docs/PDF_EXPORT_E2E_STANDARD.md`, `docs/phase5b-gate2a-results.md`, and the files under `design/` before changing this repository.
 
 ## Safety
 
-- Use preview-first feature branches. Merge only with explicit owner approval.
-- Preserve commit history; do not squash milestone integrations unless explicitly approved.
-- Never modify or delete `backup-production-stable-20260622` or `backup/main-before-full-report-v1-2026-07-01`.
+- Use Preview-first feature branches. Merge only with explicit owner approval.
+- Preserve milestone commit history; do not squash unless explicitly approved.
+- Never modify or delete:
+  - `backup-production-stable-20260622`
+  - `backup/main-before-full-report-v1-2026-07-01`
 - Preserve validated and audit branches.
 - `feature-visualization-engine-v1` and PR #6 are failed audit records and must not be merged.
 - Do not restore discarded implementations from PR #8, #9, or #10.
-- Preserve `public/template.html` as the legacy rollback asset. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
+- Preserve `public/template.html` as the Legacy rollback asset. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
 
-## Current Phase 6 PDF correction
+## Current checkpoint
 
-- Branch: `fix/phase6-pdf-export-runtime-v1`
-- Draft PR: `#17`
-- Scope: resolve `출력할 슬라이드를 찾지 못했습니다` by separating legacy and FULL PDF runtimes.
-- Preview URL: `https://brand-consulting-git-fix-phase6-pdf-exp-e3547f-dpes31s-projects.vercel.app/`
-- Build and local browser E2E are passing.
-- Keep PR #17 in Draft and do not merge to `main` without explicit owner approval.
+- Production branch: `main`
+- Production commit before this work: `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`
+- Active branch: `fix/phase6-approved-main40-no-appendix-v3`
+- Draft PR: `#20 Restore approved 40-page report structure without Appendix`
+- Current validated head: `7d94b1895c47e9db7268c9d181060e0a735c1d9b`
+- Production build/contracts: PASS
+- Phase 6 browser/PDF E2E: PASS
+- Vercel deployment for the current head is temporarily blocked by the account build-rate limit, not by a product build failure.
+- Keep PR #20 Draft and do not merge to `main` before owner Preview approval.
 
 ## Product invariants
 
-- Final report is exactly 48 slides: 40-page Main Deck + 8-page Appendix.
-- Every slide is exactly 1280×720, 16:9.
+- Final report is exactly **40 Main Deck pages**.
+- Appendix count is exactly **0**.
+- Page 40 is `Decision Receipt / Close`.
+- Every slide uses a logical 1280×720 canvas, exact 16:9.
 - Use Pretendard; major titles use weight 900.
 - Preserve Korean word units with `word-break: keep-all`.
 - Preserve the exact user-entered brand name without translation or romanization.
-- Step 2 locks 2–5 direct competitors. Five is the maximum, not a mandatory invented count.
-- Preserve one independent Deep Dive and one independent six-year Creative History per selected direct competitor.
-- Do not invent figures, dates, models, scores, axes, sources, or copy.
-- Only `verified-verbatim` copy may use quotation marks.
+- Do not invent figures, dates, models, scores, axes, sources, competitors, or copy.
+- Only `verified-verbatim` advertising copy may use quotation marks.
 - Do not expose raw source URLs in final reports.
+- Titles, body judgments, and SO WHAT statements use decisive Korean declarative endings such as `~한다`, `~이다`, `~다`; avoid explanatory polite endings except verified quotations or fixed UI labels.
 
-## Fixed five-competitor page plan
+## Approved competitor logic
 
-Main Deck:
+- Page 11 Competitive Landscape may review up to five evidence-supported Direct Competitor candidates.
+- Page 12 Threat Ranking selects the core three when three supported candidates exist.
+- Pages 13–15 Deep Dive, page 16 Product Matrix, page 18 Positioning, pages 30–32 Competitor Creative History, and page 33 Message Trajectory use the same core-three set in ranking order.
+- Never invent a fourth or fifth core competitor.
+- Unsupported candidates remain evidence gaps.
 
-- 11: Threat Ranking, up to five direct competitors.
-- 12–16: Deep Dive 1–5 in Threat Ranking order.
-- 17: Product Matrix, target brand + up to five direct competitors.
-- 18: Positioning, target brand + up to five direct competitors.
-- 19–28: Consumer section.
-- 29: Target Brand Creative History.
-- 30–34: Competitor Creative History 1–5.
-- 35: Message Trajectory, target brand + up to five direct competitors.
-- 36–40: SWOT, GAP & Root Cause, STP, Four Strategic Directions, Final Choice.
+## Fixed 40-page plan
 
-Appendix:
+1. Cover
+2. 핵심 진단
+3. Brand Identity
+4. FACTS
+5. Category & Target
+6. Growth Story
+7. Core Inflection
+8. Product USP & Best Self
+9. Market Context
+10. Category Shift
+11. Competitive Landscape
+12. Threat Ranking
+13–15. Deep Dive 1–3
+16. Product Matrix
+17. Category Clichés
+18. Positioning
+19. Consumer Executive Conclusion
+20. Trends
+21. Core Target
+22–24. Persona 1–3
+25. JTBD & Identity Alignment
+26. Pain Points & Unmet Needs
+27. AIPL Bottleneck
+28. Purchase to Loyalty
+29. Target Brand Creative History
+30–32. Competitor Creative History 1–3
+33. Message Trajectory
+34. Creative Insight
+35. SWOT
+36. GAP & Root Cause
+37. STP
+38. Four Strategic Directions
+39. Final Choice
+40. Decision Receipt / Close
 
-- A1: Appendix divider.
-- A2: Winning Move Specification.
-- A3: Via Negativa.
-- A4: Pre-mortem.
-- A5: Execution Roadmap.
-- A6: Measurement Plan.
-- A7: Evidence Gaps + Source Labels.
-- A8: Decision Receipt / Close.
+Creative Methodology and Appendix A1–A7 are not part of the approved output.
 
-Appendix pages are never competitor overflow slots. If Step 2 supports fewer than five direct competitors, preserve unused approved pages as explicit evidence gaps; never invent a competitor.
+## Page grammar locks
+
+- Page 2 fixed label: `핵심 진단`.
+- Page 4 fixed label: `FACTS`.
+- Page 5 fixed label: `CATEGORY & TARGET`.
+- Page 10 fixed chapter: `CATEGORY SHIFT`; stage labels remain `LEVEL 1`–`LEVEL 5`.
+- Page 9 strategic implication type is at least the page-number size.
+- Persona pages retain `SITUATION / REAL JTBD / AS-IS IDENTITY / TO-BE IDENTITY / 브랜드의 역할`.
+- Persona titles reuse the three target names stated on page 21 CORE TARGET.
+- Persona indices `02` and `03` stay on one line.
+- Page 26 retains `Pain / 현재 문제 / Unmet Need / 우선순위`.
+- Page 27 retains the approved AIPL friction-flow and avoids unnecessary English.
+- Creative History uses the approved centered six-year system and does not add decorative NOW circles.
+- Page 34 retains the approved Current Copy / Missing Character Creative Insight comparison; connector glyphs remain symbols, never prose.
+- Page 37 retains `Segmentation → Targeting → Positioning`.
+- Page 38 retains four alternatives labelled A/B/C/D and the approved 차별/확장/실행 comparison.
+- Page 39 retains the approved two-column Selection Criteria / Final Choice composition.
 
 ## Validated Visual Intent contracts
 
-- Step 0: exactly one Growth Story Brief; `milestone-timeline` reached 100% agreement across three accepted runs.
-- Step 2: one Threat Ranking, one Product Matrix, and one independent Deep Dive per selected competitor; Positioning Map is optional; Metric metadata must be complete.
-- Step 3: exactly one core consumer-decision Brief; `friction-flow` reached 100% agreement; all recipes are `planned`; `metrics` is `[]`.
-- Step 5: exactly one final strategy-decision Brief; `choice-architecture` reached 100% agreement; all recipes are `planned`; `metrics` is `[]`.
-- Step 3 and Step 5 prompt-copy guards must restore the complete contract immediately before prompt copy.
+- Step 0: exactly one Growth Story Brief; accepted recipe `milestone-timeline`.
+- Step 2: Candidate Landscape → Threat Ranking → core three; Product Matrix uses `feature-matrix`; Positioning is used only when common axes are defensible.
+- Step 3: exactly one core consumer-decision Brief; accepted recipe `friction-flow`; `implementationStatus: planned`; `metrics: []`.
+- Step 5: exactly one final strategy-decision Brief; accepted recipe `choice-architecture`; `implementationStatus: planned`; `metrics: []`.
+- Step 3 and Step 5 prompt-copy guards restore the complete contract immediately before prompt copy.
 
-## Approved report reference
+## Approved report architecture
 
 - Route: `/?pilot=full-integrated&brand=<exact user-entered brand>`.
-- The Phase 6 prompt captures this route after the five-competitor page-plan transform is complete.
-- The captured DOM is neutralized into `[[CONTENT:...]]` slots and then filled only from current Step 0–5 research.
+- Phase 6 captures the approved Pilot after the 40-page transform is ready.
+- Sample report text is neutralized into `[[CONTENT:...]]` slots.
+- External AI or the internal API fills slots only from current Step 0–5 research.
 - External AI returns one complete standalone HTML document, not JSON.
-- Final Choice must retain the approved two-column selection-criteria / final-choice composition.
-- Persona indices `02` and `03` must remain on one line.
-- Use yellow highlighting for governing phrases and decision implications.
-- Prefer timelines, matrices, causal flows, convergence diagrams, and choice architecture over prose card walls.
-- Equal-hierarchy elements use equal tracks and aligned geometry.
+- Connector slots are locked to short visual symbols.
+- Viewer, saved project, reopened project, and PDF use the same FULL HTML.
 
-## Material Symbols first-paint rule
+Production flow:
 
-- Material Symbols ligature strings must never be visible before the icon font loads.
-- Reserve a fixed icon box from first paint.
-- Keep `.material-symbols-outlined` hidden until `document.fonts.check(...)` confirms readiness.
-- Install the readiness guard before React renders.
-- Preserve the cold-load E2E that delays the Material Symbols font and checks zero ligature flash and zero button movement.
+`Step 0–5 research → approved Pilot DOM capture → research-only CONTENT SLOT shell → complete 40-page HTML → blocking validation → Viewer / save / reopen / Export PDF`
 
 ## Creative History factuality
 
-- Target brand and every selected direct competitor require an independent 2021–2026 Creative History.
+- Target brand and each of the core three competitors retain independent 2021–2026 Creative History pages.
 - Allowed statuses:
   - `verified-verbatim`
   - `source-found-copy-unverified`
   - `not-found`
 - Preserve Message Trajectory and Strategic So What.
-- Dark Creative History pages must retain dark paper and readable foreground.
+- Dark Creative History pages retain dark paper and readable foreground.
 
-## PDF runtime boundary
+## Material Symbols first-paint rule
 
-- Legacy reports use `.slide-wrapper > .slide`, `installIframeLayoutSafety`, and `exportReportPdf`.
+- Material Symbols ligature strings must never appear before the icon font loads.
+- Reserve a fixed icon box from first paint.
+- Keep `.material-symbols-outlined` hidden until `document.fonts.check(...)` confirms readiness.
+- Install the readiness guard before React renders.
+- Preserve the cold-load E2E that delays the icon font and verifies zero ligature flash and zero button movement.
+
+## PDF runtime boundary and acceptance
+
+- Legacy reports use `.slide-wrapper > .slide`, `installIframeLayoutSafety`, and the Legacy exporter.
 - Phase 6 FULL reports use `.full-slide`, `installFullReportRuntimeCompatibility`, and browser-native print.
-- Install the FULL runtime before the legacy layout/PDF guard.
-- A FULL document must mark the legacy runtime as handled before the legacy load listener can replace `window.print`.
-- Never pass a FULL report to the legacy slide selector.
-- Every host `Export PDF` button must resolve an active FULL iframe or a stable offscreen FULL frame.
-- When no FULL report exists, show guidance instead of `출력할 슬라이드를 찾지 못했습니다`.
-- Preserve actual-button E2E with two consecutive native-print calls.
-
-## Native PDF acceptance
-
-- Preflight must pass exactly 48 `.full-slide` pages.
-- PDF page size is 960×540pt.
+- Install the FULL runtime before the Legacy layout/PDF guard.
+- Never pass a FULL report to the Legacy selector.
+- The visible `Export PDF` button, Windows `Ctrl+P`, and macOS `Cmd+P` converge on the same active Viewer iframe and native-print path.
+- Preserve actual-button browser E2E with two consecutive exports and save → reload → reopen → export.
+- Preflight must pass exactly 40 `.full-slide` pages, all `data-zone="main"`.
+- PDF MediaBox is 960×540pt.
 - Embedded font objects must be present.
-- No 2560×1440 full-page raster rows are allowed.
-- Viewer, saved project, reopened project, and PDF use the same FULL HTML.
-
-## Architecture boundary
-
-The production Phase 6 flow is:
-
-`Step 0–5 research → captured approved Pilot DOM → research-only CONTENT SLOT template → complete standalone HTML → Viewer / save / reopen / Export PDF`.
-
-The legacy `public/template.html` remains a protected rollback asset and must not be overwritten or deleted.
+- No full-page 2560×1440 raster rows are allowed.
+- Do not declare a PDF task complete without satisfying `docs/PDF_EXPORT_E2E_STANDARD.md`.
 
 ## Documentation
 
-Update these whenever architecture, branch state, contracts, or rollback procedures change:
+Update these whenever architecture, branch state, report contracts, or rollback procedures change:
 
+- `AGENTS.md`
 - `handoff/PROJECT_HANDOFF.md`
 - `handoff/WORK_LOG.md`
 - `handoff/DECISION_LOG.md`
 - `docs/REPORT_TEMPLATE_SPEC.md`
+- `docs/PDF_EXPORT_E2E_STANDARD.md`
