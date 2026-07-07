@@ -8,9 +8,7 @@
 
 ## D-002 — Backup before FULL report transition
 
-**Decision:** Preserve the former `main` at `backup/main-before-full-report-v1-2026-07-01`.
-
-**Reason:** The owner must be able to restore the application to the state before the FULL report and Visual Intent integration.
+**Decision:** Preserve former `main` at `backup/main-before-full-report-v1-2026-07-01`.
 
 **Rule:** Never modify, force-update, or delete this branch.
 
@@ -18,15 +16,13 @@
 
 **Decision:** Use regular merge or fast-forward for milestone integrations; do not squash.
 
-**Reason:** Phase and report-development history must remain auditable.
-
 ## D-004 — Competitor selection
 
 **Decision:** Step 2 selects 2–5 direct competitors through a threat-ranked Registry.
 
 **Consequences:**
 
-- No indirect-competitor section in the core report.
+- No indirect competitor in core Deep Dive analysis.
 - Each selected competitor gets one independent Deep Dive.
 - Each selected competitor gets one six-year Creative History page.
 
@@ -37,119 +33,164 @@
 **Consequences:**
 
 - `verified-verbatim`: quotation permitted.
-- `source-found-copy-unverified`: describe without reconstructing quotation.
-- `not-found`: disclose the evidence gap.
+- `source-found-copy-unverified`: no reconstructed quotation.
+- `not-found`: disclose evidence gap.
 
 ## D-006 — Dynamic report size
 
-**Decision:** Preserve 23 mandatory legacy wrappers. Main Deck may expand to 40 pages; later evidence continues in the same report as Appendix.
+**Decision:** Preserve 23 mandatory legacy wrappers. Main Deck may expand to 40 pages; later evidence continues as Appendix.
 
-**Status:** Historical contract for the legacy generator. Superseded for the current Phase 6 production target by D-013.
+**Status:** Historical legacy-generator contract, superseded for current Phase 6 by D-013.
 
 ## D-007 — Reject heuristic visualization engine
 
 **Decision:** Do not merge `feature-visualization-engine-v1` / PR #6.
 
-**Reason:** The heuristic engine did not reliably preserve information structure and visual quality.
-
-**Status:** Retain branch and PR as audit evidence.
+**Status:** Retain as audit evidence.
 
 ## D-008 — Visual Intent contract
 
-**Decision:** Models propose a constrained information structure before rendering; external template names are not executable Recipe IDs.
-
-**Architecture:**
-
-Research → Visual Intent Brief → Semantic Slide Plan → constrained Recipe Router → deterministic renderer → blocking validator → PDF.
+**Decision:** Models propose constrained information structure before rendering; external template names are not executable Recipe IDs.
 
 ## D-009 — Gate 2A accepted mappings
 
-**Decision:** Freeze the validated Step contracts.
+**Decision:** Freeze validated Step contracts.
 
-- Step 0: event-led Growth Story → `milestone-timeline`.
-- Step 2: Threat Ranking → `rank-scorecard`; selected competitor Deep Dive → `competitor-threat-system`; Product Matrix → `feature-matrix`; Positioning Map optional.
-- Step 3: one core consumer Brief; accepted test result `friction-flow`; `implementationStatus: planned`; `metrics: []`.
-- Step 5: one final strategy Brief; accepted test result `choice-architecture`; `implementationStatus: planned`; `metrics: []`.
+- Step 0: Growth Story → `milestone-timeline`.
+- Step 2: Threat Ranking → `rank-scorecard`; selected competitor Deep Dive → `competitor-threat-system`; Product Matrix → `feature-matrix`; Positioning optional.
+- Step 3: one core consumer Brief; `friction-flow`; `implementationStatus: planned`; `metrics: []`.
+- Step 5: one final strategy Brief; `choice-architecture`; `implementationStatus: planned`; `metrics: []`.
 
 ## D-010 — Approved FULL report reference
 
-**Decision:** The approved design reference is the 40-page Main Deck + 8-page Appendix React route at `/?pilot=full-integrated&brand=<brand>`.
+**Decision:** Approved design reference is the 40-page Main Deck + 8-page Appendix route at `/?pilot=full-integrated&brand=<brand>`.
 
-**Fixed design principles:**
+**Fixed principles:**
 
 - 1280×720, exact 16:9.
-- Pretendard; major title weight 900.
+- Pretendard, major titles weight 900.
 - Exact user-entered brand name.
 - Keep-all Korean wrapping.
-- Body copy normally no smaller than page numbering, except sources/caveats.
-- Yellow highlighting for governing phrases and decision implications.
-- Evidence-appropriate diagrams over generic prose card walls.
-- Equal tracks and aligned geometry for equal-hierarchy items.
+- Yellow highlighting for governing phrases and implications.
+- Evidence-appropriate diagrams over generic card walls.
 
 ## D-011 — Compiler/template boundary
 
-**Decision:** Merging the React reference route does not silently replace `public/template.html` or all compiler outputs.
+**Decision:** Merging the React reference route did not silently replace `public/template.html` or all compiler outputs.
 
-**Reason:** The generator's production HTML/PDF path requires separate migration and regression testing.
-
-**Status:** Historical boundary. The separate migration and regression testing were completed in PR #14; see D-013 and D-014.
+**Status:** Historical boundary; migration and regression testing completed in PR #14.
 
 ## D-012 — Final consolidation source
 
 **Decision:** Integrate `feature-visual-recipe-pilot-v1` into `feature-main-full-report-integration-v1` through regular merge PR #12.
 
-**Included:** cumulative Phase 1–4 work, Gate 1.5 specifications, Gate 2A prompt contracts and validators.
-
-**Excluded:** failed PR #6 and superseded report experiments PR #8, #9, and #10.
+**Excluded:** PR #6 and superseded PRs #8, #9, #10.
 
 **Merge anchor:** `e607e397819b061c4676e3a2bdfb210f9d1b349b`.
 
 ## D-013 — Fixed 48-page Phase 6 production contract
 
-**Decision:** The normal `/` Phase 6 product path uses exactly 40 Main Deck pages and 8 Appendix pages.
+**Decision:** Normal `/` Phase 6 uses exactly 40 Main Deck pages and 8 Appendix pages.
 
 **Consequences:**
 
-- Production output is one standalone HTML document with exactly 48 `.full-slide` elements.
-- Every slide remains 1280×720.
-- The approved Pilot page-specific DOM, CSS, components, page order, navigation, and print rules are the layout source.
-- `public/template.html` remains a protected rollback asset and is not overwritten.
+- Output is one standalone HTML document with exactly 48 `.full-slide` elements.
+- Every slide is 1280×720.
+- Approved Pilot DOM, CSS, components, order, navigation, and print rules are layout source.
+- `public/template.html` remains a protected rollback asset.
 
 ## D-014 — Separate approved layout from sample content
 
-**Decision:** The approved Pilot may provide layout structure only. Its completed Biznup report wording is not a valid content source for generated reports.
+**Decision:** Approved Pilot provides layout structure only. Completed Biznup wording is not a generated-report content source.
 
 **Implementation:**
 
-- Visible sample text is neutralized into `CONTENT SLOT` tokens before prompt export.
-- All slots are filled from the current Step 0–5 research.
-- External-AI and internal-API paths use the same content contract.
+- Visible sample text becomes `CONTENT SLOT` tokens before prompt export.
+- Slots are filled from current Step 0–5 research.
+- External-AI and internal-API paths use the same contract.
 - Unresolved slots block rendering.
-- Missing Step 0 KPI evidence and missing top Step 2 direct competitors block rendering.
+- Missing Step 0 KPI evidence and selected Step 2 competitors block rendering.
 
-**Reason:** Embedding completed sample content caused external models to reproduce the Pilot's Biznup conclusions even when the research differed.
+## D-015 — Visual correction as a separate follow-up
 
-## D-015 — Visual color correction is a separate follow-up
+**Decision:** Detailed page color inconsistencies are handled after content-neutral baseline merge.
 
-**Decision:** Known color inconsistencies on detailed pages are handled after the Phase 6 content-neutral baseline is merged.
+**Scope:** Preview-first branch and Draft PR, no `main` merge before actual generated-page review.
 
-**Scope boundary:**
+## D-016 — Merge Phase 6 content-neutral baseline
 
-- Use a new preview-first branch and Draft PR from updated `main`.
-- Correct color tokens, contrast, page-specific overrides, and PDF color consistency.
-- Do not alter the 48-page contract, content-slot validation, Step 0–5 research logic, or protected legacy template.
-- Merge only after actual generated-page review and explicit owner approval.
+**Decision:** Merge PR #14 into `main` with a regular merge after owner confirmation and successful verification.
 
-## D-016 — Merge Phase 6 content-neutral baseline to production
+**Record:**
 
-**Decision:** Merge PR #14 into `main` with a regular merge commit after owner confirmation, successful CI, successful E2E, and successful Vercel Preview deployment.
-
-**Merge record:**
-
-- PR: #14 `Separate approved Phase 6 layout from research content`
-- PR head: `22862482059266c1b385a44794575a40ec7327ec`
+- PR #14
+- Head: `22862482059266c1b385a44794575a40ec7327ec`
 - Merge commit: `7614e18bf007ad64c398ff3cfc2eb665f3ca341b`
-- Merge method: regular merge commit
-- Production deployment status: success
 
-**Next boundary:** Detailed color correction begins in a separate preview-first branch and does not reopen the Phase 6 content architecture.
+## D-017 — Keep all selected direct competitors in Main Deck analysis
+
+**Decision:** The fixed 40-page Main Deck supports up to five selected direct competitors without moving competitors 4–5 into Appendix.
+
+**Page allocation:**
+
+- 11: Threat Ranking
+- 12–16: Deep Dive 1–5
+- 17: Product Matrix
+- 18: Positioning
+- 29: Target Brand Creative History
+- 30–34: Competitor Creative History 1–5
+- 35: Message Trajectory
+
+**Consequences:**
+
+- The same selected competitor set is used in all competitor and creative comparisons.
+- Appendix pages are never competitor overflow slots.
+- If fewer than five competitors have defensible evidence, unused approved pages become explicit evidence-gap pages; names or facts are never invented.
+
+**Reason:** Threat Ranking already permitted up to five competitors, but placing competitors 4–5 in Appendix fragmented the report logic and made Matrix, Positioning, and Creative History inconsistent.
+
+## D-018 — Preserve 40+8 through evidence consolidation
+
+**Decision:** Add an Appendix divider while retaining exactly 48 pages by consolidating low-priority support material rather than increasing page count.
+
+**Appendix:**
+
+- A1 Appendix divider
+- A2 Winning Move
+- A3 Via Negativa
+- A4 Pre-mortem
+- A5 Roadmap
+- A6 Measurement
+- A7 Evidence Gaps + Source Labels
+- A8 Close
+
+**Reason:** Appendix needs a clear section transition, while total page count and PDF contract remain locked.
+
+## D-019 — Final Choice layout is a fixed brand-decision composition
+
+**Decision:** Page 40 must preserve the approved two-column layout:
+
+- left column: Selection Criteria;
+- right column: Big IdeaL and Winning Move.
+
+**Rule:** Legacy generic choice CSS such as `grid-column: 1 / -1` must not collapse or span the final result across both columns.
+
+**Reason:** The user-approved page communicates selection logic and final decision simultaneously; stacked or four-column variants weaken the argument and visibly diverge from the approved template.
+
+## D-020 — Persona numbering is atomic text
+
+**Decision:** Persona indices `02` and `03` are atomic two-digit labels and must render on one line.
+
+**Implementation rule:** `white-space: nowrap`, normal word-break, and sufficient minimum width.
+
+## D-021 — FULL PDF uses native print
+
+**Decision:** FULL reports use Chromium native print after fixed-page preflight rather than converting every slide to a full-page JPEG.
+
+**Acceptance:**
+
+- 48 pages
+- 960×540pt
+- embedded fonts
+- no 2560×1440 full-page raster rows
+- same HTML in Viewer, saved project, reopened project, and PDF
