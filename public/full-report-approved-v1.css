@@ -49,6 +49,7 @@ mark,.highlight{background:linear-gradient(transparent 48%,var(--full-yellow) 48
 .full-slide[data-page="40"] .choice-final p{margin:0 0 5px;font-size:10.5px;line-height:1.35}
 .full-slide[data-page="40"] .choice-final ul{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0;padding-left:16px}
 .full-slide[data-page="40"] .choice-final li{font-size:9.5px;line-height:1.3}
+#strategy-choice .choice-final{grid-column:auto!important}
 
 /* Native Chromium print is the FULL report PDF source. Keep the screen DOM and
  * its computed typography intact; remove only viewer chrome and frame scaling.
