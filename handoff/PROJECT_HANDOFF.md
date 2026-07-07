@@ -4,11 +4,12 @@
 
 - Repository: `dpes31/brand-consulting`
 - Production branch: `main`
-- Active correction branch: `fix/phase6-report-color-consistency-v1`
-- PR: #16 `Finalize Phase 6 report structure and remove icon-font reload flash`
+- Production commit before this PR: `e22de49396a1ccb3590c5d7eb751b4d0edf759fc`
+- Active branch: `fix/phase6-pdf-export-runtime-v1`
+- Draft PR: #17 `Fix Phase 6 PDF export runtime routing`
 - Production URL: `https://brand-consulting.vercel.app/`
-- Owner approved production application after the reload-flash correction.
-- Merge method: regular merge only; do not squash.
+- Preview URL: `https://brand-consulting-git-fix-phase6-pdf-exp-e3547f-dpes31s-projects.vercel.app/`
+- Preview-first only; do not merge PR #17 without explicit owner approval.
 - Immutable rollback branches:
   - `backup/main-before-full-report-v1-2026-07-01`
   - `backup-production-stable-20260622`
@@ -24,7 +25,7 @@ The normal `/` application flow is:
 → `external AI or internal API fills every slot from current research`
 → `blocking validation`
 → `48-page standalone HTML`
-→ `Viewer / save / reopen`
+→ `Viewer / save / reopen / Export PDF`
 
 The approved Pilot is a layout source only. Its Biznup conclusions, figures, competitors, personas, Creative History, sources, SWOT, STP, and strategy are removed before the Phase 6 prompt is exported.
 
@@ -70,20 +71,58 @@ Appendix:
 
 Appendix is not competitor overflow. If fewer than five direct competitors are supported, unused approved competitor pages disclose evidence gaps.
 
-## PR #16 corrections
+## PR #17 — PDF error root cause
 
-- Restored Page 40 Final Choice to a left Selection Criteria / right Big IdeaL & Winning Move composition.
-- Added up-to-five competitor capacity to Threat Ranking, Deep Dive, Product Matrix, Positioning, Creative History, and Message Trajectory.
-- Moved competitors 4–5 from Appendix overflow into the Main Deck competitor and creative sections.
-- Added an Appendix divider at A1 while preserving exact 40+8 totals.
-- Combined Evidence Gaps and Source Labels at A7.
-- Prevented Persona indices `02` and `03` from wrapping.
-- Preserved dark Creative History color tokens.
-- Corrected the app reload FOUC caused by Material Symbols ligature text:
-  - fixed 1em icon boxes from first paint;
-  - hidden ligature strings until font readiness;
-  - Google Fonts preconnect and Material Symbols block loading;
-  - font-readiness guard installed before React render.
+The actual app showed:
+
+`PDF 생성 오류 — 출력할 슬라이드를 찾지 못했습니다.`
+
+Confirmed cause:
+
+1. The legacy iframe layout/PDF runtime installed before the FULL report runtime.
+2. The legacy runtime replaced `iframe.contentWindow.print()` with a raster exporter that searches only `.slide-wrapper > .slide`.
+3. The FULL runtime then captured that already-overridden function as if it were browser-native print.
+4. Phase 6 FULL reports use `.full-slide`, so the legacy exporter found zero slides.
+
+## PR #17 correction
+
+- Install `installFullReportRuntimeCompatibility()` before the legacy `installIframeLayoutSafety()` guard.
+- On a FULL document, mark the legacy layout/PDF runtime as already handled.
+- Retain the real browser-native print function from `window.print` or the legacy native backup.
+- Route every host `Export PDF` button to:
+  1. the active fullscreen FULL report iframe;
+  2. another active FULL report iframe;
+  3. a stable offscreen iframe rebuilt from retained FULL HTML.
+- Prevent the React button handler and legacy exporter from also firing.
+- When no FULL report exists, show a clear instruction instead of a zero-slide error.
+- Disable the clicked button while export is being prepared, then restore it.
+
+## PDF runtime boundary
+
+Two report systems coexist and must remain separated:
+
+- Legacy reports: `.slide-wrapper > .slide`, handled by `installIframeLayoutSafety` and `exportReportPdf`.
+- Phase 6 FULL reports: `.full-slide`, handled by `installFullReportRuntimeCompatibility` and browser-native print.
+
+A FULL report must never be passed to the legacy slide selector.
+
+## PR #17 verification
+
+Automated build and browser tests passed:
+
+- Production build and report contracts: PASS
+- Actual app `Export PDF` button with no report: clear guidance, no zero-slide error
+- Actual app `Export PDF` button with a 48-page FULL report: PASS
+- Two consecutive native-print invocations: PASS
+- FULL runtime ownership: PASS
+- Legacy runtime did not override FULL print: PASS
+- 48-page preflight: PASS
+- Five-competitor Phase 6 regression: PASS
+- 48 navigation links: PASS
+- 1280×720 geometry and zero overflow: PASS
+- Save/reopen: 48 pages PASS
+- Native PDF: 48 pages, 960×540pt, embedded fonts, zero full-page raster rows
+- Vercel Preview: Ready
 
 ## Blocking validation
 
@@ -98,8 +137,6 @@ Phase 6 rejects results when:
 - Step 0 KPI evidence is insufficient;
 - any selected Step 2 direct competitor is missing;
 - an unapproved script is included.
-
-The same content contract applies to manual external-AI and internal API paths.
 
 ## Validated Step contracts
 
@@ -143,28 +180,6 @@ The same content contract applies to manual external-AI and internal API paths.
   - `not-found`
 - Only verified-verbatim copy may use quotation marks.
 - Message Trajectory and Strategic So What remain mandatory.
-
-## Verified for PR #16
-
-- Production build and contract tests: PASS
-- Five-competitor generated-report E2E: PASS
-- Exact page order and 48 navigation links: PASS
-- 1280×720 geometry and zero overflow: PASS
-- Persona `02`/`03` one-line rendering: PASS
-- Page 40 two-column geometry: PASS
-- Appendix divider: PASS
-- Save/reopen: PASS
-- Material Symbols cold-load test with delayed font: PASS
-- No visible ligature words before font readiness: PASS
-- Export PDF button position and size unchanged before/after icon font load: PASS
-
-## Known deferred issue
-
-The actual app/Preview `Export PDF` action can still show:
-
-`PDF 생성 오류 — 출력할 슬라이드를 찾지 못했습니다.`
-
-The owner explicitly deferred this issue to a separate follow-up after PR #16 production deployment. Do not describe the user-facing PDF button as resolved. The existing local native-print contract and PDF inspection evidence do not supersede the actual app failure report.
 
 ## Excluded experiments
 
