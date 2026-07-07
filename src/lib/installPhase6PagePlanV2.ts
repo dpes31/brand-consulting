@@ -30,17 +30,17 @@ const NAV_GROUPS = [
 
 type Meta = { id: string; chapter: string; title: string; tag: string };
 
-function slide(documentRef: Document, id: string): HTMLElement {
+function getSlide(documentRef: Document, id: string): HTMLElement {
   const node = documentRef.getElementById(id);
   if (!(node instanceof HTMLElement)) throw new Error(`Missing Phase 6 slide: ${id}`);
   return node;
 }
 
-function clone(documentRef: Document, id: string): HTMLElement {
-  return slide(documentRef, id).cloneNode(true) as HTMLElement;
+function cloneSlide(documentRef: Document, id: string): HTMLElement {
+  return getSlide(documentRef, id).cloneNode(true) as HTMLElement;
 }
 
-function copy(source: HTMLElement, target: HTMLElement): void {
+function copySlide(source: HTMLElement, target: HTMLElement): void {
   target.className = source.className;
   target.innerHTML = source.innerHTML;
   Array.from(target.attributes)
@@ -101,9 +101,9 @@ function addRankingCapacity(documentRef: Document): void {
       const card = sourceCard.cloneNode(true) as HTMLElement;
       const index = interpretation.children.length + 1;
       const name = card.querySelector<HTMLElement>('b');
-      const copyNode = card.querySelector<HTMLElement>('p');
+      const copy = card.querySelector<HTMLElement>('p');
       if (name) name.textContent = `DIRECT COMPETITOR ${index}`;
-      if (copyNode) copyNode.textContent = '선택 메커니즘과 위협 구조를 독립 검증';
+      if (copy) copy.textContent = '선택 메커니즘과 위협 구조를 독립 검증';
       interpretation.appendChild(card);
     }
   }
@@ -153,8 +153,13 @@ function addTrajectoryCapacity(documentRef: Document): void {
   });
 }
 
-function combineEvidenceSources(documentRef: Document, evidenceTemplate: HTMLElement, sourcesTemplate: HTMLElement, target: HTMLElement): void {
-  copy(evidenceTemplate, target);
+function combineEvidenceSources(
+  documentRef: Document,
+  evidenceTemplate: HTMLElement,
+  sourcesTemplate: HTMLElement,
+  target: HTMLElement,
+): void {
+  copySlide(evidenceTemplate, target);
   setMeta(target, {
     id: 'appendix-evidence-sources',
     chapter: 'APPENDIX > EVIDENCE & SOURCE REGISTER',
@@ -181,7 +186,7 @@ function combineEvidenceSources(documentRef: Document, evidenceTemplate: HTMLEle
 
 function applyLabels(documentRef: Document): void {
   [...MAIN_IDS, ...APPENDIX_IDS].forEach((id, index) => {
-    const target = slide(documentRef, id);
+    const target = getSlide(documentRef, id);
     const main = index < MAIN_COUNT;
     target.dataset.page = String(index + 1);
     target.dataset.zone = main ? 'main' : 'appendix';
@@ -197,12 +202,19 @@ function reorder(documentRef: Document): void {
   const mainLabel = labels[0];
   const appendixLabel = labels[1];
   if (!mainLabel || !appendixLabel) throw new Error('Missing Phase 6 section labels.');
-  const frameFor = (id: string): HTMLElement => slide(documentRef, id).closest<HTMLElement>('.full-frame') || slide(documentRef, id);
+
+  const frameFor = (id: string): HTMLElement => {
+    const target = getSlide(documentRef, id);
+    return target.closest<HTMLElement>('.full-frame') || target;
+  };
+  const mainFrames = MAIN_IDS.map(frameFor);
+  const appendixFrames = APPENDIX_IDS.map(frameFor);
   Array.from(content.querySelectorAll<HTMLElement>(':scope > .full-frame')).forEach((frame) => frame.remove());
+
   mainLabel.textContent = 'MAIN DECK · 40 PAGES';
   appendixLabel.textContent = 'APPENDIX · 8 PAGES';
-  mainLabel.after(...MAIN_IDS.map(frameFor));
-  appendixLabel.after(...APPENDIX_IDS.map(frameFor));
+  mainLabel.after(...mainFrames);
+  appendixLabel.after(...appendixFrames);
 }
 
 function rebuildNav(documentRef: Document): void {
@@ -231,55 +243,55 @@ function transform(documentRef: Document): boolean {
   if (documentRef.body.dataset.phase6PagePlan === PLAN_VERSION) return true;
   if (documentRef.querySelectorAll('.full-slide').length !== 48) return false;
 
-  const deepTemplate = clone(documentRef, 'deep-SSEM');
-  const historyTemplate = clone(documentRef, 'creative-SSEM·쌤157');
-  const receiptTemplate = clone(documentRef, 'appendix-receipt');
-  const negativeTemplate = clone(documentRef, 'appendix-negative');
-  const premortemTemplate = clone(documentRef, 'appendix-premortem');
-  const roadmapTemplate = clone(documentRef, 'appendix-roadmap');
-  const measureTemplate = clone(documentRef, 'appendix-measure');
-  const evidenceTemplate = clone(documentRef, 'appendix-evidence');
-  const sourcesTemplate = clone(documentRef, 'appendix-sources');
+  const deepTemplate = cloneSlide(documentRef, 'deep-SSEM');
+  const historyTemplate = cloneSlide(documentRef, 'creative-SSEM·쌤157');
+  const receiptTemplate = cloneSlide(documentRef, 'appendix-receipt');
+  const negativeTemplate = cloneSlide(documentRef, 'appendix-negative');
+  const premortemTemplate = cloneSlide(documentRef, 'appendix-premortem');
+  const roadmapTemplate = cloneSlide(documentRef, 'appendix-roadmap');
+  const measureTemplate = cloneSlide(documentRef, 'appendix-measure');
+  const evidenceTemplate = cloneSlide(documentRef, 'appendix-evidence');
+  const sourcesTemplate = cloneSlide(documentRef, 'appendix-sources');
 
-  const deep4 = slide(documentRef, 'appendix-receipt');
-  copy(deepTemplate, deep4);
+  const deep4 = getSlide(documentRef, 'appendix-receipt');
+  copySlide(deepTemplate, deep4);
   setMeta(deep4, { id: 'deep-dive-4', chapter: 'II. COMPETITOR > DEEP DIVE 4', title: '네 번째 직접 경쟁사의 선택 메커니즘을 독립 검증합니다', tag: 'DEEP DIVE' });
 
-  const deep5 = slide(documentRef, 'appendix-premortem');
-  copy(deepTemplate, deep5);
+  const deep5 = getSlide(documentRef, 'appendix-premortem');
+  copySlide(deepTemplate, deep5);
   setMeta(deep5, { id: 'deep-dive-5', chapter: 'II. COMPETITOR > DEEP DIVE 5', title: '다섯 번째 직접 경쟁사의 선택 메커니즘을 독립 검증합니다', tag: 'DEEP DIVE' });
 
-  const history4 = slide(documentRef, 'appendix-negative');
-  copy(historyTemplate, history4);
+  const history4 = getSlide(documentRef, 'appendix-negative');
+  copySlide(historyTemplate, history4);
   setMeta(history4, { id: 'creative-history-4', chapter: 'IV. CREATIVE > COMPETITOR HISTORY 4', title: '네 번째 직접 경쟁사의 6개년 메시지 이동을 검증합니다', tag: '2021–2026 YTD' });
 
-  const history5 = slide(documentRef, 'appendix-roadmap');
-  copy(historyTemplate, history5);
+  const history5 = getSlide(documentRef, 'appendix-roadmap');
+  copySlide(historyTemplate, history5);
   setMeta(history5, { id: 'creative-history-5', chapter: 'IV. CREATIVE > COMPETITOR HISTORY 5', title: '다섯 번째 직접 경쟁사의 6개년 메시지 이동을 검증합니다', tag: '2021–2026 YTD' });
 
-  makeAppendixCover(slide(documentRef, 'comp-landscape'));
+  makeAppendixCover(getSlide(documentRef, 'comp-landscape'));
 
-  const appendixReceipt = slide(documentRef, 'category-cliche');
-  copy(receiptTemplate, appendixReceipt);
+  const appendixReceipt = getSlide(documentRef, 'category-cliche');
+  copySlide(receiptTemplate, appendixReceipt);
   setMeta(appendixReceipt, { id: 'appendix-receipt', chapter: 'APPENDIX > WINNING MOVE SPECIFICATION', title: 'Winning Move를 실제 제품 증거의 구조로 전환합니다', tag: 'PRODUCT PROOF' });
 
-  const appendixNegative = slide(documentRef, 'creative-method');
-  copy(negativeTemplate, appendixNegative);
+  const appendixNegative = getSlide(documentRef, 'creative-method');
+  copySlide(negativeTemplate, appendixNegative);
   setMeta(appendixNegative, { id: 'appendix-negative', chapter: 'APPENDIX > VIA NEGATIVA', title: '새 표현보다 먼저 중단해야 할 카테고리 습관을 명시합니다', tag: 'REMOVE' });
 
-  const appendixPremortem = slide(documentRef, 'creative-insight');
-  copy(premortemTemplate, appendixPremortem);
+  const appendixPremortem = getSlide(documentRef, 'creative-insight');
+  copySlide(premortemTemplate, appendixPremortem);
   setMeta(appendixPremortem, { id: 'appendix-premortem', chapter: 'APPENDIX > PRE-MORTEM', title: '실패 가능성을 실행 전에 가정하고 통제 조건을 설계합니다', tag: 'RISK' });
 
-  const appendixRoadmap = slide(documentRef, 'appendix-measure');
-  copy(roadmapTemplate, appendixRoadmap);
+  const appendixRoadmap = getSlide(documentRef, 'appendix-measure');
+  copySlide(roadmapTemplate, appendixRoadmap);
   setMeta(appendixRoadmap, { id: 'appendix-roadmap', chapter: 'APPENDIX > EXECUTION ROADMAP', title: '제품 증거부터 브랜드 확장까지 실행 순서를 고정합니다', tag: 'ROADMAP' });
 
-  const appendixMeasure = slide(documentRef, 'appendix-evidence');
-  copy(measureTemplate, appendixMeasure);
+  const appendixMeasure = getSlide(documentRef, 'appendix-evidence');
+  copySlide(measureTemplate, appendixMeasure);
   setMeta(appendixMeasure, { id: 'appendix-measure', chapter: 'APPENDIX > MEASUREMENT PLAN', title: '성과와 위험 지표를 함께 측정합니다', tag: 'KPI' });
 
-  combineEvidenceSources(documentRef, evidenceTemplate, sourcesTemplate, slide(documentRef, 'appendix-sources'));
+  combineEvidenceSources(documentRef, evidenceTemplate, sourcesTemplate, getSlide(documentRef, 'appendix-sources'));
   addRankingCapacity(documentRef);
   addMatrixCapacity(documentRef);
   addPositioningCapacity(documentRef);
@@ -287,6 +299,7 @@ function transform(documentRef: Document): boolean {
   applyLabels(documentRef);
   reorder(documentRef);
   rebuildNav(documentRef);
+
   documentRef.body.dataset.phase6PagePlan = PLAN_VERSION;
   documentRef.documentElement.dataset.phase6PagePlanReady = 'true';
   documentRef.dispatchEvent(new CustomEvent('phase6-page-plan-ready'));
