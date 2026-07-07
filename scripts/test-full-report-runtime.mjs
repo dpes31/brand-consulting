@@ -20,7 +20,6 @@ const legacyTemplate = read('public/template.html');
 const packageJson = JSON.parse(read('package.json'));
 
 assert.equal(gitBlobSha(legacyTemplate), '22bc6937b3d672e063d4b240c5a39b9c61700fec');
-
 assert.match(runtime, /FULL_REPORT_PAGE_COUNT = 40/);
 assert.doesNotMatch(runtime, /MAIN_DECK_PAGE_COUNT/);
 assert.match(runtime, /slide\.dataset\.zone !== 'main'/);
@@ -30,31 +29,24 @@ assert.match(runtime, /__FULL_REPORT_NATIVE_PRINT__/);
 assert.match(runtime, /lastPdfExportMode = 'native-print'/);
 assert.match(runtime, /40 pages passed preflight/);
 assert.doesNotMatch(runtime, /await exportReportPdf/);
-
 assert.match(pdfBridge, /FULL_PAGE_COUNT = 40/);
 assert.match(pdfBridge, /fullSlideCount\(iframe\) === FULL_PAGE_COUNT/);
 assert.match(pdfBridge, /exportFullReportPdf/);
-
 assert.match(pagePlan, /focus3-main40-no-appendix-v3/);
-for (const id of ['comp-landscape','comp-ranking','category-cliche','creative-insight','strategy-choice','decision-close']) {
-  assert.match(pagePlan, new RegExp(id));
-}
+for (const id of ['comp-landscape','comp-ranking','category-cliche','creative-insight','strategy-choice','decision-close']) assert.match(pagePlan, new RegExp(id));
 assert.doesNotMatch(pagePlan, /deep-dive-4|deep-dive-5|creative-history-4|creative-history-5/);
 assert.match(pagePlan, /reportAppendixCount = '0'/);
-
 assert.match(researchTemplate, /const PAGE_COUNT = 40/);
 assert.match(researchTemplate, /research-slots-v2/);
 assert.match(researchTemplate, /deep-dive-3/);
 assert.doesNotMatch(researchTemplate, /deep-dive-4|deep-dive-5/);
 assert.match(researchTemplate, /creative-history-3/);
 assert.match(researchTemplate, /candidates\.slice\(0, 3\)/);
-
-assert.match(researchPrompt, /40 Main Deck slides and zero Appendix slides/);
+assert.match(researchPrompt, /40 Main Deck slides, zero Appendix slides/);
 assert.match(researchPrompt, /Competitive Landscape/);
 assert.match(researchPrompt, /top three core Direct Competitors/);
 assert.match(researchPrompt, /~한다/);
 assert.match(researchPrompt, /Persona 1–3 titles reuse/);
-
 assert.match(compiler, /const PAGE_COUNT = 40/);
 assert.match(compiler, /11 Competitive Landscape/);
 assert.match(compiler, /17 Category Clichés/);
@@ -62,18 +54,15 @@ assert.match(compiler, /34 Creative Insight/);
 assert.match(compiler, /40 Decision Receipt \/ Close/);
 assert.match(compiler, /IMMUTABLE APPROVED BASE HTML — START/);
 assert.match(compiler, /assertApprovedFullReportHtml/);
-
 for (const source of [apiCompiler, bridge]) {
   assert.match(source, /loadApprovedPilotBaseHtml/);
   assert.match(source, /buildFullReportHtmlPrompt/);
   assert.match(source, /extractCompleteFullReportHtml/);
   assert.match(source, /assertApprovedFullReportHtml/);
 }
-
 assert.match(normalizer, /const COUNT = 40/);
 assert.match(main, /installFullReportRuntimeCompatibility/);
 assert.match(main, /installFullReportPhase6Bridge/);
 assert.match(main, /installPhase6PagePlanV2/);
 assert.equal(packageJson.scripts['test:full-report-runtime'], 'node scripts/test-full-report-runtime.mjs');
-
 console.log('FULL report runtime compatibility passed for the 40-page no-Appendix plan.');
