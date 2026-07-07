@@ -4,6 +4,7 @@ const MAIN_DECK_PAGE_COUNT = 40;
 const SLIDE_WIDTH_PX = 1280;
 const SLIDE_HEIGHT_PX = 720;
 const FRAME_MARKER = 'fullReportRuntimeV1';
+const LEGACY_LAYOUT_MARKER = 'layoutSafetyV1';
 
 export interface FullReportPreflightResult {
   ok: boolean;
@@ -14,6 +15,7 @@ export interface FullReportPreflightResult {
 
 type FullReportWindow = Window & {
   __REPORT_PREFLIGHT__?: () => FullReportPreflightResult;
+  __NATIVE_REPORT_PRINT__?: () => void;
   __FULL_REPORT_NATIVE_PRINT__?: () => void;
   __FULL_REPORT_RUNTIME__?: {
     version: '1.0.0';
@@ -150,11 +152,23 @@ function installIntoFrame(iframe: HTMLIFrameElement): void {
 
   const activate = () => {
     if (getFullReportSlides(documentRef).length === 0) return false;
+
+    // FULL reports must never enter the legacy `.slide-wrapper > .slide` PDF
+    // runtime. Mark the legacy guard as already handled before its load listener
+    // runs, and recover the browser-native print function from its backup when
+    // an older listener happened to run first.
+    documentRef.documentElement.dataset[LEGACY_LAYOUT_MARKER] = 'installed';
     windowRef.__REPORT_PREFLIGHT__ = () => runFullReportPreflight(documentRef);
+
+    const nativePrint = windowRef.__NATIVE_REPORT_PRINT__ || windowRef.print.bind(windowRef);
+    if (!windowRef.__FULL_REPORT_NATIVE_PRINT__) windowRef.__FULL_REPORT_NATIVE_PRINT__ = nativePrint;
+    documentRef.documentElement.dataset.fullReportNativePrintSource = windowRef.__NATIVE_REPORT_PRINT__
+      ? 'legacy-native-backup'
+      : 'window-native';
+
     if (documentRef.documentElement.dataset[FRAME_MARKER] === 'installed') return true;
 
     documentRef.documentElement.dataset[FRAME_MARKER] = 'installed';
-    if (!windowRef.__FULL_REPORT_NATIVE_PRINT__) windowRef.__FULL_REPORT_NATIVE_PRINT__ = windowRef.print.bind(windowRef);
     windowRef.__FULL_REPORT_RUNTIME__ = {
       version: '1.0.0',
       preflight: () => runFullReportPreflight(documentRef),
