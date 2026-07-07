@@ -98,14 +98,6 @@ async function copyText(text: string): Promise<void> {
   }
 }
 
-function setControlledTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
-  const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
-  if (!setter) throw new Error('결과 입력창을 갱신할 수 없습니다.');
-  setter.call(textarea, value);
-  textarea.dispatchEvent(new Event('input', { bubbles: true }));
-  textarea.dispatchEvent(new Event('change', { bubbles: true }));
-}
-
 function findPhase6Textarea(): HTMLTextAreaElement | null {
   const textareas = Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'));
   return textareas.find((textarea) => {
@@ -130,21 +122,21 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
   const brandName = readBrandName();
   const { rawResearch, missingSteps } = readResearchSnapshot();
   if (!brandName) {
-    window.alert('브랜드명을 확인할 수 없습니다. Phase 0으로 돌아가 브랜드명을 다시 입력해 주세요.');
+    window.alert('브랜드명을 확인할 수 없다. Phase 0에서 브랜드명을 다시 입력해야 한다.');
     return;
   }
   if (missingSteps.length > 0) {
-    window.alert(`Step 0~5 조사 결과가 완전하지 않습니다. 누락 단계: ${missingSteps.join(', ')}\n\n누락된 단계의 조사 결과를 저장한 뒤 다시 추출해 주세요.`);
+    window.alert(`Step 0~5 조사 결과가 완전하지 않다. 누락 단계: ${missingSteps.join(', ')}`);
     return;
   }
   if (!rawResearch.trim()) {
-    window.alert('Step 0~5 조사 결과가 없습니다. 각 단계의 조사 결과를 먼저 저장해 주세요.');
+    window.alert('Step 0~5 조사 결과가 없다. 각 단계의 조사 결과를 먼저 저장해야 한다.');
     return;
   }
 
   const originalText = normalizeText(clickedButton.textContent) || '프롬프트 추출';
   clickedButton.disabled = true;
-  clickedButton.textContent = '48페이지 레이아웃 중립화 중...';
+  clickedButton.textContent = '40페이지 레이아웃 중립화 중...';
 
   try {
     const capturedPilot = await loadApprovedPilotBaseHtml(brandName);
@@ -156,9 +148,8 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
     await copyText(prompt);
     downloadPrompt(prompt, brandName);
     window.alert(
-      'FULL 보고서 Phase 6 프롬프트를 복사하고 파일로 저장했습니다.\n\n' +
-      '승인 Pilot의 48페이지 레이아웃은 유지하되 기존 비즈넵 문장·수치·경쟁사명은 제거했습니다. ' +
-      '외부 AI는 모든 CONTENT SLOT을 Step 0~5 조사 내용으로 새로 채워야 합니다.',
+      '40페이지 Main Deck 프롬프트를 복사하고 파일로 저장했다.\n\n' +
+      '기존 샘플 결론·수치·경쟁사명은 제거되고 Step 0~5 조사 결과만 사용한다.',
     );
   } catch (error) {
     window.alert(`Phase 6 프롬프트 생성 오류: ${error instanceof Error ? error.message : String(error)}`);
@@ -179,15 +170,15 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
   const brandName = readBrandName();
   const { rawResearch, missingSteps } = readResearchSnapshot();
   if (!textarea || !textarea.value.trim()) {
-    window.alert('외부 AI가 생성한 완성 HTML 전체를 입력창에 붙여넣어 주세요.');
+    window.alert('외부 AI가 생성한 완성 HTML 전체를 입력창에 붙여넣어야 한다.');
     return;
   }
   if (!brandName) {
-    window.alert('브랜드명을 확인할 수 없습니다. Phase 0으로 돌아가 브랜드명을 다시 입력해 주세요.');
+    window.alert('브랜드명을 확인할 수 없다. Phase 0에서 브랜드명을 다시 입력해야 한다.');
     return;
   }
   if (missingSteps.length > 0 || !rawResearch.trim()) {
-    window.alert('Step 0~5 조사 원문을 확인할 수 없어 내용 반영 여부를 검증할 수 없습니다.');
+    window.alert('Step 0~5 조사 원문을 확인할 수 없어 내용 반영 여부를 검증할 수 없다.');
     return;
   }
 
@@ -206,8 +197,10 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
     assertAllResearchSlotsFilled(html);
     assertResearchEvidencePresent(html, rawResearch, brandName);
 
+    // Keep the original React-controlled textarea value intact. The Dashboard
+    // already owns fenced-HTML extraction and citation cleanup. Replacing the
+    // value here can race React state updates and prevent the Viewer from opening.
     textarea.dataset.fullReportValidatedHtml = 'true';
-    setControlledTextareaValue(textarea, html);
 
     window.setTimeout(() => {
       const currentButton = findButtonByText('결과물 뷰어에 렌더링하기') || clickedButton;
@@ -216,7 +209,7 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
       currentButton.textContent = originalText || '결과물 뷰어에 렌더링하기';
       replayingRenderClick = true;
       currentButton.click();
-    }, 80);
+    }, 120);
   } catch (error) {
     clickedButton.disabled = false;
     delete clickedButton.dataset.fullReportBusy;
@@ -228,17 +221,17 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
 function refreshPhase6Copy(): void {
   const textarea = findPhase6Textarea();
   if (textarea) {
-    textarea.placeholder = '외부 AI가 모든 CONTENT SLOT을 조사 내용으로 채운 완성 HTML 전체를 붙여넣으세요.';
+    textarea.placeholder = '외부 AI가 모든 CONTENT SLOT을 조사 내용으로 채운 40페이지 완성 HTML 전체를 붙여넣는다.';
   }
 
   document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
     const text = normalizeText(element.textContent);
     if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI 완성 HTML 생성';
     if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.') {
-      element.textContent = '승인 레이아웃의 빈 콘텐츠 슬롯을 Step 0~5 조사 내용으로 채웁니다.';
+      element.textContent = '승인 레이아웃의 콘텐츠 슬롯을 Step 0~5 조사 내용으로 채운다.';
     }
     if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
-      element.textContent = '레이아웃은 고정하고, 모든 결론·수치·경쟁사·전략은 현재 조사 결과로 교체합니다.';
+      element.textContent = '레이아웃은 고정하고 결론·수치·경쟁사·전략은 현재 조사 결과로 교체한다.';
     }
   });
 }
