@@ -1,16 +1,9 @@
-/* Phase 6 color and layout corrections from generated-report review.
- * Scope is intentionally limited to the affected pages and shared dark-slide token.
- */
-
+/* Phase 6 color and layout corrections from generated-report review. */
 body[data-report-version="full-report-v1"],
 body[data-report-version="full-report-v1"] .full-report-app {
   color-scheme: light;
 }
 
-/* Creative History pages 30-33 and conditional Appendix history pages.
- * The final shared .full-slide rule reads --full-paper, so the dark variant must
- * override the paper token rather than only declaring an earlier background.
- */
 .full-slide--dark {
   --full-paper: #090a0c;
   --paper: #090a0c;
@@ -18,22 +11,285 @@ body[data-report-version="full-report-v1"] .full-report-app {
   color: var(--full-ink) !important;
 }
 
-/* Page 40: the approved final-choice surface is light. Prevent the legacy dark
- * choice component's white foreground from surviving into this page.
- */
+/* Final Choice: restore the approved two-column selection/result composition. */
+#strategy-choice .full-slide-body {
+  padding-top: 16px;
+  padding-bottom: 74px;
+}
+
+#strategy-choice .choice-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr) !important;
+  align-items: center;
+  align-content: center;
+  gap: 34px !important;
+  width: 100%;
+  height: 100%;
+}
+
+#strategy-choice .choice-criteria {
+  align-self: center;
+  background: #f7f8fb;
+  border: 0;
+  border-radius: 10px;
+  padding: 22px 24px;
+}
+
+#strategy-choice .choice-criteria > span {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--full-accent-deep);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+#strategy-choice .choice-criteria > div {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  min-height: 43px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--full-line);
+}
+
+#strategy-choice .choice-criteria b,
+#strategy-choice .choice-criteria p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 #strategy-choice .choice-final {
+  align-self: center;
+  min-height: 300px;
+  margin: 0 !important;
+  padding: 38px 34px !important;
+  border: 0;
+  border-top: 5px solid var(--full-accent);
+  border-radius: 10px;
   background: var(--full-accent-soft) !important;
   color: var(--full-ink) !important;
+  box-shadow: 0 12px 28px rgba(55, 65, 95, .1);
 }
 
-#strategy-choice .choice-final h2,
+#strategy-choice .choice-final span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--full-accent-deep);
+  font-size: 9px;
+  font-weight: 900;
+}
+
 #strategy-choice .choice-final h3 {
+  margin: 0 0 28px;
   color: var(--full-ink) !important;
+  font-size: 18px;
+  line-height: 1.45;
 }
 
-/* Page 3: keep the evidence note below the FOUNDING JTBD label instead of
- * positioning it over the label and statement.
- */
+#strategy-choice .choice-final h2 {
+  margin: 0 0 22px;
+  color: var(--full-ink) !important;
+  font-size: 31px;
+  line-height: 1.2;
+}
+
+#strategy-choice .choice-final p {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* Persona 02/03 must remain a single two-digit index. */
+.persona-index,
+.persona-index-v3 {
+  min-width: 64px;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+/* Five-competitor capacity. */
+#comp-ranking .ranking-interpretation {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+#comp-ranking .ranking-interpretation > div {
+  min-width: 0;
+}
+
+#product-matrix .matrix-table {
+  table-layout: fixed;
+  font-size: 8.5px;
+}
+
+#product-matrix .matrix-table th,
+#product-matrix .matrix-table td {
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+#positioning .map-dot.comp4 {
+  left: 59%;
+  top: 25%;
+}
+
+#positioning .map-dot.comp5 {
+  left: 25%;
+  top: 68%;
+}
+
+#creative-trajectory .trajectory-map {
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+}
+
+#creative-trajectory .trajectory-brand.comp4,
+#creative-trajectory .trajectory-brand.comp5 {
+  font-size: 9px;
+}
+
+/* Appendix divider and consolidated register. */
+.appendix-divider {
+  --full-paper: #11131a;
+  background: linear-gradient(140deg, #11131a 0%, #11131a 52%, #20253a 52%, #20253a 100%) !important;
+  color: #fff !important;
+}
+
+.appendix-divider .full-slide-header {
+  border-bottom-color: rgba(255, 255, 255, .22);
+}
+
+.appendix-divider .full-breadcrumb,
+.appendix-divider .full-page {
+  color: #aeb5d8;
+}
+
+.appendix-divider .full-title-row h2 {
+  color: #fff;
+}
+
+.appendix-divider-layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 0 42px 18px;
+}
+
+.appendix-divider-layout > span {
+  color: #aeb5ff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+
+.appendix-divider-layout h3 {
+  margin: 16px 0 18px;
+  color: #fff;
+  font-family: Montserrat, Pretendard, sans-serif;
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.appendix-divider-layout > p {
+  margin: 0 0 42px;
+  color: #d8dcec;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.appendix-divider-index {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px 1fr;
+  gap: 12px 18px;
+  max-width: 760px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, .22);
+}
+
+.appendix-divider-index b {
+  color: #aeb5ff;
+  font-family: Montserrat, Pretendard, sans-serif;
+  font-size: 13px;
+}
+
+.appendix-divider-index span {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.appendix-evidence-source-layout {
+  display: grid;
+  grid-template-columns: 1.12fr .88fr;
+  gap: 18px;
+  height: 100%;
+}
+
+.appendix-register-panel {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--full-line);
+  border-radius: 8px;
+  background: #f7f8fb;
+  overflow: hidden;
+}
+
+.appendix-register-label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--full-accent-deep);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.appendix-register-panel .evidence-gap-grid {
+  gap: 6px;
+}
+
+.appendix-register-panel .evidence-gap-grid > div {
+  grid-template-columns: 46px minmax(0, 1fr) !important;
+  min-height: 31px;
+  padding: 6px 8px;
+}
+
+.appendix-register-panel .evidence-gap-grid span,
+.appendix-register-panel .evidence-gap-grid p {
+  font-size: 8px;
+  line-height: 1.3;
+}
+
+.appendix-register-panel .source-hierarchy {
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.appendix-register-panel .source-hierarchy > div {
+  min-height: 66px;
+  padding: 9px 11px;
+}
+
+.appendix-register-panel .source-hierarchy span,
+.appendix-register-panel .source-hierarchy em {
+  font-size: 7px;
+}
+
+.appendix-register-panel .source-hierarchy b {
+  font-size: 9px;
+}
+
+.appendix-register-panel .source-hierarchy p {
+  font-size: 8px;
+  line-height: 1.35;
+}
+
+/* Page 3 evidence-note placement. */
 #identity .identity-jtbd {
   grid-template-columns: 126px minmax(0, 1.3fr) minmax(0, 1fr);
 }
@@ -55,15 +311,14 @@ body[data-report-version="full-report-v1"] .full-report-app {
   overflow-wrap: break-word;
 }
 
-/* Appendix A6: reserve a useful label column so GAP / STOP subtitles wrap once
- * instead of fragmenting into three or four narrow lines.
- */
-#appendix-evidence .evidence-gap-grid > div {
-  grid-template-columns: 118px minmax(0, 1fr) !important;
+#appendix-evidence .evidence-gap-grid > div,
+#appendix-evidence-sources .evidence-gap-grid > div {
+  grid-template-columns: 118px minmax(0, 1fr);
   column-gap: 14px;
 }
 
-#appendix-evidence .evidence-gap-grid span {
+#appendix-evidence .evidence-gap-grid span,
+#appendix-evidence-sources .evidence-gap-grid span {
   white-space: normal;
   word-break: keep-all;
   overflow-wrap: normal;
