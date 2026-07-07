@@ -44,10 +44,7 @@
 - Added `design/DESIGN.md`.
 - Added Visual Intent JSON Schema.
 - Added recipe-selection matrix and feature-flag contract.
-- Added schemas for:
-  - `milestone-timeline`
-  - `competitor-threat-system`
-  - `feature-matrix`
+- Added schemas for `milestone-timeline`, `competitor-threat-system`, and `feature-matrix`.
 
 ## Gate 2A — Prompt-contract tests
 
@@ -80,13 +77,12 @@
 - Opened PR #12 from `feature-visual-recipe-pilot-v1` into `feature-main-full-report-integration-v1`.
 - Merged PR #12 with a regular merge, preserving both branch histories.
 - Integration merge commit: `e607e397819b061c4676e3a2bdfb210f9d1b349b`.
-- Updated `AGENTS.md` and created the consolidated handoff documents.
-- Final step at that time: merge PR #11 into `main` after documentation and final diff review.
+- Updated `AGENTS.md` and created consolidated handoff documents.
 
 ## 2026-07-06 — Phase 6 approved renderer correction
 
 - Continued on `fix-phase6-approved-full-renderer-v2` with PR #14.
-- Confirmed the approved Pilot design worked in the normal Phase 6 flow but found a critical content-contamination defect: the completed Biznup report HTML was embedded as the immutable Base HTML.
+- Confirmed approved Pilot design worked in normal Phase 6 but found completed Biznup report HTML embedded as immutable Base HTML.
 - Replaced visible Pilot content with more than 1,400 neutral `CONTENT SLOT` tokens before prompt export.
 - Generalized competitor-dependent IDs and CSS selectors.
 - Added the same content contract to manual external-AI and internal API paths.
@@ -103,8 +99,26 @@
   - two consecutive 48-page PDF exports
 - Functional validation head: `4957c168a51549cbe69c33db5be7c687f7467afd`.
 - Final PR head after documentation: `22862482059266c1b385a44794575a40ec7327ec`.
-- PR #14 was merged to `main` with a regular merge commit: `7614e18bf007ad64c398ff3cfc2eb665f3ca341b`.
-- Vercel reported success for the merge commit.
-- The owner confirmed the Phase 6 flow works in actual use.
-- Known separate follow-up: color inconsistencies on some detailed generated pages.
-- `AGENTS.md` could not be updated because the connected repository tool blocks writes to agent-instruction files; the current architecture is recorded in `handoff/PROJECT_HANDOFF.md` and `docs/REPORT_TEMPLATE_SPEC.md`.
+- PR #14 merged to `main` with regular merge commit `7614e18bf007ad64c398ff3cfc2eb665f3ca341b`.
+- Owner confirmed the Phase 6 flow works in actual use.
+
+## 2026-07-06 to 2026-07-07 — PR #16 color, structure, and PDF correction
+
+- Opened Draft PR #16 on `fix/phase6-report-color-consistency-v1`.
+- Corrected Page 3 FOUNDING JTBD source-note overlap.
+- Restored dark-paper tokens for target and competitor Creative History pages.
+- Replaced FULL report PDF raster export with Chromium native print after 48-page preflight.
+- Added PDF checks for 48 pages, 960×540pt, embedded fonts, and no 2560×1440 full-page JPEG rows.
+- User reviewed an actual Phase 6-generated Biznup HTML and requested four additional corrections:
+  1. Restore Final Choice to the approved left-criteria/right-final-choice layout.
+  2. Support up to five selected direct competitors consistently through Threat Ranking, Deep Dive, Product Matrix, Positioning, Creative History, and Message Trajectory.
+  3. Add an Appendix divider while retaining exact 40 Main + 8 Appendix.
+  4. Keep Persona indices `02` and `03` on one line.
+- Added `installPhase6PagePlanV2` to transform the approved Pilot before Phase 6 capture.
+- Reallocated the fixed 48 pages so competitors 4–5 remain in Main Deck sections rather than Appendix overflow.
+- Added Deep Dive 4–5, Creative History 4–5, five-row ranking capacity, target-plus-five matrix capacity, positioning dots, and trajectory rows.
+- Added A1 Appendix divider and consolidated Evidence Gaps + Source Labels at A7.
+- Updated Page Plan, Prompt contract, research-slot mapping, production report contract, runtime contract, and repository documentation.
+- Added `scripts/e2e-phase6-five-competitor-native-print.mjs` with a five-competitor non-Biznup fixture.
+- E2E discovered that a legacy `grid-column: 1 / -1` rule still made Final Choice span both columns; added an explicit `grid-column: auto !important` correction.
+- PR remains Draft and unmerged pending final CI, generated Viewer/PDF screenshots, and owner Preview approval.
