@@ -38,6 +38,16 @@ installFullReportPdfButtonBridge()
 installDeploymentStatus()
 installPhase6PagePlanV2()
 
+window.addEventListener('keydown', (event) => {
+  if (!(event.ctrlKey || event.metaKey) || event.altKey || event.key.toLowerCase() !== 'p') return
+  const button = Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
+    .find((candidate) => (candidate.textContent || '').includes('Export PDF'))
+  if (!button) return
+  event.preventDefault()
+  event.stopPropagation()
+  button.click()
+}, true)
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
