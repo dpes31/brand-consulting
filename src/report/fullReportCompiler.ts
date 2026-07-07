@@ -16,14 +16,14 @@ export const FULL_REPORT_PAGE_PLAN = [
   [8, 'main', '0. BRAND FACT BOOK', 'Product USP & Brand Best Self', 'approved portfolio-flow'],
   [9, 'main', 'I. MARKET', 'Market Context', 'approved market-force layout'],
   [10, 'main', 'I. MARKET', 'Category / Value Shift', 'approved value-shift layout'],
-  [11, 'main', 'II. COMPETITOR', 'Competitive Landscape', 'approved landscape layout'],
-  [12, 'main', 'II. COMPETITOR', 'Threat Ranking', 'approved rank-scorecard'],
-  [13, 'main', 'II. COMPETITOR', 'Deep Dive 1', 'approved deep-dive-layout'],
-  [14, 'main', 'II. COMPETITOR', 'Deep Dive 2', 'approved deep-dive-layout'],
-  [15, 'main', 'II. COMPETITOR', 'Deep Dive 3', 'approved deep-dive-layout'],
-  [16, 'main', 'II. COMPETITOR', 'Product Matrix', 'approved product-matrix'],
-  [17, 'main', 'II. COMPETITOR', 'Category Cliché', 'approved cliché layout'],
-  [18, 'main', 'II. COMPETITOR', 'Positioning', 'approved positioning layout'],
+  [11, 'main', 'II. COMPETITOR', 'Threat Ranking', 'approved rank-scorecard; up to five direct competitors'],
+  [12, 'main', 'II. COMPETITOR', 'Deep Dive 1', 'approved deep-dive-layout'],
+  [13, 'main', 'II. COMPETITOR', 'Deep Dive 2', 'approved deep-dive-layout'],
+  [14, 'main', 'II. COMPETITOR', 'Deep Dive 3', 'approved deep-dive-layout'],
+  [15, 'main', 'II. COMPETITOR', 'Deep Dive 4', 'approved deep-dive-layout'],
+  [16, 'main', 'II. COMPETITOR', 'Deep Dive 5', 'approved deep-dive-layout'],
+  [17, 'main', 'II. COMPETITOR', 'Product Matrix', 'approved product-matrix; target plus up to five competitors'],
+  [18, 'main', 'II. COMPETITOR', 'Positioning', 'approved positioning layout; target plus up to five competitors'],
   [19, 'main', 'III. CONSUMER', 'Consumer Executive Conclusion', 'approved consumer verdict'],
   [20, 'main', 'III. CONSUMER', 'Trends', 'approved trend layout'],
   [21, 'main', 'III. CONSUMER', 'Core Target', 'approved target layout'],
@@ -34,25 +34,25 @@ export const FULL_REPORT_PAGE_PLAN = [
   [26, 'main', 'III. CONSUMER', 'Pain Points & Unmet Needs', 'approved pain-needs layout'],
   [27, 'main', 'III. CONSUMER', 'AIPL Bottleneck', 'approved friction-flow'],
   [28, 'main', 'III. CONSUMER', 'Purchase to Loyalty', 'approved loyalty flow'],
-  [29, 'main', 'IV. CREATIVE', 'Methodology', 'approved factuality-system'],
-  [30, 'main', 'IV. CREATIVE', 'Target Brand Creative History', 'approved history-original'],
-  [31, 'main', 'IV. CREATIVE', 'Competitor Creative History 1', 'approved history-original'],
-  [32, 'main', 'IV. CREATIVE', 'Competitor Creative History 2', 'approved history-original'],
-  [33, 'main', 'IV. CREATIVE', 'Competitor Creative History 3', 'approved history-original'],
-  [34, 'main', 'IV. CREATIVE', 'Message Trajectory', 'approved trajectory-map'],
-  [35, 'main', 'IV. CREATIVE', 'Creative Insight', 'approved creative-gap-layout'],
+  [29, 'main', 'IV. CREATIVE', 'Target Brand Creative History', 'approved history-original'],
+  [30, 'main', 'IV. CREATIVE', 'Competitor Creative History 1', 'approved history-original'],
+  [31, 'main', 'IV. CREATIVE', 'Competitor Creative History 2', 'approved history-original'],
+  [32, 'main', 'IV. CREATIVE', 'Competitor Creative History 3', 'approved history-original'],
+  [33, 'main', 'IV. CREATIVE', 'Competitor Creative History 4', 'approved history-original'],
+  [34, 'main', 'IV. CREATIVE', 'Competitor Creative History 5', 'approved history-original'],
+  [35, 'main', 'IV. CREATIVE', 'Message Trajectory', 'approved trajectory-map; target plus up to five competitors'],
   [36, 'main', 'V. STRATEGY', 'SWOT', 'approved swot-original'],
   [37, 'main', 'V. STRATEGY', 'GAP & Root Cause', 'approved root-cause-tree'],
   [38, 'main', 'V. STRATEGY', 'STP', 'approved stp-layout'],
   [39, 'main', 'V. STRATEGY', 'Four Strategic Directions', 'approved route-table'],
-  [40, 'main', 'V. STRATEGY', 'Final Choice', 'approved choice-layout'],
-  [41, 'appendix', 'APPENDIX', 'Winning Move Specification / Conditional Competitor Slot', 'approved receipt or deep-dive component'],
-  [42, 'appendix', 'APPENDIX', 'Via Negativa / Conditional Creative History Slot', 'approved negative-list or history component'],
-  [43, 'appendix', 'APPENDIX', 'Pre-mortem / Conditional Competitor Slot', 'approved pre-mortem or deep-dive component'],
-  [44, 'appendix', 'APPENDIX', 'Execution Roadmap / Conditional Creative History Slot', 'approved roadmap or history component'],
-  [45, 'appendix', 'APPENDIX', 'Measurement Plan', 'approved measurement matrix'],
-  [46, 'appendix', 'APPENDIX', 'Evidence Gaps', 'approved evidence-gap'],
-  [47, 'appendix', 'APPENDIX', 'Source Labels', 'approved source registry'],
+  [40, 'main', 'V. STRATEGY', 'Final Choice', 'approved two-column choice-layout'],
+  [41, 'appendix', 'APPENDIX', 'Appendix Divider', 'approved appendix-divider'],
+  [42, 'appendix', 'APPENDIX', 'Winning Move Specification', 'approved receipt component'],
+  [43, 'appendix', 'APPENDIX', 'Via Negativa', 'approved negative-list component'],
+  [44, 'appendix', 'APPENDIX', 'Pre-mortem', 'approved pre-mortem component'],
+  [45, 'appendix', 'APPENDIX', 'Execution Roadmap', 'approved roadmap component'],
+  [46, 'appendix', 'APPENDIX', 'Measurement Plan', 'approved measurement matrix'],
+  [47, 'appendix', 'APPENDIX', 'Evidence Gaps & Source Labels', 'approved consolidated evidence register'],
   [48, 'appendix', 'APPENDIX', 'Decision Receipt / Close', 'approved back-cover'],
 ] as const;
 
@@ -78,7 +78,7 @@ function collectApprovedCss(documentRef: Document): string {
       const rules = Array.from(sheet.cssRules || []).map((rule) => rule.cssText).join('\n');
       if (rules.trim()) blocks.push(rules);
     } catch {
-      // Cross-origin font sheets cannot be read. Their original link is retained below.
+      // Cross-origin font sheets remain as external links.
     }
   });
   return blocks.join('\n\n');
@@ -99,12 +99,10 @@ function collectExternalStylesheetLinks(documentRef: Document): string {
 
 export async function loadApprovedPilotBaseHtml(brandName: string): Promise<string> {
   if (typeof document === 'undefined') throw new Error('승인 Pilot HTML은 브라우저에서만 추출할 수 있습니다.');
-
   const iframe = document.createElement('iframe');
   iframe.setAttribute('aria-hidden', 'true');
   iframe.tabIndex = -1;
   iframe.style.cssText = 'position:fixed;left:-20000px;top:0;width:1700px;height:1000px;border:0;opacity:0;pointer-events:none;';
-
   const pilotUrl = new URL(window.location.href);
   pilotUrl.hash = '';
   pilotUrl.search = '';
@@ -127,59 +125,29 @@ export async function loadApprovedPilotBaseHtml(brandName: string): Promise<stri
     let pilotDocument: Document | null = null;
     while (Date.now() - startedAt < 30000) {
       pilotDocument = iframe.contentDocument;
-      if (pilotDocument?.querySelectorAll('.full-slide').length === 48) break;
+      const ready = pilotDocument?.documentElement.dataset.phase6PagePlanReady === 'true';
+      if (ready && pilotDocument?.querySelectorAll('.full-slide').length === 48) break;
       await new Promise((resolve) => window.setTimeout(resolve, 100));
     }
-
     if (!pilotDocument) throw new Error('승인 Pilot 문서를 읽을 수 없습니다.');
+    if (pilotDocument.documentElement.dataset.phase6PagePlanReady !== 'true') throw new Error('최대 5개 경쟁사 Page Plan 적용을 확인하지 못했습니다.');
     const slides = pilotDocument.querySelectorAll('.full-slide');
     if (slides.length !== 48) throw new Error(`승인 Pilot은 48페이지여야 합니다. 현재 ${slides.length}페이지입니다.`);
-
     await new Promise((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
-
     const root = pilotDocument.getElementById('root');
     if (!root?.innerHTML.trim()) throw new Error('승인 Pilot의 48페이지 HTML 구조를 추출하지 못했습니다.');
-
     const css = collectApprovedCss(pilotDocument);
-    if (!css.includes('.full-slide') || !css.includes('1280') || !css.includes('720')) {
-      throw new Error('승인 Pilot의 1280×720 CSS를 추출하지 못했습니다.');
-    }
-
-    const stylesheetLinks = collectExternalStylesheetLinks(pilotDocument);
+    if (!css.includes('.full-slide') || !css.includes('1280') || !css.includes('720')) throw new Error('승인 Pilot의 1280×720 CSS를 추출하지 못했습니다.');
+    const links = collectExternalStylesheetLinks(pilotDocument);
     const bodyClass = escapeAttribute(pilotDocument.body.className || '');
-
-    return `<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>${escapeAttribute(brandName)} Strategic Report</title>
-${stylesheetLinks}
-<style data-approved-pilot-css="true">
-${css}
-</style>
-</head>
-<body class="${bodyClass}" data-report-version="full-report-v1" data-approved-pilot="full-integrated">
-<div id="root">
-${root.innerHTML}
-</div>
-</body>
-</html>`;
+    return `<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8" />\n<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n<title>${escapeAttribute(brandName)} Strategic Report</title>\n${links}\n<style data-approved-pilot-css="true">\n${css}\n</style>\n</head>\n<body class="${bodyClass}" data-report-version="full-report-v1" data-approved-pilot="full-integrated" data-phase6-page-plan="competitor5-main40-appendix8-v2">\n<div id="root">\n${root.innerHTML}\n</div>\n</body>\n</html>`;
   } finally {
     iframe.remove();
   }
 }
 
-export function buildFullReportHtmlPrompt(
-  rawData: string,
-  brandName: string,
-  approvedBaseHtml: string,
-  creativeDirective = '',
-): string {
-  const pagePlan = FULL_REPORT_PAGE_PLAN
-    .map(([page, zone, chapter, title, layout]) => `${page}. ${zone} | ${chapter} | ${title} | ${layout}`)
-    .join('\n');
-
+export function buildFullReportHtmlPrompt(rawData: string, brandName: string, approvedBaseHtml: string, creativeDirective = ''): string {
+  const pagePlan = FULL_REPORT_PAGE_PLAN.map(([page, zone, chapter, title, layout]) => `${page}. ${zone} | ${chapter} | ${title} | ${layout}`).join('\n');
   return `${IMMEDIATE_EXECUTION_DIRECTIVE}
 
 [ROLE]
@@ -208,28 +176,29 @@ The application will render, save, reopen, and export the returned HTML without 
 15. Do not add scripts, external layout frameworks, new CSS systems, or arbitrary visual components.
 
 [VISUAL INTENT BRIEF INTERPRETATION]
-- Any <!-- VISUAL_INTENT_BRIEF_START --> ... <!-- VISUAL_INTENT_BRIEF_END --> JSON found in the research is an intermediate visual assignment brief.
-- It does NOT mean that the final output should be JSON.
-- Use each Brief to decide which approved page and approved component receives the insight.
-- Step 0 milestone-timeline informs the approved Growth Story timeline.
-- Step 2 rank-scorecard and feature-matrix inform Threat Ranking, Deep Dives, and Product Matrix.
-- Step 3 friction-flow informs the approved AIPL bottleneck page.
+- Visual Intent Brief JSON is an intermediate assignment brief, not the final output format.
+- Step 0 milestone-timeline informs Growth Story.
+- Step 2 rank-scorecard and feature-matrix inform Threat Ranking, five Deep Dives, Product Matrix, and Positioning.
+- Step 3 friction-flow informs AIPL Bottleneck.
 - Step 5 choice-architecture informs Four Strategic Directions and Final Choice.
-- implementationStatus and metrics inside a Brief are evidence/planning metadata, not final-output format instructions.
 
 [COMPETITOR CAPACITY]
-- Use the three highest-ranked selected Direct Competitors on Main Deck Deep Dive pages 13–15 and Creative History pages 31–33.
-- Every selected competitor needs an independent Deep Dive and an independent six-year Creative History.
-- If Step 2 selected competitor 4 and/or 5, use Appendix pages 41–44 as Deep Dive + Creative History pairs by reusing only the already-approved deep-dive-layout and history-original component markup found in this Base HTML.
-- Do not invent a new layout. If Appendix pages 41–44 are used for competitors, compress Winning Move, Via Negativa, Pre-mortem, and Roadmap evidence into Appendix pages 45–48 without adding pages.
+- Select 2 to 5 Direct Competitors through Threat Ranking. Five is the maximum, not a mandatory invented count.
+- Place all selected Direct Competitors in Main Deck Deep Dive pages 12–16 in rank order.
+- Place the same competitors in Product Matrix page 17, Positioning page 18, Creative History pages 30–34, and Message Trajectory page 35.
+- Every selected competitor requires one independent Deep Dive and one independent six-year Creative History.
+- If fewer than five competitors are supported by Step 2 evidence, do not invent names or facts. Mark unused Deep Dive and Creative History slots as evidence gaps while preserving the approved component and page count.
+- Appendix pages are never competitor overflow slots.
 
 [APPROVED 48-PAGE CONTENT MAP]
 ${pagePlan}
 
 [PAGE EDITING RULE]
 Treat the supplied Base HTML as immutable layout source.
-You may edit visible text, source labels, brand/competitor names, repeated content rows, and approved component instances needed for selected competitor capacity.
+You may edit visible text, source labels, brand/competitor names, and repeated rows needed for up to five competitors.
 Do not edit CSS declarations, structural class names, slide dimensions, navigation shell, page order, or the overall DOM hierarchy.
+Page 40 must retain the approved two-column selection-criteria / final-choice composition.
+Persona numbers 02 and 03 must remain on one line.
 
 [CREATIVE HISTORY FACTUALITY]
 ${creativeDirective || 'Apply the verified-verbatim / source-found-copy-unverified / not-found status contract from the research.'}
@@ -242,28 +211,23 @@ ${APPROVED_BASE_HTML_END}
 ${cleanResearch(rawData)}
 
 [FINAL EXECUTION TRIGGER]
-All instructions, the approved 48-page Base HTML, Visual Intent Briefs, and Step 0–5 research are contained above.
 Compile the research into the fixed HTML now.
 Do not return ProductionReportV1 or any other JSON.
 Return the complete finalized HTML only in one \`\`\`html code block. Begin now.`;
 }
 
-// Backward-compatible export name. The external Phase 6 contract now returns complete HTML.
 export const buildFullReportDataPrompt = buildFullReportHtmlPrompt;
 
 export function extractCompleteFullReportHtml(output: string): string {
   let text = output.trim();
   const fenced = text.match(/```html\s*([\s\S]*?)```/i) || text.match(/```\s*(<!doctype[\s\S]*?<\/html>)\s*```/i);
   if (fenced) text = fenced[1].trim();
-
   const start = text.search(/<!doctype\s+html/i);
   const endMatch = /<\/html\s*>/ig;
   let end = -1;
   let match: RegExpExecArray | null;
   while ((match = endMatch.exec(text))) end = match.index + match[0].length;
-  if (start < 0 || end <= start) {
-    throw new Error('완성 HTML을 찾을 수 없습니다. 결과는 <!DOCTYPE html>부터 </html>까지 포함해야 합니다.');
-  }
+  if (start < 0 || end <= start) throw new Error('완성 HTML을 찾을 수 없습니다. 결과는 <!DOCTYPE html>부터 </html>까지 포함해야 합니다.');
   return text.slice(start, end).trim();
 }
 
@@ -272,30 +236,19 @@ export function assertApprovedFullReportHtml(html: string, brandName: string): v
   const documentRef = new DOMParser().parseFromString(html, 'text/html');
   const slides = Array.from(documentRef.querySelectorAll<HTMLElement>('.full-slide'));
   if (slides.length !== 48) throw new Error(`FULL 보고서는 정확히 48페이지여야 합니다. 현재 ${slides.length}페이지입니다.`);
-
   const ids = slides.map((slide) => slide.id).filter(Boolean);
   if (ids.length !== 48 || new Set(ids).size !== 48) throw new Error('48개 슬라이드의 ID가 누락되었거나 중복되었습니다.');
-
   const pageLabels = slides.map((slide) => slide.dataset.page || '').filter(Boolean);
   if (pageLabels.length !== 48 || new Set(pageLabels).size !== 48) throw new Error('페이지 번호가 누락되었거나 중복되었습니다.');
-
-  const requiredSelectors = [
-    '.full-nav', '.cover-layout', '.verdict-layout', '.identity-layout', '.growth-timeline',
-    '.deep-dive-layout', '.persona-layout', '.history-grid', '.swot-grid', '.stp-layout', '.choice-layout',
-  ];
+  const requiredSelectors = ['.full-nav','.cover-layout','.verdict-layout','.identity-layout','.growth-timeline','.deep-dive-layout','.persona-layout','.history-grid','.swot-grid','.stp-layout','.choice-layout','.appendix-divider-layout'];
   const missing = requiredSelectors.filter((selector) => !documentRef.querySelector(selector));
   if (missing.length) throw new Error(`승인 Pilot 필수 레이아웃이 누락되었습니다: ${missing.join(', ')}`);
-
   if (documentRef.querySelector('script')) throw new Error('외부 AI 결과에 승인되지 않은 script가 포함되어 있습니다.');
   if (!documentRef.body.textContent?.includes(brandName)) throw new Error(`보고서 본문에서 브랜드명 "${brandName}"을 확인할 수 없습니다.`);
-
   const styleText = Array.from(documentRef.querySelectorAll('style')).map((style) => style.textContent || '').join('\n');
-  if (!styleText.includes('.full-slide') || !styleText.includes('1280') || !styleText.includes('720')) {
-    throw new Error('승인된 1280×720 Pilot CSS가 누락되었습니다.');
-  }
+  if (!styleText.includes('.full-slide') || !styleText.includes('1280') || !styleText.includes('720')) throw new Error('승인된 1280×720 Pilot CSS가 누락되었습니다.');
 }
 
-// Existing internal-API JSON assembly is retained as a compatibility path only.
 export function extractProductionReportJson(output: string): ProductionReportV1 {
   let text = output.trim();
   const scriptMatch = text.match(/<script[^>]+id=["']report-data["'][^>]*>([\s\S]*?)<\/script>/i);
@@ -305,7 +258,6 @@ export function extractProductionReportJson(output: string): ProductionReportV1 
   const firstBrace = text.indexOf('{');
   const lastBrace = text.lastIndexOf('}');
   if (firstBrace >= 0 && lastBrace > firstBrace) text = text.slice(firstBrace, lastBrace + 1);
-
   try {
     return JSON.parse(text) as ProductionReportV1;
   } catch (error) {
@@ -313,17 +265,8 @@ export function extractProductionReportJson(output: string): ProductionReportV1 
   }
 }
 
-export function normalizeProductionReport(
-  report: ProductionReportV1,
-  brandName: string,
-  accentColor?: string,
-): ProductionReportV1 & { accentColor?: string } {
-  return {
-    ...report,
-    brand: brandName.trim(),
-    generatedAt: report.generatedAt || new Date().toISOString().slice(0, 10),
-    ...(accentColor ? { accentColor } : {}),
-  };
+export function normalizeProductionReport(report: ProductionReportV1, brandName: string, accentColor?: string): ProductionReportV1 & { accentColor?: string } {
+  return { ...report, brand: brandName.trim(), generatedAt: report.generatedAt || new Date().toISOString().slice(0, 10), ...(accentColor ? { accentColor } : {}) };
 }
 
 export function assertProductionReport(report: ProductionReportV1, brandName: string): void {
@@ -341,22 +284,13 @@ export async function loadFullReportTemplate(): Promise<string> {
 
 export function buildFullReportHtml(template: string, report: ProductionReportV1 & { accentColor?: string }): string {
   assertProductionReport(report, report.brand);
-  const safeJson = JSON.stringify(report)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026')
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029');
+  const safeJson = JSON.stringify(report).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
   const html = template.replace('{{REPORT_JSON}}', safeJson);
   if (html.includes('{{REPORT_JSON}}')) throw new Error('FULL 보고서 데이터 주입에 실패했습니다.');
   return html;
 }
 
-export async function assembleFullReportHtml(
-  output: string,
-  brandName: string,
-  accentColor?: string,
-): Promise<string> {
+export async function assembleFullReportHtml(output: string, brandName: string, accentColor?: string): Promise<string> {
   const parsed = extractProductionReportJson(output);
   const report = normalizeProductionReport(parsed, brandName, accentColor);
   assertProductionReport(report, brandName);
