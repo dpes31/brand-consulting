@@ -94,6 +94,19 @@ function neutralizeStyleSelectors(documentRef: Document, idMap: Map<string, stri
   });
 }
 
+function applyExactBrandName(documentRef: Document, brandName: string): void {
+  const brand = documentRef.querySelector<HTMLElement>('.full-nav-brand, .full-report-brand, .report-brand');
+  if (brand) {
+    brand.replaceChildren(documentRef.createTextNode(brandName));
+    const version = documentRef.createElement('span');
+    version.textContent = 'FULL REPORT V1';
+    brand.appendChild(version);
+  }
+
+  const toolbar = documentRef.querySelector<HTMLElement>('.full-report-toolbar strong');
+  if (toolbar) toolbar.textContent = `${brandName} FULL REPORT`;
+}
+
 export function createResearchOnlyLayoutTemplate(source: string, brandName: string): string {
   if (typeof DOMParser === 'undefined') throw new Error('HTML 템플릿 변환기를 사용할 수 없습니다.');
   const documentRef = new DOMParser().parseFromString(source, 'text/html');
@@ -122,10 +135,7 @@ export function createResearchOnlyLayoutTemplate(source: string, brandName: stri
     if (element instanceof HTMLImageElement) element.alt = 'Report visual';
   });
 
-  const brand = documentRef.querySelector<HTMLElement>('.full-report-brand');
-  if (brand) brand.textContent = brandName;
-  const toolbar = documentRef.querySelector<HTMLElement>('.full-report-toolbar strong');
-  if (toolbar) toolbar.textContent = `${brandName} FULL REPORT`;
+  applyExactBrandName(documentRef, brandName);
   documentRef.title = `${brandName} Strategic Report`;
   documentRef.documentElement.lang = 'ko';
   documentRef.body.dataset.reportVersion = 'full-report-v1';
