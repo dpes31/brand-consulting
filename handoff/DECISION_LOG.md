@@ -194,3 +194,23 @@
 - embedded fonts
 - no 2560×1440 full-page raster rows
 - same HTML in Viewer, saved project, reopened project, and PDF
+
+## D-022 — Legacy and FULL PDF runtimes are mutually exclusive
+
+**Decision:** The legacy `.slide-wrapper > .slide` PDF runtime must never own or override printing for a Phase 6 FULL report that uses `.full-slide`.
+
+**Implementation:**
+
+- Install the FULL runtime before the legacy iframe layout/PDF guard.
+- When a FULL report is detected, mark the legacy guard as handled and retain the real browser-native `window.print` function.
+- Route every host `Export PDF` button to the active FULL report iframe or a stable offscreen FULL frame.
+- When no FULL report exists, show a clear guidance message instead of falling through to the legacy zero-slide error.
+
+**Reason:** The previous installation order caused the FULL runtime to capture the legacy raster exporter as native print. That exporter searched only for `.slide-wrapper > .slide`, found zero elements in a `.full-slide` report, and raised `출력할 슬라이드를 찾지 못했습니다.`
+
+**Acceptance:**
+
+- Actual host Export PDF button invokes native print for a 48-page FULL report.
+- Two consecutive exports remain valid.
+- No `출력할 슬라이드를 찾지 못했습니다` alert.
+- Legacy reports retain their existing layout/PDF guard.
