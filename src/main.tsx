@@ -17,6 +17,7 @@ import { installFullReportSourceRegistry } from './lib/installFullReportSourceRe
 import { installFullReportPdfButtonBridge } from './lib/installFullReportPdfButtonBridge'
 import { installFullReportRuntimeCompatibility } from './lib/installFullReportRuntimeCompatibility'
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
+import { installPhase6PagePlanV2 } from './lib/installPhase6PagePlanV2'
 
 installIframePreRepair()
 installIframeLayoutSafety()
@@ -35,6 +36,7 @@ installReportViewerUX()
 installFullReportRuntimeCompatibility()
 installFullReportPdfButtonBridge()
 installDeploymentStatus()
+installPhase6PagePlanV2()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
