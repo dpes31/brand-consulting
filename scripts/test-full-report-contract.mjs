@@ -16,7 +16,9 @@ const approvedCss = read('public/full-report-approved-v1.css');
 const pilotCss = read('src/pages/BiznupFullIntegrated.css');
 const compiler = read('src/report/fullReportCompiler.ts');
 const safety = read('src/report/reportDomSafety.ts');
+const semanticFingerprint = read('src/report/reportSemanticFingerprint.ts');
 const structured = read('src/report/structuredReportV3.ts');
+const definitionPolicy = read('src/report/structuredDefinitionPolicy.ts');
 const crossValidation = read('src/report/structuredReportCrossValidation.ts');
 const pagePlan = read('src/lib/installPhase6PagePlanV2.ts');
 const apiCompiler = read('src/lib/geminiCompiler.ts');
@@ -45,7 +47,10 @@ check(safety.includes("name.startsWith('on')"), 'Inline event sanitizer missing.
 check(safety.includes('javascript:'), 'JavaScript URL sanitizer missing.');
 check(safety.includes("inner.style.transform = 'scale(1)'"), 'Canonical scale(1) missing.');
 check(safety.includes('canonicalizePageIds'), 'Dynamic Pilot ID canonicalization missing.');
-check(safety.includes('computeReportDomFingerprint'), 'DOM fingerprint missing.');
+check(safety.includes('computeReportDomFingerprint'), 'Renderer DOM fingerprint missing.');
+check(semanticFingerprint.includes('findSemanticReportFingerprintMismatches'), 'Semantic compatibility fingerprint missing.');
+check(semanticFingerprint.includes('data-report-field'), 'Semantic fingerprint does not lock field paths.');
+check(semanticFingerprint.includes('STRUCTURE_SELECTORS'), 'Semantic component-count fingerprint missing.');
 
 check(structured.includes("STRUCTURED_REPORT_VERSION = '3.0.0'"), 'ProductionReportV3 version missing.');
 check(structured.includes('buildStructuredReportPrompt'), 'Structured JSON prompt missing.');
@@ -59,6 +64,7 @@ check(structured.includes("markFixed(labels[1] || null, 'AVOID')"), 'AVOID fixed
 check(structured.includes("head.slice(3).forEach((node) => node.remove())"), 'Category Clichés fourth column removal missing.');
 check(structured.includes("markFixed(slide.querySelector('.gap-arrow'), '→')"), 'Creative Insight connector lock missing.');
 check(structured.includes('beforeFingerprint !== afterFingerprint'), 'Renderer DOM immutability check missing.');
+check(definitionPolicy.includes('creative-trajectory'), 'Structured field density policy missing.');
 
 check(crossValidation.includes('P12 Threat Ranking must select three unique core competitors'), 'Core-three uniqueness validation missing.');
 check(crossValidation.includes('must come from P11 Competitive Landscape'), 'Landscape-to-ranking validation missing.');
@@ -79,10 +85,11 @@ for (const source of [apiCompiler, bridge]) {
   check(source.includes('buildStructuredReportPrompt'), 'A Phase 6 path does not use structured JSON.');
   check(source.includes('renderStructuredReportV3'), 'A Phase 6 path does not use the app-owned renderer.');
   check(source.includes('assertStructuredReportCrossPage'), 'A Phase 6 path does not enforce cross-page consistency.');
+  check(source.includes('applyStructuredDefinitionPolicy'), 'A Phase 6 path does not apply density policy.');
   check(!source.includes('createResearchOnlyLayoutTemplate'), 'Legacy text-node slots remain in an active Phase 6 path.');
 }
 check(bridge.includes('sanitizeCompatibleFullReportHtml'), 'HTML compatibility sanitizer is not connected.');
-check(bridge.includes('computeReportDomFingerprint'), 'Compatibility DOM fingerprint is not connected.');
+check(bridge.includes('findSemanticReportFingerprintMismatches'), 'Semantic compatibility fingerprint is not connected.');
 check(inputGuard.includes('looksLikeStructuredJson'), 'Input guard does not accept ProductionReportV3 JSON.');
 
 check(structuredE2e.includes('external-ai-response-1.json'), 'First complete external-response fixture missing.');
