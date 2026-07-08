@@ -1,12 +1,11 @@
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
 import { loadApprovedPilotBaseHtml } from '../report/fullReportCompiler';
 import {
-  FULL_REPORT_PAGE_IDS,
-  computeReportDomFingerprint,
   parseReportHtml,
   sanitizeCompatibleFullReportHtml,
   serializeReportDocument,
 } from '../report/reportDomSafety';
+import { findSemanticReportFingerprintMismatches } from '../report/reportSemanticFingerprint';
 import { applyStructuredDefinitionPolicy } from '../report/structuredDefinitionPolicy';
 import { assertStructuredReportCrossPage } from '../report/structuredReportCrossValidation';
 import {
@@ -46,8 +45,7 @@ function readBrandName(): string {
 }
 
 function normalizeStepKey(value: string): string | null {
-  const match = value.match(/(?:^|\D)([0-5])(?:\D|$)/);
-  return match?.[1] ?? null;
+  return value.match(/(?:^|\D)([0-5])(?:\D|$)/)?.[1] ?? null;
 }
 
 function readResearchSnapshot(): { rawResearch: string; missingSteps: string[] } {
@@ -58,10 +56,10 @@ function readResearchSnapshot(): { rawResearch: string; missingSteps: string[] }
     const values = new Map<string, string>();
     Object.entries(parsed).forEach(([key, value]) => {
       if (typeof value !== 'string' || !value.trim()) return;
-      const normalizedKey = normalizeStepKey(key);
-      if (normalizedKey) values.set(normalizedKey, value.trim());
+      const step = normalizeStepKey(key);
+      if (step) values.set(step, value.trim());
     });
-    const missingSteps = REQUIRED_PHASE_STEPS.filter((step) => !values.get(step));
+    const missingSteps = REQUIRED_PHASE_STEPS.filter((step) => !values.has(step));
     const rawResearch = REQUIRED_PHASE_STEPS
       .filter((step) => values.has(step))
       .map((step) => `\n\n## STEP ${step}\n${values.get(step)}`)
@@ -99,10 +97,8 @@ async function copyText(text: string): Promise<void> {
 }
 
 function findPhase6Textarea(): HTMLTextAreaElement | null {
-  return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea')).find((textarea) => {
-    const placeholder = textarea.getAttribute('placeholder') || '';
-    return /외부|html|json/i.test(placeholder);
-  }) || null;
+  return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
+    .find((textarea) => /외부|html|json/i.test(textarea.getAttribute('placeholder') || '')) || null;
 }
 
 function setControlledTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
@@ -121,10 +117,12 @@ function stopReactClick(event: MouseEvent): void {
 
 function looksLikeStructuredJson(value: string): boolean {
   const normalized = value.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-  return normalized.startsWith('{') && /"version"\s*:\s*"3\.0\.0"/.test(normalized) && /"pages"\s*:/.test(normalized);
+  return normalized.startsWith('{')
+    && /"version"\s*:\s*"3\.0\.0"/.test(normalized)
+    && /"pages"\s*:/.test(normalized);
 }
 
-async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonElement): Promise<void> {
+async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement): Promise<void> {
   stopReactClick(event);
   const brandName = readBrandName();
   const { rawResearch, missingSteps } = readResearchSnapshot();
@@ -132,14 +130,14 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
     window.alert('브랜드명을 확인할 수 없다. Phase 0에서 브랜드명을 다시 입력해야 한다.');
     return;
   }
-  if (missingSteps.length > 0) {
+  if (missingSteps.length) {
     window.alert(`Step 0~5 조사 결과가 완전하지 않다. 누락 단계: ${missingSteps.join(', ')}`);
     return;
   }
 
-  const originalText = normalizeText(clickedButton.textContent) || '프롬프트 추출';
-  clickedButton.disabled = true;
-  clickedButton.textContent = '40페이지 구조화 Schema 준비 중...';
+  const originalText = normalizeText(button.textContent) || '프롬프트 추출';
+  button.disabled = true;
+  button.textContent = '40페이지 구조화 Schema 준비 중...';
   try {
     const approvedBase = await loadApprovedPilotBaseHtml(brandName);
     const prepared = prepareStructuredReportBase(approvedBase, brandName);
@@ -159,32 +157,27 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
   } catch (error) {
     window.alert(`Phase 6 프롬프트 생성 오류: ${error instanceof Error ? error.message : String(error)}`);
   } finally {
-    clickedButton.disabled = false;
-    clickedButton.textContent = originalText;
+    button.disabled = false;
+    button.textContent = originalText;
   }
 }
 
 function assertCompatibleFingerprint(approvedBase: string, sanitizedHtml: string, brandName: string): string {
-  // The imported document has already completed one parse/serialize cycle in
-  // the sanitizer. Round-trip the approved shell once as well so browser HTML
-  // repair of nested inline/table markup cannot create false mismatches.
-  const approvedParsed = parseReportHtml(approvedBase);
-  const approvedDocument = parseReportHtml(serializeReportDocument(approvedParsed));
-  annotateStructuredReportDocument(approvedDocument, brandName);
-  const approvedFingerprint = computeReportDomFingerprint(approvedDocument);
-
+  const approvedRoundTrip = serializeReportDocument(parseReportHtml(approvedBase));
+  const approvedDocument = parseReportHtml(approvedRoundTrip);
   const importedDocument = parseReportHtml(sanitizedHtml);
+
+  annotateStructuredReportDocument(approvedDocument, brandName);
   annotateStructuredReportDocument(importedDocument, brandName);
-  const importedFingerprint = computeReportDomFingerprint(importedDocument);
-  if (approvedFingerprint !== importedFingerprint) {
-    const approvedPages = approvedFingerprint.split('|');
-    const importedPages = importedFingerprint.split('|');
-    const mismatches = FULL_REPORT_PAGE_IDS.filter((_, index) => approvedPages[index] !== importedPages[index]);
+
+  const mismatches = findSemanticReportFingerprintMismatches(approvedDocument, importedDocument);
+  if (mismatches.length) {
     throw new Error(
-      `붙여넣은 HTML이 승인된 페이지 구조를 변경했다. 불일치 페이지: ${mismatches.join(', ') || 'unknown'}. ` +
+      `붙여넣은 HTML이 승인된 의미 구조를 변경했다. 불일치 페이지: ${mismatches.join(', ')}. ` +
       '기존 HTML은 Script 제거만으로 복구할 수 없으며, 구조화 JSON 프롬프트로 다시 생성해야 한다.',
     );
   }
+
   importedDocument.body.dataset.contentContract = 'legacy-sanitized-html-v1';
   importedDocument.body.dataset.contentState = 'sanitized';
   return serializeReportDocument(importedDocument);
@@ -197,16 +190,14 @@ async function compileManualInput(value: string, brandName: string): Promise<str
     assertStructuredReportCrossPage(report);
     return renderStructuredReportV3(approvedBase, report, brandName);
   }
-
   if (/<!doctype\s+html|<html\b/i.test(value)) {
     const sanitized = sanitizeCompatibleFullReportHtml(value, brandName);
     return assertCompatibleFingerprint(approvedBase, sanitized, brandName);
   }
-
   throw new Error('구조화 JSON 또는 완전한 HTML 문서를 확인할 수 없다.');
 }
 
-async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonElement): Promise<void> {
+async function handleManualRender(event: MouseEvent, button: HTMLButtonElement): Promise<void> {
   if (replayingRender) {
     replayingRender = false;
     return;
@@ -224,31 +215,31 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
     window.alert('브랜드명을 확인할 수 없다. Phase 0에서 브랜드명을 다시 입력해야 한다.');
     return;
   }
-  if (missingSteps.length > 0 || !rawResearch.trim()) {
+  if (missingSteps.length || !rawResearch.trim()) {
     window.alert('Step 0~5 조사 원문을 확인할 수 없어 결과를 검증할 수 없다.');
     return;
   }
 
-  const originalText = normalizeText(clickedButton.textContent) || '결과물 뷰어에 렌더링하기';
-  clickedButton.disabled = true;
-  clickedButton.dataset.fullReportBusy = 'true';
-  clickedButton.textContent = '구조·내용·보안 검증 중...';
+  const originalText = normalizeText(button.textContent) || '결과물 뷰어에 렌더링하기';
+  button.disabled = true;
+  button.dataset.fullReportBusy = 'true';
+  button.textContent = '구조·내용·보안 검증 중...';
 
   try {
     const html = await compileManualInput(textarea.value, brandName);
     setControlledTextareaValue(textarea, html);
     textarea.dataset.fullReportValidatedHtml = 'true';
     window.setTimeout(() => {
-      clickedButton.disabled = false;
-      delete clickedButton.dataset.fullReportBusy;
-      clickedButton.textContent = originalText;
+      button.disabled = false;
+      delete button.dataset.fullReportBusy;
+      button.textContent = originalText;
       replayingRender = true;
-      clickedButton.click();
+      button.click();
     }, 120);
   } catch (error) {
-    clickedButton.disabled = false;
-    delete clickedButton.dataset.fullReportBusy;
-    clickedButton.textContent = originalText;
+    button.disabled = false;
+    delete button.dataset.fullReportBusy;
+    button.textContent = originalText;
     window.alert(`FULL 보고서 검증 오류: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
@@ -277,18 +268,14 @@ export function installFullReportPhase6Bridge(): void {
   installed = true;
 
   document.addEventListener('click', (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
-    const button = target.closest('button');
+    const button = event.target instanceof Element ? event.target.closest('button') : null;
     if (!(button instanceof HTMLButtonElement)) return;
     const label = normalizeText(button.textContent);
     if (label.includes('프롬프트 추출')) {
       void handlePromptExport(event, button);
       return;
     }
-    if (label.includes('결과물 뷰어에 렌더링하기')) {
-      void handleManualRender(event, button);
-    }
+    if (label.includes('결과물 뷰어에 렌더링하기')) void handleManualRender(event, button);
   }, true);
 
   const observer = new MutationObserver(refreshPhase6Copy);
