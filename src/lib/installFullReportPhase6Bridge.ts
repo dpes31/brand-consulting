@@ -6,6 +6,7 @@ import {
   sanitizeCompatibleFullReportHtml,
   serializeReportDocument,
 } from '../report/reportDomSafety';
+import { assertStructuredReportCrossPage } from '../report/structuredReportCrossValidation';
 import {
   annotateStructuredReportDocument,
   buildStructuredReportPrompt,
@@ -182,6 +183,7 @@ async function compileManualInput(value: string, brandName: string): Promise<str
   const approvedBase = await loadApprovedPilotBaseHtml(brandName);
   if (looksLikeStructuredJson(value)) {
     const report = extractStructuredReportJson(value);
+    assertStructuredReportCrossPage(report);
     return renderStructuredReportV3(approvedBase, report, brandName);
   }
 
