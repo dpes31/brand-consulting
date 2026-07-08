@@ -66,6 +66,32 @@ function setBrand(documentRef: Document, brandName?: string): void {
   documentRef.title = `${brandName.trim()} Strategic Report`;
 }
 
+function canonicalizePageIds(documentRef: Document, slides: HTMLElement[]): void {
+  const idMap = new Map<string, string>();
+  slides.forEach((slide, index) => {
+    const expected = FULL_REPORT_PAGE_IDS[index];
+    if (!expected) return;
+    if (slide.id && slide.id !== expected) idMap.set(slide.id, expected);
+    slide.id = expected;
+  });
+
+  documentRef.querySelectorAll<HTMLAnchorElement>('.full-nav a[href^="#"]').forEach((anchor) => {
+    const oldId = (anchor.getAttribute('href') || '').slice(1);
+    const nextId = idMap.get(oldId);
+    if (nextId) anchor.setAttribute('href', `#${nextId}`);
+  });
+
+  if (idMap.size > 0) {
+    documentRef.querySelectorAll<HTMLStyleElement>('style').forEach((style) => {
+      let source = style.textContent || '';
+      idMap.forEach((nextId, oldId) => {
+        source = source.split(`#${oldId}`).join(`#${nextId}`);
+      });
+      style.textContent = source;
+    });
+  }
+}
+
 function ensureCanonicalStyle(documentRef: Document): void {
   const previous = documentRef.querySelector('style[data-structured-report-canonical="true"]');
   previous?.remove();
@@ -102,6 +128,7 @@ body[data-content-contract="legacy-sanitized-html-v1"] .full-frame-inner{width:1
 
 export function canonicalizeReportDocument(documentRef: Document, brandName?: string): void {
   const slides = Array.from(documentRef.querySelectorAll<HTMLElement>('.full-slide'));
+  canonicalizePageIds(documentRef, slides);
   slides.forEach((slide, index) => {
     slide.dataset.page = String(index + 1);
     slide.dataset.zone = 'main';
@@ -205,9 +232,6 @@ export function sanitizeCompatibleFullReportHtml(source: string, brandName?: str
 function fingerprintNode(node: Element): string {
   const classes = Array.from(node.classList).sort().join('.');
   const field = node.getAttribute('data-report-field') || '';
-  // A registered field owns its text and optional inline highlight markup. The
-  // fingerprint locks the field container and all page components around it,
-  // while intentionally ignoring mark/br text-formatting children inside it.
   const children = field ? '' : Array.from(node.children).map(fingerprintNode).join('');
   return `<${node.tagName.toLowerCase()}#${node.id}.${classes}[${field}]>${children}</${node.tagName.toLowerCase()}>`;
 }
