@@ -1,14 +1,5 @@
 import { FULL_REPORT_PAGE_IDS } from './reportDomSafety';
 
-const DYNAMIC_CLASSES = new Set([
-  'is-verified',
-  'is-unverified',
-  'is-not-found',
-  'verified',
-  'selected',
-  'is-selected',
-]);
-
 const STRUCTURE_SELECTORS: Record<string, string[]> = {
   'category-target': ['.category-layout', '.category-rings', '.target-statement', '.target-tension'],
   'comp-ranking': ['.ranking-table', '.ranking-interpretation', '.ranking-interpretation > div'],
@@ -39,30 +30,6 @@ const STRUCTURE_SELECTORS: Record<string, string[]> = {
   'decision-close': ['.back-cover-copy'],
 };
 
-function stableClasses(element: Element): string {
-  return Array.from(element.classList)
-    .filter((className) => !DYNAMIC_CLASSES.has(className))
-    .sort()
-    .join('.');
-}
-
-function siblingIndex(element: Element): number {
-  const siblings = Array.from(element.parentElement?.children || [])
-    .filter((sibling) => sibling.tagName === element.tagName && stableClasses(sibling) === stableClasses(element));
-  return Math.max(0, siblings.indexOf(element));
-}
-
-function semanticPath(element: Element, slide: Element): string {
-  const segments: string[] = [];
-  let current: Element | null = element;
-  while (current && current !== slide) {
-    const classes = stableClasses(current);
-    segments.unshift(`${current.tagName.toLowerCase()}${classes ? `.${classes}` : ''}[${siblingIndex(current)}]`);
-    current = current.parentElement;
-  }
-  return segments.join('>');
-}
-
 function normalizedFixedText(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
 }
@@ -71,18 +38,22 @@ function pageFingerprint(slide: Element): string {
   const selectors = STRUCTURE_SELECTORS[slide.id] || [];
   const structures = selectors.map((selector) => `${selector}=${slide.querySelectorAll(selector).length}`);
 
+  // Field keys are assigned only after the app re-annotates the canonical page
+  // grammar. Their ordered tag/key/kind list is stable across harmless browser
+  // parse/serialize repair, while missing, moved, added, or renamed semantic
+  // components change the field contract and are rejected.
   const fields = Array.from(slide.querySelectorAll<HTMLElement>('[data-report-field]')).map((element) => {
     const key = element.dataset.reportField || '';
     const kind = element.dataset.reportKind || 'text';
-    return `${key}:${kind}@${semanticPath(element, slide)}`;
+    return `${element.tagName.toLowerCase()}:${key}:${kind}`;
   });
 
   const fixed = Array.from(slide.querySelectorAll<HTMLElement>('[data-report-fixed]')).map((element) => {
-    return `${normalizedFixedText(element.textContent || '')}@${semanticPath(element, slide)}`;
+    return `${element.tagName.toLowerCase()}:${normalizedFixedText(element.textContent || '')}`;
   });
 
   const fixedLeading = Array.from(slide.querySelectorAll<HTMLElement>('[data-report-fixed-leading]')).map((element) => {
-    return `${element.dataset.reportFixedLeading || ''}@${semanticPath(element, slide)}`;
+    return `${element.tagName.toLowerCase()}:${element.dataset.reportFixedLeading || ''}`;
   });
 
   return JSON.stringify({ id: slide.id, structures, fields, fixed, fixedLeading });
