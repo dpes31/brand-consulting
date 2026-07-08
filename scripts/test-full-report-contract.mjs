@@ -17,12 +17,16 @@ const pilotCss = read('src/pages/BiznupFullIntegrated.css');
 const compiler = read('src/report/fullReportCompiler.ts');
 const safety = read('src/report/reportDomSafety.ts');
 const structured = read('src/report/structuredReportV3.ts');
+const crossValidation = read('src/report/structuredReportCrossValidation.ts');
 const pagePlan = read('src/lib/installPhase6PagePlanV2.ts');
 const apiCompiler = read('src/lib/geminiCompiler.ts');
 const bridge = read('src/lib/installFullReportPhase6Bridge.ts');
 const inputGuard = read('src/lib/installPhase6InputGuard.ts');
 const runtime = read('src/lib/installFullReportRuntimeCompatibility.ts');
 const pdfBridge = read('src/lib/installFullReportPdfButtonBridge.ts');
+const structuredE2e = read('scripts/e2e-phase6-structured-renderer.mjs');
+const sanitizerE2e = read('scripts/e2e-phase6-html-sanitizer.mjs');
+const workflow = read('.github/workflows/phase6-v2-preview-e2e.yml');
 const main = read('src/main.tsx');
 
 check(blobSha(legacy) === '22bc6937b3d672e063d4b240c5a39b9c61700fec', 'Legacy template changed.');
@@ -40,6 +44,7 @@ check(safety.includes("querySelectorAll('script,noscript,base')"), 'Script sanit
 check(safety.includes("name.startsWith('on')"), 'Inline event sanitizer missing.');
 check(safety.includes('javascript:'), 'JavaScript URL sanitizer missing.');
 check(safety.includes("inner.style.transform = 'scale(1)'"), 'Canonical scale(1) missing.');
+check(safety.includes('canonicalizePageIds'), 'Dynamic Pilot ID canonicalization missing.');
 check(safety.includes('computeReportDomFingerprint'), 'DOM fingerprint missing.');
 
 check(structured.includes("STRUCTURED_REPORT_VERSION = '3.0.0'"), 'ProductionReportV3 version missing.');
@@ -53,6 +58,13 @@ check(structured.includes("markFixed(labels[0] || null, 'WANT')"), 'WANT fixed l
 check(structured.includes("markFixed(labels[1] || null, 'AVOID')"), 'AVOID fixed label missing.');
 check(structured.includes("head.slice(3).forEach((node) => node.remove())"), 'Category Clichés fourth column removal missing.');
 check(structured.includes("markFixed(slide.querySelector('.gap-arrow'), '→')"), 'Creative Insight connector lock missing.');
+check(structured.includes('beforeFingerprint !== afterFingerprint'), 'Renderer DOM immutability check missing.');
+
+check(crossValidation.includes('P12 Threat Ranking must select three unique core competitors'), 'Core-three uniqueness validation missing.');
+check(crossValidation.includes('must come from P11 Competitive Landscape'), 'Landscape-to-ranking validation missing.');
+check(crossValidation.includes('P16 matrix core competitor'), 'Core-three matrix consistency missing.');
+check(crossValidation.includes('P18 map competitor'), 'Core-three positioning consistency missing.');
+check(crossValidation.includes('P33 trajectory competitor'), 'Core-three trajectory consistency missing.');
 
 check(pagePlan.includes('focus3-main40-no-appendix-v3'), '40-page page-plan version missing.');
 check(pagePlan.includes("'comp-landscape'"), 'Landscape not retained in page plan.');
@@ -66,15 +78,26 @@ for (const source of [apiCompiler, bridge]) {
   check(source.includes('loadApprovedPilotBaseHtml'), 'A Phase 6 path does not load the approved Pilot.');
   check(source.includes('buildStructuredReportPrompt'), 'A Phase 6 path does not use structured JSON.');
   check(source.includes('renderStructuredReportV3'), 'A Phase 6 path does not use the app-owned renderer.');
+  check(source.includes('assertStructuredReportCrossPage'), 'A Phase 6 path does not enforce cross-page consistency.');
   check(!source.includes('createResearchOnlyLayoutTemplate'), 'Legacy text-node slots remain in an active Phase 6 path.');
 }
 check(bridge.includes('sanitizeCompatibleFullReportHtml'), 'HTML compatibility sanitizer is not connected.');
 check(bridge.includes('computeReportDomFingerprint'), 'Compatibility DOM fingerprint is not connected.');
 check(inputGuard.includes('looksLikeStructuredJson'), 'Input guard does not accept ProductionReportV3 JSON.');
 
+check(structuredE2e.includes('external-ai-response-1.json'), 'First complete external-response fixture missing.');
+check(structuredE2e.includes('external-ai-response-2.json'), 'Second complete external-response fixture missing.');
+check(structuredE2e.includes("page.keyboard.press('Control+P')"), 'Ctrl+P structured E2E missing.');
+check(structuredE2e.includes("page.keyboard.press('Meta+P')"), 'Cmd+P structured E2E missing.');
+check(sanitizerE2e.includes("textContent.trim()==='PDF / Print'"), 'Exact user print-script regression missing.');
+check(sanitizerE2e.includes('scale(0.82)'), 'Leaked scale regression missing.');
+check(sanitizerE2e.includes('Malformed fixture mutation failed'), 'Malformed DOM rejection regression missing.');
+check(workflow.includes('e2e-phase6-structured-renderer.mjs'), 'Structured renderer E2E is not in CI.');
+check(workflow.includes('e2e-phase6-html-sanitizer.mjs'), 'HTML sanitizer E2E is not in CI.');
+
 check(runtime.includes('FULL_REPORT_PAGE_COUNT = 40'), 'Native PDF preflight must use 40 pages.');
 check(pdfBridge.includes('FULL_PAGE_COUNT = 40'), 'PDF button bridge must use 40 pages.');
 check(main.includes('installFullReportPhase6Bridge()'), 'Structured Phase 6 bridge not installed.');
 check(main.includes('installPhase6PagePlanV2()'), 'Restored Phase 6 page plan not installed.');
 
-console.log('FULL report contract PASS: app-owned 40-page structured renderer, sanitizer, fingerprint, and PDF runtime are connected.');
+console.log('FULL report contract PASS: app-owned 40-page structured renderer, sanitizer, cross-page validation, semantic E2E, and PDF runtime are connected.');
