@@ -60,6 +60,11 @@ export function validateStructuredReportCrossPage(report: StructuredReportV3): s
   const trajectoryTarget = value(report, 'creative-trajectory', 'creative-trajectory.brand1.name');
   if (normalized(trajectoryTarget) !== normalized(report.brand)) errors.push('P33 first trajectory row must be the exact target brand.');
 
+  [1, 2, 3, 4].forEach((index) => {
+    const meaning = value(report, 'creative-trajectory', `creative-trajectory.brand${index}.meaning`);
+    if (meaning.length > 48) errors.push(`P33 trajectory brand ${index} strategic meaning must be 48 characters or fewer.`);
+  });
+
   const targetAsIs = value(report, 'positioning', 'positioning.targetAsIs');
   const targetToBe = value(report, 'positioning', 'positioning.targetToBe');
   if (!includesName(targetAsIs, report.brand) || !/AS[-\s]?IS/i.test(targetAsIs)) errors.push('P18 target AS-IS label must contain the exact brand and AS-IS.');
