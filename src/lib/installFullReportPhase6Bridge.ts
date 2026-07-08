@@ -181,7 +181,6 @@ function assertCompatibleFingerprint(approvedBase: string, sanitizedHtml: string
 async function compileManualInput(value: string, brandName: string): Promise<string> {
   const approvedBase = await loadApprovedPilotBaseHtml(brandName);
   if (looksLikeStructuredJson(value)) {
-    const { definitions } = prepareStructuredReportBase(approvedBase, brandName);
     const report = extractStructuredReportJson(value);
     return renderStructuredReportV3(approvedBase, report, brandName);
   }
