@@ -230,8 +230,10 @@ export function sanitizeCompatibleFullReportHtml(source: string, brandName?: str
 }
 
 function fingerprintNode(node: Element): string {
-  const classes = Array.from(node.classList).sort().join('.');
   const field = node.getAttribute('data-report-field') || '';
+  // Field containers may change text, inline highlighting, and approved status
+  // classes. The fingerprint locks the field key and every component outside it.
+  const classes = field ? '' : Array.from(node.classList).sort().join('.');
   const children = field ? '' : Array.from(node.children).map(fingerprintNode).join('');
   return `<${node.tagName.toLowerCase()}#${node.id}.${classes}[${field}]>${children}</${node.tagName.toLowerCase()}>`;
 }
