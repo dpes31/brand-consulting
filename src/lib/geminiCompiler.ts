@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
 import { loadApprovedPilotBaseHtml } from '../report/fullReportCompiler';
+import { assertStructuredReportCrossPage } from '../report/structuredReportCrossValidation';
 import {
   buildStructuredReportPrompt,
   extractStructuredReportJson,
@@ -40,5 +41,6 @@ export async function compileReportToHTML(
   const result = await chat.sendMessage({ message: prompt });
   if (!result.text?.trim()) throw new Error('The Phase 6 structured JSON response is empty.');
   const report = extractStructuredReportJson(result.text);
+  assertStructuredReportCrossPage(report);
   return renderStructuredReportV3(approvedBase, report, brandName);
 }
