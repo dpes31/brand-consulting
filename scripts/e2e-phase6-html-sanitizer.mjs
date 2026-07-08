@@ -94,7 +94,7 @@ try {
   await page.getByRole('button', { name: 'Phase 6으로 돌아가기' }).click();
   await page.locator('#fullscreen-viewer-iframe').waitFor({ state: 'detached', timeout: 30000 });
 
-  const malformedHtml = compatibilityHtml.replace(/<div class="stp-position">[\s\S]*?<\/div><\/div>/, '</div>');
+  const malformedHtml = compatibilityHtml.replace('class="stp-position"', 'class="stp-position-removed"');
   assert.notEqual(malformedHtml, compatibilityHtml, 'Malformed fixture mutation failed');
   await input.fill(`\`\`\`html\n${malformedHtml}\n\`\`\``);
   const beforeMalformed = dialogs.length;
