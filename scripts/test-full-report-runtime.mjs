@@ -60,7 +60,8 @@ for (const source of [apiCompiler, bridge]) {
   assert.doesNotMatch(source, /buildFullReportHtmlPrompt/);
 }
 assert.match(bridge, /sanitizeCompatibleFullReportHtml/);
-assert.match(bridge, /assertCompatibleFingerprint/);
+assert.match(bridge, /validateCompatibleStructure/);
+assert.match(bridge, /compatibilityValidation = 'semantic-skeleton'/);
 assert.match(inputGuard, /looksLikeStructuredJson/);
 assert.match(main, /installFullReportRuntimeCompatibility/);
 assert.match(main, /installFullReportPhase6Bridge/);
