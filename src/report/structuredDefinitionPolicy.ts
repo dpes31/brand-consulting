@@ -1,7 +1,7 @@
 import type { StructuredFieldDefinition } from './structuredReportV3';
 
 const MAX_LENGTH_OVERRIDES: Array<[RegExp, number]> = [
-  [/^creative-trajectory\.brand\d+\.meaning$/, 48],
+  [/^creative-trajectory\.brand\d+\.meaning$/, 22],
   [/^creative-trajectory\.brand\d+\.stage\d+$/, 52],
   [/^decision-close\.principle$/, 84],
   [/^decision-close\.support$/, 96],
