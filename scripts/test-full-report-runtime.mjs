@@ -9,17 +9,18 @@ const gitBlobSha = (content) => createHash('sha1').update(`blob ${Buffer.byteLen
 const runtime = read('src/lib/installFullReportRuntimeCompatibility.ts');
 const pdfBridge = read('src/lib/installFullReportPdfButtonBridge.ts');
 const compiler = read('src/report/fullReportCompiler.ts');
+const safety = read('src/report/reportDomSafety.ts');
+const structured = read('src/report/structuredReportV3.ts');
 const pagePlan = read('src/lib/installPhase6PagePlanV2.ts');
-const researchTemplate = read('src/report/researchContentTemplate.ts');
-const researchPrompt = read('src/report/researchSlotPrompt.ts');
 const apiCompiler = read('src/lib/geminiCompiler.ts');
 const bridge = read('src/lib/installFullReportPhase6Bridge.ts');
-const normalizer = read('src/report/normalizeApprovedFullReportHtml.ts');
+const inputGuard = read('src/lib/installPhase6InputGuard.ts');
 const main = read('src/main.tsx');
 const legacyTemplate = read('public/template.html');
 const packageJson = JSON.parse(read('package.json'));
 
 assert.equal(gitBlobSha(legacyTemplate), '22bc6937b3d672e063d4b240c5a39b9c61700fec');
+
 assert.match(runtime, /FULL_REPORT_PAGE_COUNT = 40/);
 assert.doesNotMatch(runtime, /MAIN_DECK_PAGE_COUNT/);
 assert.match(runtime, /slide\.dataset\.zone !== 'main'/);
@@ -32,38 +33,38 @@ assert.doesNotMatch(runtime, /await exportReportPdf/);
 assert.match(pdfBridge, /FULL_PAGE_COUNT = 40/);
 assert.match(pdfBridge, /fullSlideCount\(iframe\) === FULL_PAGE_COUNT/);
 assert.match(pdfBridge, /exportFullReportPdf/);
+
 assert.match(pagePlan, /focus3-main40-no-appendix-v3/);
-for (const id of ['comp-landscape','comp-ranking','category-cliche','creative-insight','strategy-choice','decision-close']) assert.match(pagePlan, new RegExp(id));
+for (const id of ['comp-landscape','comp-ranking','category-cliche','creative-insight','strategy-choice','decision-close']) {
+  assert.match(pagePlan, new RegExp(id));
+}
 assert.doesNotMatch(pagePlan, /deep-dive-4|deep-dive-5|creative-history-4|creative-history-5/);
 assert.match(pagePlan, /reportAppendixCount = '0'/);
-assert.match(researchTemplate, /const PAGE_COUNT = 40/);
-assert.match(researchTemplate, /research-slots-v2/);
-assert.match(researchTemplate, /deep-dive-3/);
-assert.doesNotMatch(researchTemplate, /deep-dive-4|deep-dive-5/);
-assert.match(researchTemplate, /creative-history-3/);
-assert.match(researchTemplate, /candidates\.slice\(0, 3\)/);
-assert.match(researchPrompt, /40 Main Deck slides, zero Appendix slides/);
-assert.match(researchPrompt, /Competitive Landscape/);
-assert.match(researchPrompt, /top three core Direct Competitors/);
-assert.match(researchPrompt, /~한다/);
-assert.match(researchPrompt, /Persona 1–3 titles reuse/);
-assert.match(compiler, /const PAGE_COUNT = 40/);
-assert.match(compiler, /11 Competitive Landscape/);
-assert.match(compiler, /17 Category Clichés/);
-assert.match(compiler, /34 Creative Insight/);
-assert.match(compiler, /40 Decision Receipt \/ Close/);
-assert.match(compiler, /IMMUTABLE APPROVED BASE HTML — START/);
-assert.match(compiler, /assertApprovedFullReportHtml/);
+
+assert.match(compiler, /canonicalizeReportDocument/);
+assert.match(compiler, /structured-report-v3-template/);
+assert.match(safety, /sanitizeCompatibleFullReportHtml/);
+assert.match(safety, /computeReportDomFingerprint/);
+assert.match(safety, /scale\(1\)/);
+assert.match(structured, /STRUCTURED_REPORT_VERSION = '3\.0\.0'/);
+assert.match(structured, /buildStructuredReportPrompt/);
+assert.match(structured, /renderStructuredReportV3/);
+assert.match(structured, /validateStructuredReportV3/);
+assert.match(structured, /beforeFingerprint !== afterFingerprint/);
+
 for (const source of [apiCompiler, bridge]) {
   assert.match(source, /loadApprovedPilotBaseHtml/);
-  assert.match(source, /buildFullReportHtmlPrompt/);
-  assert.match(source, /extractCompleteFullReportHtml/);
-  assert.match(source, /assertApprovedFullReportHtml/);
+  assert.match(source, /buildStructuredReportPrompt/);
+  assert.match(source, /renderStructuredReportV3/);
+  assert.doesNotMatch(source, /createResearchOnlyLayoutTemplate/);
+  assert.doesNotMatch(source, /buildFullReportHtmlPrompt/);
 }
-assert.match(normalizer, /FULL_REPORT_PAGE_COUNT = 40/);
-assert.match(normalizer, /querySelectorAll<HTMLElement>\('\.full-slide'\)/);
+assert.match(bridge, /sanitizeCompatibleFullReportHtml/);
+assert.match(bridge, /assertCompatibleFingerprint/);
+assert.match(inputGuard, /looksLikeStructuredJson/);
 assert.match(main, /installFullReportRuntimeCompatibility/);
 assert.match(main, /installFullReportPhase6Bridge/);
 assert.match(main, /installPhase6PagePlanV2/);
 assert.equal(packageJson.scripts['test:full-report-runtime'], 'node scripts/test-full-report-runtime.mjs');
-console.log('FULL report runtime compatibility passed for the 40-page no-Appendix plan.');
+
+console.log('FULL report runtime compatibility passed for the app-owned structured 40-page renderer.');
