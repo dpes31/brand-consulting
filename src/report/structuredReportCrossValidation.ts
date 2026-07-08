@@ -62,7 +62,7 @@ export function validateStructuredReportCrossPage(report: StructuredReportV3): s
 
   [1, 2, 3, 4].forEach((index) => {
     const meaning = value(report, 'creative-trajectory', `creative-trajectory.brand${index}.meaning`);
-    if (meaning.length > 48) errors.push(`P33 trajectory brand ${index} strategic meaning must be 48 characters or fewer.`);
+    if (meaning.length > 22) errors.push(`P33 trajectory brand ${index} strategic meaning must be 22 characters or fewer.`);
   });
 
   const targetAsIs = value(report, 'positioning', 'positioning.targetAsIs');
