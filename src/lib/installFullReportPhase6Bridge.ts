@@ -7,6 +7,7 @@ import {
   sanitizeCompatibleFullReportHtml,
   serializeReportDocument,
 } from '../report/reportDomSafety';
+import { applyStructuredDefinitionPolicy } from '../report/structuredDefinitionPolicy';
 import { assertStructuredReportCrossPage } from '../report/structuredReportCrossValidation';
 import {
   annotateStructuredReportDocument,
@@ -141,7 +142,8 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
   clickedButton.textContent = '40페이지 구조화 Schema 준비 중...';
   try {
     const approvedBase = await loadApprovedPilotBaseHtml(brandName);
-    const { definitions } = prepareStructuredReportBase(approvedBase, brandName);
+    const prepared = prepareStructuredReportBase(approvedBase, brandName);
+    const definitions = applyStructuredDefinitionPolicy(prepared.definitions);
     const prompt = buildStructuredReportPrompt(
       rawResearch,
       brandName,
