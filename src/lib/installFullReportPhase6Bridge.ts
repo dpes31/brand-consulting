@@ -1,6 +1,7 @@
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
 import { loadApprovedPilotBaseHtml } from '../report/fullReportCompiler';
 import {
+  FULL_REPORT_PAGE_IDS,
   computeReportDomFingerprint,
   parseReportHtml,
   sanitizeCompatibleFullReportHtml,
@@ -170,8 +171,12 @@ function assertCompatibleFingerprint(approvedBase: string, sanitizedHtml: string
   annotateStructuredReportDocument(importedDocument, brandName);
   const importedFingerprint = computeReportDomFingerprint(importedDocument);
   if (approvedFingerprint !== importedFingerprint) {
+    const approvedPages = approvedFingerprint.split('|');
+    const importedPages = importedFingerprint.split('|');
+    const mismatches = FULL_REPORT_PAGE_IDS.filter((_, index) => approvedPages[index] !== importedPages[index]);
     throw new Error(
-      '붙여넣은 HTML이 승인된 페이지 구조를 변경했다. 기존 HTML은 Script 제거만으로 복구할 수 없으며, 구조화 JSON 프롬프트로 다시 생성해야 한다.',
+      `붙여넣은 HTML이 승인된 페이지 구조를 변경했다. 불일치 페이지: ${mismatches.join(', ') || 'unknown'}. ` +
+      '기존 HTML은 Script 제거만으로 복구할 수 없으며, 구조화 JSON 프롬프트로 다시 생성해야 한다.',
     );
   }
   importedDocument.body.dataset.contentContract = 'legacy-sanitized-html-v1';
