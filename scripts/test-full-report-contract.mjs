@@ -15,11 +15,12 @@ const css = read('public/full-report-v1.css');
 const approvedCss = read('public/full-report-approved-v1.css');
 const pilotCss = read('src/pages/BiznupFullIntegrated.css');
 const compiler = read('src/report/fullReportCompiler.ts');
+const safety = read('src/report/reportDomSafety.ts');
+const structured = read('src/report/structuredReportV3.ts');
 const pagePlan = read('src/lib/installPhase6PagePlanV2.ts');
-const researchTemplate = read('src/report/researchContentTemplate.ts');
-const slotRules = read('src/report/researchSlotPrompt.ts');
 const apiCompiler = read('src/lib/geminiCompiler.ts');
 const bridge = read('src/lib/installFullReportPhase6Bridge.ts');
+const inputGuard = read('src/lib/installPhase6InputGuard.ts');
 const runtime = read('src/lib/installFullReportRuntimeCompatibility.ts');
 const pdfBridge = read('src/lib/installFullReportPdfButtonBridge.ts');
 const main = read('src/main.tsx');
@@ -30,12 +31,28 @@ check(pilotCss.trim() === "@import url('/full-report-approved-v1.css');", 'Pilot
 check(css.includes('--slide-w:1280px') && css.includes('--slide-h:720px'), '1280x720 lock missing.');
 
 check(compiler.includes('const PAGE_COUNT = 40'), 'Compiler page count must be 40.');
-check(compiler.includes('11 Competitive Landscape'), 'Landscape page missing.');
-check(compiler.includes('17 Category Clichés'), 'Category Clichés page missing.');
-check(compiler.includes('34 Creative Insight'), 'Creative Insight page missing.');
-check(compiler.includes('40 Decision Receipt / Close'), 'Decision Close page missing.');
-check(compiler.includes('IMMUTABLE APPROVED BASE HTML — START'), 'Approved Base HTML marker missing.');
-check(compiler.includes('assertApprovedFullReportHtml'), 'HTML validator missing.');
+check(compiler.includes('canonicalizeReportDocument'), 'Pilot capture must canonicalize responsive scale.');
+check(compiler.includes('Complete HTML generation is retired'), 'AI-authored HTML must be retired.');
+check(compiler.includes('structured-report-v3-template'), 'Structured template contract missing.');
+
+check(safety.includes('FULL_REPORT_PAGE_COUNT = 40'), 'DOM safety page count must be 40.');
+check(safety.includes("querySelectorAll('script,noscript,base')"), 'Script sanitizer missing.');
+check(safety.includes("name.startsWith('on')"), 'Inline event sanitizer missing.');
+check(safety.includes('javascript:'), 'JavaScript URL sanitizer missing.');
+check(safety.includes("inner.style.transform = 'scale(1)'"), 'Canonical scale(1) missing.');
+check(safety.includes('computeReportDomFingerprint'), 'DOM fingerprint missing.');
+
+check(structured.includes("STRUCTURED_REPORT_VERSION = '3.0.0'"), 'ProductionReportV3 version missing.');
+check(structured.includes('buildStructuredReportPrompt'), 'Structured JSON prompt missing.');
+check(structured.includes('renderStructuredReportV3'), 'App-owned renderer missing.');
+check(structured.includes('validateStructuredReportV3'), 'Structured validation missing.');
+check(structured.includes('Persona title must exactly match P21 target'), 'Persona target-title lock missing.');
+check(structured.includes('positioning.axis'), 'Positioning semantic fields missing.');
+check(structured.includes('Evidence, Core Desire, Appeal, Threat Mechanism, Attack Point'), 'Deep Dive semantic headings missing.');
+check(structured.includes("markFixed(labels[0] || null, 'WANT')"), 'WANT fixed label missing.');
+check(structured.includes("markFixed(labels[1] || null, 'AVOID')"), 'AVOID fixed label missing.');
+check(structured.includes("head.slice(3).forEach((node) => node.remove())"), 'Category Clichés fourth column removal missing.');
+check(structured.includes("markFixed(slide.querySelector('.gap-arrow'), '→')"), 'Creative Insight connector lock missing.');
 
 check(pagePlan.includes('focus3-main40-no-appendix-v3'), '40-page page-plan version missing.');
 check(pagePlan.includes("'comp-landscape'"), 'Landscape not retained in page plan.');
@@ -45,24 +62,19 @@ check(pagePlan.includes("'decision-close'"), 'Decision Close not promoted to pag
 check(!pagePlan.includes("'creative-method'"), 'Creative Methodology remains in the output plan.');
 check(pagePlan.includes("dataset.reportAppendixCount = '0'"), 'Appendix count must be zero.');
 
-check(researchTemplate.includes('const PAGE_COUNT = 40'), 'Research template page count must be 40.');
-check(researchTemplate.includes("13: 'deep-dive-1'"), 'Core competitor Deep Dive mapping missing.');
-check(researchTemplate.includes("32: 'creative-history-3'"), 'Core competitor Creative History mapping missing.');
-check(slotRules.includes('Competitive Landscape'), 'Landscape prompt contract missing.');
-check(slotRules.includes('top three'), 'Core-three prompt contract missing.');
-check(slotRules.includes('~한다'), 'Declarative consulting tone missing.');
-
 for (const source of [apiCompiler, bridge]) {
   check(source.includes('loadApprovedPilotBaseHtml'), 'A Phase 6 path does not load the approved Pilot.');
-  check(source.includes('buildFullReportHtmlPrompt'), 'A Phase 6 path does not use the HTML prompt.');
-  check(source.includes('extractCompleteFullReportHtml'), 'A Phase 6 path does not import complete HTML.');
-  check(source.includes('assertApprovedFullReportHtml'), 'A Phase 6 path does not validate complete HTML.');
-  check(!source.includes('assembleFullReportHtml'), 'A Phase 6 path still uses JSON assembly.');
+  check(source.includes('buildStructuredReportPrompt'), 'A Phase 6 path does not use structured JSON.');
+  check(source.includes('renderStructuredReportV3'), 'A Phase 6 path does not use the app-owned renderer.');
+  check(!source.includes('createResearchOnlyLayoutTemplate'), 'Legacy text-node slots remain in an active Phase 6 path.');
 }
+check(bridge.includes('sanitizeCompatibleFullReportHtml'), 'HTML compatibility sanitizer is not connected.');
+check(bridge.includes('computeReportDomFingerprint'), 'Compatibility DOM fingerprint is not connected.');
+check(inputGuard.includes('looksLikeStructuredJson'), 'Input guard does not accept ProductionReportV3 JSON.');
 
 check(runtime.includes('FULL_REPORT_PAGE_COUNT = 40'), 'Native PDF preflight must use 40 pages.');
 check(pdfBridge.includes('FULL_PAGE_COUNT = 40'), 'PDF button bridge must use 40 pages.');
-check(main.includes('installFullReportPhase6Bridge()'), 'Phase 6 HTML bridge not installed.');
+check(main.includes('installFullReportPhase6Bridge()'), 'Structured Phase 6 bridge not installed.');
 check(main.includes('installPhase6PagePlanV2()'), 'Restored Phase 6 page plan not installed.');
 
-console.log('FULL report contract PASS: approved 40-page Main Deck uses Landscape-to-core-three logic and no Appendix.');
+console.log('FULL report contract PASS: app-owned 40-page structured renderer, sanitizer, fingerprint, and PDF runtime are connected.');
