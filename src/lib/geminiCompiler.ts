@@ -1,20 +1,44 @@
 import { GoogleGenAI } from '@google/genai';
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
-import { assertApprovedFullReportHtml, buildFullReportHtmlPrompt, extractCompleteFullReportHtml, loadApprovedPilotBaseHtml } from '../report/fullReportCompilerV3';
-import { normalizeApprovedFullReportHtml } from '../report/normalizeApprovedFullReportHtml';
-import { assertAllResearchSlotsFilled, assertResearchEvidencePresent, createResearchOnlyLayoutTemplate } from '../report/researchContentTemplate';
-import { addResearchSlotRules } from '../report/researchSlotPrompt';
+import { loadApprovedPilotBaseHtml } from '../report/fullReportCompiler';
+import {
+  buildStructuredReportPrompt,
+  extractStructuredReportJson,
+  prepareStructuredReportBase,
+  renderStructuredReportV3,
+} from '../report/structuredReportV3';
 
-export async function compileReportToHTML(rawData: string, apiKey: string, brandName: string): Promise<string> {
-  const pilot = await loadApprovedPilotBaseHtml(brandName);
-  const shell = createResearchOnlyLayoutTemplate(pilot, brandName);
-  const prompt = addResearchSlotRules(buildFullReportHtmlPrompt(rawData, brandName, shell, buildCreativeHistoryCompilerDirective(rawData)));
+export async function compileReportToHTML(
+  rawData: string,
+  apiKey: string,
+  brandName: string,
+): Promise<string> {
+  if (!apiKey) throw new Error('API key is required.');
+  if (!brandName.trim()) throw new Error('Brand name is required.');
+
+  const approvedBase = await loadApprovedPilotBaseHtml(brandName);
+  const { definitions } = prepareStructuredReportBase(approvedBase, brandName);
+  const prompt = buildStructuredReportPrompt(
+    rawData,
+    brandName,
+    definitions,
+    buildCreativeHistoryCompilerDirective(rawData),
+  );
+
   const ai = new GoogleGenAI({ apiKey });
-  const chat = ai.chats.create({ model: 'gemini-2.5-flash', config: { temperature: 0.1, topP: 0.7, maxOutputTokens: 65536 } });
+  const chat = ai.chats.create({
+    model: 'gemini-2.5-flash',
+    config: {
+      systemInstruction: 'Return only ProductionReportV3 JSON. The application owns all HTML, CSS, layout, labels, connectors, rows, columns, and print rules.',
+      temperature: 0.05,
+      topP: 0.5,
+      maxOutputTokens: 65536,
+      responseMimeType: 'application/json',
+    },
+  });
+
   const result = await chat.sendMessage({ message: prompt });
-  const html = normalizeApprovedFullReportHtml(extractCompleteFullReportHtml(result.text || ''));
-  assertApprovedFullReportHtml(html, brandName);
-  assertAllResearchSlotsFilled(html);
-  assertResearchEvidencePresent(html, rawData, brandName);
-  return html;
+  if (!result.text?.trim()) throw new Error('The Phase 6 structured JSON response is empty.');
+  const report = extractStructuredReportJson(result.text);
+  return renderStructuredReportV3(approvedBase, report, brandName);
 }
