@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
 import { loadApprovedPilotBaseHtml } from '../report/fullReportCompiler';
+import { applyStructuredDefinitionPolicy } from '../report/structuredDefinitionPolicy';
 import { assertStructuredReportCrossPage } from '../report/structuredReportCrossValidation';
 import {
   buildStructuredReportPrompt,
@@ -18,7 +19,8 @@ export async function compileReportToHTML(
   if (!brandName.trim()) throw new Error('Brand name is required.');
 
   const approvedBase = await loadApprovedPilotBaseHtml(brandName);
-  const { definitions } = prepareStructuredReportBase(approvedBase, brandName);
+  const prepared = prepareStructuredReportBase(approvedBase, brandName);
+  const definitions = applyStructuredDefinitionPolicy(prepared.definitions);
   const prompt = buildStructuredReportPrompt(
     rawData,
     brandName,
