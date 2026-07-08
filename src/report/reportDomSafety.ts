@@ -42,6 +42,14 @@ const REQUIRED_PAGE_STRUCTURES: Record<string, string[]> = {
 
 const FORBIDDEN_ACTIVE_SELECTOR = 'iframe,object,embed,form,input,textarea,select,option,button[formaction],audio[autoplay],video[autoplay]';
 const URL_ATTRIBUTES = ['href', 'src', 'xlink:href', 'formaction', 'action'];
+const FINGERPRINT_DYNAMIC_CLASSES = new Set([
+  'is-verified',
+  'is-unverified',
+  'is-not-found',
+  'verified',
+  'selected',
+  'is-selected',
+]);
 
 function parseHtml(source: string): Document {
   if (typeof DOMParser === 'undefined') throw new Error('HTML parser is unavailable.');
@@ -231,9 +239,14 @@ export function sanitizeCompatibleFullReportHtml(source: string, brandName?: str
 
 function fingerprintNode(node: Element): string {
   const field = node.getAttribute('data-report-field') || '';
-  // Field containers may change text, inline highlighting, and approved status
-  // classes. The fingerprint locks the field key and every component outside it.
-  const classes = field ? '' : Array.from(node.classList).sort().join('.');
+  // Field containers may change text, inline highlights, and visual status
+  // classes. The fingerprint locks the field key and surrounding components.
+  const classes = field
+    ? ''
+    : Array.from(node.classList)
+        .filter((className) => !FINGERPRINT_DYNAMIC_CLASSES.has(className))
+        .sort()
+        .join('.');
   const children = field ? '' : Array.from(node.children).map(fingerprintNode).join('');
   return `<${node.tagName.toLowerCase()}#${node.id}.${classes}[${field}]>${children}</${node.tagName.toLowerCase()}>`;
 }
