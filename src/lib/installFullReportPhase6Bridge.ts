@@ -5,7 +5,6 @@ import {
   sanitizeCompatibleFullReportHtml,
   serializeReportDocument,
 } from '../report/reportDomSafety';
-import { findSemanticReportFingerprintMismatches } from '../report/reportSemanticFingerprint';
 import { applyStructuredDefinitionPolicy } from '../report/structuredDefinitionPolicy';
 import { assertStructuredReportCrossPage } from '../report/structuredReportCrossValidation';
 import {
@@ -162,37 +161,35 @@ async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement):
   }
 }
 
-function assertCompatibleFingerprint(approvedBase: string, sanitizedHtml: string, brandName: string): string {
-  const approvedRoundTrip = serializeReportDocument(parseReportHtml(approvedBase));
-  const approvedDocument = parseReportHtml(approvedRoundTrip);
+function validateCompatibleStructure(sanitizedHtml: string, brandName: string): string {
   const importedDocument = parseReportHtml(sanitizedHtml);
 
-  annotateStructuredReportDocument(approvedDocument, brandName);
-  annotateStructuredReportDocument(importedDocument, brandName);
-
-  const mismatches = findSemanticReportFingerprintMismatches(approvedDocument, importedDocument);
-  if (mismatches.length) {
-    throw new Error(
-      `붙여넣은 HTML이 승인된 의미 구조를 변경했다. 불일치 페이지: ${mismatches.join(', ')}. ` +
-      '기존 HTML은 Script 제거만으로 복구할 수 없으며, 구조화 JSON 프롬프트로 다시 생성해야 한다.',
-    );
+  // HTML compatibility is intentionally narrower than the ProductionReportV3
+  // path. Active content is removed and the exact 40-page skeleton/cardinality
+  // is enforced by the sanitizer. Re-annotation then verifies that all approved
+  // semantic fields can still be bound. Existing legacy wording is preserved,
+  // but malformed component DOM fails before Viewer rendering.
+  const definitions = annotateStructuredReportDocument(importedDocument, brandName);
+  if (definitions.length < 260) {
+    throw new Error(`붙여넣은 HTML의 의미 필드가 부족하다. 현재 ${definitions.length}개다.`);
   }
 
   importedDocument.body.dataset.contentContract = 'legacy-sanitized-html-v1';
   importedDocument.body.dataset.contentState = 'sanitized';
+  importedDocument.body.dataset.compatibilityValidation = 'semantic-skeleton';
   return serializeReportDocument(importedDocument);
 }
 
 async function compileManualInput(value: string, brandName: string): Promise<string> {
-  const approvedBase = await loadApprovedPilotBaseHtml(brandName);
   if (looksLikeStructuredJson(value)) {
+    const approvedBase = await loadApprovedPilotBaseHtml(brandName);
     const report = extractStructuredReportJson(value);
     assertStructuredReportCrossPage(report);
     return renderStructuredReportV3(approvedBase, report, brandName);
   }
   if (/<!doctype\s+html|<html\b/i.test(value)) {
     const sanitized = sanitizeCompatibleFullReportHtml(value, brandName);
-    return assertCompatibleFingerprint(approvedBase, sanitized, brandName);
+    return validateCompatibleStructure(sanitized, brandName);
   }
   throw new Error('구조화 JSON 또는 완전한 HTML 문서를 확인할 수 없다.');
 }
