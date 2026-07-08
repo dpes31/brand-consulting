@@ -16,7 +16,6 @@ const approvedCss = read('public/full-report-approved-v1.css');
 const pilotCss = read('src/pages/BiznupFullIntegrated.css');
 const compiler = read('src/report/fullReportCompiler.ts');
 const safety = read('src/report/reportDomSafety.ts');
-const semanticFingerprint = read('src/report/reportSemanticFingerprint.ts');
 const structured = read('src/report/structuredReportV3.ts');
 const definitionPolicy = read('src/report/structuredDefinitionPolicy.ts');
 const crossValidation = read('src/report/structuredReportCrossValidation.ts');
@@ -48,9 +47,6 @@ check(safety.includes('javascript:'), 'JavaScript URL sanitizer missing.');
 check(safety.includes("inner.style.transform = 'scale(1)'"), 'Canonical scale(1) missing.');
 check(safety.includes('canonicalizePageIds'), 'Dynamic Pilot ID canonicalization missing.');
 check(safety.includes('computeReportDomFingerprint'), 'Renderer DOM fingerprint missing.');
-check(semanticFingerprint.includes('findSemanticReportFingerprintMismatches'), 'Semantic compatibility fingerprint missing.');
-check(semanticFingerprint.includes('data-report-field'), 'Semantic fingerprint does not lock field paths.');
-check(semanticFingerprint.includes('STRUCTURE_SELECTORS'), 'Semantic component-count fingerprint missing.');
 
 check(structured.includes("STRUCTURED_REPORT_VERSION = '3.0.0'"), 'ProductionReportV3 version missing.');
 check(structured.includes('buildStructuredReportPrompt'), 'Structured JSON prompt missing.');
@@ -89,7 +85,8 @@ for (const source of [apiCompiler, bridge]) {
   check(!source.includes('createResearchOnlyLayoutTemplate'), 'Legacy text-node slots remain in an active Phase 6 path.');
 }
 check(bridge.includes('sanitizeCompatibleFullReportHtml'), 'HTML compatibility sanitizer is not connected.');
-check(bridge.includes('findSemanticReportFingerprintMismatches'), 'Semantic compatibility fingerprint is not connected.');
+check(bridge.includes("compatibilityValidation = 'semantic-skeleton'"), 'HTML compatibility semantic-skeleton validation is not connected.');
+check(bridge.includes('definitions.length < 260'), 'HTML compatibility semantic field coverage is not enforced.');
 check(inputGuard.includes('looksLikeStructuredJson'), 'Input guard does not accept ProductionReportV3 JSON.');
 
 check(structuredE2e.includes('external-ai-response-1.json'), 'First complete external-response fixture missing.');
@@ -107,4 +104,4 @@ check(pdfBridge.includes('FULL_PAGE_COUNT = 40'), 'PDF button bridge must use 40
 check(main.includes('installFullReportPhase6Bridge()'), 'Structured Phase 6 bridge not installed.');
 check(main.includes('installPhase6PagePlanV2()'), 'Restored Phase 6 page plan not installed.');
 
-console.log('FULL report contract PASS: app-owned 40-page structured renderer, sanitizer, cross-page validation, semantic E2E, and PDF runtime are connected.');
+console.log('FULL report contract PASS: app-owned 40-page structured renderer, sanitizer, semantic skeleton validation, cross-page validation, and PDF runtime are connected.');
