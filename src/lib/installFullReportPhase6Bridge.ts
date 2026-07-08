@@ -163,7 +163,11 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
 }
 
 function assertCompatibleFingerprint(approvedBase: string, sanitizedHtml: string, brandName: string): string {
-  const approvedDocument = parseReportHtml(approvedBase);
+  // The imported document has already completed one parse/serialize cycle in
+  // the sanitizer. Round-trip the approved shell once as well so browser HTML
+  // repair of nested inline/table markup cannot create false mismatches.
+  const approvedParsed = parseReportHtml(approvedBase);
+  const approvedDocument = parseReportHtml(serializeReportDocument(approvedParsed));
   annotateStructuredReportDocument(approvedDocument, brandName);
   const approvedFingerprint = computeReportDomFingerprint(approvedDocument);
 
