@@ -1,17 +1,18 @@
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
+import { loadApprovedPilotBaseHtml } from '../report/fullReportCompiler';
 import {
-  assertApprovedFullReportHtml,
-  buildFullReportHtmlPrompt,
-  extractCompleteFullReportHtml,
-  loadApprovedPilotBaseHtml,
-} from '../report/fullReportCompiler';
-import { normalizeApprovedFullReportHtml } from '../report/normalizeApprovedFullReportHtml';
+  computeReportDomFingerprint,
+  parseReportHtml,
+  sanitizeCompatibleFullReportHtml,
+  serializeReportDocument,
+} from '../report/reportDomSafety';
 import {
-  assertAllResearchSlotsFilled,
-  assertResearchEvidencePresent,
-  createResearchOnlyLayoutTemplate,
-} from '../report/researchContentTemplate';
-import { addResearchSlotRules } from '../report/researchSlotPrompt';
+  annotateStructuredReportDocument,
+  buildStructuredReportPrompt,
+  extractStructuredReportJson,
+  prepareStructuredReportBase,
+  renderStructuredReportV3,
+} from '../report/structuredReportV3';
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
 const ACTIVE_BRAND_SESSION_KEYS = [
@@ -21,6 +22,7 @@ const ACTIVE_BRAND_SESSION_KEYS = [
 const REQUIRED_PHASE_STEPS = ['0', '1', '2', '3', '4', '5'] as const;
 
 let installed = false;
+let replayingRender = false;
 
 function normalizeText(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
@@ -72,7 +74,7 @@ function downloadPrompt(prompt: string, brandName: string): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `full_report_phase6_prompt_${brandName || 'brand'}.txt`;
+  anchor.download = `phase6_structured_report_prompt_${brandName || 'brand'}.txt`;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
@@ -96,14 +98,27 @@ async function copyText(text: string): Promise<void> {
 function findPhase6Textarea(): HTMLTextAreaElement | null {
   return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea')).find((textarea) => {
     const placeholder = textarea.getAttribute('placeholder') || '';
-    return placeholder.includes('외부') || placeholder.includes('html') || placeholder.includes('HTML');
+    return /외부|html|json/i.test(placeholder);
   }) || null;
+}
+
+function setControlledTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
+  const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+  if (!setter) throw new Error('결과 입력창을 갱신할 수 없다.');
+  setter.call(textarea, value);
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  textarea.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 function stopReactClick(event: MouseEvent): void {
   event.preventDefault();
   event.stopPropagation();
   event.stopImmediatePropagation();
+}
+
+function looksLikeStructuredJson(value: string): boolean {
+  const normalized = value.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+  return normalized.startsWith('{') && /"version"\s*:\s*"3\.0\.0"/.test(normalized) && /"pages"\s*:/.test(normalized);
 }
 
 async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonElement): Promise<void> {
@@ -118,26 +133,24 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
     window.alert(`Step 0~5 조사 결과가 완전하지 않다. 누락 단계: ${missingSteps.join(', ')}`);
     return;
   }
-  if (!rawResearch.trim()) {
-    window.alert('Step 0~5 조사 결과가 없다. 각 단계의 조사 결과를 먼저 저장해야 한다.');
-    return;
-  }
 
   const originalText = normalizeText(clickedButton.textContent) || '프롬프트 추출';
   clickedButton.disabled = true;
-  clickedButton.textContent = '40페이지 레이아웃 중립화 중...';
+  clickedButton.textContent = '40페이지 구조화 Schema 준비 중...';
   try {
-    const capturedPilot = await loadApprovedPilotBaseHtml(brandName);
-    const researchOnlyTemplate = createResearchOnlyLayoutTemplate(capturedPilot, brandName);
-    const creativeDirective = buildCreativeHistoryCompilerDirective(rawResearch);
-    const prompt = addResearchSlotRules(
-      buildFullReportHtmlPrompt(rawResearch, brandName, researchOnlyTemplate, creativeDirective),
+    const approvedBase = await loadApprovedPilotBaseHtml(brandName);
+    const { definitions } = prepareStructuredReportBase(approvedBase, brandName);
+    const prompt = buildStructuredReportPrompt(
+      rawResearch,
+      brandName,
+      definitions,
+      buildCreativeHistoryCompilerDirective(rawResearch),
     );
     await copyText(prompt);
     downloadPrompt(prompt, brandName);
     window.alert(
-      '40페이지 Main Deck 프롬프트를 복사하고 파일로 저장했다.\n\n' +
-      '기존 샘플 결론·수치·경쟁사명은 제거되고 Step 0~5 조사 결과만 사용한다.',
+      '구조화 JSON 프롬프트를 복사하고 파일로 저장했다.\n\n' +
+      '외부 AI는 HTML을 작성하지 않는다. 앱이 고정 40페이지 Renderer에 JSON 값만 주입한다.',
     );
   } catch (error) {
     window.alert(`Phase 6 프롬프트 생성 오류: ${error instanceof Error ? error.message : String(error)}`);
@@ -147,31 +160,83 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
   }
 }
 
-function validateManualRender(event: MouseEvent): void {
+function assertCompatibleFingerprint(approvedBase: string, sanitizedHtml: string, brandName: string): string {
+  const approvedDocument = parseReportHtml(approvedBase);
+  annotateStructuredReportDocument(approvedDocument, brandName);
+  const approvedFingerprint = computeReportDomFingerprint(approvedDocument);
+
+  const importedDocument = parseReportHtml(sanitizedHtml);
+  annotateStructuredReportDocument(importedDocument, brandName);
+  const importedFingerprint = computeReportDomFingerprint(importedDocument);
+  if (approvedFingerprint !== importedFingerprint) {
+    throw new Error(
+      '붙여넣은 HTML이 승인된 페이지 구조를 변경했다. 기존 HTML은 Script 제거만으로 복구할 수 없으며, 구조화 JSON 프롬프트로 다시 생성해야 한다.',
+    );
+  }
+  importedDocument.body.dataset.contentContract = 'legacy-sanitized-html-v1';
+  importedDocument.body.dataset.contentState = 'sanitized';
+  return serializeReportDocument(importedDocument);
+}
+
+async function compileManualInput(value: string, brandName: string): Promise<string> {
+  const approvedBase = await loadApprovedPilotBaseHtml(brandName);
+  if (looksLikeStructuredJson(value)) {
+    const { definitions } = prepareStructuredReportBase(approvedBase, brandName);
+    const report = extractStructuredReportJson(value);
+    return renderStructuredReportV3(approvedBase, report, brandName);
+  }
+
+  if (/<!doctype\s+html|<html\b/i.test(value)) {
+    const sanitized = sanitizeCompatibleFullReportHtml(value, brandName);
+    return assertCompatibleFingerprint(approvedBase, sanitized, brandName);
+  }
+
+  throw new Error('구조화 JSON 또는 완전한 HTML 문서를 확인할 수 없다.');
+}
+
+async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonElement): Promise<void> {
+  if (replayingRender) {
+    replayingRender = false;
+    return;
+  }
+
+  stopReactClick(event);
   const textarea = findPhase6Textarea();
   const brandName = readBrandName();
   const { rawResearch, missingSteps } = readResearchSnapshot();
+  if (!textarea?.value.trim()) {
+    window.alert('외부 AI가 생성한 구조화 JSON 또는 호환 HTML을 붙여넣어야 한다.');
+    return;
+  }
+  if (!brandName) {
+    window.alert('브랜드명을 확인할 수 없다. Phase 0에서 브랜드명을 다시 입력해야 한다.');
+    return;
+  }
+  if (missingSteps.length > 0 || !rawResearch.trim()) {
+    window.alert('Step 0~5 조사 원문을 확인할 수 없어 결과를 검증할 수 없다.');
+    return;
+  }
+
+  const originalText = normalizeText(clickedButton.textContent) || '결과물 뷰어에 렌더링하기';
+  clickedButton.disabled = true;
+  clickedButton.dataset.fullReportBusy = 'true';
+  clickedButton.textContent = '구조·내용·보안 검증 중...';
 
   try {
-    if (!textarea || !textarea.value.trim()) throw new Error('외부 AI가 생성한 완성 HTML 전체를 입력창에 붙여넣어야 한다.');
-    if (!brandName) throw new Error('브랜드명을 확인할 수 없다. Phase 0에서 브랜드명을 다시 입력해야 한다.');
-    if (missingSteps.length > 0 || !rawResearch.trim()) throw new Error('Step 0~5 조사 원문을 확인할 수 없어 내용 반영 여부를 검증할 수 없다.');
-
-    let html = normalizeApprovedFullReportHtml(extractCompleteFullReportHtml(textarea.value));
-    html = html
-      .replace(/\[cite[:\s]*\d*[\],]*/g, '')
-      .replace(/\[cite_start\]/g, '')
-      .replace(/\\cite\{[^}]*\}/g, '');
-    assertApprovedFullReportHtml(html, brandName);
-    assertAllResearchSlotsFilled(html);
-    assertResearchEvidencePresent(html, rawResearch, brandName);
-
-    // Validation succeeded. Do not replay or mutate the controlled textarea.
-    // Let this original click continue into Dashboard's React onClick handler,
-    // which owns fenced-HTML extraction, state update, Viewer opening and save.
+    const html = await compileManualInput(textarea.value, brandName);
+    setControlledTextareaValue(textarea, html);
     textarea.dataset.fullReportValidatedHtml = 'true';
+    window.setTimeout(() => {
+      clickedButton.disabled = false;
+      delete clickedButton.dataset.fullReportBusy;
+      clickedButton.textContent = originalText;
+      replayingRender = true;
+      clickedButton.click();
+    }, 120);
   } catch (error) {
-    stopReactClick(event);
+    clickedButton.disabled = false;
+    delete clickedButton.dataset.fullReportBusy;
+    clickedButton.textContent = originalText;
     window.alert(`FULL 보고서 검증 오류: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
@@ -179,16 +244,18 @@ function validateManualRender(event: MouseEvent): void {
 function refreshPhase6Copy(): void {
   const textarea = findPhase6Textarea();
   if (textarea) {
-    textarea.placeholder = '외부 AI가 모든 CONTENT SLOT을 조사 내용으로 채운 40페이지 완성 HTML 전체를 붙여넣는다.';
+    textarea.placeholder = '권장: 외부 AI가 생성한 ProductionReportV3 구조화 JSON을 붙여넣는다. 기존 완성 HTML은 Sanitizer 호환 경로로만 지원한다.';
   }
   document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
     const text = normalizeText(element.textContent);
-    if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI 완성 HTML 생성';
-    if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.') {
-      element.textContent = '승인 레이아웃의 콘텐츠 슬롯을 Step 0~5 조사 내용으로 채운다.';
+    if (text === '외부 AI 수동 렌더링' || text === '외부 AI 완성 HTML 생성') {
+      element.textContent = '외부 AI 구조화 JSON 생성';
+    }
+    if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.' || text.includes('콘텐츠 슬롯')) {
+      element.textContent = '외부 AI는 페이지별 JSON 값만 생성하고, 앱이 승인 레이아웃을 렌더링한다.';
     }
     if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
-      element.textContent = '레이아웃은 고정하고 결론·수치·경쟁사·전략은 현재 조사 결과로 교체한다.';
+      element.textContent = '40페이지 DOM은 앱이 고정하고, Step 0~5 조사 내용만 구조화해 주입한다.';
     }
   });
 }
@@ -202,13 +269,14 @@ export function installFullReportPhase6Bridge(): void {
     if (!(target instanceof Element)) return;
     const button = target.closest('button');
     if (!(button instanceof HTMLButtonElement)) return;
-
     const label = normalizeText(button.textContent);
     if (label.includes('프롬프트 추출')) {
       void handlePromptExport(event, button);
       return;
     }
-    if (label.includes('결과물 뷰어에 렌더링하기')) validateManualRender(event);
+    if (label.includes('결과물 뷰어에 렌더링하기')) {
+      void handleManualRender(event, button);
+    }
   }, true);
 
   const observer = new MutationObserver(refreshPhase6Copy);
