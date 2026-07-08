@@ -205,7 +205,10 @@ export function sanitizeCompatibleFullReportHtml(source: string, brandName?: str
 function fingerprintNode(node: Element): string {
   const classes = Array.from(node.classList).sort().join('.');
   const field = node.getAttribute('data-report-field') || '';
-  const children = Array.from(node.children).map(fingerprintNode).join('');
+  // A registered field owns its text and optional inline highlight markup. The
+  // fingerprint locks the field container and all page components around it,
+  // while intentionally ignoring mark/br text-formatting children inside it.
+  const children = field ? '' : Array.from(node.children).map(fingerprintNode).join('');
   return `<${node.tagName.toLowerCase()}#${node.id}.${classes}[${field}]>${children}</${node.tagName.toLowerCase()}>`;
 }
 
