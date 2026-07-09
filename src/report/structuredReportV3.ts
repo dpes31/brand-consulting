@@ -788,10 +788,7 @@ export function formatStructuredNormalizationWarnings(warnings: StructuredNormal
     `입력값: “${warning.inputValue}”`,
     `예상값: “${warning.normalizedValue}”`,
     '처리: 앱이 연도 접두어를 제거하고 자동 정규화했습니다.',
-  ].join('
-')).join('
-
-');
+  ].join('\n')).join('\n\n');
   return `Creative History 입력 형식 ${warnings.length}건을 앱이 자동 정규화했습니다.
 
 ${details}
@@ -848,11 +845,9 @@ export function validateStructuredReportV3(
               `P${definition.page} · ${pageTitleFor(page)} · ${statusFieldLabel(definition)}`,
               `입력값: “${value}”`,
               `허용값:
-${expectedValues.map((item) => `- ${item}`).join('
-')}`,
+${expectedValues.map((item) => `- ${item}`).join('\n')}`,
               '처리: 자동 복구할 수 없어 렌더링을 중단했습니다.',
-            ].join('
-'));
+            ].join('\n'));
           }
         }
       }
