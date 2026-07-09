@@ -3,6 +3,8 @@ let refreshing = false;
 
 const WORKFLOW_ID = 'phase6-external-json-workflow';
 const COMPATIBILITY_ID = 'phase6-compatibility-html';
+const PROMPT_LABEL = '외부 AI용 JSON 프롬프트 다운로드';
+const RENDER_LABEL = 'JSON 검증 후 40페이지 보고서 만들기';
 
 function normalized(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
@@ -37,6 +39,14 @@ function makeStep(index: number, copy: string): HTMLLIElement {
   return item;
 }
 
+function setControlledTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
+  const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+  if (!setter) return;
+  setter.call(textarea, value);
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  textarea.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
 function installResponseFileInput(container: HTMLElement, textarea: HTMLTextAreaElement): void {
   if (container.querySelector('[data-phase6-response-file]')) return;
   const row = document.createElement('div');
@@ -57,11 +67,7 @@ function installResponseFileInput(container: HTMLElement, textarea: HTMLTextArea
   input.addEventListener('change', async () => {
     const file = input.files?.[0];
     if (!file) return;
-    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
-    if (!setter) return;
-    setter.call(textarea, await file.text());
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    textarea.dispatchEvent(new Event('change', { bubbles: true }));
+    setControlledTextareaValue(textarea, await file.text());
     input.value = '';
   });
   upload.appendChild(input);
@@ -104,17 +110,17 @@ function refresh(): void {
   if (refreshing) return;
   refreshing = true;
   try {
-    const promptButton = findButton((label) => label.includes('프롬프트 추출') || label.includes('외부 AI용 JSON 프롬프트 다운로드'));
-    const renderButton = findButton((label) => label.includes('결과물 뷰어에 렌더링하기') || label.includes('JSON 검증 후 40페이지 보고서 만들기'));
+    const promptButton = findButton((label) => label.includes('프롬프트 추출') || label.includes(PROMPT_LABEL));
+    const renderButton = findButton((label) => label.includes('결과물 뷰어에 렌더링하기') || label.includes(RENDER_LABEL));
     const textarea = findLegacyPhase6Textarea()
       || document.querySelector<HTMLTextAreaElement>('textarea[data-phase6-input-mode="structured-json"]');
     if (!promptButton || !renderButton || !textarea) return;
 
     promptButton.dataset.phase6Action = 'prompt-download';
-    promptButton.textContent = '외부 AI용 JSON 프롬프트 다운로드';
+    if (normalized(promptButton.textContent) !== PROMPT_LABEL) promptButton.textContent = PROMPT_LABEL;
     renderButton.dataset.phase6Action = 'structured-json';
     renderButton.id = 'phase6-primary-json-render';
-    renderButton.textContent = 'JSON 검증 후 40페이지 보고서 만들기';
+    if (normalized(renderButton.textContent) !== RENDER_LABEL) renderButton.textContent = RENDER_LABEL;
     textarea.dataset.phase6InputMode = 'structured-json';
     textarea.placeholder = '외부 AI가 반환한 ProductionReportV3 JSON 전체를 붙여넣으세요. Raw JSON과 ```json 코드펜스를 지원합니다.';
 
@@ -123,7 +129,7 @@ function refresh(): void {
     panel.dataset.phase6Panel = 'true';
 
     const title = Array.from(panel.querySelectorAll<HTMLElement>('div'))
-      .find((element) => ['외부 AI 수동 렌더링', '외부 AI 완성 HTML 생성', '외부 AI 구조화 JSON 생성', '외부 AI 구조화 JSON 방식'].includes(normalized(element.textContent)));
+      .find((element) => ['외부 AI 수동 렌더링', '외부 AI 완성 HTML 생성', '외부 AI 구조화 JSON 생성'].includes(normalized(element.textContent)));
     if (title) title.textContent = '외부 AI 구조화 JSON 방식';
 
     const subtitle = Array.from(panel.querySelectorAll<HTMLElement>('div'))
@@ -140,11 +146,11 @@ function refresh(): void {
       const steps = document.createElement('ol');
       steps.className = 'grid grid-cols-1 sm:grid-cols-5 gap-2';
       [
-        '외부 AI용 JSON 프롬프트 다운로드',
+        PROMPT_LABEL,
         '다운로드 파일을 외부 AI에 첨부',
         'AI가 반환한 JSON 전체 복사',
         'Phase 6 입력창에 JSON 붙여넣기',
-        'JSON 검증 후 40페이지 보고서 만들기',
+        RENDER_LABEL,
       ].forEach((copy, index) => steps.appendChild(makeStep(index + 1, copy)));
 
       const notice = document.createElement('div');
