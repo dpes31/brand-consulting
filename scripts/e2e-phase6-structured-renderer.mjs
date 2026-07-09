@@ -140,16 +140,25 @@ try {
   await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });
   await page.getByText('외부 AI 구조화 JSON 방식', { exact: true }).waitFor({ timeout: 30000 });
   await page.getByText('HTML은 외부 AI가 아니라 앱이 자동 생성합니다.', { exact: true }).waitFor();
-  for (const label of [
+  const workflowStepCopies = [
     '외부 AI용 JSON 프롬프트 다운로드',
     '다운로드 파일을 외부 AI에 첨부',
     'AI가 반환한 JSON 전체 복사',
     'Phase 6 입력창에 JSON 붙여넣기',
     'JSON 검증 후 40페이지 보고서 만들기',
-  ]) {
-    assert.ok(await page.getByText(label, { exact: true }).count() > 0, `Missing workflow label: ${label}`);
-  }
+  ];
+  const workflowSteps = await page.locator('#phase6-external-json-workflow li').allTextContents();
+  assert.equal(workflowSteps.length, 5);
+  workflowStepCopies.forEach((copy) => {
+    assert.ok(workflowSteps.some((text) => text.includes(copy)), `Missing workflow label: ${copy}`);
+  });
   assert.ok(await page.getByText('기존 완성 HTML 가져오기 — 호환용', { exact: true }).count() > 0);
+  const structuredTextarea = page.locator('textarea[data-phase6-input-mode="structured-json"]');
+  const inputLabel = page.getByText('외부 AI가 반환한 JSON 붙여넣기', { exact: true });
+  const labelBeforeTextarea = await inputLabel.evaluate((node, textarea) => Boolean(
+    node.compareDocumentPosition(textarea) & Node.DOCUMENT_POSITION_FOLLOWING
+  ), await structuredTextarea.elementHandle());
+  assert.equal(labelBeforeTextarea, true);
 
   const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
   await page.getByRole('button', { name: /외부 AI용 JSON 프롬프트 다운로드/ }).click();
