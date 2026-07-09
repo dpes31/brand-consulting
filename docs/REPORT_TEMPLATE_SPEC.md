@@ -15,17 +15,16 @@ Approved Phase 6 production target for the Brand Consulting Generator.
 - Major titles: weight 900
 - Korean wrapping: `word-break: keep-all`
 
-The approved Pilot is the layout source only. Its completed Biznup wording is not a valid content source. Before prompt export, every variable sample-content unit becomes a neutral `[[CONTENT:...]]` slot rebuilt from current Step 0–5 research.
+The approved Pilot is the layout source only. Its completed Biznup wording is not a valid content source. AI never authors the report DOM.
 
 ## Production compilation contract
 
 The normal Phase 6 flow is:
 
 `Step 0–5 research`
-→ `approved Pilot DOM/CSS capture after Main40 transform`
-→ `sample-content neutralization`
-→ `research-driven slot filling`
-→ `blocking validation`
+→ `external AI or internal API returns ProductionReportV3 page-scoped JSON`
+→ `enum, fixed-year, maxLength, factuality, and cross-page validation`
+→ `app-owned fixed 40-page DOM/CSS Renderer`
 → `standalone 40-page HTML`
 → `Viewer / save / reopen / native PDF`
 
@@ -50,7 +49,7 @@ Generated from current research:
 - SWOT and STP;
 - strategic routes, Winning Move, and Final Choice.
 
-No unresolved `CONTENT SLOT` may remain.
+No unknown field, unresolved required value, invalid enum, raw URL, or model-authored HTML may pass validation.
 
 ## Blocking validation
 
@@ -300,3 +299,45 @@ Minimum QA:
 - Never modify or delete:
   - `backup/main-before-full-report-v1-2026-07-01`
   - `backup-production-stable-20260622`
+
+<!-- PHASE6_EXTERNAL_JSON_COMPLETION_2026-07-09 -->
+## Phase 6 external-AI JSON workflow implementation — 2026-07-09
+
+- Active branch: `fix/phase6-structured-report-renderer-v1`
+- Draft PR: `#21 Replace Phase 6 HTML generation with app-owned structured renderer`
+- Validated product-code head: `d3b2ebd104d6bfddb90ba3051f92a9710b3a2a07`
+- Vercel Preview: `https://brand-consulting-git-fix-phase6-structu-0fd4b6-dpes31s-projects.vercel.app/`
+- `main`: unchanged; PR #21 remains Draft and unmerged.
+- `public/template.html` and protected backup branches remain untouched.
+
+Implemented:
+
+- Phase 6 shows the explicit five-step external-AI JSON workflow.
+- The primary input accepts raw JSON, fenced JSON, `.json`, and `.txt` responses.
+- `기존 완성 HTML 가져오기 — 호환용` is a separate secondary path.
+- Creative History uses `[CREATIVE HISTORY DATA CONTRACT]`; AI-facing DOM/class/data-attribute instructions were removed.
+- Every Creative History status field exposes the exact enum and fixed year metadata, including `2026 YTD`.
+- Only exact `expected year · allowed status` values are normalized; every repair emits a page/field warning and strict validation runs afterward.
+- Unknown status, mismatched year, composite status, and arbitrary values remain blocking errors with Korean page/field guidance.
+- External manual JSON and internal Gemini API routes use the same ProductionReportV3 schema, normalization, strict validation, cross-page validation, and app-owned Renderer.
+
+Validated at `d3b2ebd104d6bfddb90ba3051f92a9710b3a2a07`:
+
+- `npm run build`: PASS
+- FULL report contract test: PASS
+- FULL report runtime test: PASS
+- Phase 6 structured Renderer E2E: PASS
+- external-AI JSON workflow synthetic fixtures: 2 complete 40-page responses PASS
+- masked owner-defect fixture: `YYYY · status` normalization PASS; `2022 · unknown` blocking PASS
+- HTML Sanitizer compatibility E2E: PASS
+- 40 `.full-slide`, 40 navigation links, Appendix 0, 1280×720, scale(1), zero overflow, zero script, save/reload/reopen: PASS
+- Export PDF twice, Ctrl+P, Cmd+P: PASS
+- PDF: 40 pages, 960×540pt, embedded Pretendard, no full-page raster fallback: PASS
+- Vercel Preview: Ready
+
+External-AI verification boundary:
+
+- Actual corrected-prompt calls were not run because this execution environment has no external Gemini/third-party AI credential or invocation tool.
+- Two deterministic complete synthetic responses and the masked real defect structure were validated in browser E2E.
+- Owner Preview QA with two real external-AI responses remains a pre-merge approval gate.
+

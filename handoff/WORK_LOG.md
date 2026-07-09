@@ -200,3 +200,45 @@
 - Updated `AGENTS.md` and `handoff/PROJECT_HANDOFF.md` to point to the new continuation document.
 - No product code was changed in this documentation pass.
 - `main` remains unchanged.
+
+<!-- PHASE6_EXTERNAL_JSON_COMPLETION_2026-07-09 -->
+## 2026-07-09 — Phase 6 external-AI JSON workflow implementation and QA
+
+- Active branch: `fix/phase6-structured-report-renderer-v1`
+- Draft PR: `#21 Replace Phase 6 HTML generation with app-owned structured renderer`
+- Validated product-code head: `d3b2ebd104d6bfddb90ba3051f92a9710b3a2a07`
+- Vercel Preview: `https://brand-consulting-git-fix-phase6-structu-0fd4b6-dpes31s-projects.vercel.app/`
+- `main`: unchanged; PR #21 remains Draft and unmerged.
+- `public/template.html` and protected backup branches remain untouched.
+
+Implemented:
+
+- Phase 6 shows the explicit five-step external-AI JSON workflow.
+- The primary input accepts raw JSON, fenced JSON, `.json`, and `.txt` responses.
+- `기존 완성 HTML 가져오기 — 호환용` is a separate secondary path.
+- Creative History uses `[CREATIVE HISTORY DATA CONTRACT]`; AI-facing DOM/class/data-attribute instructions were removed.
+- Every Creative History status field exposes the exact enum and fixed year metadata, including `2026 YTD`.
+- Only exact `expected year · allowed status` values are normalized; every repair emits a page/field warning and strict validation runs afterward.
+- Unknown status, mismatched year, composite status, and arbitrary values remain blocking errors with Korean page/field guidance.
+- External manual JSON and internal Gemini API routes use the same ProductionReportV3 schema, normalization, strict validation, cross-page validation, and app-owned Renderer.
+
+Validated at `d3b2ebd104d6bfddb90ba3051f92a9710b3a2a07`:
+
+- `npm run build`: PASS
+- FULL report contract test: PASS
+- FULL report runtime test: PASS
+- Phase 6 structured Renderer E2E: PASS
+- external-AI JSON workflow synthetic fixtures: 2 complete 40-page responses PASS
+- masked owner-defect fixture: `YYYY · status` normalization PASS; `2022 · unknown` blocking PASS
+- HTML Sanitizer compatibility E2E: PASS
+- 40 `.full-slide`, 40 navigation links, Appendix 0, 1280×720, scale(1), zero overflow, zero script, save/reload/reopen: PASS
+- Export PDF twice, Ctrl+P, Cmd+P: PASS
+- PDF: 40 pages, 960×540pt, embedded Pretendard, no full-page raster fallback: PASS
+- Vercel Preview: Ready
+
+External-AI verification boundary:
+
+- Actual corrected-prompt calls were not run because this execution environment has no external Gemini/third-party AI credential or invocation tool.
+- Two deterministic complete synthetic responses and the masked real defect structure were validated in browser E2E.
+- Owner Preview QA with two real external-AI responses remains a pre-merge approval gate.
+

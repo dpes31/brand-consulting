@@ -274,3 +274,25 @@ Requirements:
 - safe normalization or actionable errors for the owner's current response;
 - two corrected real external-AI runs;
 - owner Preview review.
+
+<!-- PHASE6_EXTERNAL_JSON_COMPLETION_2026-07-09 -->
+## D-025 — Phase 6 external-AI JSON workflow is implemented and code-validated
+
+**Decision:** Keep ProductionReportV3 JSON as the sole AI-authored production contract. The application owns the fixed 40-page HTML/CSS Renderer.
+
+**Implementation:**
+
+- explicit five-step external-AI JSON UX;
+- data-only Creative History prompt;
+- exact status enum and fixed-year metadata;
+- constrained `expected year · exact enum` compatibility normalization;
+- Korean page/field warnings and blocking errors;
+- one shared manual/API contract and Renderer;
+- complete-HTML import isolated as sanitized compatibility only.
+
+**Validated product-code head:** `d3b2ebd104d6bfddb90ba3051f92a9710b3a2a07`.
+
+**Automated gates:** build/contracts, structured Renderer, masked owner-defect normalization, invalid-status rejection, HTML Sanitizer, persistence, native PDF, repeated export, Ctrl+P, Cmd+P all PASS.
+
+**Remaining gate:** two owner-run real external-AI responses and owner Preview approval. PR #21 stays Draft; `main` remains unchanged.
+
