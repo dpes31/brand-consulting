@@ -42,7 +42,8 @@ async function completeResearchPipeline(targetPage) {
 
 async function openCompatibilityImporter(targetPage) {
   const details = targetPage.locator('#phase6-compatibility-html');
-  if (!(await details.getAttribute('open'))) {
+  const isOpen = await details.evaluate((node) => node.open);
+  if (!isOpen) {
     await targetPage.getByText('기존 완성 HTML 가져오기 — 호환용', { exact: true }).click();
   }
   const input = targetPage.locator('textarea[data-phase6-input-mode="compat-html"]');
