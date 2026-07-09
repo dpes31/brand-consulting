@@ -1,30 +1,63 @@
 # AGENTS.md
 
-Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, `docs/REPORT_TEMPLATE_SPEC.md`, `docs/PDF_EXPORT_E2E_STANDARD.md`, `docs/phase5b-gate2a-results.md`, and the files under `design/` before changing this repository.
+Read these before changing the repository:
+
+1. `handoff/PHASE6_REAL_WORLD_QA_HANDOFF_2026-07-08.md`
+2. `handoff/PHASE6_EXTERNAL_AI_JSON_WORKFLOW_QA_2026-07-09.md`
+3. `handoff/PROJECT_HANDOFF.md`
+4. `handoff/WORK_LOG.md`
+5. `handoff/DECISION_LOG.md`
+6. `docs/REPORT_TEMPLATE_SPEC.md`
+7. `docs/PDF_EXPORT_E2E_STANDARD.md`
+8. `docs/phase5b-gate2a-results.md`
+9. files under `design/`
+
+When documentation and current PR code conflict, inspect the active branch and code first, state that the document is stale, and update the documentation before completion.
 
 ## Safety
 
-- Use Preview-first feature branches. Merge only with explicit owner approval.
+- Use Preview-first feature branches.
+- Never modify `main` directly.
+- Merge only with explicit owner approval.
 - Preserve milestone commit history; do not squash unless explicitly approved.
-- Never modify or delete:
+- Never modify, force-update, or delete:
   - `backup-production-stable-20260622`
   - `backup/main-before-full-report-v1-2026-07-01`
 - Preserve validated and audit branches.
 - `feature-visualization-engine-v1` and PR #6 are failed audit records and must not be merged.
 - Do not restore discarded implementations from PR #8, #9, or #10.
-- Preserve `public/template.html` as the Legacy rollback asset. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
+- PR #20 is a failed real-world QA record and must not be merged.
+- Preserve `public/template.html` as the Legacy rollback asset.
+- Verified Legacy blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
 
 ## Current checkpoint
 
+- Repository: `dpes31/brand-consulting`
 - Production branch: `main`
 - Production commit before this work: `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`
-- Active branch: `fix/phase6-approved-main40-no-appendix-v3`
-- Draft PR: `#20 Restore approved 40-page report structure without Appendix`
-- Current validated head: `7d94b1895c47e9db7268c9d181060e0a735c1d9b`
-- Production build/contracts: PASS
-- Phase 6 browser/PDF E2E: PASS
-- Vercel deployment for the current head is temporarily blocked by the account build-rate limit, not by a product build failure.
-- Keep PR #20 Draft and do not merge to `main` before owner Preview approval.
+- Active branch: `fix/phase6-structured-report-renderer-v1`
+- Draft PR: `#21 Replace Phase 6 HTML generation with app-owned structured renderer`
+- Validated implementation head before the latest handoff-only update: `8a4601d7a4895e32a521112f467d75af40678b86`
+- Latest handoff commit: `7a86313edee9ee64dcb9d79b9f5d954a7bc45604`
+- Production build/contracts at validated head: PASS
+- Phase 6 browser/PDF E2E at validated head: PASS
+- Vercel Preview: `https://brand-consulting-git-fix-phase6-structu-0fd4b6-dpes31s-projects.vercel.app/`
+- Vercel state at validated head: Ready
+- `main`: unchanged
+- Keep PR #21 Draft. Do not merge before corrected external-AI workflow QA and owner Preview approval.
+
+## Current user QA finding — 2026-07-09
+
+The external AI returning `ProductionReportV3` JSON is expected. It is not a failure and must not be changed back to AI-generated complete HTML.
+
+The current defects are:
+
+1. Phase 6 does not explain the full `download prompt → run external AI → copy JSON → paste into app → app generates HTML` workflow clearly enough.
+2. The JSON-only prompt still includes Creative History DOM instructions such as `.timeline-container`, `.timeline-card`, `data-year`, and `data-copy-status`.
+3. The real external-AI result fused year and status, for example `2021 · not-found`, which violates the exact status enum.
+4. The current owner response needs constrained normalization or clear page/field errors before rendering.
+
+Continue from `handoff/PHASE6_EXTERNAL_AI_JSON_WORKFLOW_QA_2026-07-09.md`.
 
 ## Product invariants
 
@@ -38,7 +71,66 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Do not invent figures, dates, models, scores, axes, sources, competitors, or copy.
 - Only `verified-verbatim` advertising copy may use quotation marks.
 - Do not expose raw source URLs in final reports.
-- Titles, body judgments, and SO WHAT statements use decisive Korean declarative endings such as `~한다`, `~이다`, `~다`; avoid explanatory polite endings except verified quotations or fixed UI labels.
+- Titles, body judgments, and SO WHAT statements use decisive Korean declarative endings such as `~한다`, `~이다`, `~다`.
+
+## Approved Phase 6 architecture
+
+The durable flow is:
+
+`Step 0–5 research`
+→ `ProductionReportV3 page-scoped JSON`
+→ `exact schema and cross-page validation`
+→ `app-owned fixed 40-page DOM/CSS Renderer`
+→ `standalone HTML`
+→ `Viewer / save / reopen / native PDF`
+
+Rules:
+
+- External AI returns JSON only.
+- Internal API returns the same JSON contract.
+- Both paths use the same validator and Renderer.
+- The app owns HTML tags, classes, fixed labels, connectors, rows, columns, navigation, geometry, and print rules.
+- AI may populate only approved semantic values.
+- Complete HTML paste is a secondary compatibility importer only.
+- Compatibility HTML is sanitized, canonicalized to 1280×720 / scale(1), structurally validated, and never executed.
+- Never restore arbitrary AI-authored complete HTML as the primary path.
+- Never request JSON and HTML together as parallel final deliverables.
+
+## Required external-AI UX correction
+
+The user-facing Phase 6 sequence must be explicit:
+
+1. `외부 AI용 JSON 프롬프트 다운로드`
+2. attach the downloaded file to the external AI
+3. copy the complete JSON response
+4. paste JSON into Phase 6
+5. `JSON 검증 후 40페이지 보고서 만들기`
+
+The UI must state: `HTML은 외부 AI가 아니라 앱이 자동 생성합니다.`
+
+Keep existing complete HTML import as a clearly separated compatibility option.
+
+## Creative History JSON contract
+
+The AI-facing prompt must contain data instructions only.
+
+Do not mention DOM classes or attributes in the JSON prompt.
+
+- `year1` is fixed 2021.
+- `year2` is fixed 2022.
+- `year3` is fixed 2023.
+- `year4` is fixed 2024.
+- `year5` is fixed 2025.
+- `year6` is fixed 2026 YTD.
+- Year is Renderer-owned metadata and must not be included in status strings.
+- Allowed status values are exactly:
+  - `verified-verbatim`
+  - `source-found-copy-unverified`
+  - `not-found`
+- Add machine-readable enum metadata to status field definitions.
+- A compatibility normalizer may remove an exact expected `YYYY · ` prefix only when the remaining value is one of the three allowed statuses.
+- Every normalization must generate a page/field warning and must be followed by strict validation.
+- Unknown or combined status values remain blocking errors.
 
 ## Approved competitor logic
 
@@ -91,19 +183,22 @@ Creative Methodology and Appendix A1–A7 are not part of the approved output.
 
 - Page 2 fixed label: `핵심 진단`.
 - Page 4 fixed label: `FACTS`.
-- Page 5 fixed label: `CATEGORY & TARGET`.
+- Page 5 fixed labels include `WANT / AVOID`.
 - Page 10 fixed chapter: `CATEGORY SHIFT`; stage labels remain `LEVEL 1`–`LEVEL 5`.
 - Page 9 strategic implication type is at least the page-number size.
+- Pages 13–15 retain `Evidence / Core Desire / Appeal / Threat Mechanism / Attack Point` and `위협 1순위 / 2순위 / 3순위`.
+- Page 17 retains exactly `반복 화법 / 현재 역할 / 구조적 한계`.
 - Persona pages retain `SITUATION / REAL JTBD / AS-IS IDENTITY / TO-BE IDENTITY / 브랜드의 역할`.
 - Persona titles reuse the three target names stated on page 21 CORE TARGET.
 - Persona indices `02` and `03` stay on one line.
 - Page 26 retains `Pain / 현재 문제 / Unmet Need / 우선순위`.
-- Page 27 retains the approved AIPL friction-flow and avoids unnecessary English.
+- Page 27 retains `A → I → P1 → P2 → L` with separate action/evidence/state values.
 - Creative History uses the approved centered six-year system and does not add decorative NOW circles.
-- Page 34 retains the approved Current Copy / Missing Character Creative Insight comparison; connector glyphs remain symbols, never prose.
+- Page 34 retains Current Copy → Missing Character; connector glyphs remain symbols, never prose.
 - Page 37 retains `Segmentation → Targeting → Positioning`.
-- Page 38 retains four alternatives labelled A/B/C/D and the approved 차별/확장/실행 comparison.
+- Page 38 retains A/B/C/D alternatives and the approved 차별/확장/실행 comparison.
 - Page 39 retains the approved two-column Selection Criteria / Final Choice composition.
+- Page 40 summarizes the selected strategy from page 39 in one governing message.
 
 ## Validated Visual Intent contracts
 
@@ -111,39 +206,6 @@ Creative Methodology and Appendix A1–A7 are not part of the approved output.
 - Step 2: Candidate Landscape → Threat Ranking → core three; Product Matrix uses `feature-matrix`; Positioning is used only when common axes are defensible.
 - Step 3: exactly one core consumer-decision Brief; accepted recipe `friction-flow`; `implementationStatus: planned`; `metrics: []`.
 - Step 5: exactly one final strategy-decision Brief; accepted recipe `choice-architecture`; `implementationStatus: planned`; `metrics: []`.
-- Step 3 and Step 5 prompt-copy guards restore the complete contract immediately before prompt copy.
-
-## Approved report architecture
-
-- Route: `/?pilot=full-integrated&brand=<exact user-entered brand>`.
-- Phase 6 captures the approved Pilot after the 40-page transform is ready.
-- Sample report text is neutralized into `[[CONTENT:...]]` slots.
-- External AI or the internal API fills slots only from current Step 0–5 research.
-- External AI returns one complete standalone HTML document, not JSON.
-- Connector slots are locked to short visual symbols.
-- Viewer, saved project, reopened project, and PDF use the same FULL HTML.
-
-Production flow:
-
-`Step 0–5 research → approved Pilot DOM capture → research-only CONTENT SLOT shell → complete 40-page HTML → blocking validation → Viewer / save / reopen / Export PDF`
-
-## Creative History factuality
-
-- Target brand and each of the core three competitors retain independent 2021–2026 Creative History pages.
-- Allowed statuses:
-  - `verified-verbatim`
-  - `source-found-copy-unverified`
-  - `not-found`
-- Preserve Message Trajectory and Strategic So What.
-- Dark Creative History pages retain dark paper and readable foreground.
-
-## Material Symbols first-paint rule
-
-- Material Symbols ligature strings must never appear before the icon font loads.
-- Reserve a fixed icon box from first paint.
-- Keep `.material-symbols-outlined` hidden until `document.fonts.check(...)` confirms readiness.
-- Install the readiness guard before React renders.
-- Preserve the cold-load E2E that delays the icon font and verifies zero ligature flash and zero button movement.
 
 ## PDF runtime boundary and acceptance
 
@@ -151,19 +213,21 @@ Production flow:
 - Phase 6 FULL reports use `.full-slide`, `installFullReportRuntimeCompatibility`, and browser-native print.
 - Install the FULL runtime before the Legacy layout/PDF guard.
 - Never pass a FULL report to the Legacy selector.
-- The visible `Export PDF` button, Windows `Ctrl+P`, and macOS `Cmd+P` converge on the same active Viewer iframe and native-print path.
+- Visible `Export PDF`, Windows `Ctrl+P`, and macOS `Cmd+P` converge on the same active Viewer iframe and native-print path.
 - Preserve actual-button browser E2E with two consecutive exports and save → reload → reopen → export.
 - Preflight must pass exactly 40 `.full-slide` pages, all `data-zone="main"`.
 - PDF MediaBox is 960×540pt.
 - Embedded font objects must be present.
 - No full-page 2560×1440 raster rows are allowed.
-- Do not declare a PDF task complete without satisfying `docs/PDF_EXPORT_E2E_STANDARD.md`.
+- Do not declare PDF complete without satisfying `docs/PDF_EXPORT_E2E_STANDARD.md`.
 
 ## Documentation
 
-Update these whenever architecture, branch state, report contracts, or rollback procedures change:
+Update these whenever architecture, branch state, prompt contract, report contract, or rollback procedures change:
 
 - `AGENTS.md`
+- `handoff/PHASE6_REAL_WORLD_QA_HANDOFF_2026-07-08.md`
+- `handoff/PHASE6_EXTERNAL_AI_JSON_WORKFLOW_QA_2026-07-09.md`
 - `handoff/PROJECT_HANDOFF.md`
 - `handoff/WORK_LOG.md`
 - `handoff/DECISION_LOG.md`
