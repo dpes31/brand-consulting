@@ -21,11 +21,11 @@ jobs:
           fetch-depth: 0
       - name: Update required documentation
         run: python scripts/finalize-phase6-external-json-docs.py
-      - name: Restore permanent E2E workflow and remove updater
+      - name: Remove temporary updater and diagnostics
         shell: bash
         run: |
-          git show HEAD^:.github/workflows/phase6-v2-preview-e2e.yml > .github/workflows/phase6-v2-preview-e2e.yml
           rm -f scripts/finalize-phase6-external-json-docs.py
+          rm -f phase6-apply-error.txt
       - name: Commit, rebase, and push documentation
         shell: bash
         run: |
