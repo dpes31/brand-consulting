@@ -142,41 +142,61 @@
 - Added actual-button, repeat-export, and native-PDF checks.
 - PR #17 merged to `main` with regular merge commit `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`.
 
-## 2026-07-07 — PR #20 approved Main40 restoration
+## 2026-07-07 to 2026-07-08 — PR #20 approved Main40 restoration and real-world failure
 
 - Owner reviewed an actual generated HTML against the original approved reference and approved the recommended structural correction.
-- Created active branch `fix/phase6-approved-main40-no-appendix-v3` and Draft PR #20.
+- Created branch `fix/phase6-approved-main40-no-appendix-v3` and Draft PR #20.
 - Closed superseded PR #18 and PR #19; neither should be merged.
 - Changed the final contract from 40 Main + 8 Appendix to exactly 40 Main and zero Appendix.
 - Promoted Decision Receipt / Close to page 40.
 - Restored Competitive Landscape, Category Clichés, and Creative Insight.
 - Removed Creative Methodology and Appendix A1–A7.
-- Changed competitor logic:
-  - Landscape reviews up to five candidates;
-  - Threat Ranking selects the core three;
-  - Deep Dive, Matrix, Positioning, Creative History, and Trajectory use the same core three.
-- Restored fixed labels and page grammar for pages 2, 4, 5, 9, 10, Persona, Pain Points, AIPL, Creative History, STP, Four Directions, Final Choice, and Decision Close.
-- Added decisive Korean consulting-tone rules.
-- Corrected manual render validation so the original React click owns Viewer opening and save state.
-- Replaced raw-regex page counting with DOM-based exact `.full-slide` counting.
-- Preserved the exact user-entered brand in report navigation and toolbar.
-- Locked connector glyphs, including Creative Insight comparison arrows, so prose cannot enter them.
+- Changed competitor logic to Landscape candidates up to five and core-three downstream analysis.
+- Restored fixed labels and page grammar for critical pages.
 - Updated native PDF preflight and button routing from 48 to 40 pages.
-- Validated head `7d94b1895c47e9db7268c9d181060e0a735c1d9b` with non-Biznup brand `모노랩`:
-  - five Landscape candidates and the same top-three downstream set;
-  - 40 pages and 40 navigation links;
-  - zero Appendix pages;
-  - exact 1280×720 logical geometry;
-  - zero overflow;
-  - Page 9 text 12px vs page number 12px;
-  - Persona 02/03 nowrap;
-  - no decorative History NOW elements;
-  - actual Export PDF, second consecutive export, Ctrl+P, and Cmd+P;
-  - native PDF 40 pages, 960×540pt;
-  - six embedded Pretendard font objects;
-  - zero full-page raster rows;
-  - save/reload/reopen at 40 pages;
-  - Material Symbols cold-load regression.
-- Production build/contracts and Phase 6 browser/PDF E2E both passed.
-- Current Vercel deployment is temporarily blocked by the account build-rate limit; no product build failure remains.
-- PR #20 remains Draft and unmerged pending Preview availability and owner review.
+- Automated browser/PDF E2E passed.
+- A fresh owner Step 0–6 run then exposed semantic DOM corruption caused by the model rewriting complete HTML.
+- Recorded the failure in `handoff/PHASE6_REAL_WORLD_QA_HANDOFF_2026-07-08.md`.
+- PR #20 remains Draft and must not be merged.
+
+## 2026-07-08 — PR #21 app-owned structured Renderer
+
+- Created branch `fix/phase6-structured-report-renderer-v1` and Draft PR #21.
+- Added ProductionReportV3 page-scoped JSON.
+- Added exact 40-page app-owned DOM/CSS rendering.
+- Added structured field definitions, exact key validation, maxLength checks, cross-page brand/competitor consistency, Creative History status checks, and DOM fingerprint checks.
+- Routed external-AI prompt export and internal API generation to the same JSON contract.
+- Retired AI-authored complete HTML as the primary path.
+- Retained complete HTML paste only as a sanitized compatibility importer.
+- Added canonical 1280×720 / scale(1) handling.
+- Added real-app semantic E2E, sanitizer E2E, persistence, native PDF, repeat export, Ctrl+P, and Cmd+P checks.
+- Validated implementation head `8a4601d7a4895e32a521112f467d75af40678b86`:
+  - Production build/contracts PASS
+  - Phase 6 PDF Runtime E2E PASS
+  - Vercel Preview Ready
+- PR #21 remains Draft and unmerged.
+
+## 2026-07-09 — External-AI JSON workflow QA
+
+- Owner downloaded `phase6_structured_report_prompt_비즈넵.txt` from Phase 6 and executed it with an external AI.
+- External AI returned ProductionReportV3 JSON, not HTML.
+- Confirmed JSON is the intended output under PR #21 architecture.
+- Rejected the external AI's recommendation to restore AI-authored standalone HTML because it would recreate PR #20 defects.
+- Found a real prompt conflict:
+  - top-level contract requires JSON only;
+  - Creative History section still includes `.timeline-container`, `.timeline-card`, `data-year`, and `data-copy-status` rendering instructions.
+- Found the real response fused year and status, for example `2021 · not-found`, while the app requires the exact enum `not-found`.
+- Identified the primary remaining product defect as user-flow ambiguity: the app must explicitly explain that the user copies JSON back into Phase 6 and the app generates HTML.
+- Added `handoff/PHASE6_EXTERNAL_AI_JSON_WORKFLOW_QA_2026-07-09.md` with:
+  - diagnosis;
+  - forbidden rollback to AI HTML;
+  - required UI wording;
+  - Creative History data-contract correction;
+  - enum/fixed-year schema requirements;
+  - constrained normalization for the owner's current response;
+  - actionable validation errors;
+  - real external-AI E2E gates;
+  - next-session command.
+- Updated `AGENTS.md` and `handoff/PROJECT_HANDOFF.md` to point to the new continuation document.
+- No product code was changed in this documentation pass.
+- `main` remains unchanged.
