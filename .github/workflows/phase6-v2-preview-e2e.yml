@@ -33,11 +33,7 @@ jobs:
           rm -f .github/workflows/apply-phase6-external-json-fix.yml
           rm -f scripts/apply-phase6-structured-contract-fix.py
           rm -f phase6-apply-error.txt phase6-apply-error.log
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Run production build and contract tests
-        run: npm run build
-      - name: Commit implementation
+      - name: Commit structured contract
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -45,3 +41,7 @@ jobs:
           git add -A
           git commit -m "Add Phase 6 structured status contract"
           git push origin HEAD:fix/phase6-structured-report-renderer-v1
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run production build and contract tests
+        run: npm run build
