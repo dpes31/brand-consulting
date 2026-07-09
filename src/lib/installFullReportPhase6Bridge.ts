@@ -8,14 +8,16 @@ import {
 import { applyStructuredDefinitionPolicy } from '../report/structuredDefinitionPolicy';
 import { assertStructuredReportCrossPage } from '../report/structuredReportCrossValidation';
 import {
-  annotateStructuredReportDocument,
-  buildStructuredReportPrompt,
-  extractStructuredReportJson,
-  formatStructuredNormalizationWarnings,
-  normalizeStructuredReportV3,
-  prepareStructuredReportBase,
-  renderStructuredReportV3,
+  buildProductionReportV3Prompt,
+  formatProductionReportV3Warnings,
+  normalizeProductionReportV3,
+  renderProductionReportV3,
   type StructuredNormalizationWarning,
+} from '../report/productionReportV3Contract';
+import {
+  annotateStructuredReportDocument,
+  extractStructuredReportJson,
+  prepareStructuredReportBase,
 } from '../report/structuredReportV3';
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
@@ -156,11 +158,11 @@ async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement):
   try {
     const approvedBase = await loadApprovedPilotBaseHtml(brandName);
     const prepared = prepareStructuredReportBase(approvedBase, brandName);
-    const definitions = applyStructuredDefinitionPolicy(prepared.definitions);
-    const prompt = buildStructuredReportPrompt(
+    const baseDefinitions = applyStructuredDefinitionPolicy(prepared.definitions);
+    const { prompt } = buildProductionReportV3Prompt(
       rawResearch,
       brandName,
-      definitions,
+      baseDefinitions,
       buildCreativeHistoryDataDirective(rawResearch),
     );
     await copyText(prompt);
@@ -205,12 +207,13 @@ async function compileManualInput(
     }
     const approvedBase = await loadApprovedPilotBaseHtml(brandName);
     const prepared = prepareStructuredReportBase(approvedBase, brandName);
-    const definitions = applyStructuredDefinitionPolicy(prepared.definitions);
+    const baseDefinitions = applyStructuredDefinitionPolicy(prepared.definitions);
+    const { definitions } = buildProductionReportV3Prompt('', brandName, baseDefinitions);
     const extracted = extractStructuredReportJson(value);
-    const normalized = normalizeStructuredReportV3(extracted, definitions);
+    const normalized = normalizeProductionReportV3(extracted, definitions);
     assertStructuredReportCrossPage(normalized.report);
     return {
-      html: renderStructuredReportV3(approvedBase, normalized.report, brandName),
+      html: renderProductionReportV3(approvedBase, normalized.report, brandName, definitions),
       warnings: normalized.warnings,
       inputKind: mode,
     };
@@ -264,10 +267,18 @@ async function handleManualRender(event: MouseEvent, button: HTMLButtonElement):
 
   try {
     const result = await compileManualInput(textarea.value, brandName, mode);
-    setControlledTextareaValue(textarea, result.html);
-    textarea.dataset.fullReportValidatedHtml = 'true';
+    const replayButton = mode === 'compat-html'
+      ? document.querySelector<HTMLButtonElement>('button[data-phase6-action="structured-json"]')
+      : button;
+    const replayTextarea = mode === 'compat-html'
+      ? findPhase6Textarea('structured-json', replayButton || undefined)
+      : textarea;
+    if (!replayButton || !replayTextarea) throw new Error('검증된 보고서를 Viewer로 전달할 수 없습니다.');
+
+    setControlledTextareaValue(replayTextarea, result.html);
+    replayTextarea.dataset.fullReportValidatedHtml = 'true';
     if (result.warnings.length) {
-      window.alert(formatStructuredNormalizationWarnings(result.warnings));
+      window.alert(formatProductionReportV3Warnings(result.warnings));
     } else if (result.inputKind === 'structured-json') {
       window.alert('JSON 검증을 통과했습니다. HTML은 외부 AI가 아니라 앱이 자동 생성했습니다.');
     }
@@ -276,7 +287,7 @@ async function handleManualRender(event: MouseEvent, button: HTMLButtonElement):
       delete button.dataset.fullReportBusy;
       button.textContent = originalText;
       replayingRender = true;
-      button.click();
+      replayButton.click();
     }, 120);
   } catch (error) {
     button.disabled = false;
