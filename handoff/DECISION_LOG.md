@@ -45,7 +45,7 @@
 
 **Decision:** The approved Pilot provides DOM, CSS, component, order, navigation, and print structure only. Completed Biznup wording is never a generated-report content source.
 
-**Implementation:** Sample text becomes `CONTENT SLOT` tokens filled only from current Step 0–5 research. Unresolved slots block rendering.
+**Current implementation:** ProductionReportV3 semantic values are injected into the app-owned Pilot DOM. Historical generic `CONTENT SLOT` filling is superseded as the primary path.
 
 ## D-008 — Exact user brand is immutable
 
@@ -60,7 +60,7 @@
 - Page 40 is Decision Receipt / Close.
 - Every slide uses logical 1280×720 geometry.
 - PDF MediaBox is 960×540pt.
-- Historical D-013/D-018 40+8 and 48-page rules are superseded.
+- Historical 40+8 and 48-page rules are superseded.
 - Creative Methodology and Appendix A1–A7 are excluded from the approved output.
 
 ## D-010 — Candidate-five to core-three competitor logic
@@ -129,10 +129,12 @@
 
 - P2 fixed label `핵심 진단`
 - P4 fixed label `FACTS`
-- P5 fixed label `CATEGORY & TARGET`
+- P5 fixed WANT / AVOID
 - P10 fixed chapter `CATEGORY SHIFT`, levels `LEVEL 1`–`LEVEL 5`
+- P13–15 fixed Deep Dive headings and threat-rank labels
+- P17 fixed three-column cliché structure
 - Persona uses Situation / JTBD / identity-shift structure and page 21 target names
-- Pain Points, AIPL, Creative Insight, STP, Four Directions, and Final Choice retain approved structures
+- Pain Points, AIPL, Loyalty, Creative Insight, STP, Four Directions, and Final Choice retain approved structures
 - Persona `02` and `03` are atomic nowrap labels
 - Creative History uses centered six-year cards without decorative NOW circles
 - Connector glyphs remain short symbols, never prose
@@ -191,15 +193,84 @@ Generic full-width or stacked choice layouts are invalid.
 
 Helper tests, standalone HTML, or successful deployment alone are insufficient.
 
-## D-019 — Current implementation record
+## D-019 — PR #20 is a failed real-world QA record
+
+**Decision:** Do not merge PR #20.
+
+**Reason:** Automated runtime/PDF tests passed, but a real external-AI complete-HTML run changed semantic DOM, moved content into wrong fields, inserted script, and persisted viewport scale.
+
+**Reference:** `handoff/PHASE6_REAL_WORLD_QA_HANDOFF_2026-07-08.md`.
+
+## D-020 — App owns the Renderer; AI owns structured values only
+
+**Decision:** Production Phase 6 uses one shared ProductionReportV3 JSON contract for external AI and internal API.
+
+**Implementation boundary:**
+
+- AI returns page-scoped JSON values only.
+- The application owns all HTML, CSS, fixed labels, rows, columns, connectors, page order, navigation, geometry, and print rules.
+- The application validates exact pages, keys, maxLength, cross-page consistency, Creative History factuality, and DOM fingerprint before rendering.
+- Complete HTML generation by AI is not a production path.
+- Complete HTML paste remains only as a sanitized compatibility importer.
+
+**Status:** Permanent unless explicitly reversed by the owner after a new architecture review.
+
+## D-021 — JSON output is the expected external-AI deliverable
+
+**Decision:** A downloaded Phase 6 prompt must instruct the external AI to return JSON, not HTML.
+
+**Consequences:**
+
+- Do not adopt `The assistant, not the application, must generate the complete standalone HTML`.
+- Do not request JSON and HTML as two final deliverables.
+- The UI must explicitly explain that the user copies JSON back into Phase 6 and the app generates the final HTML.
+- A JSON response alone is not a failure; schema violations inside that JSON remain failures.
+
+## D-022 — AI prompts contain data contracts, not Renderer contracts
+
+**Decision:** External-AI prompts must not expose DOM implementation instructions.
+
+**Creative History rule:**
+
+- remove `.timeline-container`, `.timeline-card`, `data-year`, and `data-copy-status` from the AI-facing prompt;
+- keep fixed years in Renderer metadata;
+- expose status as an exact machine-readable enum;
+- let the app assign classes, attributes, and quotation styling.
+
+**Reason:** Mixing JSON-only output with DOM instructions caused the real external-AI response to emit invalid values such as `2021 · not-found`.
+
+## D-023 — Constrained compatibility normalization
+
+**Decision:** The app may repair only a narrowly defined, lossless status format from the owner's current response.
+
+Allowed example:
+
+- expected 2021 field + `2021 · not-found` → `not-found`
+
+Requirements:
+
+- prefix year must match the field's fixed year;
+- suffix must equal one approved status;
+- repair emits a page/field warning;
+- strict validation runs after repair;
+- all other malformed values remain blocking errors.
+
+## D-024 — Current implementation record
 
 **Decision:** Continue only on:
 
-- branch `fix/phase6-approved-main40-no-appendix-v3`
-- Draft PR #20
+- branch `fix/phase6-structured-report-renderer-v1`
+- Draft PR #21
 
-**Validated head:** `7d94b1895c47e9db7268c9d181060e0a735c1d9b`
+**Validated implementation head before handoff-only updates:** `8a4601d7a4895e32a521112f467d75af40678b86`
 
-**Validation:** Production build PASS; Phase 6 browser/PDF E2E PASS. Vercel deployment is temporarily blocked by account build-rate limiting, not by code failure.
+**Validation:** Production build PASS; Phase 6 browser/PDF E2E PASS; Vercel Preview Ready.
 
-**Superseded:** PR #18 and PR #19. Do not merge them.
+**Remaining approval gates:**
+
+- explicit five-step JSON workflow UX;
+- Creative History data-only prompt;
+- enum/fixed-year schema metadata;
+- safe normalization or actionable errors for the owner's current response;
+- two corrected real external-AI runs;
+- owner Preview review.
