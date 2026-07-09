@@ -1,4 +1,4 @@
-import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
+import { buildCreativeHistoryDataDirective } from './creativeHistoryContract';
 import { loadApprovedPilotBaseHtml } from '../report/fullReportCompiler';
 import {
   parseReportHtml,
@@ -11,8 +11,11 @@ import {
   annotateStructuredReportDocument,
   buildStructuredReportPrompt,
   extractStructuredReportJson,
+  formatStructuredNormalizationWarnings,
+  normalizeStructuredReportV3,
   prepareStructuredReportBase,
   renderStructuredReportV3,
+  type StructuredNormalizationWarning,
 } from '../report/structuredReportV3';
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
@@ -21,6 +24,14 @@ const ACTIVE_BRAND_SESSION_KEYS = [
   'brand-consulting:brand-name',
 ] as const;
 const REQUIRED_PHASE_STEPS = ['0', '1', '2', '3', '4', '5'] as const;
+
+type ManualInputMode = 'structured-json' | 'compat-html';
+
+type ManualCompileResult = {
+  html: string;
+  warnings: StructuredNormalizationWarning[];
+  inputKind: ManualInputMode;
+};
 
 let installed = false;
 let replayingRender = false;
@@ -95,9 +106,14 @@ async function copyText(text: string): Promise<void> {
   }
 }
 
-function findPhase6Textarea(): HTMLTextAreaElement | null {
-  return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
-    .find((textarea) => /외부|html|json/i.test(textarea.getAttribute('placeholder') || '')) || null;
+function findPhase6Textarea(mode: ManualInputMode, button?: HTMLButtonElement): HTMLTextAreaElement | null {
+  const local = button?.closest<HTMLElement>('[data-phase6-panel]')
+    ?.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`);
+  if (local) return local;
+  return document.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`)
+    || Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
+      .find((textarea) => /외부|html|json/i.test(textarea.getAttribute('placeholder') || ''))
+    || null;
 }
 
 function setControlledTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
@@ -134,7 +150,7 @@ async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement):
     return;
   }
 
-  const originalText = normalizeText(button.textContent) || '프롬프트 추출';
+  const originalText = normalizeText(button.textContent) || '외부 AI용 JSON 프롬프트 다운로드';
   button.disabled = true;
   button.textContent = '40페이지 구조화 Schema 준비 중...';
   try {
@@ -145,13 +161,17 @@ async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement):
       rawResearch,
       brandName,
       definitions,
-      buildCreativeHistoryCompilerDirective(rawResearch),
+      buildCreativeHistoryDataDirective(rawResearch),
     );
     await copyText(prompt);
     downloadPrompt(prompt, brandName);
     window.alert(
-      '구조화 JSON 프롬프트를 복사하고 파일로 저장했다.\n\n' +
-      '외부 AI는 HTML을 작성하지 않는다. 앱이 고정 40페이지 Renderer에 JSON 값만 주입한다.',
+      '외부 AI용 ProductionReportV3 JSON 프롬프트를 복사하고 파일로 저장했습니다.\n\n'
+      + '1. 파일을 외부 AI에 첨부합니다.\n'
+      + '2. 반환된 JSON 전체를 복사합니다.\n'
+      + '3. Phase 6 입력창에 붙여넣습니다.\n'
+      + '4. JSON 검증 후 40페이지 보고서 만들기를 실행합니다.\n\n'
+      + 'HTML은 외부 AI가 아니라 앱이 자동 생성합니다.',
     );
   } catch (error) {
     window.alert(`Phase 6 프롬프트 생성 오류: ${error instanceof Error ? error.message : String(error)}`);
@@ -163,12 +183,6 @@ async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement):
 
 function validateCompatibleStructure(sanitizedHtml: string, brandName: string): string {
   const importedDocument = parseReportHtml(sanitizedHtml);
-
-  // HTML compatibility is intentionally narrower than the ProductionReportV3
-  // path. Active content is removed and the exact 40-page skeleton/cardinality
-  // is enforced by the sanitizer. Re-annotation then verifies that all approved
-  // semantic fields can still be bound. Existing legacy wording is preserved,
-  // but malformed component DOM fails before Viewer rendering.
   const definitions = annotateStructuredReportDocument(importedDocument, brandName);
   if (definitions.length < 260) {
     throw new Error(`붙여넣은 HTML의 의미 필드가 부족하다. 현재 ${definitions.length}개다.`);
@@ -180,18 +194,37 @@ function validateCompatibleStructure(sanitizedHtml: string, brandName: string): 
   return serializeReportDocument(importedDocument);
 }
 
-async function compileManualInput(value: string, brandName: string): Promise<string> {
-  if (looksLikeStructuredJson(value)) {
+async function compileManualInput(
+  value: string,
+  brandName: string,
+  mode: ManualInputMode,
+): Promise<ManualCompileResult> {
+  if (mode === 'structured-json') {
+    if (!looksLikeStructuredJson(value)) {
+      throw new Error('ProductionReportV3 JSON을 확인할 수 없습니다. JSON 전체를 붙여넣거나 .json/.txt 응답 파일을 불러오세요.');
+    }
     const approvedBase = await loadApprovedPilotBaseHtml(brandName);
-    const report = extractStructuredReportJson(value);
-    assertStructuredReportCrossPage(report);
-    return renderStructuredReportV3(approvedBase, report, brandName);
+    const prepared = prepareStructuredReportBase(approvedBase, brandName);
+    const definitions = applyStructuredDefinitionPolicy(prepared.definitions);
+    const extracted = extractStructuredReportJson(value);
+    const normalized = normalizeStructuredReportV3(extracted, definitions);
+    assertStructuredReportCrossPage(normalized.report);
+    return {
+      html: renderStructuredReportV3(approvedBase, normalized.report, brandName),
+      warnings: normalized.warnings,
+      inputKind: mode,
+    };
   }
+
   if (/<!doctype\s+html|<html\b/i.test(value)) {
     const sanitized = sanitizeCompatibleFullReportHtml(value, brandName);
-    return validateCompatibleStructure(sanitized, brandName);
+    return {
+      html: validateCompatibleStructure(sanitized, brandName),
+      warnings: [],
+      inputKind: mode,
+    };
   }
-  throw new Error('구조화 JSON 또는 완전한 HTML 문서를 확인할 수 없다.');
+  throw new Error('호환용 완성 HTML 문서를 확인할 수 없습니다.');
 }
 
 async function handleManualRender(event: MouseEvent, button: HTMLButtonElement): Promise<void> {
@@ -201,11 +234,16 @@ async function handleManualRender(event: MouseEvent, button: HTMLButtonElement):
   }
 
   stopReactClick(event);
-  const textarea = findPhase6Textarea();
+  const mode: ManualInputMode = button.dataset.phase6Action === 'compat-html'
+    ? 'compat-html'
+    : 'structured-json';
+  const textarea = findPhase6Textarea(mode, button);
   const brandName = readBrandName();
   const { rawResearch, missingSteps } = readResearchSnapshot();
   if (!textarea?.value.trim()) {
-    window.alert('외부 AI가 생성한 구조화 JSON 또는 호환 HTML을 붙여넣어야 한다.');
+    window.alert(mode === 'structured-json'
+      ? '외부 AI가 반환한 JSON 전체를 붙여넣거나 .json/.txt 응답 파일을 불러오세요.'
+      : '기존 완성 HTML 문서를 호환용 입력창에 붙여넣으세요.');
     return;
   }
   if (!brandName) {
@@ -217,15 +255,22 @@ async function handleManualRender(event: MouseEvent, button: HTMLButtonElement):
     return;
   }
 
-  const originalText = normalizeText(button.textContent) || '결과물 뷰어에 렌더링하기';
+  const originalText = normalizeText(button.textContent) || (mode === 'structured-json'
+    ? 'JSON 검증 후 40페이지 보고서 만들기'
+    : '호환 HTML 검증 후 가져오기');
   button.disabled = true;
   button.dataset.fullReportBusy = 'true';
   button.textContent = '구조·내용·보안 검증 중...';
 
   try {
-    const html = await compileManualInput(textarea.value, brandName);
-    setControlledTextareaValue(textarea, html);
+    const result = await compileManualInput(textarea.value, brandName, mode);
+    setControlledTextareaValue(textarea, result.html);
     textarea.dataset.fullReportValidatedHtml = 'true';
+    if (result.warnings.length) {
+      window.alert(formatStructuredNormalizationWarnings(result.warnings));
+    } else if (result.inputKind === 'structured-json') {
+      window.alert('JSON 검증을 통과했습니다. HTML은 외부 AI가 아니라 앱이 자동 생성했습니다.');
+    }
     window.setTimeout(() => {
       button.disabled = false;
       delete button.dataset.fullReportBusy;
@@ -242,20 +287,24 @@ async function handleManualRender(event: MouseEvent, button: HTMLButtonElement):
 }
 
 function refreshPhase6Copy(): void {
-  const textarea = findPhase6Textarea();
-  if (textarea) {
-    textarea.placeholder = '권장: 외부 AI가 생성한 ProductionReportV3 구조화 JSON을 붙여넣는다. 기존 완성 HTML은 Sanitizer 호환 경로로만 지원한다.';
+  const jsonTextarea = findPhase6Textarea('structured-json');
+  if (jsonTextarea) {
+    jsonTextarea.placeholder = '외부 AI가 반환한 ProductionReportV3 JSON 전체를 붙여넣으세요. Raw JSON과 ```json 코드펜스를 모두 지원합니다.';
+  }
+  const compatTextarea = findPhase6Textarea('compat-html');
+  if (compatTextarea) {
+    compatTextarea.placeholder = '기존 완성 HTML 문서만 입력하세요. Sanitizer와 고정 구조 검증 후 호환용으로 가져옵니다.';
   }
   document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
     const text = normalizeText(element.textContent);
     if (text === '외부 AI 수동 렌더링' || text === '외부 AI 완성 HTML 생성') {
-      element.textContent = '외부 AI 구조화 JSON 생성';
+      element.textContent = '외부 AI 구조화 JSON 방식';
     }
     if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.' || text.includes('콘텐츠 슬롯')) {
-      element.textContent = '외부 AI는 페이지별 JSON 값만 생성하고, 앱이 승인 레이아웃을 렌더링한다.';
+      element.textContent = '외부 AI는 JSON 값만 생성하고 앱이 승인된 40페이지 HTML을 렌더링합니다.';
     }
     if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
-      element.textContent = '40페이지 DOM은 앱이 고정하고, Step 0~5 조사 내용만 구조화해 주입한다.';
+      element.textContent = 'Step 0~5 조사 결과를 ProductionReportV3 JSON으로 검증한 뒤 앱이 40페이지 보고서를 생성합니다.';
     }
   });
 }
@@ -268,11 +317,19 @@ export function installFullReportPhase6Bridge(): void {
     const button = event.target instanceof Element ? event.target.closest('button') : null;
     if (!(button instanceof HTMLButtonElement)) return;
     const label = normalizeText(button.textContent);
-    if (label.includes('프롬프트 추출')) {
+    if (button.dataset.phase6Action === 'prompt-download'
+      || label.includes('외부 AI용 JSON 프롬프트 다운로드')
+      || label.includes('프롬프트 추출')) {
       void handlePromptExport(event, button);
       return;
     }
-    if (label.includes('결과물 뷰어에 렌더링하기')) void handleManualRender(event, button);
+    if (button.dataset.phase6Action === 'structured-json'
+      || button.dataset.phase6Action === 'compat-html'
+      || label.includes('JSON 검증 후 40페이지 보고서 만들기')
+      || label.includes('호환 HTML 검증 후 가져오기')
+      || label.includes('결과물 뷰어에 렌더링하기')) {
+      void handleManualRender(event, button);
+    }
   }, true);
 
   const observer = new MutationObserver(refreshPhase6Copy);
