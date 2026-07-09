@@ -4,11 +4,13 @@ import { loadApprovedPilotBaseHtml } from '../report/fullReportCompiler';
 import { applyStructuredDefinitionPolicy } from '../report/structuredDefinitionPolicy';
 import { assertStructuredReportCrossPage } from '../report/structuredReportCrossValidation';
 import {
-  buildStructuredReportPrompt,
+  buildProductionReportV3Prompt,
+  normalizeProductionReportV3,
+  renderProductionReportV3,
+} from '../report/productionReportV3Contract';
+import {
   extractStructuredReportJson,
-  normalizeStructuredReportV3,
   prepareStructuredReportBase,
-  renderStructuredReportV3,
 } from '../report/structuredReportV3';
 
 export async function compileReportToHTML(
@@ -21,11 +23,11 @@ export async function compileReportToHTML(
 
   const approvedBase = await loadApprovedPilotBaseHtml(brandName);
   const prepared = prepareStructuredReportBase(approvedBase, brandName);
-  const definitions = applyStructuredDefinitionPolicy(prepared.definitions);
-  const prompt = buildStructuredReportPrompt(
+  const baseDefinitions = applyStructuredDefinitionPolicy(prepared.definitions);
+  const { prompt, definitions } = buildProductionReportV3Prompt(
     rawData,
     brandName,
-    definitions,
+    baseDefinitions,
     buildCreativeHistoryDataDirective(rawData),
   );
 
@@ -44,10 +46,10 @@ export async function compileReportToHTML(
   const result = await chat.sendMessage({ message: prompt });
   if (!result.text?.trim()) throw new Error('The Phase 6 structured JSON response is empty.');
   const extracted = extractStructuredReportJson(result.text);
-  const normalized = normalizeStructuredReportV3(extracted, definitions);
+  const normalized = normalizeProductionReportV3(extracted, definitions);
   if (normalized.warnings.length) {
     console.warn('[Phase 6] Creative History status normalized', normalized.warnings);
   }
   assertStructuredReportCrossPage(normalized.report);
-  return renderStructuredReportV3(approvedBase, normalized.report, brandName);
+  return renderProductionReportV3(approvedBase, normalized.report, brandName, definitions);
 }
