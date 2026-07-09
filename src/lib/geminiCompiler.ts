@@ -1,11 +1,12 @@
 import { GoogleGenAI } from '@google/genai';
-import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
+import { buildCreativeHistoryDataDirective } from './creativeHistoryContract';
 import { loadApprovedPilotBaseHtml } from '../report/fullReportCompiler';
 import { applyStructuredDefinitionPolicy } from '../report/structuredDefinitionPolicy';
 import { assertStructuredReportCrossPage } from '../report/structuredReportCrossValidation';
 import {
   buildStructuredReportPrompt,
   extractStructuredReportJson,
+  normalizeStructuredReportV3,
   prepareStructuredReportBase,
   renderStructuredReportV3,
 } from '../report/structuredReportV3';
@@ -25,7 +26,7 @@ export async function compileReportToHTML(
     rawData,
     brandName,
     definitions,
-    buildCreativeHistoryCompilerDirective(rawData),
+    buildCreativeHistoryDataDirective(rawData),
   );
 
   const ai = new GoogleGenAI({ apiKey });
@@ -42,7 +43,11 @@ export async function compileReportToHTML(
 
   const result = await chat.sendMessage({ message: prompt });
   if (!result.text?.trim()) throw new Error('The Phase 6 structured JSON response is empty.');
-  const report = extractStructuredReportJson(result.text);
-  assertStructuredReportCrossPage(report);
-  return renderStructuredReportV3(approvedBase, report, brandName);
+  const extracted = extractStructuredReportJson(result.text);
+  const normalized = normalizeStructuredReportV3(extracted, definitions);
+  if (normalized.warnings.length) {
+    console.warn('[Phase 6] Creative History status normalized', normalized.warnings);
+  }
+  assertStructuredReportCrossPage(normalized.report);
+  return renderStructuredReportV3(approvedBase, normalized.report, brandName);
 }
