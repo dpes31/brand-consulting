@@ -1,4 +1,4 @@
-name: Apply Phase 6 External JSON Product Fix
+name: Apply Phase 6 Structured Contract Fix
 
 on:
   pull_request:
@@ -24,34 +24,15 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Execute reviewed one-shot correction
+      - name: Apply structured contract correction
+        run: python scripts/apply-phase6-structured-contract-fix.py
+      - name: Restore permanent workflow and remove temporary helpers
         shell: bash
         run: |
-          set +e
-          python - <<'PYRUN' > phase6-apply-error.txt 2>&1
-          from pathlib import Path
-          import textwrap
-
-          workflow = Path('.github/workflows/apply-phase6-external-json-fix.yml').read_text(encoding='utf-8')
-          start_marker = "          python - <<'PY'\n"
-          end_marker = "\n          PY\n"
-          start = workflow.index(start_marker) + len(start_marker)
-          end = workflow.index(end_marker, start)
-          script = textwrap.dedent(workflow[start:end])
-          exec(compile(script, 'phase6-external-json-fix.py', 'exec'))
-          PYRUN
-          code=$?
-          cat phase6-apply-error.txt
-          if [ "$code" != "0" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -f phase6-apply-error.txt
-            git commit -m "Record Phase 6 correction failure"
-            git push origin HEAD:fix/phase6-structured-report-renderer-v1
-            exit "$code"
-          fi
-          git show HEAD^:.github/workflows/phase6-v2-preview-e2e.yml > .github/workflows/phase6-v2-preview-e2e.yml
-          rm -f phase6-apply-error.txt
+          git show ce4be65dbac43e44f0bf0afe07a09ac3aa3c638d:.github/workflows/phase6-v2-preview-e2e.yml > .github/workflows/phase6-v2-preview-e2e.yml
+          rm -f .github/workflows/apply-phase6-external-json-fix.yml
+          rm -f scripts/apply-phase6-structured-contract-fix.py
+          rm -f phase6-apply-error.txt phase6-apply-error.log
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Run production build and contract tests
@@ -62,5 +43,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Fix Phase 6 external AI JSON workflow [workflow-applied]"
+          git commit -m "Add Phase 6 structured status contract"
           git push origin HEAD:fix/phase6-structured-report-renderer-v1
