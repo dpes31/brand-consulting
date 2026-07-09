@@ -37,18 +37,18 @@ async function completeResearchPipeline(targetPage) {
     }
   }
   await targetPage.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });
-  await targetPage.getByText('기존 완성 HTML 가져오기 — 호환용', { exact: true }).waitFor({ timeout: 30000 });
+  await targetPage.getByText('기존 완성 HTML 가져오기 — 호환용', { exact: true }).last().waitFor({ timeout: 30000 });
 }
 
 async function openCompatibilityImporter(targetPage) {
-  const details = targetPage.locator('#phase6-compatibility-html');
-  const isOpen = await details.evaluate((node) => node.open);
-  if (!isOpen) {
-    await targetPage.getByText('기존 완성 HTML 가져오기 — 호환용', { exact: true }).click();
-  }
-  const input = targetPage.locator('textarea[data-phase6-input-mode="compat-html"]');
+  const details = targetPage.locator('#phase6-compatibility-html').last();
+  await details.waitFor({ state: 'attached', timeout: 30000 });
+  await details.evaluate((element) => {
+    element.open = true;
+  });
+  const input = details.locator('textarea[data-phase6-input-mode="compat-html"]');
   await input.waitFor({ state: 'visible', timeout: 30000 });
-  return input;
+  return { details, input };
 }
 
 try {
@@ -75,9 +75,9 @@ try {
 
   await page.goto(appUrl, { waitUntil: 'networkidle', timeout: 120000 });
   await completeResearchPipeline(page);
-  let input = await openCompatibilityImporter(page);
-  await input.fill(`\`\`\`html\n${compatibilityHtml}\n\`\`\``);
-  await page.getByRole('button', { name: '호환 HTML 검증 후 가져오기' }).click();
+  let importer = await openCompatibilityImporter(page);
+  await importer.input.fill(`\`\`\`html\n${compatibilityHtml}\n\`\`\``);
+  await importer.details.getByRole('button', { name: '호환 HTML 검증 후 가져오기' }).click();
   await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 60000 });
   const frame = page.frameLocator('#fullscreen-viewer-iframe');
   await frame.locator('.full-slide').first().waitFor({ timeout: 60000 });
@@ -108,10 +108,10 @@ try {
 
   const malformedHtml = compatibilityHtml.replace('class="stp-position"', 'class="stp-position-removed"');
   assert.notEqual(malformedHtml, compatibilityHtml, 'Malformed fixture mutation failed');
-  input = await openCompatibilityImporter(page);
-  await input.fill(`\`\`\`html\n${malformedHtml}\n\`\`\``);
+  importer = await openCompatibilityImporter(page);
+  await importer.input.fill(`\`\`\`html\n${malformedHtml}\n\`\`\``);
   const beforeMalformed = dialogs.length;
-  await page.getByRole('button', { name: '호환 HTML 검증 후 가져오기' }).click();
+  await importer.details.getByRole('button', { name: '호환 HTML 검증 후 가져오기' }).click();
   await page.waitForTimeout(500);
   assert.equal(await page.locator('#fullscreen-viewer-iframe').count(), 0);
   assert.ok(dialogs.slice(beforeMalformed).some((message) => /stp-position|승인된 페이지 구조/.test(message)));
