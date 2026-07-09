@@ -8,8 +8,7 @@
     "test:full-report": "node scripts/test-full-report-contract.mjs",
     "test:full-report-runtime": "node scripts/test-full-report-runtime.mjs",
     "test:material-symbols": "node scripts/test-material-symbols-stability.mjs",
-    "build:strict": "npm run test:full-report && npm run test:full-report-runtime && npm run test:material-symbols && tsc -b && vite build",
-    "build": "node scripts/vercel-build-diagnostic.mjs",
+    "build": "npm run test:full-report && npm run test:full-report-runtime && npm run test:material-symbols && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
