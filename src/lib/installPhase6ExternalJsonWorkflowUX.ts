@@ -72,7 +72,7 @@ function installResponseFileInput(container: HTMLElement, textarea: HTMLTextArea
   });
   upload.appendChild(input);
   row.append(label, upload);
-  container.appendChild(row);
+  container.insertBefore(row, textarea);
 }
 
 function installCompatibilityArea(panel: HTMLElement, primaryButton: HTMLButtonElement): void {
