@@ -19,7 +19,7 @@ function findLegacyPhase6Textarea(): HTMLTextAreaElement | null {
   return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
     .find((textarea) => {
       const placeholder = textarea.placeholder || '';
-      return /외부 제미나이|<html|ProductionReportV3|구조화 JSON/i.test(placeholder);
+      return /외부 제미나이|<html|완성 HTML|Sanitizer|호환용|ProductionReportV3|구조화 JSON/i.test(placeholder);
     }) || null;
 }
 
