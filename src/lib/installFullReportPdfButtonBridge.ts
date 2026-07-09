@@ -1,5 +1,6 @@
 import { exportFullReportPdf } from './installFullReportRuntimeCompatibility';
 
+const FULL_PAGE_COUNT = 40;
 let installed = false;
 let stableExportFrame: HTMLIFrameElement | null = null;
 let stableExportSource = '';
@@ -54,8 +55,8 @@ function isFullReportFrame(iframe: HTMLIFrameElement): boolean {
     return Boolean(
       windowRef?.__FULL_REPORT_RUNTIME__
       || documentRef?.body?.dataset.reportVersion === 'full-report-v1'
-      || documentRef?.documentElement.dataset.fullReportPageCount === '48'
-      || fullSlideCount(iframe) === 48,
+      || documentRef?.documentElement.dataset.fullReportPageCount === String(FULL_PAGE_COUNT)
+      || fullSlideCount(iframe) === FULL_PAGE_COUNT,
     );
   } catch {
     return false;
@@ -74,10 +75,10 @@ function findViewerFrame(): HTMLIFrameElement | null {
 async function waitForFullReportFrame(iframe: HTMLIFrameElement, timeoutMs = 30000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    if (isFullReportFrame(iframe) && fullSlideCount(iframe) === 48) return;
+    if (isFullReportFrame(iframe) && fullSlideCount(iframe) === FULL_PAGE_COUNT) return;
     await new Promise((resolve) => window.setTimeout(resolve, 100));
   }
-  throw new Error('FULL 보고서 48페이지가 준비되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+  throw new Error('FULL 보고서 40페이지가 준비되지 않았다. 잠시 후 다시 시도해야 한다.');
 }
 
 function reportSource(iframe: HTMLIFrameElement): string {
@@ -87,9 +88,7 @@ function reportSource(iframe: HTMLIFrameElement): string {
 }
 
 async function createStableExportFrame(source: string): Promise<HTMLIFrameElement> {
-  if (!source.includes('data-report-version="full-report-v1"')) {
-    throw new Error('FULL 보고서 원본 HTML을 확인할 수 없습니다.');
-  }
+  if (!source.includes('data-report-version="full-report-v1"')) throw new Error('FULL 보고서 원본 HTML을 확인할 수 없다.');
 
   if (stableExportFrame && stableExportSource === source && stableExportFrame.isConnected) {
     await waitForFullReportFrame(stableExportFrame);
@@ -102,14 +101,8 @@ async function createStableExportFrame(source: string): Promise<HTMLIFrameElemen
   iframe.title = 'FULL Report PDF Export';
   iframe.setAttribute('aria-hidden', 'true');
   iframe.style.cssText = [
-    'position:fixed',
-    'left:-20000px',
-    'top:0',
-    'width:1280px',
-    'height:720px',
-    'border:0',
-    'pointer-events:none',
-    'z-index:-1',
+    'position:fixed', 'left:-20000px', 'top:0', 'width:1280px', 'height:720px',
+    'border:0', 'pointer-events:none', 'z-index:-1',
   ].join(';');
   iframe.srcdoc = source;
   document.body.appendChild(iframe);
@@ -120,14 +113,14 @@ async function createStableExportFrame(source: string): Promise<HTMLIFrameElemen
 }
 
 async function resolveExportFrame(viewerFrame: HTMLIFrameElement): Promise<HTMLIFrameElement> {
-  if (isFullReportFrame(viewerFrame) && fullSlideCount(viewerFrame) === 48) return viewerFrame;
+  if (isFullReportFrame(viewerFrame) && fullSlideCount(viewerFrame) === FULL_PAGE_COUNT) return viewerFrame;
   return createStableExportFrame(reportSource(viewerFrame));
 }
 
 async function exportFromStableFrame(viewerFrame: HTMLIFrameElement): Promise<void> {
   const iframe = await resolveExportFrame(viewerFrame);
   const frameWindow = iframe.contentWindow as ReportFrameWindow | null;
-  if (!frameWindow) throw new Error('FULL 보고서 iframe에 접근할 수 없습니다.');
+  if (!frameWindow) throw new Error('FULL 보고서 iframe에 접근할 수 없다.');
 
   const previousPreflight = frameWindow.__REPORT_PREFLIGHT__;
   delete frameWindow.__REPORT_PREFLIGHT__;
@@ -153,7 +146,7 @@ export function installFullReportPdfButtonBridge(): void {
 
     const iframe = findViewerFrame();
     if (!iframe) {
-      window.alert('PDF로 출력할 FULL 보고서를 먼저 생성하거나 저장된 프로젝트를 열어 주세요.');
+      window.alert('PDF로 출력할 FULL 보고서를 먼저 생성하거나 저장된 프로젝트를 열어야 한다.');
       return;
     }
 

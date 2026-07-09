@@ -188,22 +188,25 @@ ${CREATIVE_HISTORY_START}
 ${CREATIVE_HISTORY_END}`;
 }
 
-export function buildCreativeHistoryCompilerDirective(rawData: string): string {
+export function buildCreativeHistoryDataDirective(rawData: string): string {
   const registry = parseCreativeHistoryRegistry(rawData);
   const currentYear = registry?.period.currentYearYtd ?? new Date().getFullYear();
-  const years = expectedCreativeYears(currentYear);
 
-  return `[CREATIVE HISTORY RENDERING CONTRACT]
+  return `[CREATIVE HISTORY DATA CONTRACT]
 - Step 4의 CREATIVE_HISTORY_REGISTRY를 Creative History 페이지의 유일한 사실 원천으로 사용하십시오.
-- 조사 브랜드 slide-13과 각 competitor-creative-history 페이지는 정확히 ${years.length}개의 연도 카드(${years.join(', ')})를 가져야 합니다.
-- 각 페이지는 기존 .timeline-container / .timeline-card 컴포넌트를 사용하고, 각 카드에 data-year="연도"와 data-copy-status를 부여하십시오.
-- 각 연도 카드에는 연도, 캠페인명, 모델, 실제 카피 원문 또는 미확인 문구, 매체/포맷, 소구 전략을 포함하십시오.
-- verified-verbatim인 카피만 따옴표로 표시하십시오. source-found-copy-unverified와 not-found는 따옴표 없이 미확인 상태를 명시하십시오.
-- 현재연도에 캠페인이 없으면 '${currentYear} YTD 신규 캠페인 공개 미확인'을 사용하십시오.
-- 페이지 하단에는 Message Trajectory와 Strategic So What을 각각 분리해 표시하십시오.
-- URL은 노출하지 말고 evidenceLabel의 출처명·자료명·연도만 작은 근거 문구로 표시하십시오.
-- 한 브랜드의 6개년 카드를 다른 브랜드와 합치거나 브랜드별 페이지를 생략하지 마십시오.`;
+- year1은 2021, year2는 2022, year3은 2023, year4는 2024, year5는 2025, year6은 2026 YTD를 의미합니다.
+- 각 *.status 값은 verified-verbatim, source-found-copy-unverified, not-found 중 정확히 하나만 반환하십시오.
+- status 값 안에 연도를 포함하지 마십시오. 예: "not-found"는 허용하지만 "2021 · not-found"는 허용하지 않습니다.
+- HTML, CSS, 클래스명, 속성명, data-* 속성, 페이지 구조 또는 렌더링 구현 지시를 반환하지 마십시오.
+- 각 연도에는 캠페인명, 모델, 실제 카피 원문 또는 미확인 문구, 매체/포맷, 소구 전략을 해당 field key에만 기록하십시오.
+- verified-verbatim인 카피만 따옴표를 사용할 수 있습니다. source-found-copy-unverified와 not-found는 따옴표 없이 사실 상태만 기록하십시오.
+- 현재연도 캠페인이 확인되지 않으면 '${currentYear} YTD 신규 캠페인 공개 미확인'을 사용하십시오.
+- Message Trajectory와 Strategic So What은 지정된 별도 field에 각각 기록하십시오.
+- URL은 노출하지 말고 evidenceLabel의 출처명·자료명·연도만 기록하십시오.
+- 연도, 카드 순서, 상태별 표현과 따옴표 스타일은 애플리케이션 Renderer가 고정합니다.`;
 }
+
+export const buildCreativeHistoryCompilerDirective = buildCreativeHistoryDataDirective;
 
 export interface CreativeHistoryValidation {
   valid: boolean;

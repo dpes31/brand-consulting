@@ -7,67 +7,70 @@ Approved Phase 6 production target for the Brand Consulting Generator.
 - Reference route: `/?pilot=full-integrated&brand=<exact user-entered brand>`
 - Production route: `/`, Phase 6
 - Main Deck: exactly 40 pages
-- Appendix: exactly 8 pages
-- Total: exactly 48 pages
-- Canvas: 1280×720, exact 16:9
+- Appendix: exactly 0 pages
+- Final page: Decision Receipt / Close
+- Canvas: logical 1280×720, exact 16:9
+- PDF MediaBox: 960×540pt
 - Typeface: Pretendard
 - Major titles: weight 900
 - Korean wrapping: `word-break: keep-all`
 
-The approved Pilot is the layout source only. Its completed Biznup wording is not a valid content source. Before prompt export, every visible sample-content unit is converted into a neutral `[[CONTENT:...]]` slot and must be rebuilt from the current Step 0–5 research.
+The approved Pilot is the layout source only. Its completed Biznup wording is not a valid content source. AI never authors the report DOM.
 
 ## Production compilation contract
 
 The normal Phase 6 flow is:
 
 `Step 0–5 research`
-→ `approved Pilot DOM/CSS capture after Page Plan V2 is ready`
-→ `sample-content neutralization`
-→ `research-driven slot filling`
-→ `blocking validation`
-→ `standalone 48-page HTML`
+→ `external AI or internal API returns ProductionReportV3 page-scoped JSON`
+→ `enum, fixed-year, maxLength, factuality, and cross-page validation`
+→ `app-owned fixed 40-page DOM/CSS Renderer`
+→ `standalone 40-page HTML`
 → `Viewer / save / reopen / native PDF`
 
-The following remain fixed:
+Fixed:
 
-- exactly 40 Main + 8 Appendix pages;
+- exactly 40 Main pages and zero Appendix pages;
 - page-specific structural classes and approved component hierarchy;
-- 1280×720 geometry;
+- logical 1280×720 geometry;
 - navigation shell;
 - page order defined below;
 - print and PDF rules;
-- exact user-entered brand name.
+- exact user-entered brand name;
+- connector glyphs such as arrows and comparison symbols.
 
-The following must come from current research:
+Generated from current research:
 
 - conclusions and titles;
 - metrics and dates;
-- selected competitors and ranking;
+- competitor candidates and top-three ranking;
 - Persona and consumer analysis;
 - Creative History and source labels;
 - SWOT and STP;
 - strategic routes, Winning Move, and Final Choice.
 
-No unresolved `CONTENT SLOT` may remain in final HTML.
+No unknown field, unresolved required value, invalid enum, raw URL, or model-authored HTML may pass validation.
 
 ## Blocking validation
 
-Reject the report when any of the following occurs:
+Reject the report when:
 
-- slide count is not 48;
-- Main/Appendix count is not 40/8;
+- slide count is not 40;
+- any page zone is not `main`;
+- any Appendix page remains;
 - page IDs or labels are missing or duplicated;
-- approved layouts are missing;
+- Competitive Landscape, Category Clichés, Creative Insight, Final Choice, or Decision Close is missing;
+- Creative Methodology remains;
 - unresolved content slots remain;
 - the exact user-entered brand name is absent;
-- Step 0 KPI evidence is not sufficiently represented;
-- any selected Step 2 direct competitor is absent;
+- Step 0 FACTS evidence is insufficient;
+- Landscape candidates or top-three core competitors are absent from assigned pages;
 - an unapproved script is included;
-- 1280×720 CSS is missing.
+- logical 1280×720 CSS is missing.
 
 ## Information hierarchy
 
-Every analytical page should answer one decision question through this order:
+Every analytical page follows:
 
 1. Section / breadcrumb
 2. Conclusion-led page title
@@ -77,59 +80,65 @@ Every analytical page should answer one decision question through this order:
 6. `SO WHAT` implication
 7. Source or caveat
 
-A page is not a container for all prose. Preserve substance through prioritization and Appendix evidence rather than shrinking text.
+A page is not a container for all prose. Preserve substance through prioritization, not smaller type.
+
+## Consulting tone
+
+- Titles, conclusions, body judgments, and SO WHAT statements use decisive Korean declarative endings: `~한다`, `~이다`, `~다`.
+- Avoid `~합니다`, `~입니다`, `~됩니다`, and `~해야 합니다` except verified quotations or fixed UI labels.
+- Every title states a judgment, not merely a topic.
 
 ## Typography and wrapping
 
 - Major titles: Pretendard 900.
 - Body: Pretendard Medium/SemiBold according to hierarchy.
 - Page numbering establishes the practical body-size floor.
-- Source labels, status labels, and caveats may be smaller but must remain legible.
+- Page 9 strategic implication copy is at least the page-number size.
+- Source labels, status labels, and caveats may be smaller but remain legible.
 - Do not reduce font size as the first overflow response.
 - Use `word-break: keep-all` and `overflow-wrap: break-word`.
-- Persona indices `02` and `03` must remain on one line.
+- Persona indices `02` and `03` remain on one line.
 
 ## Brand naming
 
 - Display the exact brand name entered by the user.
 - Do not translate, romanize, abbreviate, or reinterpret it.
-- The `brand` query parameter remains the reference-route binding.
+- Bind it in navigation, toolbar, report content, saved project, reopened project, and PDF.
 
 ## Highlighting
 
-- Use yellow highlighting for the governing phrase, decisive evidence, or final implication.
+- Use yellow highlighting for governing phrases, decisive evidence, or final implications.
 - Combine highlight with bold weight.
 - Do not highlight entire paragraphs.
-- Generated content may use `<mark>` or `.text-highlight`.
 
 ## Layout and density
 
-- Use the full content region; avoid large unassigned blank areas.
-- Optically center compact analytical structures between title and `SO WHAT` footer.
+- Use the full content region; avoid unassigned blank areas.
+- Optically center compact analytical structures between title and SO WHAT footer.
 - Equal-hierarchy columns use equal tracks, aligned rules, and stable heights.
 - A box must communicate a category, state, evidence class, choice, or transition.
-- Prefer timelines, scorecards, matrices, causal flows, friction flows, STP convergence, choice architecture, roadmaps, and evidence-gap panels over prose card walls.
+- Prefer timelines, scorecards, matrices, causal flows, friction flows, STP convergence, and choice architecture over prose card walls.
 
 ## Fixed Main Deck structure
 
 1. Cover
-2. Executive Verdict
+2. 핵심 진단
 3. Brand Identity
-4. KPI Snapshot
-5. Category & Core Target
+4. FACTS
+5. Category & Target
 6. Growth Story
 7. Core Inflection
 8. Product USP & Brand Best Self
 9. Market Context
-10. Category / Value Shift
-11. Threat Ranking — up to five direct competitors
-12. Deep Dive 1
-13. Deep Dive 2
-14. Deep Dive 3
-15. Deep Dive 4
-16. Deep Dive 5
-17. Product Matrix — target brand + up to five direct competitors
-18. Positioning — target brand + up to five direct competitors
+10. Category Shift
+11. Competitive Landscape
+12. Threat Ranking
+13. Deep Dive 1
+14. Deep Dive 2
+15. Deep Dive 3
+16. Product Matrix
+17. Category Clichés
+18. Positioning
 19. Consumer Executive Conclusion
 20. Trends
 21. Core Target
@@ -144,38 +153,47 @@ A page is not a container for all prose. Preserve substance through prioritizati
 30. Competitor Creative History 1
 31. Competitor Creative History 2
 32. Competitor Creative History 3
-33. Competitor Creative History 4
-34. Competitor Creative History 5
-35. Message Trajectory — target brand + up to five direct competitors
-36. SWOT
-37. GAP & Root Cause
-38. STP
-39. Four Strategic Directions
-40. Final Choice — approved two-column criteria/result layout
+33. Message Trajectory
+34. Creative Insight
+35. SWOT
+36. GAP & Root Cause
+37. STP
+38. Four Strategic Directions
+39. Final Choice
+40. Decision Receipt / Close
 
-## Fixed Appendix structure
+Creative Methodology and Appendix A1–A7 are excluded.
 
-41. A1 — Appendix Divider
-42. A2 — Winning Move Specification
-43. A3 — Via Negativa
-44. A4 — Pre-mortem
-45. A5 — Execution Roadmap
-46. A6 — Measurement Plan
-47. A7 — Evidence Gaps + Source Labels
-48. A8 — Decision Receipt / Close
+## Competitor rules
 
-Appendix pages are never competitor overflow slots.
-
-## Dynamic competitor rules
-
-- Step 2 selects 2–5 direct competitors through Threat Ranking.
-- Five is maximum capacity, not a mandatory count.
-- Selected competitors use Main Deck Deep Dive pages 12–16 in ranking order.
-- The same selected set appears on Product Matrix page 17, Positioning page 18, Creative History pages 30–34, and Message Trajectory page 35.
-- Each selected competitor receives one independent Deep Dive and one independent six-year Creative History.
-- If fewer than five competitors have defensible evidence, preserve unused approved pages as explicit evidence gaps. Never invent names or facts.
-- Competitors outside the locked Registry must not be elevated into core analysis.
+- Page 11 Landscape reviews up to five evidence-supported Direct Competitor candidates.
+- Page 12 Threat Ranking selects the core three when three supported candidates exist.
+- The same core-three set, in ranking order, appears on:
+  - pages 13–15 Deep Dive;
+  - page 16 Product Matrix;
+  - page 18 Positioning;
+  - pages 30–32 Competitor Creative History;
+  - page 33 Message Trajectory.
+- Never invent competitors to fill capacity.
+- Competitors outside the supported candidate Registry are not elevated into core analysis.
 - Product matrices and positioning maps use only defensible common axes.
+
+## Page-specific semantic rules
+
+- Page 2 fixed label: `핵심 진단`.
+- Page 4 fixed label: `FACTS`.
+- Page 5 fixed label: `CATEGORY & TARGET`.
+- Page 10 fixed chapter: `CATEGORY SHIFT`; levels remain `LEVEL 1`–`LEVEL 5`.
+- Persona pages retain `SITUATION / REAL JTBD / AS-IS IDENTITY / TO-BE IDENTITY / 브랜드의 역할`.
+- Persona page titles reuse the three target names stated on page 21 CORE TARGET.
+- Page 26 retains `Pain / 현재 문제 / Unmet Need / 우선순위`.
+- Page 27 retains the approved AIPL friction-flow and avoids unnecessary English.
+- Creative History uses a centered six-year system without decorative NOW circles.
+- Page 34 retains the approved Current Copy / Missing Character comparison; its connector remains a symbol, never prose.
+- Page 37 retains `Segmentation → Targeting → Positioning`.
+- Page 38 retains A/B/C/D alternatives and the approved 차별/확장/실행 comparison.
+- Page 39 retains the approved two-column Selection Criteria / Final Choice layout.
+- Page 40 is Decision Receipt / Close, not Appendix.
 
 ## Creative History rules
 
@@ -187,62 +205,48 @@ Appendix pages are never competitor overflow slots.
 - Only verified-verbatim copy may be quoted.
 - Source-found but unverified copy must not be reconstructed.
 - Publicly unconfirmed evidence is disclosed as an evidence gap.
-- Each brand has an independent page with Message Trajectory and Strategic So What.
+- Target brand and each core competitor have an independent page with Message Trajectory and Strategic So What.
 - Dark Creative History pages retain dark paper and readable foreground.
-
-## Final Choice rule
-
-Page 40 retains the approved composition:
-
-- left: Selection Criteria;
-- right: Big IdeaL and Winning Move;
-- two independent columns with no spanning or stacked collapse;
-- one governing phrase highlighted in yellow;
-- `SO WHAT` retained below.
 
 ## Source treatment
 
-- Do not show raw URLs in final reports.
+- Do not show raw URLs.
 - Use publisher, document/title, and year.
 - Attach sources to relevant evidence.
-- Unverified data must not drive chart geometry as though verified.
+- Unverified data does not drive chart geometry as if verified.
 
 ## Native PDF contract
 
-- FULL report PDF uses Chromium native print, not full-page html2canvas JPEG rasterization.
-- Output is exactly 48 pages.
-- PDF page size is 960×540pt, corresponding to 1280×720 CSS pixels.
-- Embedded font objects must exist.
+- FULL PDF uses Chromium native print, not full-page html2canvas JPEG rasterization.
+- Output is exactly 40 pages.
+- Every page is Main Deck.
+- PDF page size is 960×540pt.
+- Embedded font objects exist.
 - No 2560×1440 full-page image rows are allowed.
-- Viewer, saved HTML, reopened project, and PDF must use the same report document.
+- Viewer, saved HTML, reopened project, and PDF use the same report document.
 
 ## PDF runtime separation
 
-Two runtime families coexist and must be mutually exclusive:
-
-### Legacy report runtime
+### Legacy runtime
 
 - DOM selector: `.slide-wrapper > .slide`
 - Guard: `installIframeLayoutSafety`
-- Exporter: `exportReportPdf`
-- Used only for legacy report documents.
+- Exporter: Legacy exporter
 
-### Phase 6 FULL report runtime
+### Phase 6 FULL runtime
 
 - DOM selector: `.full-slide`
 - Guard: `installFullReportRuntimeCompatibility`
 - Exporter: Chromium browser-native print
-- Used for normal Phase 6 FULL reports.
 
 Rules:
 
-- Install the FULL runtime before the legacy layout/PDF guard.
-- A FULL document marks the legacy guard as handled before the legacy load listener can replace `window.print`.
-- Retain the real native print function from `window.print` or the legacy native backup.
-- Never pass a FULL report into the legacy `.slide-wrapper > .slide` selector.
-- Every host `Export PDF` button must resolve the fullscreen FULL iframe, another active FULL iframe, or a stable offscreen FULL iframe rebuilt from retained HTML.
-- When no FULL report exists, show a clear instruction instead of `출력할 슬라이드를 찾지 못했습니다`.
-- Repeated export must remain valid.
+- Install FULL runtime before Legacy guard.
+- A FULL document marks the Legacy guard handled before the Legacy listener can replace `window.print`.
+- Never pass FULL into the Legacy selector.
+- Visible `Export PDF`, Windows `Ctrl+P`, and macOS `Cmd+P` resolve the active FULL Viewer iframe.
+- When no FULL report exists, show clear guidance instead of `출력할 슬라이드를 찾지 못했습니다`.
+- Consecutive export remains valid.
 
 ## Runtime and QA
 
@@ -254,48 +258,86 @@ Primary implementation files:
 - `src/report/fullReportCompiler.ts`
 - `src/report/researchContentTemplate.ts`
 - `src/report/researchSlotPrompt.ts`
-- `src/report/productionReportContract.ts`
 - `src/lib/installFullReportPhase6Bridge.ts`
 - `src/lib/installFullReportRuntimeCompatibility.ts`
 - `src/lib/installFullReportPdfButtonBridge.ts`
 - `src/lib/installLayoutSafety.ts`
 - `src/lib/geminiCompiler.ts`
 - `public/full-report-approved-v1.css`
-- `public/full-report-approved-v1/color-consistency-v1.css`
-- `public/full-report-v1.js`
-- `public/template-full-report-v1.html`
 - `scripts/test-full-report-contract.mjs`
 - `scripts/test-full-report-runtime.mjs`
 - `scripts/test-phase6-pdf-runtime-routing.mjs`
 - `scripts/e2e-phase6-pdf-button-routing.mjs`
 - `scripts/e2e-phase6-five-competitor-native-print.mjs`
 
-Minimum QA checks:
+Minimum QA:
 
-- exactly 48 rendered pages and 48 navigation links;
-- exact 40 Main + 8 Appendix order;
-- five-competitor capacity across ranking, Deep Dive, Matrix, Positioning, Creative History, and Trajectory;
-- every canvas 1280×720;
+- exactly 40 pages and 40 navigation links;
+- zero Appendix pages;
+- exact page order and IDs;
+- candidate-five Landscape and consistent core-three analysis;
+- logical 1280×720 canvases;
 - zero body overflow or clipping;
 - no unresolved content slots;
 - exact brand-name display;
-- Step 0 KPI presence;
-- all selected Step 2 competitor presence;
-- Persona `02`/`03` single-line rendering;
-- page 40 two-column Final Choice geometry;
-- Appendix divider presence;
-- Creative History dark-page contrast;
+- Step 0 FACTS presence;
+- Persona 02/03 nowrap;
+- Page 9 type floor;
+- restored Landscape, Category Clichés, Creative Insight, STP, Four Directions, Final Choice, and Decision Close;
 - save and reopen;
-- actual host Export PDF button invocation;
-- two consecutive FULL native-print invocations;
-- no legacy zero-slide alert;
-- native 48-page PDF with embedded fonts and no full-page raster rows;
-- actual Viewer and PDF screenshots before declaring visual completion.
+- actual Export PDF button;
+- second consecutive export;
+- `Ctrl+P` and `Cmd+P`;
+- no Legacy zero-slide alert;
+- native 40-page PDF with embedded fonts and no full-page raster rows;
+- Viewer and PDF screenshots before visual completion.
 
 ## Protected rollback assets
 
 - `public/template.html` remains untouched.
-- Verified legacy blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
+- Verified Legacy blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
 - Never modify or delete:
   - `backup/main-before-full-report-v1-2026-07-01`
   - `backup-production-stable-20260622`
+
+<!-- PHASE6_EXTERNAL_JSON_COMPLETION_2026-07-09 -->
+## Phase 6 external-AI JSON workflow implementation — 2026-07-09
+
+- Active branch: `fix/phase6-structured-report-renderer-v1`
+- Draft PR: `#21 Replace Phase 6 HTML generation with app-owned structured renderer`
+- Validated product-code head: `d3b2ebd104d6bfddb90ba3051f92a9710b3a2a07`
+- Vercel Preview: `https://brand-consulting-git-fix-phase6-structu-0fd4b6-dpes31s-projects.vercel.app/`
+- `main`: unchanged; PR #21 remains Draft and unmerged.
+- `public/template.html` and protected backup branches remain untouched.
+
+Implemented:
+
+- Phase 6 shows the explicit five-step external-AI JSON workflow.
+- The primary input accepts raw JSON, fenced JSON, `.json`, and `.txt` responses.
+- `기존 완성 HTML 가져오기 — 호환용` is a separate secondary path.
+- Creative History uses `[CREATIVE HISTORY DATA CONTRACT]`; AI-facing DOM/class/data-attribute instructions were removed.
+- Every Creative History status field exposes the exact enum and fixed year metadata, including `2026 YTD`.
+- Only exact `expected year · allowed status` values are normalized; every repair emits a page/field warning and strict validation runs afterward.
+- Unknown status, mismatched year, composite status, and arbitrary values remain blocking errors with Korean page/field guidance.
+- External manual JSON and internal Gemini API routes use the same ProductionReportV3 schema, normalization, strict validation, cross-page validation, and app-owned Renderer.
+
+Validated at `d3b2ebd104d6bfddb90ba3051f92a9710b3a2a07`:
+
+- `npm run build`: PASS
+- FULL report contract test: PASS
+- FULL report runtime test: PASS
+- Phase 6 structured Renderer E2E: PASS
+- external-AI JSON workflow synthetic fixtures: 2 complete 40-page responses PASS
+- masked owner-defect fixture: `YYYY · status` normalization PASS; `2022 · unknown` blocking PASS
+- HTML Sanitizer compatibility E2E: PASS
+- 40 `.full-slide`, 40 navigation links, Appendix 0, 1280×720, scale(1), zero overflow, zero script, save/reload/reopen: PASS
+- Export PDF twice, Ctrl+P, Cmd+P: PASS
+- PDF: 40 pages, 960×540pt, embedded Pretendard, no full-page raster fallback: PASS
+- Vercel Preview: Ready
+
+External-AI verification boundary:
+
+- Actual corrected-prompt calls were not run because this execution environment has no external Gemini/third-party AI credential or invocation tool.
+- Two deterministic complete synthetic responses and the masked real defect structure were validated in browser E2E.
+- Owner Preview QA with two real external-AI responses remains a pre-merge approval gate.
+

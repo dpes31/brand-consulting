@@ -129,43 +129,116 @@
 - Added Google Fonts preconnect and changed Material Symbols loading to `display=block`.
 - Added `test-material-symbols-stability.mjs` to the production build.
 - Added `e2e-material-symbols-first-paint.mjs` with an intentionally delayed Material Symbols font request.
-- Verified before font readiness:
-  - zero visible ligature words;
-  - ten sampled icon boxes fixed at 24×24;
-  - Export PDF button at x 1491, y 9.5, width 157, height 44.
-- Verified after font readiness:
-  - Material Symbols font applied;
-  - identical icon dimensions;
-  - identical Export PDF button position and dimensions.
-- Production build and the complete five-competitor E2E passed.
-- Vercel Preview deployment passed.
-- Owner approved applying PR #16 to production after this correction.
+- Verified before and after font readiness with zero ligature flash and zero Export PDF button movement.
+- Production build and complete E2E passed.
 - PR #16 merged with regular merge commit `e22de49396a1ccb3590c5d7eb751b4d0edf759fc`.
 
 ## 2026-07-07 — PR #17 Phase 6 PDF runtime routing correction
 
-- Opened branch `fix/phase6-pdf-export-runtime-v1` and Draft PR #17.
-- Reproduced the actual user-facing error `PDF 생성 오류 — 출력할 슬라이드를 찾지 못했습니다.`
-- Confirmed the root cause:
-  - legacy layout runtime installed first;
-  - legacy runtime replaced `iframe.contentWindow.print()` with a raster exporter that searches only `.slide-wrapper > .slide`;
-  - FULL report runtime then captured that legacy function as if it were browser-native print;
-  - Phase 6 FULL reports contain `.full-slide`, so the legacy selector returned zero slides.
-- Corrected runtime ownership:
-  - FULL runtime now installs before the legacy layout/PDF guard;
-  - FULL documents mark the legacy guard as handled;
-  - real native print is retained from `window.print` or the legacy native backup;
-  - all host `Export PDF` buttons resolve the active FULL iframe or a stable offscreen FULL frame.
-- Replaced the zero-slide fallback with a clear no-report message when no FULL report exists.
-- Added build contract `scripts/test-phase6-pdf-runtime-routing.mjs`.
-- Added browser E2E `scripts/e2e-phase6-pdf-button-routing.mjs` that clicks the actual app button twice.
-- Verification passed:
-  - production build and all report contracts;
-  - actual Export PDF button routing;
-  - two consecutive native-print calls;
-  - 48-page preflight;
-  - complete five-competitor Phase 6 regression;
-  - native PDF: 48 pages, 960×540pt, embedded fonts, zero full-page raster rows;
-  - save/reopen: 48 pages.
-- Vercel Preview deployment reached Ready.
-- PR remains Draft and unmerged pending owner Preview approval.
+- Opened branch `fix/phase6-pdf-export-runtime-v1` and PR #17.
+- Reproduced `PDF 생성 오류 — 출력할 슬라이드를 찾지 못했습니다.`
+- Separated Legacy `.slide-wrapper > .slide` and FULL `.full-slide` runtime ownership.
+- Routed the actual `Export PDF` button, Windows `Ctrl+P`, and macOS `Cmd+P` to browser-native FULL printing.
+- Added actual-button, repeat-export, and native-PDF checks.
+- PR #17 merged to `main` with regular merge commit `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`.
+
+## 2026-07-07 to 2026-07-08 — PR #20 approved Main40 restoration and real-world failure
+
+- Owner reviewed an actual generated HTML against the original approved reference and approved the recommended structural correction.
+- Created branch `fix/phase6-approved-main40-no-appendix-v3` and Draft PR #20.
+- Closed superseded PR #18 and PR #19; neither should be merged.
+- Changed the final contract from 40 Main + 8 Appendix to exactly 40 Main and zero Appendix.
+- Promoted Decision Receipt / Close to page 40.
+- Restored Competitive Landscape, Category Clichés, and Creative Insight.
+- Removed Creative Methodology and Appendix A1–A7.
+- Changed competitor logic to Landscape candidates up to five and core-three downstream analysis.
+- Restored fixed labels and page grammar for critical pages.
+- Updated native PDF preflight and button routing from 48 to 40 pages.
+- Automated browser/PDF E2E passed.
+- A fresh owner Step 0–6 run then exposed semantic DOM corruption caused by the model rewriting complete HTML.
+- Recorded the failure in `handoff/PHASE6_REAL_WORLD_QA_HANDOFF_2026-07-08.md`.
+- PR #20 remains Draft and must not be merged.
+
+## 2026-07-08 — PR #21 app-owned structured Renderer
+
+- Created branch `fix/phase6-structured-report-renderer-v1` and Draft PR #21.
+- Added ProductionReportV3 page-scoped JSON.
+- Added exact 40-page app-owned DOM/CSS rendering.
+- Added structured field definitions, exact key validation, maxLength checks, cross-page brand/competitor consistency, Creative History status checks, and DOM fingerprint checks.
+- Routed external-AI prompt export and internal API generation to the same JSON contract.
+- Retired AI-authored complete HTML as the primary path.
+- Retained complete HTML paste only as a sanitized compatibility importer.
+- Added canonical 1280×720 / scale(1) handling.
+- Added real-app semantic E2E, sanitizer E2E, persistence, native PDF, repeat export, Ctrl+P, and Cmd+P checks.
+- Validated implementation head `8a4601d7a4895e32a521112f467d75af40678b86`:
+  - Production build/contracts PASS
+  - Phase 6 PDF Runtime E2E PASS
+  - Vercel Preview Ready
+- PR #21 remains Draft and unmerged.
+
+## 2026-07-09 — External-AI JSON workflow QA
+
+- Owner downloaded `phase6_structured_report_prompt_비즈넵.txt` from Phase 6 and executed it with an external AI.
+- External AI returned ProductionReportV3 JSON, not HTML.
+- Confirmed JSON is the intended output under PR #21 architecture.
+- Rejected the external AI's recommendation to restore AI-authored standalone HTML because it would recreate PR #20 defects.
+- Found a real prompt conflict:
+  - top-level contract requires JSON only;
+  - Creative History section still includes `.timeline-container`, `.timeline-card`, `data-year`, and `data-copy-status` rendering instructions.
+- Found the real response fused year and status, for example `2021 · not-found`, while the app requires the exact enum `not-found`.
+- Identified the primary remaining product defect as user-flow ambiguity: the app must explicitly explain that the user copies JSON back into Phase 6 and the app generates HTML.
+- Added `handoff/PHASE6_EXTERNAL_AI_JSON_WORKFLOW_QA_2026-07-09.md` with:
+  - diagnosis;
+  - forbidden rollback to AI HTML;
+  - required UI wording;
+  - Creative History data-contract correction;
+  - enum/fixed-year schema requirements;
+  - constrained normalization for the owner's current response;
+  - actionable validation errors;
+  - real external-AI E2E gates;
+  - next-session command.
+- Updated `AGENTS.md` and `handoff/PROJECT_HANDOFF.md` to point to the new continuation document.
+- No product code was changed in this documentation pass.
+- `main` remains unchanged.
+
+<!-- PHASE6_EXTERNAL_JSON_COMPLETION_2026-07-09 -->
+## 2026-07-09 — Phase 6 external-AI JSON workflow implementation and QA
+
+- Active branch: `fix/phase6-structured-report-renderer-v1`
+- Draft PR: `#21 Replace Phase 6 HTML generation with app-owned structured renderer`
+- Validated product-code head: `d3b2ebd104d6bfddb90ba3051f92a9710b3a2a07`
+- Vercel Preview: `https://brand-consulting-git-fix-phase6-structu-0fd4b6-dpes31s-projects.vercel.app/`
+- `main`: unchanged; PR #21 remains Draft and unmerged.
+- `public/template.html` and protected backup branches remain untouched.
+
+Implemented:
+
+- Phase 6 shows the explicit five-step external-AI JSON workflow.
+- The primary input accepts raw JSON, fenced JSON, `.json`, and `.txt` responses.
+- `기존 완성 HTML 가져오기 — 호환용` is a separate secondary path.
+- Creative History uses `[CREATIVE HISTORY DATA CONTRACT]`; AI-facing DOM/class/data-attribute instructions were removed.
+- Every Creative History status field exposes the exact enum and fixed year metadata, including `2026 YTD`.
+- Only exact `expected year · allowed status` values are normalized; every repair emits a page/field warning and strict validation runs afterward.
+- Unknown status, mismatched year, composite status, and arbitrary values remain blocking errors with Korean page/field guidance.
+- External manual JSON and internal Gemini API routes use the same ProductionReportV3 schema, normalization, strict validation, cross-page validation, and app-owned Renderer.
+
+Validated at `d3b2ebd104d6bfddb90ba3051f92a9710b3a2a07`:
+
+- `npm run build`: PASS
+- FULL report contract test: PASS
+- FULL report runtime test: PASS
+- Phase 6 structured Renderer E2E: PASS
+- external-AI JSON workflow synthetic fixtures: 2 complete 40-page responses PASS
+- masked owner-defect fixture: `YYYY · status` normalization PASS; `2022 · unknown` blocking PASS
+- HTML Sanitizer compatibility E2E: PASS
+- 40 `.full-slide`, 40 navigation links, Appendix 0, 1280×720, scale(1), zero overflow, zero script, save/reload/reopen: PASS
+- Export PDF twice, Ctrl+P, Cmd+P: PASS
+- PDF: 40 pages, 960×540pt, embedded Pretendard, no full-page raster fallback: PASS
+- Vercel Preview: Ready
+
+External-AI verification boundary:
+
+- Actual corrected-prompt calls were not run because this execution environment has no external Gemini/third-party AI credential or invocation tool.
+- Two deterministic complete synthetic responses and the masked real defect structure were validated in browser E2E.
+- Owner Preview QA with two real external-AI responses remains a pre-merge approval gate.
+
