@@ -112,9 +112,13 @@ function findPhase6Textarea(mode: ManualInputMode, button?: HTMLButtonElement): 
   const local = button?.closest<HTMLElement>('[data-phase6-panel]')
     ?.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`);
   if (local) return local;
-  return document.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`)
-    || Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
-      .find((textarea) => /외부|html|json/i.test(textarea.getAttribute('placeholder') || ''))
+
+  const explicit = document.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`);
+  if (explicit) return explicit;
+  if (mode === 'compat-html') return null;
+
+  return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
+    .find((textarea) => /외부|html|json/i.test(textarea.getAttribute('placeholder') || ''))
     || null;
 }
 
