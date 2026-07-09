@@ -90,17 +90,20 @@ function fieldValue(definition, variant = 1) {
   return `현재 조사에서 확인된 근거를 이 의미 필드에만 정확히 반영한다${suffix}`.slice(0, maxLength);
 }
 
-function buildResponse(prompt, variant = 1) {
+function buildResponse(prompt, variant = 1, prefixStatusWithYear = false) {
   const schema = JSON.parse(section(prompt, '[FIELD SCHEMA]', '[EMPTY JSON SKELETON]'));
   const report = JSON.parse(section(prompt, '[EMPTY JSON SKELETON]', '[STEP 0–5 RESEARCH]'));
   const definitions = new Map();
   schema.forEach((page) => page.fields.forEach((field) => definitions.set(field.key, field)));
-  report.generatedAt = variant === 1 ? '2026-07-08T00:00:00.000Z' : '2026-07-08T00:01:00.000Z';
+  report.generatedAt = variant === 1 ? '2026-07-09T00:00:00.000Z' : '2026-07-09T00:01:00.000Z';
   report.pages.forEach((page) => {
     Object.keys(page.fields).forEach((key) => {
       const definition = definitions.get(key);
       assert.ok(definition, `Missing definition for ${key}`);
-      page.fields[key] = fieldValue(definition, variant);
+      const value = fieldValue(definition, variant);
+      page.fields[key] = prefixStatusWithYear && definition.kind === 'status'
+        ? `${definition.fixedYear} · ${value}`
+        : value;
     });
   });
   return report;
@@ -135,8 +138,21 @@ try {
   }
 
   await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });
+  await page.getByText('외부 AI 구조화 JSON 방식', { exact: true }).waitFor({ timeout: 30000 });
+  await page.getByText('HTML은 외부 AI가 아니라 앱이 자동 생성합니다.', { exact: true }).waitFor();
+  for (const label of [
+    '외부 AI용 JSON 프롬프트 다운로드',
+    '다운로드 파일을 외부 AI에 첨부',
+    'AI가 반환한 JSON 전체 복사',
+    'Phase 6 입력창에 JSON 붙여넣기',
+    'JSON 검증 후 40페이지 보고서 만들기',
+  ]) {
+    assert.ok(await page.getByText(label, { exact: true }).count() > 0, `Missing workflow label: ${label}`);
+  }
+  assert.ok(await page.getByText('기존 완성 HTML 가져오기 — 호환용', { exact: true }).count() > 0);
+
   const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
-  await page.getByRole('button', { name: /프롬프트 추출/ }).click();
+  await page.getByRole('button', { name: /외부 AI용 JSON 프롬프트 다운로드/ }).click();
   const download = await downloadPromise;
   const promptPath = path.join(artifactDir, 'phase6-structured-prompt.txt');
   await download.saveAs(promptPath);
@@ -144,41 +160,73 @@ try {
   assert.match(prompt, /Return JSON only\. Never return HTML/);
   assert.match(prompt, /"version": "3\.0\.0"/);
   assert.match(prompt, /P27 keeps A→I→P1→P2→L/);
+  assert.match(prompt, /\[CREATIVE HISTORY DATA CONTRACT\]/);
   assert.doesNotMatch(prompt, /IMMUTABLE APPROVED BASE HTML/);
+  assert.doesNotMatch(prompt, /\.timeline-container|\.timeline-card|data-year|data-copy-status/);
 
-  const response1 = buildResponse(prompt, 1);
+  const fieldSchema = JSON.parse(section(prompt, '[FIELD SCHEMA]', '[EMPTY JSON SKELETON]'));
+  const statusDefinitions = fieldSchema.flatMap((pageItem) => pageItem.fields).filter((field) => field.kind === 'status');
+  assert.equal(statusDefinitions.length, 24);
+  assert.ok(statusDefinitions.every((field) => JSON.stringify(field.enum) === JSON.stringify([
+    'verified-verbatim',
+    'source-found-copy-unverified',
+    'not-found',
+  ])));
+  assert.deepEqual(statusDefinitions.slice(0, 6).map((field) => field.fixedYear), [2021, 2022, 2023, 2024, 2025, '2026 YTD']);
+
+  const response1 = buildResponse(prompt, 1, true);
   const response2 = buildResponse(prompt, 2);
   await writeFile(path.join(artifactDir, 'external-ai-response-1.json'), JSON.stringify(response1, null, 2));
   await writeFile(path.join(artifactDir, 'external-ai-response-2.json'), JSON.stringify(response2, null, 2));
 
-  const input = page.locator('textarea:visible').last();
-  await input.fill(JSON.stringify(response1));
-  await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
+  const input = page.locator('textarea[data-phase6-input-mode="structured-json"]');
+  const fileInput = page.locator('input[data-phase6-response-file]');
+  const invalid = JSON.parse(JSON.stringify(response2));
+  invalid.pages.find((item) => item.id === 'creative-history-target').fields['creative-history-target.year2.status'] = '2022 · unknown';
+  await input.fill(JSON.stringify(invalid));
+  await page.getByRole('button', { name: 'JSON 검증 후 40페이지 보고서 만들기' }).click();
+  await page.waitForTimeout(1000);
+  assert.ok(dialogs.some((message) => message.includes('P29')
+    && message.includes('2022 상태')
+    && message.includes('2022 · unknown')
+    && message.includes('자동 복구할 수 없어 렌더링을 중단했습니다.')));
+
+  const fencedResponse = `\`\`\`json\n${JSON.stringify(response1)}\n\`\`\``;
+  await fileInput.setInputFiles({
+    name: 'external-ai-response.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(fencedResponse),
+  });
+  assert.equal(await input.inputValue(), fencedResponse);
+  await page.getByRole('button', { name: 'JSON 검증 후 40페이지 보고서 만들기' }).click();
   await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 60000 });
   const frame = page.frameLocator('#fullscreen-viewer-iframe');
   await frame.locator('.full-slide').first().waitFor({ timeout: 60000 });
 
+  assert.ok(dialogs.some((message) => message.includes('Creative History 입력 형식 24건')
+    && message.includes('자동 정규화했습니다.')));
   assert.equal(await frame.locator('.full-slide').count(), 40);
   assert.equal(await frame.locator('.full-nav a').count(), 40);
   assert.equal(await frame.locator('[data-zone="appendix"]').count(), 0);
   assert.equal(await frame.locator('script').count(), 0);
+  assert.deepEqual(await frame.locator('#creative-history-target .history-card h3').allTextContents(), ['2021', '2022', '2023', '2024', '2025', '2026 YTD']);
   assert.equal(await frame.locator('#category-target .target-tension > b').allTextContents().then((items) => items.join('|')), 'WANT|AVOID');
   assert.deepEqual(await frame.locator('#comp-ranking .ranking-interpretation > div > b').allTextContents(), core);
   for (let index = 0; index < 3; index += 1) {
-    assert.deepEqual(await frame.locator(`#deep-dive-${index + 1} .deep-node > small`).allTextContents(), ['Evidence','Core Desire','Appeal','Threat Mechanism','Attack Point']);
+    assert.deepEqual(await frame.locator(`#deep-dive-${index + 1} .deep-node > small`).allTextContents(), ['Evidence', 'Core Desire', 'Appeal', 'Threat Mechanism', 'Attack Point']);
     assert.equal((await frame.locator(`#deep-dive-${index + 1} .deep-dive-score > small`).textContent()).trim(), `위협 ${index + 1}순위`);
   }
-  assert.deepEqual(await frame.locator('#category-cliche .cliche-head > *').allTextContents(), ['반복 화법','현재 역할','구조적 한계']);
+  assert.deepEqual(await frame.locator('#category-cliche .cliche-head > *').allTextContents(), ['반복 화법', '현재 역할', '구조적 한계']);
   assert.equal(await frame.locator('#category-cliche .cliche-row > strong').count(), 0);
-  assert.deepEqual(await frame.locator('#positioning .axis').allTextContents(), ['일회성 문제 해결','지속 관계 관리','전문가 검증·대행','사용자 셀프서비스']);
+  assert.deepEqual(await frame.locator('#positioning .axis').allTextContents(), ['일회성 문제 해결', '지속 관계 관리', '전문가 검증·대행', '사용자 셀프서비스']);
   assert.equal(await frame.locator('#consumer-exec .consumer-question-shift > div').count(), 3);
   assert.equal(await frame.locator('#consumer-trends .trend-row').count(), 5);
-  assert.deepEqual(await frame.locator('#persona-1 .persona-label').allTextContents(), ['SITUATION','REAL JTBD']);
-  assert.deepEqual(await frame.locator('#pain-needs .pain-head > *').allTextContents(), ['Pain','현재 문제','Unmet Need','우선순위']);
-  assert.deepEqual(await frame.locator('#aipl .aipl-stage > b').allTextContents(), ['A','I','P1','P2','L']);
-  assert.deepEqual(await frame.locator('#stp .stp-arrow').allTextContents(), ['→','→']);
+  assert.deepEqual(await frame.locator('#persona-1 .persona-label').allTextContents(), ['SITUATION', 'REAL JTBD']);
+  assert.deepEqual(await frame.locator('#pain-needs .pain-head > *').allTextContents(), ['Pain', '현재 문제', 'Unmet Need', '우선순위']);
+  assert.deepEqual(await frame.locator('#aipl .aipl-stage > b').allTextContents(), ['A', 'I', 'P1', 'P2', 'L']);
+  assert.deepEqual(await frame.locator('#stp .stp-arrow').allTextContents(), ['→', '→']);
   assert.notEqual((await frame.locator('#stp .stp-position > strong').textContent()).trim(), '→');
-  assert.deepEqual((await frame.locator('#strategy-routes .route-row > b').allTextContents()).map((item) => item.trim().charAt(0)), ['A','B','C','D']);
+  assert.deepEqual((await frame.locator('#strategy-routes .route-row > b').allTextContents()).map((item) => item.trim().charAt(0)), ['A', 'B', 'C', 'D']);
   assert.equal((await frame.locator('#decision-close .back-cover-copy > h1').textContent()).trim(), '맡겨도 결정의 근거와 통제권은 고객에게 남는다');
 
   const geometry = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => ({
@@ -195,7 +243,7 @@ try {
   assert.ok(geometry.every((item) => item.frameWidth === '1280px' && item.frameHeight === '720px' && item.scale === 'scale(1)'));
   assert.deepEqual(geometry.filter((item) => item.overflowX > 1 || item.overflowY > 1), []);
 
-  for (const id of ['category-target','comp-ranking','deep-dive-1','category-cliche','positioning','consumer-exec','consumer-trends','consumer-target','persona-1','pain-needs','aipl','loyalty','creative-history-1','creative-trajectory','creative-insight','root-cause','stp','strategy-routes','strategy-choice','decision-close']) {
+  for (const id of ['category-target', 'comp-ranking', 'deep-dive-1', 'category-cliche', 'positioning', 'consumer-exec', 'consumer-trends', 'consumer-target', 'persona-1', 'pain-needs', 'aipl', 'loyalty', 'creative-history-1', 'creative-trajectory', 'creative-insight', 'root-cause', 'stp', 'strategy-routes', 'strategy-choice', 'decision-close']) {
     await frame.locator(`#${id}`).screenshot({ path: path.join(artifactDir, `screen-${id}.png`) });
   }
 
@@ -246,6 +294,8 @@ try {
     core,
     promptContract: 'ProductionReportV3 JSON',
     externalResponsesValidated: 2,
+    malformedStatusBlocked: true,
+    normalizedStatusCount: 24,
     pages: 40,
     nav: 40,
     geometry,
