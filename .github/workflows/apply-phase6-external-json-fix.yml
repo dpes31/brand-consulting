@@ -1,0 +1,701 @@
+name: Apply Phase 6 External JSON Fix
+
+on:
+  push:
+    branches:
+      - fix/phase6-structured-report-renderer-v1
+    paths:
+      - .github/workflows/apply-phase6-external-json-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout active PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/phase6-structured-report-renderer-v1
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Apply focused product correction
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def read(path):
+              return Path(path).read_text(encoding='utf-8')
+
+          def write(path, value):
+              Path(path).write_text(value, encoding='utf-8')
+
+          def replace_once(path, old, new):
+              text = read(path)
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected one replacement, found {count}')
+              write(path, text.replace(old, new, 1))
+
+          # 1) Creative History: AI-facing DATA contract only.
+          path = 'src/lib/creativeHistoryContract.ts'
+          old = '''export function buildCreativeHistoryCompilerDirective(rawData: string): string {
+            const registry = parseCreativeHistoryRegistry(rawData);
+            const currentYear = registry?.period.currentYearYtd ?? new Date().getFullYear();
+            const years = expectedCreativeYears(currentYear);
+
+            return `[CREATIVE HISTORY RENDERING CONTRACT]
+          - Step 4의 CREATIVE_HISTORY_REGISTRY를 Creative History 페이지의 유일한 사실 원천으로 사용하십시오.
+          - 조사 브랜드 slide-13과 각 competitor-creative-history 페이지는 정확히 ${years.length}개의 연도 카드(${years.join(', ')})를 가져야 합니다.
+          - 각 페이지는 기존 .timeline-container / .timeline-card 컴포넌트를 사용하고, 각 카드에 data-year="연도"와 data-copy-status를 부여하십시오.
+          - 각 연도 카드에는 연도, 캠페인명, 모델, 실제 카피 원문 또는 미확인 문구, 매체/포맷, 소구 전략을 포함하십시오.
+          - verified-verbatim인 카피만 따옴표로 표시하십시오. source-found-copy-unverified와 not-found는 따옴표 없이 미확인 상태를 명시하십시오.
+          - 현재연도에 캠페인이 없으면 '${currentYear} YTD 신규 캠페인 공개 미확인'을 사용하십시오.
+          - 페이지 하단에는 Message Trajectory와 Strategic So What을 각각 분리해 표시하십시오.
+          - URL은 노출하지 말고 evidenceLabel의 출처명·자료명·연도만 작은 근거 문구로 표시하십시오.
+          - 한 브랜드의 6개년 카드를 다른 브랜드와 합치거나 브랜드별 페이지를 생략하지 마십시오.`;
+          }
+          '''
+          new = '''export function buildCreativeHistoryDataDirective(rawData: string): string {
+            const registry = parseCreativeHistoryRegistry(rawData);
+            const currentYear = registry?.period.currentYearYtd ?? new Date().getFullYear();
+
+            return `[CREATIVE HISTORY DATA CONTRACT]
+          - Step 4의 CREATIVE_HISTORY_REGISTRY를 Creative History 페이지의 유일한 사실 원천으로 사용하십시오.
+          - year1은 2021, year2는 2022, year3은 2023, year4는 2024, year5는 2025, year6은 2026 YTD를 의미합니다.
+          - 각 *.status 값은 verified-verbatim, source-found-copy-unverified, not-found 중 정확히 하나만 반환하십시오.
+          - status 값 안에 연도를 포함하지 마십시오. 예: "not-found"는 허용하지만 "2021 · not-found"는 허용하지 않습니다.
+          - HTML, CSS, 클래스명, 속성명, 페이지 구조 또는 렌더링 구현 지시를 반환하지 마십시오.
+          - 각 연도에는 캠페인명, 모델, 실제 카피 원문 또는 미확인 문구, 매체/포맷, 소구 전략을 해당 field key에만 기록하십시오.
+          - verified-verbatim인 카피만 따옴표를 사용할 수 있습니다. source-found-copy-unverified와 not-found는 따옴표 없이 사실 상태만 기록하십시오.
+          - 현재연도 캠페인이 확인되지 않으면 '${currentYear} YTD 신규 캠페인 공개 미확인'을 사용하십시오.
+          - Message Trajectory와 Strategic So What은 지정된 별도 field에 각각 기록하십시오.
+          - URL은 노출하지 말고 evidenceLabel의 출처명·자료명·연도만 기록하십시오.
+          - 연도, 카드 순서, 상태별 표현과 따옴표 스타일은 애플리케이션 Renderer가 고정합니다.`;
+          }
+
+          export const buildCreativeHistoryCompilerDirective = buildCreativeHistoryDataDirective;
+          '''
+          replace_once(path, old, new)
+
+          # 2) Structured schema metadata, constrained normalization and Korean errors.
+          path = 'src/report/structuredReportV3.ts'
+          replace_once(path, '''export type StructuredFieldDefinition = {
+            key: string;
+            page: number;
+            pageId: string;
+            hint: string;
+            maxLength: number;
+            kind: StructuredFieldKind;
+          };''', '''export type StructuredFieldDefinition = {
+            key: string;
+            page: number;
+            pageId: string;
+            hint: string;
+            maxLength: number;
+            kind: StructuredFieldKind;
+            enum?: string[];
+            fixedYear?: number | '2026 YTD';
+          };''')
+          replace_once(path, '''const TEXT_CANDIDATE_SELECTOR = 'h1,h2,h3,h4,p,li,strong,b,span,small,blockquote,th,td,em';
+          const ALLOWED_CREATIVE_STATUS = new Set(['verified-verbatim', 'source-found-copy-unverified', 'not-found']);''', '''export const CREATIVE_HISTORY_STATUS_VALUES = [
+            'verified-verbatim',
+            'source-found-copy-unverified',
+            'not-found',
+          ] as const;
+
+          const TEXT_CANDIDATE_SELECTOR = 'h1,h2,h3,h4,p,li,strong,b,span,small,blockquote,th,td,em';
+          const ALLOWED_CREATIVE_STATUS = new Set<string>(CREATIVE_HISTORY_STATUS_VALUES);''')
+          replace_once(path, '''function registerField(
+            element: Element | null,
+            key: string,
+            hint: string,
+            maxLength = 160,
+            kind: StructuredFieldKind = 'text',
+          ): void {
+            if (!element) return;
+            if (element.hasAttribute('data-report-field')) return;
+            element.setAttribute('data-report-field', key);
+            element.setAttribute('data-report-hint', hint);
+            element.setAttribute('data-report-max-length', String(maxLength));
+            element.setAttribute('data-report-kind', kind);
+          }''', '''function registerField(
+            element: Element | null,
+            key: string,
+            hint: string,
+            maxLength = 160,
+            kind: StructuredFieldKind = 'text',
+            metadata: Pick<StructuredFieldDefinition, 'enum' | 'fixedYear'> = {},
+          ): void {
+            if (!element) return;
+            if (element.hasAttribute('data-report-field')) return;
+            element.setAttribute('data-report-field', key);
+            element.setAttribute('data-report-hint', hint);
+            element.setAttribute('data-report-max-length', String(maxLength));
+            element.setAttribute('data-report-kind', kind);
+            if (metadata.enum?.length) element.setAttribute('data-report-enum', metadata.enum.join('|'));
+            if (metadata.fixedYear !== undefined) element.setAttribute('data-report-fixed-year', String(metadata.fixedYear));
+          }''')
+          replace_once(path, '''function annotateHistory(slide: HTMLElement): void {
+            registerField(slide.querySelector('.history-governing'), `${slide.id}.governing`, 'Creative History evidence rule', 130);
+            Array.from(slide.querySelectorAll<HTMLElement>('.history-card')).forEach((card, index) => {
+              markFixed(card.querySelector('h3'), String(2021 + index));
+              registerField(card.querySelector('.history-status'), `${slide.id}.year${index + 1}.status`, `Creative History ${2021 + index} status`, 36, 'status');
+              registerField(card.querySelector('h4'), `${slide.id}.year${index + 1}.campaign`, `Creative History ${2021 + index} campaign`, 70);
+              registerField(card.querySelector('blockquote'), `${slide.id}.year${index + 1}.copy`, `Creative History ${2021 + index} verified copy or evidence-gap wording`, 130, 'rich');
+              registerField(card.querySelector('.history-detail'), `${slide.id}.year${index + 1}.detail`, `Creative History ${2021 + index} model channel and meaning`, 120);
+            });
+            const bottoms = slide.querySelectorAll<HTMLElement>('.history-bottom > div');
+            markFixed(bottoms[0]?.querySelector('span') || null, 'MESSAGE TRAJECTORY');
+            registerField(bottoms[0]?.querySelector('strong') || null, `${slide.id}.trajectory`, 'six-year message trajectory', 200);
+            markFixed(bottoms[1]?.querySelector('span') || null, 'STRATEGIC SO WHAT');
+            registerField(bottoms[1]?.querySelector('strong') || null, `${slide.id}.strategicSoWhat`, 'Creative History strategic implication', 200, 'rich');
+          }''', '''function annotateHistory(slide: HTMLElement): void {
+            const fixedYears = [2021, 2022, 2023, 2024, 2025, '2026 YTD'] as const;
+            registerField(slide.querySelector('.history-governing'), `${slide.id}.governing`, 'Creative History evidence rule', 130);
+            Array.from(slide.querySelectorAll<HTMLElement>('.history-card')).forEach((card, index) => {
+              const fixedYear = fixedYears[index];
+              if (fixedYear === undefined) return;
+              markFixed(card.querySelector('h3'), String(fixedYear));
+              registerField(
+                card.querySelector('.history-status'),
+                `${slide.id}.year${index + 1}.status`,
+                `Creative History ${fixedYear} status`,
+                36,
+                'status',
+                { enum: [...CREATIVE_HISTORY_STATUS_VALUES], fixedYear },
+              );
+              registerField(card.querySelector('h4'), `${slide.id}.year${index + 1}.campaign`, `Creative History ${fixedYear} campaign`, 70);
+              registerField(card.querySelector('blockquote'), `${slide.id}.year${index + 1}.copy`, `Creative History ${fixedYear} verified copy or evidence-gap wording`, 130, 'rich');
+              registerField(card.querySelector('.history-detail'), `${slide.id}.year${index + 1}.detail`, `Creative History ${fixedYear} model channel and meaning`, 120);
+            });
+            const bottoms = slide.querySelectorAll<HTMLElement>('.history-bottom > div');
+            markFixed(bottoms[0]?.querySelector('span') || null, 'MESSAGE TRAJECTORY');
+            registerField(bottoms[0]?.querySelector('strong') || null, `${slide.id}.trajectory`, 'six-year message trajectory', 200);
+            markFixed(bottoms[1]?.querySelector('span') || null, 'STRATEGIC SO WHAT');
+            registerField(bottoms[1]?.querySelector('strong') || null, `${slide.id}.strategicSoWhat`, 'Creative History strategic implication', 200, 'rich');
+          }''')
+          replace_once(path, "documentRef.querySelectorAll('[data-report-field],[data-report-hint],[data-report-max-length],[data-report-kind],[data-report-fixed],[data-report-fixed-leading]').forEach((node) => {\n    ['data-report-field', 'data-report-hint', 'data-report-max-length', 'data-report-kind', 'data-report-fixed', 'data-report-fixed-leading'].forEach((name) => node.removeAttribute(name));", "documentRef.querySelectorAll('[data-report-field],[data-report-hint],[data-report-max-length],[data-report-kind],[data-report-enum],[data-report-fixed-year],[data-report-fixed],[data-report-fixed-leading]').forEach((node) => {\n    ['data-report-field', 'data-report-hint', 'data-report-max-length', 'data-report-kind', 'data-report-enum', 'data-report-fixed-year', 'data-report-fixed', 'data-report-fixed-leading'].forEach((name) => node.removeAttribute(name));")
+          replace_once(path, '''    definitions.push({
+                key: element.dataset.reportField || '',
+                page: Number(slide.dataset.page),
+                pageId: slide.id,
+                hint: element.dataset.reportHint || '',
+                maxLength: Number(element.dataset.reportMaxLength || 140),
+                kind: (element.dataset.reportKind || 'text') as StructuredFieldKind,
+              });''', '''    const enumValues = (element.dataset.reportEnum || '').split('|').filter(Boolean);
+              const fixedYearRaw = element.dataset.reportFixedYear;
+              let fixedYear: StructuredFieldDefinition['fixedYear'];
+              if (fixedYearRaw === '2026 YTD') fixedYear = '2026 YTD';
+              else if (fixedYearRaw && Number.isFinite(Number(fixedYearRaw))) fixedYear = Number(fixedYearRaw);
+              definitions.push({
+                key: element.dataset.reportField || '',
+                page: Number(slide.dataset.page),
+                pageId: slide.id,
+                hint: element.dataset.reportHint || '',
+                maxLength: Number(element.dataset.reportMaxLength || 140),
+                kind: (element.dataset.reportKind || 'text') as StructuredFieldKind,
+                ...(enumValues.length ? { enum: enumValues } : {}),
+                ...(fixedYear !== undefined ? { fixedYear } : {}),
+              });''')
+          replace_once(path, "fields: pageDefinitions(definitions, id).map(({ key, hint, maxLength, kind }) => ({ key, hint, maxLength, kind })),", "fields: pageDefinitions(definitions, id).map(({ key, hint, maxLength, kind, enum: enumValues, fixedYear }) => ({\n      key, hint, maxLength, kind,\n      ...(enumValues?.length ? { enum: enumValues } : {}),\n      ...(fixedYear !== undefined ? { fixedYear } : {}),\n    })),")
+
+          marker = 'function validatePersonaTitleConsistency(report: StructuredReportV3, errors: string[]): void {'
+          insertion = '''export type StructuredNormalizationWarning = {
+            page: number;
+            pageId: string;
+            pageTitle: string;
+            fieldKey: string;
+            fieldLabel: string;
+            inputValue: string;
+            normalizedValue: string;
+            expectedValues: string[];
+            autoRecovered: true;
+          };
+
+          const CREATIVE_HISTORY_PAGE_TITLES: Record<string, string> = {
+            'creative-history-target': '타깃 브랜드 Creative History',
+            'creative-history-1': '경쟁사 1 Creative History',
+            'creative-history-2': '경쟁사 2 Creative History',
+            'creative-history-3': '경쟁사 3 Creative History',
+          };
+
+          function pageTitleFor(page: StructuredReportPageV3 | undefined): string {
+            if (!page) return '페이지 제목 미확인';
+            return page.fields?.[`${page.id}.title`]?.trim()
+              || CREATIVE_HISTORY_PAGE_TITLES[page.id]
+              || page.id;
+          }
+
+          function statusFieldLabel(definition: StructuredFieldDefinition): string {
+            return `${definition.fixedYear ?? '연도 미확인'} 상태`;
+          }
+
+          export function normalizeStructuredReportV3(
+            report: StructuredReportV3,
+            definitions: StructuredFieldDefinition[],
+          ): { report: StructuredReportV3; warnings: StructuredNormalizationWarning[] } {
+            const normalized = JSON.parse(JSON.stringify(report)) as StructuredReportV3;
+            const warnings: StructuredNormalizationWarning[] = [];
+
+            definitions.filter((definition) => definition.kind === 'status').forEach((definition) => {
+              const page = normalized.pages?.[definition.page - 1];
+              const value = page?.fields?.[definition.key];
+              if (!page || typeof value !== 'string' || ALLOWED_CREATIVE_STATUS.has(value.trim())) return;
+              const expectedValues = definition.enum?.length ? definition.enum : [...CREATIVE_HISTORY_STATUS_VALUES];
+              const match = value.match(/^(.*?) · (verified-verbatim|source-found-copy-unverified|not-found)$/);
+              if (!match || definition.fixedYear === undefined || match[1] !== String(definition.fixedYear)) return;
+              const normalizedValue = match[2];
+              if (!expectedValues.includes(normalizedValue)) return;
+              page.fields[definition.key] = normalizedValue;
+              warnings.push({
+                page: definition.page,
+                pageId: definition.pageId,
+                pageTitle: pageTitleFor(page),
+                fieldKey: definition.key,
+                fieldLabel: statusFieldLabel(definition),
+                inputValue: value,
+                normalizedValue,
+                expectedValues,
+                autoRecovered: true,
+              });
+            });
+
+            return { report: normalized, warnings };
+          }
+
+          export function formatStructuredNormalizationWarnings(warnings: StructuredNormalizationWarning[]): string {
+            if (!warnings.length) return '';
+            const details = warnings.map((warning) => [
+              `P${warning.page} · ${warning.pageTitle}`,
+              warning.fieldLabel,
+              `입력값: “${warning.inputValue}”`,
+              `예상값: “${warning.normalizedValue}”`,
+              '처리: 앱이 연도 접두어를 제거하고 자동 정규화했습니다.',
+            ].join('\\n')).join('\\n\\n');
+            return `Creative History 입력 형식 ${warnings.length}건을 앱이 자동 정규화했습니다.\\n\\n${details}\\n\\n연도는 앱이 자동 배치하므로 상태 값에는 넣지 마세요.`;
+          }
+
+          '''
+          text = read(path)
+          if text.count(marker) != 1:
+              raise SystemExit('structuredReportV3 normalization insertion marker mismatch')
+          write(path, text.replace(marker, insertion + marker, 1))
+          replace_once(path, "        if (definition.kind === 'status' && !ALLOWED_CREATIVE_STATUS.has(value.trim())) errors.push(`${definition.key} has invalid Creative History status`);", "        if (definition.kind === 'status') {\n          const expectedValues = definition.enum?.length ? definition.enum : [...CREATIVE_HISTORY_STATUS_VALUES];\n          if (!expectedValues.includes(value.trim())) {\n            errors.push([\n              `P${definition.page} · ${pageTitleFor(page)} · ${statusFieldLabel(definition)}`,\n              `입력값: “${value}”`,\n              `허용값:\\n${expectedValues.map((item) => `- ${item}`).join('\\n')}`,\n              '처리: 자동 복구할 수 없어 렌더링을 중단했습니다.',\n            ].join('\\n'));\n          }\n        }")
+
+          # 3) External and internal paths use the same normalization contract.
+          path = 'src/lib/geminiCompiler.ts'
+          replace_once(path, "import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';", "import { buildCreativeHistoryDataDirective } from './creativeHistoryContract';")
+          replace_once(path, '''  buildStructuredReportPrompt,
+            extractStructuredReportJson,
+            prepareStructuredReportBase,
+            renderStructuredReportV3,
+          } from '../report/structuredReportV3';''', '''  buildStructuredReportPrompt,
+            extractStructuredReportJson,
+            normalizeStructuredReportV3,
+            prepareStructuredReportBase,
+            renderStructuredReportV3,
+          } from '../report/structuredReportV3';''')
+          replace_once(path, '    buildCreativeHistoryCompilerDirective(rawData),', '    buildCreativeHistoryDataDirective(rawData),')
+          replace_once(path, '''  const report = extractStructuredReportJson(result.text);
+            assertStructuredReportCrossPage(report);
+            return renderStructuredReportV3(approvedBase, report, brandName);''', '''  const extracted = extractStructuredReportJson(result.text);
+            const normalized = normalizeStructuredReportV3(extracted, definitions);
+            if (normalized.warnings.length) console.warn('[Phase 6] Creative History status normalized', normalized.warnings);
+            assertStructuredReportCrossPage(normalized.report);
+            return renderStructuredReportV3(approvedBase, normalized.report, brandName);''')
+
+          # 4) Bridge: explicit input modes, warnings and shared normalization.
+          path = 'src/lib/installFullReportPhase6Bridge.ts'
+          replace_once(path, "import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';", "import { buildCreativeHistoryDataDirective } from './creativeHistoryContract';")
+          replace_once(path, '''  buildStructuredReportPrompt,
+            extractStructuredReportJson,
+            prepareStructuredReportBase,
+            renderStructuredReportV3,
+          } from '../report/structuredReportV3';''', '''  buildStructuredReportPrompt,
+            extractStructuredReportJson,
+            formatStructuredNormalizationWarnings,
+            normalizeStructuredReportV3,
+            prepareStructuredReportBase,
+            renderStructuredReportV3,
+            type StructuredNormalizationWarning,
+          } from '../report/structuredReportV3';''')
+          replace_once(path, '''function findPhase6Textarea(): HTMLTextAreaElement | null {
+            return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
+              .find((textarea) => /외부|html|json/i.test(textarea.getAttribute('placeholder') || '')) || null;
+          }''', '''type ManualInputMode = 'structured-json' | 'compat-html';
+
+          function findPhase6Textarea(mode: ManualInputMode, button?: HTMLButtonElement): HTMLTextAreaElement | null {
+            const local = button?.closest<HTMLElement>('[data-phase6-panel]')
+              ?.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`);
+            if (local) return local;
+            return document.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`)
+              || Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
+                .find((textarea) => /외부|html|json/i.test(textarea.getAttribute('placeholder') || ''))
+              || null;
+          }''')
+          replace_once(path, "const originalText = normalizeText(button.textContent) || '프롬프트 추출';", "const originalText = normalizeText(button.textContent) || '외부 AI용 JSON 프롬프트 다운로드';")
+          replace_once(path, '      buildCreativeHistoryCompilerDirective(rawResearch),', '      buildCreativeHistoryDataDirective(rawResearch),')
+          old_compile = '''async function compileManualInput(value: string, brandName: string): Promise<string> {
+            if (looksLikeStructuredJson(value)) {
+              const approvedBase = await loadApprovedPilotBaseHtml(brandName);
+              const report = extractStructuredReportJson(value);
+              assertStructuredReportCrossPage(report);
+              return renderStructuredReportV3(approvedBase, report, brandName);
+            }
+            if (/<!doctype\\s+html|<html\\b/i.test(value)) {
+              const sanitized = sanitizeCompatibleFullReportHtml(value, brandName);
+              return validateCompatibleStructure(sanitized, brandName);
+            }
+            throw new Error('구조화 JSON 또는 완전한 HTML 문서를 확인할 수 없다.');
+          }'''
+          new_compile = '''type ManualCompileResult = {
+            html: string;
+            warnings: StructuredNormalizationWarning[];
+            inputKind: ManualInputMode;
+          };
+
+          async function compileManualInput(value: string, brandName: string, mode: ManualInputMode): Promise<ManualCompileResult> {
+            if (mode === 'structured-json') {
+              if (!looksLikeStructuredJson(value)) throw new Error('ProductionReportV3 JSON을 확인할 수 없습니다. JSON 전체를 붙여넣거나 .json/.txt 응답 파일을 불러오세요.');
+              const approvedBase = await loadApprovedPilotBaseHtml(brandName);
+              const prepared = prepareStructuredReportBase(approvedBase, brandName);
+              const definitions = applyStructuredDefinitionPolicy(prepared.definitions);
+              const extracted = extractStructuredReportJson(value);
+              const normalized = normalizeStructuredReportV3(extracted, definitions);
+              assertStructuredReportCrossPage(normalized.report);
+              return {
+                html: renderStructuredReportV3(approvedBase, normalized.report, brandName),
+                warnings: normalized.warnings,
+                inputKind: mode,
+              };
+            }
+            if (/<!doctype\\s+html|<html\\b/i.test(value)) {
+              const sanitized = sanitizeCompatibleFullReportHtml(value, brandName);
+              return { html: validateCompatibleStructure(sanitized, brandName), warnings: [], inputKind: mode };
+            }
+            throw new Error('호환용 완성 HTML 문서를 확인할 수 없습니다.');
+          }'''
+          replace_once(path, old_compile, new_compile)
+          replace_once(path, '''  const textarea = findPhase6Textarea();
+            const brandName = readBrandName();''', '''  const mode: ManualInputMode = button.dataset.phase6Action === 'compat-html' ? 'compat-html' : 'structured-json';
+            const textarea = findPhase6Textarea(mode, button);
+            const brandName = readBrandName();''')
+          replace_once(path, "    window.alert('외부 AI가 생성한 구조화 JSON 또는 호환 HTML을 붙여넣어야 한다.');", "    window.alert(mode === 'structured-json'\n      ? '외부 AI가 반환한 JSON 전체를 붙여넣거나 .json/.txt 응답 파일을 불러오세요.'\n      : '기존 완성 HTML 문서를 호환용 입력창에 붙여넣으세요.');")
+          replace_once(path, "const originalText = normalizeText(button.textContent) || '결과물 뷰어에 렌더링하기';", "const originalText = normalizeText(button.textContent) || (mode === 'structured-json'\n    ? 'JSON 검증 후 40페이지 보고서 만들기'\n    : '호환 HTML 검증 후 가져오기');")
+          replace_once(path, '''    const html = await compileManualInput(textarea.value, brandName);
+              setControlledTextareaValue(textarea, html);
+              textarea.dataset.fullReportValidatedHtml = 'true';''', '''    const result = await compileManualInput(textarea.value, brandName, mode);
+              setControlledTextareaValue(textarea, result.html);
+              textarea.dataset.fullReportValidatedHtml = 'true';
+              if (result.warnings.length) {
+                window.alert(formatStructuredNormalizationWarnings(result.warnings));
+              } else if (result.inputKind === 'structured-json') {
+                window.alert('JSON 검증을 통과했습니다. HTML은 외부 AI가 아니라 앱이 자동 생성했습니다.');
+              }''')
+          old_refresh = '''function refreshPhase6Copy(): void {
+            const textarea = findPhase6Textarea();
+            if (textarea) {
+              textarea.placeholder = '권장: 외부 AI가 생성한 ProductionReportV3 구조화 JSON을 붙여넣는다. 기존 완성 HTML은 Sanitizer 호환 경로로만 지원한다.';
+            }
+            document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
+              const text = normalizeText(element.textContent);
+              if (text === '외부 AI 수동 렌더링' || text === '외부 AI 완성 HTML 생성') {
+                element.textContent = '외부 AI 구조화 JSON 생성';
+              }
+              if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.' || text.includes('콘텐츠 슬롯')) {
+                element.textContent = '외부 AI는 페이지별 JSON 값만 생성하고, 앱이 승인 레이아웃을 렌더링한다.';
+              }
+              if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
+                element.textContent = '40페이지 DOM은 앱이 고정하고, Step 0~5 조사 내용만 구조화해 주입한다.';
+              }
+            });
+          }'''
+          new_refresh = '''function refreshPhase6Copy(): void {
+            const jsonTextarea = findPhase6Textarea('structured-json');
+            if (jsonTextarea) jsonTextarea.placeholder = '외부 AI가 반환한 ProductionReportV3 JSON 전체를 붙여넣으세요. Raw JSON과 ```json 코드펜스를 모두 지원합니다.';
+            const compatTextarea = findPhase6Textarea('compat-html');
+            if (compatTextarea) compatTextarea.placeholder = '기존 완성 HTML 문서만 입력하세요. Sanitizer와 고정 구조 검증 후 호환용으로 가져옵니다.';
+            document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
+              const text = normalizeText(element.textContent);
+              if (text === '외부 AI 수동 렌더링' || text === '외부 AI 완성 HTML 생성') element.textContent = '외부 AI 구조화 JSON 방식';
+              if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.' || text.includes('콘텐츠 슬롯')) element.textContent = '외부 AI는 JSON 값만 생성하고 앱이 승인된 40페이지 HTML을 렌더링합니다.';
+              if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') element.textContent = 'Step 0~5 조사 결과를 ProductionReportV3 JSON으로 검증한 뒤 앱이 40페이지 보고서를 생성합니다.';
+            });
+          }'''
+          replace_once(path, old_refresh, new_refresh)
+          replace_once(path, '''    if (label.includes('프롬프트 추출')) {
+                void handlePromptExport(event, button);
+                return;
+              }
+              if (label.includes('결과물 뷰어에 렌더링하기')) void handleManualRender(event, button);''', '''    if (button.dataset.phase6Action === 'prompt-download' || label.includes('외부 AI용 JSON 프롬프트 다운로드') || label.includes('프롬프트 추출')) {
+                void handlePromptExport(event, button);
+                return;
+              }
+              if (button.dataset.phase6Action === 'structured-json'
+                || button.dataset.phase6Action === 'compat-html'
+                || label.includes('JSON 검증 후 40페이지 보고서 만들기')
+                || label.includes('호환 HTML 검증 후 가져오기')
+                || label.includes('결과물 뷰어에 렌더링하기')) void handleManualRender(event, button);''')
+
+          # 5) Input guard recognises the separated primary and compatibility actions.
+          write('src/lib/installPhase6InputGuard.ts', '''let installed = false;
+
+          function normalized(value: string | null | undefined): string {
+            return (value || '').replace(/\\s+/g, ' ').trim();
+          }
+
+          function looksLikeHtml(value: string): boolean {
+            return /<!doctype\\s+html|<html\\b/i.test(value);
+          }
+
+          function looksLikeStructuredJson(value: string): boolean {
+            const text = value.trim().replace(/^```json\\s*/i, '').replace(/```\\s*$/i, '').trim();
+            return text.startsWith('{')
+              && /"version"\\s*:\\s*"3\\.0\\.0"/.test(text)
+              && /"pages"\\s*:/.test(text);
+          }
+
+          function findPhase6Textarea(button: HTMLButtonElement, mode: 'structured-json' | 'compat-html'): HTMLTextAreaElement | null {
+            return button.closest<HTMLElement>('[data-phase6-panel]')
+              ?.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`)
+              || document.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`)
+              || null;
+          }
+
+          export function installPhase6InputGuard(): void {
+            if (installed || typeof document === 'undefined') return;
+            installed = true;
+
+            document.addEventListener('click', (event) => {
+              const target = event.target;
+              if (!(target instanceof Element)) return;
+              const button = target.closest('button');
+              if (!(button instanceof HTMLButtonElement)) return;
+              const label = normalized(button.textContent);
+              const action = button.dataset.phase6Action;
+              const mode = action === 'compat-html' || label.includes('호환 HTML 검증 후 가져오기')
+                ? 'compat-html'
+                : action === 'structured-json' || label.includes('JSON 검증 후 40페이지 보고서 만들기') || label.includes('결과물 뷰어에 렌더링하기')
+                  ? 'structured-json'
+                  : null;
+              if (!mode) return;
+
+              const textarea = findPhase6Textarea(button, mode);
+              if (textarea?.dataset.fullReportValidatedHtml === 'true') {
+                delete textarea.dataset.fullReportValidatedHtml;
+                return;
+              }
+
+              const value = textarea?.value.trim() || '';
+              const valid = mode === 'structured-json' ? looksLikeStructuredJson(value) : looksLikeHtml(value);
+              if (!valid) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                window.alert(mode === 'structured-json'
+                  ? 'ProductionReportV3 JSON을 확인할 수 없습니다. JSON 전체를 붙여넣거나 .json/.txt 파일을 불러오세요.'
+                  : '호환용 완성 HTML 문서를 확인할 수 없습니다.');
+              }
+            }, true);
+          }
+          ''')
+
+          # 6) React UI: explicit five-step primary flow and separated compatibility importer.
+          path = 'src/pages/Dashboard.tsx'
+          replace_once(path, "  const [importHtmlInput, setImportHtmlInput] = useState('');", "  const [importHtmlInput, setImportHtmlInput] = useState('');\n  const [compatibilityHtmlInput, setCompatibilityHtmlInput] = useState('');")
+          replace_once(path, "    setImportHtmlInput('');\n  };", "    setImportHtmlInput('');\n    setCompatibilityHtmlInput('');\n  };")
+          helper_marker = '  const renderManualBoard = () => {'
+          helper = '''  const openValidatedPhase6Html = (value: string) => {
+            let html = value.trim();
+            if (html.includes('```html')) html = html.split('```html')[1]?.split('```')[0]?.trim() || html;
+            const doctypeIndex = html.search(/<!doctype\\s+html/i);
+            if (doctypeIndex < 0) return;
+            html = html.slice(doctypeIndex).replace(/\\[cite[:\\s]*\\d*[\\],]*/g, '').replace(/\\[cite_start\\]/g, '').replace(/\\\\cite\\{[^}]*\\}/g, '');
+            setCompiledHtml(html);
+            setCurrentStep(7);
+            setShowFullscreenViewer(true);
+          };
+
+          '''
+          text = read(path)
+          if text.count(helper_marker) != 1:
+              raise SystemExit('Dashboard helper marker mismatch')
+          write(path, text.replace(helper_marker, helper + helper_marker, 1))
+          replace_once(path, '<span className="material-symbols-outlined text-sm">api</span> API 렌더링', '<span className="material-symbols-outlined text-sm">api</span> 내부 Gemini API 구조화 JSON 방식')
+          replace_once(path, '등록된 API를 이용해 앱 자체적으로 처리합니다.', '내부 API도 외부 AI와 동일한 ProductionReportV3 계약·검증·Renderer를 사용합니다.')
+          replace_once(path, "{isProcessing ? '처리중...' : '내부 렌더러 가동'}", "{isProcessing ? '처리중...' : '내부 API로 40페이지 보고서 만들기'}")
+          text = read(path)
+          start_marker = '            {/* 오른쪽: 대안 B (프롬프트 추출 및 수동 렌더링) */}'
+          end_marker = '          </div>\n          \n          <button'
+          start = text.index(start_marker)
+          end = text.index(end_marker, start)
+          new_block = '''            {/* 오른쪽: 외부 AI ProductionReportV3 JSON 방식 */}
+            <div data-phase6-panel className={`flex-[1.5] bg-[#2DD4BF]/5 p-5 rounded-xl border-2 border-[#2DD4BF]/30 flex flex-col gap-4 relative shadow-2xl shadow-[#2DD4BF]/10 ${!apiKey ? 'w-full flex-none' : ''}`}>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2DD4BF] text-[#120d0b] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                Zero-API Recommended
+              </div>
+
+              <div className="w-full flex justify-between items-start border-b border-[#2DD4BF]/20 pb-3 mt-2 gap-3">
+                <div className="text-left">
+                  <div className="font-bold text-[#2DD4BF]">외부 AI 구조화 JSON 방식</div>
+                  <div className="text-[10px] text-slate-400 mt-1">외부 AI는 조사 내용을 JSON으로 정리하고, 앱이 승인된 40페이지 HTML을 생성합니다.</div>
+                </div>
+                <button
+                  data-phase6-action="prompt-download"
+                  onClick={handleExportPrompt}
+                  className="shrink-0 px-3 py-2 bg-[#2DD4BF]/20 text-[#2DD4BF] rounded-lg hover:bg-[#2DD4BF]/30 text-xs font-bold transition flex items-center gap-1 shadow"
+                >
+                  <span className="material-symbols-outlined text-xs">download</span>
+                  외부 AI용 JSON 프롬프트 다운로드
+                </button>
+              </div>
+
+              <ol className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-left">
+                {[
+                  '외부 AI용 JSON 프롬프트 다운로드',
+                  '다운로드 파일을 외부 AI에 첨부',
+                  'AI가 반환한 JSON 전체 복사',
+                  'Phase 6 입력창에 JSON 붙여넣기',
+                  'JSON 검증 후 40페이지 보고서 만들기',
+                ].map((step, index) => (
+                  <li key={step} className="rounded-lg border border-[#2DD4BF]/20 bg-black/20 px-2.5 py-2 text-[10px] leading-snug text-slate-300">
+                    <b className="mr-1 text-[#2DD4BF]">{index + 1}.</b>{step}
+                  </li>
+                ))}
+              </ol>
+
+              <div className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs font-bold text-amber-200">
+                HTML은 외부 AI가 아니라 앱이 자동 생성합니다.
+              </div>
+
+              <div className="w-full flex-1 flex flex-col gap-2 text-left">
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-xs font-bold text-slate-200">외부 AI가 반환한 JSON 붙여넣기</label>
+                  <label className="cursor-pointer rounded-md border border-[#2DD4BF]/30 px-2.5 py-1.5 text-[10px] font-bold text-[#2DD4BF] hover:bg-[#2DD4BF]/10">
+                    .json / .txt 응답 파일 불러오기
+                    <input
+                      data-phase6-response-file
+                      type="file"
+                      accept=".json,.txt,application/json,text/plain"
+                      className="hidden"
+                      onChange={async (event) => {
+                        const file = event.target.files?.[0];
+                        if (file) setImportHtmlInput(await file.text());
+                        event.target.value = '';
+                      }}
+                    />
+                  </label>
+                </div>
+                <textarea
+                  data-phase6-input-mode="structured-json"
+                  className="flex-1 w-full min-h-[150px] p-3 bg-black/40 border border-[#2DD4BF]/30 rounded-lg text-xs outline-none focus:border-[#2DD4BF] resize-y text-slate-300 placeholder:text-slate-600"
+                  placeholder="외부 AI가 반환한 ProductionReportV3 JSON 전체를 붙여넣으세요. Raw JSON과 ```json 코드펜스를 지원합니다."
+                  value={importHtmlInput}
+                  onChange={event => setImportHtmlInput(event.target.value)}
+                />
+                <button
+                  data-phase6-action="structured-json"
+                  onClick={() => openValidatedPhase6Html(importHtmlInput)}
+                  disabled={!importHtmlInput.trim()}
+                  className="w-full py-2.5 bg-[#2DD4BF] text-[#120d0b] font-bold rounded-lg hover:brightness-110 text-sm disabled:opacity-50 transition shadow-lg flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-sm">fact_check</span>
+                  JSON 검증 후 40페이지 보고서 만들기
+                </button>
+              </div>
+
+              <details data-phase6-panel className="rounded-lg border border-white/10 bg-black/20 p-3 text-left">
+                <summary className="cursor-pointer text-xs font-bold text-slate-400">기존 완성 HTML 가져오기 — 호환용</summary>
+                <p className="mt-2 text-[10px] leading-relaxed text-slate-500">기존 결과물 복구를 위한 보조 경로입니다. 새 보고서는 위 구조화 JSON 방식을 사용하세요.</p>
+                <textarea
+                  data-phase6-input-mode="compat-html"
+                  className="mt-2 w-full min-h-[90px] p-3 bg-black/40 border border-white/10 rounded-lg text-xs outline-none focus:border-slate-500 resize-y text-slate-300 placeholder:text-slate-600"
+                  placeholder="기존 완성 HTML 문서를 붙여넣으세요."
+                  value={compatibilityHtmlInput}
+                  onChange={event => setCompatibilityHtmlInput(event.target.value)}
+                />
+                <button
+                  data-phase6-action="compat-html"
+                  onClick={() => openValidatedPhase6Html(compatibilityHtmlInput)}
+                  disabled={!compatibilityHtmlInput.trim()}
+                  className="mt-2 w-full py-2 border border-white/15 text-slate-300 font-bold rounded-lg hover:bg-white/5 text-xs disabled:opacity-40 transition"
+                >
+                  호환 HTML 검증 후 가져오기
+                </button>
+              </details>
+            </div>
+'''
+          text = text[:start] + new_block + text[end:]
+          text = text.replace("              setImportHtmlInput('');\n              // 선택 입력값은 초기화하지 않음", "              setImportHtmlInput('');\n              setCompatibilityHtmlInput('');\n              // 선택 입력값은 초기화하지 않음", 1)
+          write(path, text)
+
+          # 7) Expand structured E2E to cover the real malformed status pattern and file inputs.
+          path = 'scripts/e2e-phase6-structured-renderer.mjs'
+          replace_once(path, 'function buildResponse(prompt, variant = 1) {', 'function buildResponse(prompt, variant = 1, prefixStatusWithYear = false) {')
+          replace_once(path, '      page.fields[key] = fieldValue(definition, variant);', "      const value = fieldValue(definition, variant);\n      page.fields[key] = prefixStatusWithYear && definition.kind === 'status'\n        ? `${definition.fixedYear} · ${value}`\n        : value;")
+          replace_once(path, "  await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });", "  await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });\n  await page.getByText('외부 AI 구조화 JSON 방식', { exact: true }).waitFor();\n  await page.getByText('HTML은 외부 AI가 아니라 앱이 자동 생성합니다.', { exact: true }).waitFor();\n  for (const label of [\n    '외부 AI용 JSON 프롬프트 다운로드',\n    '다운로드 파일을 외부 AI에 첨부',\n    'AI가 반환한 JSON 전체 복사',\n    'Phase 6 입력창에 JSON 붙여넣기',\n    'JSON 검증 후 40페이지 보고서 만들기',\n  ]) assert.ok(await page.getByText(label, { exact: true }).count() > 0, `Missing workflow label: ${label}`);")
+          replace_once(path, "  await page.getByRole('button', { name: /프롬프트 추출/ }).click();", "  await page.getByRole('button', { name: /외부 AI용 JSON 프롬프트 다운로드/ }).click();")
+          replace_once(path, '''  assert.doesNotMatch(prompt, /IMMUTABLE APPROVED BASE HTML/);
+
+            const response1 = buildResponse(prompt, 1);
+            const response2 = buildResponse(prompt, 2);''', '''  assert.doesNotMatch(prompt, /IMMUTABLE APPROVED BASE HTML/);
+            assert.match(prompt, /\[CREATIVE HISTORY DATA CONTRACT\]/);
+            assert.doesNotMatch(prompt, /\.timeline-container|\.timeline-card|data-year|data-copy-status/);
+            const fieldSchema = JSON.parse(section(prompt, '[FIELD SCHEMA]', '[EMPTY JSON SKELETON]'));
+            const statusDefinitions = fieldSchema.flatMap((pageItem) => pageItem.fields).filter((field) => field.kind === 'status');
+            assert.equal(statusDefinitions.length, 24);
+            assert.ok(statusDefinitions.every((field) => JSON.stringify(field.enum) === JSON.stringify(['verified-verbatim','source-found-copy-unverified','not-found'])));
+            assert.deepEqual(statusDefinitions.slice(0, 6).map((field) => field.fixedYear), [2021, 2022, 2023, 2024, 2025, '2026 YTD']);
+
+            const response1 = buildResponse(prompt, 1, true);
+            const response2 = buildResponse(prompt, 2);''')
+          old_input = '''  const input = page.locator('textarea:visible').last();
+            await input.fill(JSON.stringify(response1));
+            await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();'''
+          new_input = '''  const input = page.locator('textarea[data-phase6-input-mode="structured-json"]');
+            const fileInput = page.locator('input[data-phase6-response-file]');
+            const invalid = JSON.parse(JSON.stringify(response2));
+            invalid.pages.find((item) => item.id === 'creative-history-target').fields['creative-history-target.year2.status'] = '2022 · unknown';
+            await input.fill(JSON.stringify(invalid));
+            await page.getByRole('button', { name: 'JSON 검증 후 40페이지 보고서 만들기' }).click();
+            await page.waitForTimeout(300);
+            assert.ok(dialogs.some((message) => message.includes('P29') && message.includes('2022 상태') && message.includes('자동 복구할 수 없어 렌더링을 중단했습니다.')));
+
+            const fencedResponse = `\\`\\`\\`json\\n${JSON.stringify(response1)}\\n\\`\\`\\``;
+            await fileInput.setInputFiles({ name: 'external-ai-response.txt', mimeType: 'text/plain', buffer: Buffer.from(fencedResponse) });
+            assert.equal(await input.inputValue(), fencedResponse);
+            await page.getByRole('button', { name: 'JSON 검증 후 40페이지 보고서 만들기' }).click();'''
+          replace_once(path, old_input, new_input)
+          replace_once(path, "  assert.equal(await frame.locator('script').count(), 0);", "  assert.equal(await frame.locator('script').count(), 0);\n  assert.ok(dialogs.some((message) => message.includes('Creative History 입력 형식 24건') && message.includes('자동 정규화했습니다.')));\n  assert.deepEqual(await frame.locator('#creative-history-target .history-card h3').allTextContents(), ['2021','2022','2023','2024','2025','2026 YTD']);")
+
+          # 8) Contract test covers the new UX/data contract.
+          path = 'scripts/test-full-report-contract.mjs'
+          replace_once(path, "const bridge = read('src/lib/installFullReportPhase6Bridge.ts');", "const bridge = read('src/lib/installFullReportPhase6Bridge.ts');\nconst creativeHistory = read('src/lib/creativeHistoryContract.ts');\nconst dashboard = read('src/pages/Dashboard.tsx');")
+          replace_once(path, "check(structured.includes('validateStructuredReportV3'), 'Structured validation missing.');", "check(structured.includes('validateStructuredReportV3'), 'Structured validation missing.');\ncheck(structured.includes('enum?: string[]'), 'Structured enum metadata missing.');\ncheck(structured.includes(\"fixedYear?: number | '2026 YTD'\"), 'Structured fixed-year metadata missing.');\ncheck(structured.includes('normalizeStructuredReportV3'), 'Constrained status normalizer missing.');\ncheck(structured.includes('자동 복구할 수 없어 렌더링을 중단했습니다.'), 'Korean field-level blocking error missing.');")
+          replace_once(path, "check(bridge.includes('definitions.length < 260'), 'HTML compatibility semantic field coverage is not enforced.');", "check(bridge.includes('definitions.length < 260'), 'HTML compatibility semantic field coverage is not enforced.');\ncheck(bridge.includes('formatStructuredNormalizationWarnings'), 'Normalization warnings are not surfaced.');\ncheck(creativeHistory.includes('[CREATIVE HISTORY DATA CONTRACT]'), 'Creative History data contract missing.');\ncheck(!creativeHistory.includes('[CREATIVE HISTORY RENDERING CONTRACT]'), 'Renderer contract leaked into AI prompt.');\ncheck(!creativeHistory.includes('.timeline-container') && !creativeHistory.includes('data-copy-status'), 'DOM details remain in AI-facing Creative History directive.');\nfor (const copy of ['외부 AI 구조화 JSON 방식','외부 AI용 JSON 프롬프트 다운로드','외부 AI가 반환한 JSON 붙여넣기','JSON 검증 후 40페이지 보고서 만들기','HTML은 외부 AI가 아니라 앱이 자동 생성합니다.','기존 완성 HTML 가져오기 — 호환용']) {\n  check(dashboard.includes(copy), `Phase 6 UX copy missing: ${copy}`);\n}\ncheck(dashboard.includes('accept=\".json,.txt,application/json,text/plain\"'), 'JSON/TXT response file input missing.');")
+          replace_once(path, "check(structuredE2e.includes('external-ai-response-2.json'), 'Second complete external-response fixture missing.');", "check(structuredE2e.includes('external-ai-response-2.json'), 'Second complete external-response fixture missing.');\ncheck(structuredE2e.includes('2022 · unknown'), 'Blocking malformed-status fixture missing.');\ncheck(structuredE2e.includes('external-ai-response.txt'), 'TXT response upload regression missing.');\ncheck(structuredE2e.includes('Creative History 입력 형식 24건'), 'Normalization warning regression missing.');")
+
+          # Remove this one-shot workflow from the product commit.
+          Path('.github/workflows/apply-phase6-external-json-fix.yml').unlink()
+          PY
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run production build and contract tests
+        run: npm run build
+      - name: Commit implementation
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix Phase 6 external AI JSON workflow [workflow-applied]"
+          git push origin HEAD:fix/phase6-structured-report-renderer-v1
