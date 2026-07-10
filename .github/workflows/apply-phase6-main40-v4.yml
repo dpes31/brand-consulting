@@ -1,16 +1,16 @@
 name: Apply Phase 6 Main40 V4
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - fix/phase6-main40-semantic-renderer-v4
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    if: github.actor != 'github-actions[bot]' && github.head_ref == 'fix/phase6-main40-semantic-renderer-v4'
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
