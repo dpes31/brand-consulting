@@ -13,6 +13,7 @@ import {
 } from '../report/researchContentTemplate';
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
+const APPROVED_TEMPLATE_SESSION_PREFIX = 'brand-consulting:phase6-approved-semantic-template';
 const ACTIVE_BRAND_SESSION_KEYS = [
   'brand-consulting:active-brand',
   'brand-consulting:brand-name',
@@ -24,6 +25,26 @@ let replayingRenderClick = false;
 
 function normalizeText(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
+}
+
+function templateSessionKey(brandName: string): string {
+  return `${APPROVED_TEMPLATE_SESSION_PREFIX}:${brandName}`;
+}
+
+function cacheSemanticTemplate(brandName: string, html: string): void {
+  try {
+    sessionStorage.setItem(templateSessionKey(brandName), html);
+  } catch (error) {
+    console.warn('[Phase 6] semantic template session cache unavailable', error);
+  }
+}
+
+function readCachedSemanticTemplate(brandName: string): string {
+  try {
+    return sessionStorage.getItem(templateSessionKey(brandName)) || '';
+  } catch {
+    return '';
+  }
 }
 
 function readBrandName(): string {
@@ -139,6 +160,7 @@ async function handlePromptExport(event: MouseEvent, clickedButton: HTMLButtonEl
   try {
     const approvedBase = await loadApprovedPilotBaseHtml(brandName);
     const semanticTemplate = createResearchOnlyLayoutTemplate(approvedBase, brandName);
+    cacheSemanticTemplate(brandName, semanticTemplate);
     const creativeDirective = buildCreativeHistoryCompilerDirective(rawResearch);
     const prompt = buildApprovedHtmlCompilationPrompt(
       rawResearch,
@@ -190,12 +212,13 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
   clickedButton.textContent = '의미 필드·레이아웃·가독성 검증 중...';
 
   try {
-    const approvedBase = await loadApprovedPilotBaseHtml(brandName);
+    const cachedTemplate = readCachedSemanticTemplate(brandName);
+    const approvedSource = cachedTemplate || await loadApprovedPilotBaseHtml(brandName);
     const extracted = extractCompleteFullReportHtml(textarea.value)
       .replace(/\[cite[:\s]*\d*[\],]*/g, '')
       .replace(/\[cite_start\]/g, '')
       .replace(/\\cite\{[^}]*\}/g, '');
-    const html = finalizeApprovedHtmlFromExternalOutput(extracted, approvedBase, brandName);
+    const html = finalizeApprovedHtmlFromExternalOutput(extracted, approvedSource, brandName);
     assertAllResearchSlotsFilled(html);
     assertApprovedHtmlCrossPageConsistency(html, brandName);
     assertResearchEvidencePresent(html, rawResearch, brandName);
