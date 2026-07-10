@@ -44,6 +44,29 @@ function makeStep(index: number, copy: string): HTMLLIElement {
   return item;
 }
 
+function makeHeader(): HTMLElement {
+  const header = document.createElement('div');
+  header.className = 'flex items-start justify-between gap-4 border-b border-[#2DD4BF]/20 pb-3';
+
+  const copy = document.createElement('div');
+  const title = document.createElement('h4');
+  title.className = 'text-base font-black text-[#2DD4BF]';
+  title.textContent = '외부 AI 완성 HTML 생성';
+  const subtitle = document.createElement('p');
+  subtitle.className = 'mt-1 text-[11px] leading-relaxed text-slate-400';
+  subtitle.textContent = '승인한 40 Main + 8 Appendix 양식은 고정하고, 조사 내용만 의미 필드별로 교체합니다.';
+  copy.append(title, subtitle);
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.dataset.phase6ApprovedPrompt = 'true';
+  button.className = 'shrink-0 rounded-lg border border-[#2DD4BF]/40 bg-[#2DD4BF]/15 px-4 py-2 text-xs font-black text-[#2DD4BF] hover:bg-[#2DD4BF]/25';
+  button.textContent = PROMPT_LABEL;
+
+  header.append(copy, button);
+  return header;
+}
+
 function installFileInput(container: HTMLElement, textarea: HTMLTextAreaElement): void {
   if (container.querySelector('[data-phase6-html-file]')) return;
   const row = document.createElement('div');
@@ -76,33 +99,27 @@ function refresh(): void {
   if (refreshing) return;
   refreshing = true;
   try {
-    const promptButton = findButton(['프롬프트 추출', PROMPT_LABEL]);
+    const originalPromptButton = findButton(['프롬프트 추출', PROMPT_LABEL]);
     const renderButton = findButton(['결과물 뷰어에 렌더링하기', RENDER_LABEL]);
     const textarea = findTextarea();
-    if (!promptButton || !renderButton || !textarea) return;
+    if (!originalPromptButton || !renderButton || !textarea) return;
 
-    promptButton.textContent = PROMPT_LABEL;
     renderButton.textContent = RENDER_LABEL;
     textarea.dataset.phase6InputMode = 'approved-html';
     textarea.placeholder = '외부 AI가 반환한 <!DOCTYPE html>부터 </html>까지의 완성 HTML 전체를 붙여넣으세요.';
 
-    const panel = commonAncestor(promptButton, renderButton);
+    const panel = commonAncestor(originalPromptButton, renderButton);
     if (!panel) return;
     panel.dataset.phase6Panel = 'approved-html';
 
-    const title = Array.from(panel.querySelectorAll<HTMLElement>('div'))
-      .find((element) => ['외부 AI 수동 렌더링', '외부 AI 완성 HTML 생성'].includes(normalized(element.textContent)));
-    if (title && normalized(title.textContent) !== '외부 AI 완성 HTML 생성') title.textContent = '외부 AI 완성 HTML 생성';
-
-    const subtitle = Array.from(panel.querySelectorAll<HTMLElement>('div'))
-      .find((element) => normalized(element.textContent).includes('무료 제미나이 웹')
-        || normalized(element.textContent).includes('승인한 40 Main'));
-    if (subtitle) subtitle.textContent = '승인한 40 Main + 8 Appendix 양식은 고정하고, 조사 내용만 의미 필드별로 교체합니다.';
+    const legacyHeader = originalPromptButton.parentElement;
+    if (legacyHeader) legacyHeader.style.display = 'none';
 
     if (!panel.querySelector(`#${WORKFLOW_ID}`)) {
       const workflow = document.createElement('section');
       workflow.id = WORKFLOW_ID;
       workflow.className = 'w-full flex flex-col gap-3 text-left';
+      workflow.appendChild(makeHeader());
 
       const steps = document.createElement('ol');
       steps.className = 'grid grid-cols-1 sm:grid-cols-5 gap-2';
