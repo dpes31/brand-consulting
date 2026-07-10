@@ -1,11 +1,11 @@
 import {
   buildStructuredReportPrompt,
-  renderStructuredReportV3,
   type StructuredFieldDefinition as BaseStructuredFieldDefinition,
   type StructuredReportPageV3,
   type StructuredReportV3,
 } from './structuredReportV3';
 import { parseReportHtml, serializeReportDocument } from './reportDomSafety';
+import { renderSemanticReportV4 } from './semanticReportV4';
 
 export const CREATIVE_HISTORY_STATUS_ENUM = [
   'verified-verbatim',
@@ -209,6 +209,6 @@ export function renderProductionReportV3(
   definitions: StructuredFieldDefinition[],
 ): string {
   assertProductionReportV3Statuses(report, definitions);
-  const rendered = renderStructuredReportV3(approvedBaseHtml, report, expectedBrand);
+  const rendered = renderSemanticReportV4(approvedBaseHtml, report, expectedBrand);
   return applyFixedCreativeHistoryYears(rendered);
 }
