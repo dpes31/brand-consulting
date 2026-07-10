@@ -132,14 +132,26 @@ function annotateRanking(slide: HTMLElement): void {
 
 function annotateDeepDive(slide: HTMLElement, index: number): void {
   registerField(slide.querySelector('.deep-dive-score > strong'), `deep-dive-${index}.score`, `핵심 경쟁사 ${index} 위협 점수`, 4, 'number');
-  registerIndexed(
-    slide,
-    '.deep-node--1 li',
-    `deep-dive-${index}.evidence`,
-    `Deep Dive ${index} Evidence 근거`,
-    72,
-    'rich',
-  );
+  const evidenceItems = slide.querySelectorAll<HTMLElement>('.deep-node--1 li');
+  if (evidenceItems.length > 0) {
+    Array.from(evidenceItems).forEach((item, evidenceIndex) => {
+      registerField(
+        item,
+        `deep-dive-${index}.evidence.${evidenceIndex + 1}`,
+        `Deep Dive ${index} Evidence 근거 ${evidenceIndex + 1}`,
+        72,
+        'rich',
+      );
+    });
+  } else {
+    registerField(
+      slide.querySelector('.deep-node--1 > p'),
+      `deep-dive-${index}.evidence.summary`,
+      `Deep Dive ${index} Evidence 요약`,
+      150,
+      'rich',
+    );
+  }
   const parts = ['coreDesire', 'appeal', 'threatMechanism', 'attackPoint'];
   const paragraphs = slide.querySelectorAll<HTMLElement>(
     '.deep-node--2 > p, .deep-node--3 > p, .deep-node--4 > p, .deep-node--5 > p',

@@ -91,11 +91,15 @@ async function buildExternalHtml(context, baseHtml) {
       const id = `#deep-dive-${index + 1}`;
       set(`${id} .full-title-row h2`, `${name}의 위협은 기능이 아니라 고객 선택을 만드는 방식입니다`);
       set(`${id} .deep-dive-score > strong`, String(91 - index * 7));
-      setAll(`${id} .deep-node--1 li`, [
-        `${name}의 공식 활동 근거`,
-        `${name}의 제품·서비스 증거`,
-        `${name}의 커뮤니케이션 증거`,
-      ]);
+      const evidenceNodes = [...document.querySelectorAll(`${id} .deep-node--1 li, ${id} .deep-node--1 > p`)];
+      if (evidenceNodes.length === 1) {
+        evidenceNodes[0].textContent = `${name}의 공식 활동·제품·커뮤니케이션 증거`;
+      } else if (evidenceNodes.length >= 3) {
+        [`${name}의 공식 활동 근거`, `${name}의 제품·서비스 증거`, `${name}의 커뮤니케이션 증거`]
+          .forEach((value, evidenceIndex) => { evidenceNodes[evidenceIndex].textContent = value; });
+      } else {
+        throw new Error(`Missing Evidence nodes: ${id}`);
+      }
       setAll(`${id} .deep-node--2 > p, ${id} .deep-node--3 > p, ${id} .deep-node--4 > p, ${id} .deep-node--5 > p`, [
         '고객이 실제로 원하는 진보',
         '고객을 움직이는 핵심 소구',
