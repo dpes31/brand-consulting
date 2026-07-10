@@ -4,13 +4,16 @@ on:
   push:
     branches:
       - fix/phase6-main40-semantic-renderer-v4
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && github.head_ref == 'fix/phase6-main40-semantic-renderer-v4'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
