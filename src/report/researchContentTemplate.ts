@@ -30,7 +30,7 @@ const FIXED_SELECTORS = [
   '.full-nav', '.full-report-toolbar', '.full-report-section-label',
   '#category-target .target-statement > span', '#category-target .target-tension > b',
   '#comp-ranking thead',
-  '.deep-dive-score > span', '.deep-node > small', '.deep-node > i',
+  '.deep-dive-score > span', '.deep-dive-score > small', '.deep-node > small', '.deep-node > i',
   '#category-cliche .cliche-head',
   '#consumer-exec .consumer-question-shift span', '#consumer-exec .consumer-question-shift i',
   '#consumer-target .target-spectrum > div > span', '#consumer-target .target-profile > span',
@@ -132,9 +132,21 @@ function annotateRanking(slide: HTMLElement): void {
 
 function annotateDeepDive(slide: HTMLElement, index: number): void {
   registerField(slide.querySelector('.deep-dive-score > strong'), `deep-dive-${index}.score`, `핵심 경쟁사 ${index} 위협 점수`, 4, 'number');
-  const parts = ['evidence', 'coreDesire', 'appeal', 'threatMechanism', 'attackPoint'];
-  Array.from(slide.querySelectorAll<HTMLElement>('.deep-node > p')).forEach((node, partIndex) => {
-    registerField(node, `deep-dive-${index}.${parts[partIndex] || `part${partIndex + 1}`}`, `Deep Dive ${index} ${parts[partIndex] || '내용'}`, 150, 'rich');
+  registerIndexed(
+    slide,
+    '.deep-node--1 li',
+    `deep-dive-${index}.evidence`,
+    `Deep Dive ${index} Evidence 근거`,
+    72,
+    'rich',
+  );
+  const parts = ['coreDesire', 'appeal', 'threatMechanism', 'attackPoint'];
+  const paragraphs = slide.querySelectorAll<HTMLElement>(
+    '.deep-node--2 > p, .deep-node--3 > p, .deep-node--4 > p, .deep-node--5 > p',
+  );
+  Array.from(paragraphs).forEach((node, partIndex) => {
+    const part = parts[partIndex] || `part${partIndex + 1}`;
+    registerField(node, `deep-dive-${index}.${part}`, `Deep Dive ${index} ${part}`, 150, 'rich');
   });
   registerSource(slide.querySelector('.full-source'), `deep-dive-${index}.source`, `Deep Dive ${index} 출처명 · 자료명 · 연도`);
 }
