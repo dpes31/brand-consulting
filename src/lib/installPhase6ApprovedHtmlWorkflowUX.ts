@@ -4,6 +4,7 @@ let refreshing = false;
 const WORKFLOW_ID = 'phase6-approved-html-workflow';
 const PROMPT_LABEL = '완성 HTML 프롬프트 다운로드';
 const RENDER_LABEL = 'HTML 검증 후 48페이지 보고서 열기';
+const INPUT_PLACEHOLDER = '외부 AI가 반환한 <!DOCTYPE html>부터 </html>까지의 완성 HTML 전체를 붙여넣으세요.';
 
 function normalized(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
@@ -104,16 +105,18 @@ function refresh(): void {
     const textarea = findTextarea();
     if (!originalPromptButton || !renderButton || !textarea) return;
 
-    renderButton.textContent = RENDER_LABEL;
-    textarea.dataset.phase6InputMode = 'approved-html';
-    textarea.placeholder = '외부 AI가 반환한 <!DOCTYPE html>부터 </html>까지의 완성 HTML 전체를 붙여넣으세요.';
+    if (normalized(renderButton.textContent) !== RENDER_LABEL && !renderButton.dataset.fullReportBusy) {
+      renderButton.textContent = RENDER_LABEL;
+    }
+    if (textarea.dataset.phase6InputMode !== 'approved-html') textarea.dataset.phase6InputMode = 'approved-html';
+    if (textarea.placeholder !== INPUT_PLACEHOLDER) textarea.placeholder = INPUT_PLACEHOLDER;
 
     const panel = commonAncestor(originalPromptButton, renderButton);
     if (!panel) return;
-    panel.dataset.phase6Panel = 'approved-html';
+    if (panel.dataset.phase6Panel !== 'approved-html') panel.dataset.phase6Panel = 'approved-html';
 
     const legacyHeader = originalPromptButton.parentElement;
-    if (legacyHeader) legacyHeader.style.display = 'none';
+    if (legacyHeader && legacyHeader.style.display !== 'none') legacyHeader.style.display = 'none';
 
     if (!panel.querySelector(`#${WORKFLOW_ID}`)) {
       const workflow = document.createElement('section');
