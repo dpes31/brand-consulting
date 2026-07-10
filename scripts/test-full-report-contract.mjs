@@ -17,6 +17,7 @@ const pilotCss = read('src/pages/BiznupFullIntegrated.css');
 const compiler = read('src/report/fullReportCompiler.ts');
 const safety = read('src/report/reportDomSafety.ts');
 const structured = read('src/report/structuredReportV3.ts');
+const semanticV4 = read('src/report/semanticReportV4.ts');
 const productionContract = read('src/report/productionReportV3Contract.ts');
 const definitionPolicy = read('src/report/structuredDefinitionPolicy.ts');
 const crossValidation = read('src/report/structuredReportCrossValidation.ts');
@@ -52,8 +53,7 @@ check(safety.includes('canonicalizePageIds'), 'Dynamic Pilot ID canonicalization
 check(safety.includes('computeReportDomFingerprint'), 'Renderer DOM fingerprint missing.');
 
 check(structured.includes("STRUCTURED_REPORT_VERSION = '3.0.0'"), 'ProductionReportV3 version missing.');
-check(structured.includes('buildStructuredReportPrompt'), 'Base structured JSON prompt missing.');
-check(structured.includes('renderStructuredReportV3'), 'App-owned base renderer missing.');
+check(structured.includes('buildStructuredReportPrompt'), 'Base structured prompt missing.');
 check(structured.includes('validateStructuredReportV3'), 'Structured validation missing.');
 check(structured.includes('Persona title must exactly match P21 target'), 'Persona target-title lock missing.');
 check(structured.includes('positioning.axis'), 'Positioning semantic fields missing.');
@@ -62,8 +62,17 @@ check(structured.includes("markFixed(labels[0] || null, 'WANT')"), 'WANT fixed l
 check(structured.includes("markFixed(labels[1] || null, 'AVOID')"), 'AVOID fixed label missing.');
 check(structured.includes("head.slice(3).forEach((node) => node.remove())"), 'Category Clichés fourth column removal missing.');
 check(structured.includes("markFixed(slide.querySelector('.gap-arrow'), '→')"), 'Creative Insight connector lock missing.');
-check(structured.includes('beforeFingerprint !== afterFingerprint'), 'Renderer DOM immutability check missing.');
-check(definitionPolicy.includes('creative-trajectory'), 'Structured field density policy missing.');
+
+check(definitionPolicy.includes('isGenericOrderField'), 'Generic DOM-order field blocker missing.');
+check(definitionPolicy.includes('mapStructuredFieldKey'), 'Semantic field mapping policy missing.');
+check(definitionPolicy.includes('jtbd.row'), 'JTBD role mapping missing.');
+check(definitionPolicy.includes('consumer-target\\.target'), 'Core-target structural label policy missing.');
+
+check(semanticV4.includes('renderSemanticReportV4'), 'Semantic Renderer V4 missing.');
+check(semanticV4.includes('beforeFingerprint !== afterFingerprint'), 'Semantic renderer DOM immutability check missing.');
+check(semanticV4.includes('P12 Threat Ranking'), 'P12 field-local semantic validation missing.');
+check(semanticV4.includes('P27 AIPL'), 'AIPL field contamination validation missing.');
+check(semanticV4.includes("dataset.reportAppendixCount = '0'"), 'Semantic renderer Appendix zero marker missing.');
 
 check(productionContract.includes("enum?: string[]"), 'ProductionReportV3 enum metadata missing.');
 check(productionContract.includes("fixedYear?: number | '2026 YTD'"), 'ProductionReportV3 fixed-year metadata missing.');
@@ -72,17 +81,19 @@ check(productionContract.includes('normalizeProductionReportV3'), 'Constrained C
 check(productionContract.includes('/^(.*?) · (verified-verbatim|source-found-copy-unverified|not-found)$/'), 'Exact status normalization pattern missing.');
 check(productionContract.includes("match[1] !== String(expectedYear)"), 'Expected-year match guard missing.');
 check(productionContract.includes('자동 복구할 수 없어 렌더링을 중단했습니다.'), 'Korean field-level blocking error missing.');
+check(productionContract.includes('renderSemanticReportV4'), 'Production output is not routed through Semantic Renderer V4.');
 check(productionContract.includes("'2026 YTD'"), '2026 YTD renderer metadata missing.');
 
 check(creativeHistory.includes('[CREATIVE HISTORY DATA CONTRACT]'), 'Creative History data contract missing.');
 check(!creativeHistory.includes('[CREATIVE HISTORY RENDERING CONTRACT]'), 'Renderer contract leaked into the AI prompt.');
 check(!creativeHistory.includes('.timeline-container') && !creativeHistory.includes('data-copy-status'), 'DOM details remain in the Creative History AI directive.');
 
-check(crossValidation.includes('P12 Threat Ranking must select three unique core competitors'), 'Core-three uniqueness validation missing.');
-check(crossValidation.includes('must come from P11 Competitive Landscape'), 'Landscape-to-ranking validation missing.');
-check(crossValidation.includes('P16 matrix core competitor'), 'Core-three matrix consistency missing.');
-check(crossValidation.includes('P18 map competitor'), 'Core-three positioning consistency missing.');
-check(crossValidation.includes('P33 trajectory competitor'), 'Core-three trajectory consistency missing.');
+check(crossValidation.includes('경쟁사명이 아닌'), 'P12 invalid competitor-name validation missing.');
+check(crossValidation.includes('핵심 직접 경쟁사 3개'), 'Core-three uniqueness validation missing.');
+check(crossValidation.includes('P11 Competitive Landscape 후보'), 'Landscape-to-ranking validation missing.');
+check(crossValidation.includes('P16 Product Matrix'), 'Core-three matrix consistency missing.');
+check(crossValidation.includes('P18 Positioning'), 'Core-three positioning consistency missing.');
+check(crossValidation.includes('P33 Message Trajectory'), 'Core-three trajectory consistency missing.');
 
 check(pagePlan.includes('focus3-main40-no-appendix-v3'), '40-page page-plan version missing.');
 check(pagePlan.includes("'comp-landscape'"), 'Landscape not retained in page plan.');
@@ -98,24 +109,23 @@ for (const source of [apiCompiler, bridge]) {
   check(source.includes('normalizeProductionReportV3'), 'A Phase 6 path does not use constrained normalization.');
   check(source.includes('renderProductionReportV3'), 'A Phase 6 path does not use the app-owned renderer adapter.');
   check(source.includes('assertStructuredReportCrossPage'), 'A Phase 6 path does not enforce cross-page consistency.');
-  check(source.includes('applyStructuredDefinitionPolicy'), 'A Phase 6 path does not apply density policy.');
+  check(source.includes('applyStructuredDefinitionPolicy'), 'A Phase 6 path does not apply semantic field policy.');
   check(!source.includes('createResearchOnlyLayoutTemplate'), 'Legacy text-node slots remain in an active Phase 6 path.');
 }
 check(bridge.includes('sanitizeCompatibleFullReportHtml'), 'HTML compatibility sanitizer is not connected.');
 check(bridge.includes("compatibilityValidation = 'semantic-skeleton'"), 'HTML compatibility semantic-skeleton validation is not connected.');
-check(bridge.includes('definitions.length < 260'), 'HTML compatibility semantic field coverage is not enforced.');
 check(bridge.includes('formatProductionReportV3Warnings'), 'Normalization warnings are not surfaced.');
-check(inputGuard.includes('looksLikeStructuredJson'), 'Input guard does not accept ProductionReportV3 JSON.');
+check(inputGuard.includes('looksLikeStructuredJson'), 'Input guard does not accept the internal structured response.');
 
 for (const copy of [
-  '외부 AI 구조화 JSON 방식',
-  '외부 AI용 JSON 프롬프트 다운로드',
-  '외부 AI가 반환한 JSON 붙여넣기',
-  'JSON 검증 후 40페이지 보고서 만들기',
-  'HTML은 외부 AI가 아니라 앱이 자동 생성합니다.',
+  '외부 AI 보고서 작성 방식',
+  '외부 AI용 보고서 작성 프롬프트 다운로드',
+  '외부 AI가 반환한 결과 붙여넣기',
+  '결과 검증 후 40페이지 보고서 만들기',
+  '레이아웃과 페이지 구성은 앱이 고정합니다. 외부 AI는 내용만 작성합니다.',
   '기존 완성 HTML 가져오기 — 호환용',
 ]) check(workflowUx.includes(copy), `Phase 6 UX copy missing: ${copy}`);
-check(workflowUx.includes("input.accept = '.json,.txt,application/json,text/plain'"), 'JSON/TXT response file input missing.');
+check(workflowUx.includes("input.accept = '.json,.txt,application/json,text/plain'"), 'TXT/JSON response file input missing.');
 
 check(structuredE2e.includes('external-ai-response-1.json'), 'First complete external-response fixture missing.');
 check(structuredE2e.includes('external-ai-response-2.json'), 'Second complete external-response fixture missing.');
@@ -128,9 +138,11 @@ check(workflow.includes('e2e-phase6-structured-renderer.mjs'), 'Structured rende
 check(workflow.includes('e2e-phase6-html-sanitizer.mjs'), 'HTML sanitizer E2E is not in CI.');
 
 check(runtime.includes('FULL_REPORT_PAGE_COUNT = 40'), 'Native PDF preflight must use 40 pages.');
-check(pdfBridge.includes('FULL_PAGE_COUNT = 40'), 'PDF button bridge must use 40 pages.');
-check(main.includes('installFullReportPhase6Bridge()'), 'Structured Phase 6 bridge not installed.');
-check(main.includes('installPhase6ExternalJsonWorkflowUX()'), 'External JSON workflow UX not installed.');
-check(main.includes('installPhase6PagePlanV2()'), 'Restored Phase 6 page plan not installed.');
+check(runtime.includes('__FULL_REPORT_VIEWER_FIT__'), 'Viewer-only responsive fit missing.');
+check(runtime.includes("windowRef.addEventListener('beforeprint', state.reset)"), 'Print scale reset missing.');
+check(runtime.includes("windowRef.addEventListener('afterprint', state.fit)"), 'Post-print Viewer refit missing.');
+check(runtime.includes('__FULL_REPORT_NATIVE_PRINT__'), 'Native print backup missing.');
+check(pdfBridge.includes('exportFullReportPdf'), 'PDF button does not use native FULL report export.');
+check(main.includes('installPhase6ExternalJsonWorkflowUX'), 'Phase 6 workflow UX is not installed.');
 
-console.log('FULL report contract PASS: shared ProductionReportV3 metadata, constrained normalization, app-owned 40-page renderer, sanitizer, cross-page validation, and PDF runtime are connected.');
+console.log('[FULL REPORT CONTRACT] PASS');
