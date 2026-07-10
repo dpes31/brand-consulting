@@ -96,6 +96,22 @@ function installFileInput(container: HTMLElement, textarea: HTMLTextAreaElement)
   container.insertBefore(row, textarea);
 }
 
+function hideLegacyHeader(panel: HTMLElement, originalPromptButton: HTMLButtonElement): void {
+  const promptContainer = originalPromptButton.parentElement;
+  if (promptContainer && promptContainer.style.display !== 'none') promptContainer.style.display = 'none';
+
+  Array.from(panel.querySelectorAll<HTMLElement>('div,p')).forEach((element) => {
+    if (element.closest(`#${WORKFLOW_ID}`)) return;
+    const value = normalized(element.textContent);
+    if (value === '외부 AI 완성 HTML 생성'
+      || value === '외부 AI 수동 렌더링'
+      || value === '승인한 40 Main + 8 Appendix 양식은 고정하고 조사 내용만 의미 필드별로 교체합니다.'
+      || value === '승인한 40 Main + 8 Appendix 양식은 고정하고, 조사 내용만 의미 필드별로 교체합니다.') {
+      element.style.display = 'none';
+    }
+  });
+}
+
 function refresh(): void {
   if (refreshing) return;
   refreshing = true;
@@ -115,8 +131,7 @@ function refresh(): void {
     if (!panel) return;
     if (panel.dataset.phase6Panel !== 'approved-html') panel.dataset.phase6Panel = 'approved-html';
 
-    const legacyHeader = originalPromptButton.parentElement;
-    if (legacyHeader && legacyHeader.style.display !== 'none') legacyHeader.style.display = 'none';
+    hideLegacyHeader(panel, originalPromptButton);
 
     if (!panel.querySelector(`#${WORKFLOW_ID}`)) {
       const workflow = document.createElement('section');
