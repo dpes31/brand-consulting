@@ -1,0 +1,33 @@
+name: Apply Phase 6 Main40 V4
+
+on:
+  push:
+    branches:
+      - fix/phase6-main40-semantic-renderer-v4
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout correction branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/phase6-main40-semantic-renderer-v4
+          fetch-depth: 0
+      - name: Apply deterministic correction
+        run: python scripts/apply-phase6-main40-v4.py
+      - name: Commit corrected product files
+        shell: bash
+        run: |
+          rm -f scripts/apply-phase6-main40-v4.py
+          rm -f .github/workflows/apply-phase6-main40-v4.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Restore Phase 6 40-page semantic renderer contract"
+          git push origin HEAD:fix/phase6-main40-semantic-renderer-v4
