@@ -1,18 +1,16 @@
 import { GoogleGenAI } from '@google/genai';
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
+import { buildApprovedHtmlCompilationPrompt } from '../report/approvedHtmlPrompt';
 import {
-  assertApprovedFullReportHtml,
-  buildFullReportHtmlPrompt,
   extractCompleteFullReportHtml,
   loadApprovedPilotBaseHtml,
 } from '../report/fullReportCompiler';
-import { normalizeApprovedFullReportHtml } from '../report/normalizeApprovedFullReportHtml';
 import {
   assertAllResearchSlotsFilled,
   assertResearchEvidencePresent,
   createResearchOnlyLayoutTemplate,
+  finalizeApprovedHtmlFromExternalOutput,
 } from '../report/researchContentTemplate';
-import { addResearchSlotRules } from '../report/researchSlotPrompt';
 
 export const compileReportToHTML = async (
   rawData: string,
@@ -22,29 +20,33 @@ export const compileReportToHTML = async (
   if (!apiKey) throw new Error('API key is required.');
   if (!brandName.trim()) throw new Error('Brand name is required.');
 
-  const capturedPilot = await loadApprovedPilotBaseHtml(brandName);
-  const researchOnlyTemplate = createResearchOnlyLayoutTemplate(capturedPilot, brandName);
+  const approvedBase = await loadApprovedPilotBaseHtml(brandName);
+  const semanticTemplate = createResearchOnlyLayoutTemplate(approvedBase, brandName);
   const creativeDirective = buildCreativeHistoryCompilerDirective(rawData);
-  const compilerPrompt = addResearchSlotRules(
-    buildFullReportHtmlPrompt(rawData, brandName, researchOnlyTemplate, creativeDirective),
+  const compilerPrompt = buildApprovedHtmlCompilationPrompt(
+    rawData,
+    brandName,
+    semanticTemplate,
+    creativeDirective,
   );
+
   const ai = new GoogleGenAI({ apiKey });
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {
-      systemInstruction: 'Preserve the supplied approved 48-page layout. Replace every CONTENT SLOT only with the supplied Step 0-5 research. Return the complete finalized HTML.',
-      temperature: 0.1,
-      topP: 0.7,
+      systemInstruction: 'Return one complete approved 48-page HTML document. Replace semantic fields only. Never return JSON and never redesign the supplied layout.',
+      temperature: 0.05,
+      topP: 0.55,
       maxOutputTokens: 65536,
     },
   });
 
-  const messageResponse = await chat.sendMessage({ message: compilerPrompt });
-  const output = messageResponse.text || '';
+  const response = await chat.sendMessage({ message: compilerPrompt });
+  const output = response.text || '';
   if (!output.trim()) throw new Error('The Phase 6 HTML response is empty.');
 
-  const html = normalizeApprovedFullReportHtml(extractCompleteFullReportHtml(output));
-  assertApprovedFullReportHtml(html, brandName);
+  const extracted = extractCompleteFullReportHtml(output);
+  const html = finalizeApprovedHtmlFromExternalOutput(extracted, approvedBase, brandName);
   assertAllResearchSlotsFilled(html);
   assertResearchEvidencePresent(html, rawData, brandName);
   return html;
