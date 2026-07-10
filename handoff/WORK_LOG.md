@@ -169,3 +169,29 @@
   - save/reopen: 48 pages.
 - Vercel Preview deployment reached Ready.
 - PR remains Draft and unmerged pending owner Preview approval.
+
+## WORKLOG_PHASE6_APPROVED_HTML_2026_07_10
+
+### 완료 작업
+
+- `main`에서 `fix/phase6-approved-html-semantic-contract-v1` 생성.
+- Draft PR #22 생성; PR #21 JSON 방향은 미병합 상태로 보존.
+- 승인 샘플 40 Main + 8 Appendix 페이지 계획 복원.
+- DOM 순번 슬롯을 페이지별 의미 필드 계약으로 교체.
+- 외부 AI DOM을 직접 사용하지 않고 승인 DOM에 검증된 field content만 이식.
+- Script, inline event, iframe/object/embed/form, 위험 URL 제거.
+- P5, P12–18, P19–28, P30–40, A8 구조 및 교차 논리 검증 추가.
+- Deep Dive Evidence의 리스트형·요약형 두 승인 DOM 변형 지원.
+- 텍스트 길이 제한과 핵심 페이지 가독성 CSS 보정.
+- JSON 입력 차단, `.html/.txt` 업로드, 5단계 HTML UX 구현.
+- exact exported Semantic Template을 sessionStorage에 고정해 재캡처 비결정성 제거.
+
+### 검증
+
+- `npm run build`: PASS
+- Approved HTML semantic E2E: PASS
+- 48 pages / Main 40 / Appendix 8 / navigation 48 / overflow 0
+- active content 0 / scale(1) / 1280×720
+- save → reload → reopen: PASS
+- PDF 48p / 960×540pt / embedded Pretendard / raster fallback 0
+- 주요 20개 페이지 원본 캡처와 48페이지 Contact Sheet 시각 검수 완료.

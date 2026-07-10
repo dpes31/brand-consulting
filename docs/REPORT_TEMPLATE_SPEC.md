@@ -299,3 +299,33 @@ Minimum QA checks:
 - Never modify or delete:
   - `backup/main-before-full-report-v1-2026-07-01`
   - `backup-production-stable-20260622`
+
+## REPORT_TEMPLATE_APPROVED_HTML_V1_2026_07_10 — 최신 Phase 6 계약
+
+이 절은 이전 JSON/40-page-only 또는 five-competitor 변형 설명보다 우선한다.
+
+### Canonical source
+
+- Route: `/?pilot=full-integrated&brand=<exact brand>`
+- 40 Main + 8 Appendix, 총 48페이지
+- 1280×720, exact 16:9, Pretendard, title weight 900
+
+### Compiler ownership
+
+- 외부 AI 출력: complete HTML
+- AI 편집 가능 영역: `data-report-field`가 부여된 의미 콘텐츠
+- 앱 소유 영역: DOM, CSS, page IDs/order, navigation, labels, arrows, rows/columns, geometry, print rules
+- 최종 조립: AI HTML의 field content → approved sample DOM
+
+### Readability
+
+- body copy를 축소해 overflow를 해결하지 않는다.
+- `data-report-max-length`를 넘으면 렌더링을 차단하고 문장을 요약한다.
+- P12 ranking, P13–15 Deep Dive, P17 Clichés, Persona, Pain, AIPL, Creative History, Root Cause, STP, Final Choice의 승인 도식과 텍스트 위계를 유지한다.
+
+### Page consistency
+
+- P12가 선택한 핵심 경쟁사 3개는 P13–16, P18, P31–34에서 동일 순서다.
+- P21 세그먼트와 P22–24 Persona 제목은 일치한다.
+- P26의 네 열과 P27의 다섯 단계는 독립 의미 필드다.
+- P37 → P38 → P39 → P40 → A8은 하나의 전략 논리다.
