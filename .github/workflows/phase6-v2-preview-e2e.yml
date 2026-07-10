@@ -1,156 +1,88 @@
-name: Apply Phase 6 Main40 Semantic Correction
+name: Phase 6 Main40 Semantic Renderer E2E
 
 on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/phase6-main40-semantic-renderer-v4
   pull_request:
     branches:
       - main
 
-permissions:
-  contents: write
-
 jobs:
-  apply:
-    if: github.actor != 'github-actions[bot]' && github.head_ref == 'fix/phase6-main40-semantic-renderer-v4'
+  e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 50
+    env:
+      LOCAL_E2E_URL: http://127.0.0.1:4173/
     steps:
-      - name: Checkout correction branch
+      - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          ref: fix/phase6-main40-semantic-renderer-v4
-          fetch-depth: 0
-      - name: Correct patch literal escaping
+          node-version: 22
+          cache: npm
+      - name: Install application dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Playwright and PDF inspection tools
+        run: |
+          npm install --no-save --no-audit --no-fund playwright
+          npx playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      - name: Build and run local Phase 6 E2E
         shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-          p = Path('scripts/apply-phase6-main40-v4.py')
-          s = p.read_text(encoding='utf-8')
-          pattern = r'''replace_once\(runtime,\n"""  const preflight = runFullReportPreflight\(documentRef\);.*?\n"""\)\n(?=replace_once\(runtime,\n"""  nativePrint\(\);)'''
-          replacement = r'''replace_once(runtime,
-r"""  const preflight = runFullReportPreflight(documentRef);
-  if (!preflight.ok) throw new Error(`FULL PDF 사전검사 실패\n${preflight.issues.join('\n')}`);
-  await waitForFonts(documentRef);
-
-  const nativePrint = windowRef.__FULL_REPORT_NATIVE_PRINT__;
-""",
-r"""  const preflight = runFullReportPreflight(documentRef);
-  if (!preflight.ok) throw new Error(`FULL PDF 사전검사 실패\n${preflight.issues.join('\n')}`);
-  await waitForFonts(documentRef);
-  windowRef.__FULL_REPORT_VIEWER_FIT__?.reset();
-
-  const nativePrint = windowRef.__FULL_REPORT_NATIVE_PRINT__;
-""")
-'''
-          s2, count = re.subn(pattern, replacement, s, count=1, flags=re.S)
-          if count != 1:
-              raise SystemExit(f'failed to correct runtime patch block: {count}')
-          p.write_text(s2, encoding='utf-8')
-          PY
-      - name: Apply deterministic product correction
-        shell: bash
-        run: |
+          mkdir -p phase6-v2-e2e-artifacts
           set +e
-          rm -f phase6-main40-apply.txt phase6-main40-apply-exit.txt
-          python scripts/apply-phase6-main40-v4.py > phase6-main40-apply.txt 2>&1
-          code=$?
-          echo "$code" > phase6-main40-apply-exit.txt
-          cat phase6-main40-apply.txt
-          exit 0
-      - name: Commit product correction or diagnostics
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ "$(cat phase6-main40-apply-exit.txt)" != "0" ]; then
-            printf '\nRUN_AT=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> phase6-main40-apply.txt
-            git add -f phase6-main40-apply.txt phase6-main40-apply-exit.txt
-            git commit -m "Record Phase 6 correction patch failure"
-            git push origin HEAD:fix/phase6-main40-semantic-renderer-v4
+          npm run build > phase6-v2-e2e-artifacts/local-build.log 2>&1
+          build_code=$?
+          if [ "$build_code" != "0" ]; then
+            echo "$build_code" > phase6-v2-e2e-artifacts/local-e2e.exit
+            tail -n 240 phase6-v2-e2e-artifacts/local-build.log
             exit 0
           fi
+          npx vite preview --host 127.0.0.1 --port 4173 > phase6-v2-e2e-artifacts/local-server.log 2>&1 &
+          server_pid=$!
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "$LOCAL_E2E_URL" > /dev/null; then break; fi
+            sleep 2
+          done
 
-          rm -f scripts/apply-phase6-main40-v4.py
-          rm -f .github/workflows/apply-phase6-main40-v4.yml
-          rm -f phase6-main40-apply.txt phase6-main40-apply-exit.txt
-          rm -f docs/PHASE6_MAIN40_V4_PR_PENDING.md docs/PHASE6_MAIN40_V4_STATUS.md docs/PHASE6_MAIN40_V4_README.md docs/PHASE6_MAIN40_V4_DRAFT_ONLY.md docs/PHASE6_MAIN40_V4_TEMP_CLEANUP.md docs/PHASE6_MAIN40_V4_FINAL_TEMP_MARKER.md
-          rm -f handoff/PHASE6_MAIN40_V4_PR_NOTE.md handoff/PHASE6_MAIN40_V4_STOP_EXTRA_MARKERS.md handoff/PHASE6_MAIN40_V4_SETUP_COMPLETE.md handoff/PHASE6_MAIN40_V4_NEXT.md handoff/PHASE6_MAIN40_V4_LOCK.md
+          PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-material-symbols-first-paint-v2.mjs > phase6-v2-e2e-artifacts/material-symbols-e2e.log 2>&1
+          icon_code=$?
+          if [ "$icon_code" = "0" ]; then
+            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-pdf-button-routing.mjs > phase6-v2-e2e-artifacts/pdf-button-routing.log 2>&1
+            routing_code=$?
+          else
+            routing_code=$icon_code
+          fi
+          if [ "$routing_code" = "0" ]; then
+            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-structured-renderer.mjs > phase6-v2-e2e-artifacts/structured-renderer-e2e.log 2>&1
+            structured_code=$?
+          else
+            structured_code=$routing_code
+          fi
+          if [ "$structured_code" = "0" ]; then
+            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-html-sanitizer.mjs > phase6-v2-e2e-artifacts/html-sanitizer-e2e.log 2>&1
+            code=$?
+          else
+            code=$structured_code
+          fi
 
-          cat > .github/workflows/phase6-v2-preview-e2e.yml <<'YAML'
-          name: Phase 6 Main40 Semantic Renderer E2E
-
-          on:
-            workflow_dispatch:
-            push:
-              branches:
-                - fix/phase6-main40-semantic-renderer-v4
-            pull_request:
-              branches:
-                - main
-
-          jobs:
-            e2e:
-              runs-on: ubuntu-latest
-              timeout-minutes: 50
-              env:
-                LOCAL_E2E_URL: http://127.0.0.1:4173/
-              steps:
-                - name: Checkout
-                  uses: actions/checkout@v4
-                - name: Setup Node
-                  uses: actions/setup-node@v4
-                  with:
-                    node-version: 22
-                    cache: npm
-                - name: Install application dependencies
-                  run: npm install --no-audit --no-fund
-                - name: Install Playwright and PDF inspection tools
-                  run: |
-                    npm install --no-save --no-audit --no-fund playwright
-                    npx playwright install --with-deps chromium
-                    sudo apt-get update
-                    sudo apt-get install -y poppler-utils
-                - name: Build and run local Phase 6 E2E
-                  shell: bash
-                  run: |
-                    mkdir -p phase6-v2-e2e-artifacts
-                    set +e
-                    npm run build > phase6-v2-e2e-artifacts/local-build.log 2>&1
-                    build_code=$?
-                    if [ "$build_code" != "0" ]; then
-                      echo "$build_code" > phase6-v2-e2e-artifacts/local-e2e.exit
-                      tail -n 220 phase6-v2-e2e-artifacts/local-build.log
-                      exit 0
-                    fi
-                    npx vite preview --host 127.0.0.1 --port 4173 > phase6-v2-e2e-artifacts/local-server.log 2>&1 &
-                    server_pid=$!
-                    for attempt in {1..30}; do
-                      if curl --fail --silent --show-error "$LOCAL_E2E_URL" > /dev/null; then break; fi
-                      sleep 2
-                    done
-                    PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-material-symbols-first-paint-v2.mjs > phase6-v2-e2e-artifacts/material-symbols-e2e.log 2>&1
-                    icon_code=$?
-                    if [ "$icon_code" = "0" ]; then PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-pdf-button-routing.mjs > phase6-v2-e2e-artifacts/pdf-button-routing.log 2>&1; routing_code=$?; else routing_code=$icon_code; fi
-                    if [ "$routing_code" = "0" ]; then PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-structured-renderer.mjs > phase6-v2-e2e-artifacts/structured-renderer-e2e.log 2>&1; structured_code=$?; else structured_code=$routing_code; fi
-                    if [ "$structured_code" = "0" ]; then PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-html-sanitizer.mjs > phase6-v2-e2e-artifacts/html-sanitizer-e2e.log 2>&1; code=$?; else code=$structured_code; fi
-                    kill "$server_pid" || true
-                    echo "$code" > phase6-v2-e2e-artifacts/local-e2e.exit
-                    tail -n 180 phase6-v2-e2e-artifacts/material-symbols-e2e.log
-                    if [ -f phase6-v2-e2e-artifacts/pdf-button-routing.log ]; then tail -n 220 phase6-v2-e2e-artifacts/pdf-button-routing.log; fi
-                    if [ -f phase6-v2-e2e-artifacts/structured-renderer-e2e.log ]; then tail -n 300 phase6-v2-e2e-artifacts/structured-renderer-e2e.log; fi
-                    if [ -f phase6-v2-e2e-artifacts/html-sanitizer-e2e.log ]; then tail -n 260 phase6-v2-e2e-artifacts/html-sanitizer-e2e.log; fi
-                    exit 0
-                - name: Upload E2E evidence
-                  if: always()
-                  uses: actions/upload-artifact@v4
-                  with:
-                    name: phase6-main40-semantic-renderer-evidence
-                    path: phase6-v2-e2e-artifacts
-                - name: Enforce local E2E result
-                  run: test "$(cat phase6-v2-e2e-artifacts/local-e2e.exit)" = "0"
-          YAML
-
-          git add -A
-          git commit -m "Restore Phase 6 40-page semantic renderer contract"
-          git push origin HEAD:fix/phase6-main40-semantic-renderer-v4
+          kill "$server_pid" || true
+          echo "$code" > phase6-v2-e2e-artifacts/local-e2e.exit
+          tail -n 180 phase6-v2-e2e-artifacts/material-symbols-e2e.log
+          if [ -f phase6-v2-e2e-artifacts/pdf-button-routing.log ]; then tail -n 240 phase6-v2-e2e-artifacts/pdf-button-routing.log; fi
+          if [ -f phase6-v2-e2e-artifacts/structured-renderer-e2e.log ]; then tail -n 360 phase6-v2-e2e-artifacts/structured-renderer-e2e.log; fi
+          if [ -f phase6-v2-e2e-artifacts/html-sanitizer-e2e.log ]; then tail -n 280 phase6-v2-e2e-artifacts/html-sanitizer-e2e.log; fi
+          exit 0
+      - name: Upload E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6-main40-semantic-renderer-evidence
+          path: phase6-v2-e2e-artifacts
+      - name: Enforce local E2E result
+        run: test "$(cat phase6-v2-e2e-artifacts/local-e2e.exit)" = "0"
