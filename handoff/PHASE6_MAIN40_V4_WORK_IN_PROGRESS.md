@@ -1,5 +1,5 @@
-# Phase 6 Main40 V4 — Work in Progress
+# Phase 6 Main40 V4 — Superseded Work Note
 
-This branch restores the current 40-page, zero-Appendix product contract and replaces generic DOM-order fields with page-specific semantic records. Keep the pull request Draft until browser, PDF, and two real external-AI runs pass owner review.
+Implementation and automated validation are complete for the current Draft PR.
 
-The active build workflow will now apply the deterministic product correction and then restore normal CI.
+Use `handoff/PHASE6_MAIN40_SEMANTIC_RENDERER_V4_2026-07-10.md` as the current handoff. PR #23 remains Draft until two actual external-AI responses and owner Preview approval pass.
