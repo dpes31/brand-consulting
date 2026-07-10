@@ -197,7 +197,7 @@ async function buildExternalHtml(context, baseHtml) {
     });
 
     set('#strategy-choice .choice-final h3', '모든 대표는 중요한 판단의 이유를 이해하고 최종 결정을 통제할 권리가 있습니다');
-    set('#strategy-choice .choice-final h2', '판단 설명서');
+    set('#strategy-choice .choice-final h2', '판단 근거·책임 설명서');
     set('#strategy-choice .choice-final > p', '모든 결과에 적용·제외·위험·검토·책임을 기록해 선택의 근거를 남깁니다');
     set('#appendix-back .back-cover-copy > h1', '맡겨도 판단의 근거와 결정권은 고객에게 남습니다');
     set('#appendix-back .back-cover-copy > p', `${brandName}은 결과를 대신 말하는 데서 그치지 않고 결정의 이유를 보이게 합니다`);
