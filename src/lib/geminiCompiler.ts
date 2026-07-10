@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
 import { buildApprovedHtmlCompilationPrompt } from '../report/approvedHtmlPrompt';
+import { assertApprovedHtmlCrossPageConsistency } from '../report/approvedHtmlCrossValidation';
 import {
   extractCompleteFullReportHtml,
   loadApprovedPilotBaseHtml,
@@ -48,6 +49,7 @@ export const compileReportToHTML = async (
   const extracted = extractCompleteFullReportHtml(output);
   const html = finalizeApprovedHtmlFromExternalOutput(extracted, approvedBase, brandName);
   assertAllResearchSlotsFilled(html);
+  assertApprovedHtmlCrossPageConsistency(html, brandName);
   assertResearchEvidencePresent(html, rawData, brandName);
   return html;
 };
