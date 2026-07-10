@@ -47,7 +47,7 @@ export const compileReportToHTML = async (
   if (!output.trim()) throw new Error('The Phase 6 HTML response is empty.');
 
   const extracted = extractCompleteFullReportHtml(output);
-  const html = finalizeApprovedHtmlFromExternalOutput(extracted, approvedBase, brandName);
+  const html = finalizeApprovedHtmlFromExternalOutput(extracted, semanticTemplate, brandName);
   assertAllResearchSlotsFilled(html);
   assertApprovedHtmlCrossPageConsistency(html, brandName);
   assertResearchEvidencePresent(html, rawData, brandName);
