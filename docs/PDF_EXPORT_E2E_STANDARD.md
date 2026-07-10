@@ -58,3 +58,23 @@ The following are not sufficient proof of completion:
 ## Completion report
 
 Every future PDF task report must include root cause, Viewer iframe resolution path, Legacy/FULL runtime separation, changed files, commit SHA, build result, actual button E2E result, two consecutive export results, save/reopen/export result, PDF page count and MediaBox, embedded font result, raster-image result, Preview URL, remaining risks, and merge status.
+
+## PDF_E2E_APPROVED_HTML_48_2026_07_10
+
+최신 Phase 6 PDF Gate:
+
+- source document: approved complete HTML workflow
+- exactly 48 `.full-slide`
+- Main 40, Appendix 8
+- navigation 48
+- 1280×720 screen DOM, saved inner scale 1
+- exported PDF: exactly 48 pages, 960×540pt
+- Pretendard embedded
+- zero full-page raster fallback
+- zero active script / inline handler
+- zero overflow
+- Export PDF twice
+- Windows Ctrl+P route
+- macOS Cmd+P route
+- save → reload → reopen → PDF repeat
+- PDF Contact Sheet and critical-page screenshot review required before merge

@@ -185,3 +185,14 @@ Phase 6 rejects results when:
 
 - `feature-visualization-engine-v1` / PR #6: failed audit implementation; never merge
 - PR #8, #9, #10: superseded experiments; never restore
+
+## PHASE6_APPROVED_HTML_CURRENT_2026_07_10 — 최신 우선 기준
+
+- 최신 작업 브랜치: `fix/phase6-approved-html-semantic-contract-v1`
+- Draft PR: `#22 Restore Phase 6 approved 40+8 HTML with semantic field locking`
+- PR #21의 JSON 사용자 흐름은 폐기·대체됐으며 병합하지 않는다.
+- Phase 6 최종 사용자 산출물은 JSON이 아니라 승인 샘플 기반의 완성 HTML이다.
+- 기준 화면은 `/?pilot=full-integrated&brand=<exact brand>`이며 40 Main + 8 Appendix다.
+- 외부 AI HTML은 Sanitizer와 의미 필드 검증을 통과한 내용만 승인 DOM에 이식한다.
+- 현재 자동 검증: build, semantic HTML E2E, 48-page Viewer, save/reopen, PDF 48p 모두 PASS.
+- 상세 계약과 남은 사용자 승인 Gate는 `handoff/PHASE6_APPROVED_HTML_SEMANTIC_CONTRACT_2026-07-10.md`를 따른다.

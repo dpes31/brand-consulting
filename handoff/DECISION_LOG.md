@@ -214,3 +214,23 @@
 - Two consecutive exports remain valid.
 - No `출력할 슬라이드를 찾지 못했습니다` alert.
 - Legacy reports retain their existing layout/PDF guard.
+
+## DECISION_PHASE6_APPROVED_HTML_2026_07_10
+
+### 결정
+
+Phase 6의 사용자-facing 최종 출력과 입력은 완성 HTML로 유지한다. JSON 붙여넣기 방식은 사용하지 않는다.
+
+### 이유
+
+- 사용자가 승인한 기준은 `main`의 40+8 `full-integrated` HTML 샘플이다.
+- 기존 실패 원인은 HTML 자체가 아니라 비의미적 DOM 슬롯, AI DOM 신뢰, Sanitizer 부재, scale 누출, 교차 검증 부재였다.
+- 의미 필드와 승인 DOM 재조립을 사용하면 HTML 흐름을 유지하면서 레이아웃과 내용 혼합을 동시에 차단할 수 있다.
+
+### 고정 후속 원칙
+
+- PR #21은 Do Not Merge.
+- PR #22가 유일한 현재 교정 PR.
+- 외부 AI는 완성 HTML을 반환하되 DOM 구조를 결정하지 못한다.
+- 앱은 field content만 추출해 승인 DOM에 적용한다.
+- 사용자 실제 외부 AI 2회 Preview 검증 후에만 main 병합을 검토한다.
