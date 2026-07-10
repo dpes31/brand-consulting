@@ -1,10 +1,10 @@
 let installed = false;
 let refreshing = false;
 
-const WORKFLOW_ID = 'phase6-external-json-workflow';
+const WORKFLOW_ID = 'phase6-external-report-workflow';
 const COMPATIBILITY_ID = 'phase6-compatibility-html';
-const PROMPT_LABEL = '외부 AI용 JSON 프롬프트 다운로드';
-const RENDER_LABEL = 'JSON 검증 후 40페이지 보고서 만들기';
+const PROMPT_LABEL = '외부 AI용 보고서 작성 프롬프트 다운로드';
+const RENDER_LABEL = '결과 검증 후 40페이지 보고서 만들기';
 
 function normalized(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
@@ -19,7 +19,7 @@ function findLegacyPhase6Textarea(): HTMLTextAreaElement | null {
   return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
     .find((textarea) => {
       const placeholder = textarea.placeholder || '';
-      return /외부 제미나이|<html|완성 HTML|Sanitizer|호환용|ProductionReportV3|구조화 JSON/i.test(placeholder);
+      return /외부 제미나이|<html|완성 HTML|Sanitizer|호환용|ProductionReportV3|구조화 JSON|외부 AI가 반환한 전체 결과/i.test(placeholder);
     }) || null;
 }
 
@@ -54,11 +54,11 @@ function installResponseFileInput(container: HTMLElement, textarea: HTMLTextArea
 
   const label = document.createElement('label');
   label.className = 'text-xs font-bold text-slate-200';
-  label.textContent = '외부 AI가 반환한 JSON 붙여넣기';
+  label.textContent = '외부 AI가 반환한 결과 붙여넣기';
 
   const upload = document.createElement('label');
   upload.className = 'cursor-pointer rounded-md border border-[#2DD4BF]/30 px-2.5 py-1.5 text-[10px] font-bold text-[#2DD4BF] hover:bg-[#2DD4BF]/10';
-  upload.textContent = '.json / .txt 응답 파일 불러오기';
+  upload.textContent = '.txt / .json 결과 파일 불러오기';
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,.txt,application/json,text/plain';
@@ -88,7 +88,7 @@ function installCompatibilityArea(panel: HTMLElement, primaryButton: HTMLButtonE
 
   const note = document.createElement('p');
   note.className = 'mt-2 text-[10px] leading-relaxed text-slate-500';
-  note.textContent = '기존 결과물 복구를 위한 보조 경로입니다. 새 보고서는 위 구조화 JSON 방식을 사용하세요.';
+  note.textContent = '기존 결과물 복구를 위한 보조 경로입니다. 새 보고서는 위 보고서 작성 방식을 사용하세요.';
 
   const textarea = document.createElement('textarea');
   textarea.dataset.phase6InputMode = 'compat-html';
@@ -98,7 +98,7 @@ function installCompatibilityArea(panel: HTMLElement, primaryButton: HTMLButtonE
   const button = document.createElement('button');
   button.type = 'button';
   button.dataset.phase6Action = 'compat-html';
-  button.dataset.phase6PrimaryButtonId = primaryButton.id || 'phase6-primary-json-render';
+  button.dataset.phase6PrimaryButtonId = primaryButton.id || 'phase6-primary-report-render';
   button.className = 'mt-2 w-full py-2 border border-white/15 text-slate-300 font-bold rounded-lg hover:bg-white/5 text-xs disabled:opacity-40 transition';
   button.textContent = '호환 HTML 검증 후 가져오기';
 
@@ -110,8 +110,8 @@ function refresh(): void {
   if (refreshing) return;
   refreshing = true;
   try {
-    const promptButton = findButton((label) => label.includes('프롬프트 추출') || label.includes(PROMPT_LABEL));
-    const renderButton = findButton((label) => label.includes('결과물 뷰어에 렌더링하기') || label.includes(RENDER_LABEL));
+    const promptButton = findButton((label) => label.includes('프롬프트 추출') || label.includes('JSON 프롬프트') || label.includes(PROMPT_LABEL));
+    const renderButton = findButton((label) => label.includes('결과물 뷰어에 렌더링하기') || label.includes('JSON 검증') || label.includes(RENDER_LABEL));
     const textarea = findLegacyPhase6Textarea()
       || document.querySelector<HTMLTextAreaElement>('textarea[data-phase6-input-mode="structured-json"]');
     if (!promptButton || !renderButton || !textarea) return;
@@ -119,23 +119,29 @@ function refresh(): void {
     promptButton.dataset.phase6Action = 'prompt-download';
     if (normalized(promptButton.textContent) !== PROMPT_LABEL) promptButton.textContent = PROMPT_LABEL;
     renderButton.dataset.phase6Action = 'structured-json';
-    renderButton.id = 'phase6-primary-json-render';
+    renderButton.id = 'phase6-primary-report-render';
     if (normalized(renderButton.textContent) !== RENDER_LABEL) renderButton.textContent = RENDER_LABEL;
     textarea.dataset.phase6InputMode = 'structured-json';
-    textarea.placeholder = '외부 AI가 반환한 ProductionReportV3 JSON 전체를 붙여넣으세요. Raw JSON과 ```json 코드펜스를 지원합니다.';
+    textarea.placeholder = '외부 AI가 반환한 전체 결과를 붙여넣으세요. 코드블록이 포함돼도 앱이 자동으로 읽습니다.';
 
     const panel = commonAncestor(promptButton, renderButton);
     if (!panel) return;
     panel.dataset.phase6Panel = 'true';
 
     const title = Array.from(panel.querySelectorAll<HTMLElement>('div'))
-      .find((element) => ['외부 AI 수동 렌더링', '외부 AI 완성 HTML 생성', '외부 AI 구조화 JSON 생성'].includes(normalized(element.textContent)));
-    if (title) title.textContent = '외부 AI 구조화 JSON 방식';
+      .find((element) => [
+        '외부 AI 수동 렌더링',
+        '외부 AI 완성 HTML 생성',
+        '외부 AI 구조화 JSON 생성',
+        '외부 AI 구조화 JSON 방식',
+      ].includes(normalized(element.textContent)));
+    if (title) title.textContent = '외부 AI 보고서 작성 방식';
 
     const subtitle = Array.from(panel.querySelectorAll<HTMLElement>('div'))
       .find((element) => normalized(element.textContent).includes('무료 제미나이 웹')
-        || normalized(element.textContent).includes('페이지별 JSON 값만'));
-    if (subtitle) subtitle.textContent = '외부 AI는 JSON 값만 생성하고 앱이 승인된 40페이지 HTML을 렌더링합니다.';
+        || normalized(element.textContent).includes('페이지별 JSON 값만')
+        || normalized(element.textContent).includes('JSON 값만 생성'));
+    if (subtitle) subtitle.textContent = '외부 AI는 조사 내용을 정리하고, 앱이 승인된 40페이지 레이아웃에 정확히 배치합니다.';
 
     let workflow = panel.querySelector<HTMLElement>(`#${WORKFLOW_ID}`);
     if (!workflow) {
@@ -148,14 +154,14 @@ function refresh(): void {
       [
         PROMPT_LABEL,
         '다운로드 파일을 외부 AI에 첨부',
-        'AI가 반환한 JSON 전체 복사',
-        'Phase 6 입력창에 JSON 붙여넣기',
+        'AI가 반환한 결과 전체 복사',
+        'Phase 6 입력창에 결과 붙여넣기',
         RENDER_LABEL,
       ].forEach((copy, index) => steps.appendChild(makeStep(index + 1, copy)));
 
       const notice = document.createElement('div');
       notice.className = 'rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs font-bold text-amber-200';
-      notice.textContent = 'HTML은 외부 AI가 아니라 앱이 자동 생성합니다.';
+      notice.textContent = '레이아웃과 페이지 구성은 앱이 고정합니다. 외부 AI는 내용만 작성합니다.';
 
       workflow.append(steps, notice);
       textarea.parentElement?.insertBefore(workflow, textarea);
