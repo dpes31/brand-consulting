@@ -87,7 +87,7 @@ function downloadPrompt(prompt: string, brandName: string): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `phase6_structured_report_prompt_${brandName || 'brand'}.txt`;
+  anchor.download = `phase6_report_writing_prompt_${brandName || 'brand'}.txt`;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
@@ -118,7 +118,7 @@ function findPhase6Textarea(mode: ManualInputMode, button?: HTMLButtonElement): 
   if (mode === 'compat-html') return null;
 
   return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea'))
-    .find((textarea) => /외부|html|json/i.test(textarea.getAttribute('placeholder') || ''))
+    .find((textarea) => /외부|html|json|결과/i.test(textarea.getAttribute('placeholder') || ''))
     || null;
 }
 
@@ -156,9 +156,9 @@ async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement):
     return;
   }
 
-  const originalText = normalizeText(button.textContent) || '외부 AI용 JSON 프롬프트 다운로드';
+  const originalText = normalizeText(button.textContent) || '외부 AI용 보고서 작성 프롬프트 다운로드';
   button.disabled = true;
-  button.textContent = '40페이지 구조화 Schema 준비 중...';
+  button.textContent = '40페이지 보고서 작성 기준 준비 중...';
   try {
     const approvedBase = await loadApprovedPilotBaseHtml(brandName);
     const prepared = prepareStructuredReportBase(approvedBase, brandName);
@@ -172,12 +172,12 @@ async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement):
     await copyText(prompt);
     downloadPrompt(prompt, brandName);
     window.alert(
-      '외부 AI용 ProductionReportV3 JSON 프롬프트를 복사하고 파일로 저장했습니다.\n\n'
+      '외부 AI용 보고서 작성 프롬프트를 복사하고 파일로 저장했습니다.\n\n'
       + '1. 파일을 외부 AI에 첨부합니다.\n'
-      + '2. 반환된 JSON 전체를 복사합니다.\n'
+      + '2. 반환된 결과 전체를 복사합니다.\n'
       + '3. Phase 6 입력창에 붙여넣습니다.\n'
-      + '4. JSON 검증 후 40페이지 보고서 만들기를 실행합니다.\n\n'
-      + 'HTML은 외부 AI가 아니라 앱이 자동 생성합니다.',
+      + '4. 결과 검증 후 40페이지 보고서 만들기를 실행합니다.\n\n'
+      + '레이아웃과 페이지 구성은 앱이 고정하고, 외부 AI는 내용만 작성합니다.',
     );
   } catch (error) {
     window.alert(`Phase 6 프롬프트 생성 오류: ${error instanceof Error ? error.message : String(error)}`);
@@ -207,7 +207,7 @@ async function compileManualInput(
 ): Promise<ManualCompileResult> {
   if (mode === 'structured-json') {
     if (!looksLikeStructuredJson(value)) {
-      throw new Error('ProductionReportV3 JSON을 확인할 수 없습니다. JSON 전체를 붙여넣거나 .json/.txt 응답 파일을 불러오세요.');
+      throw new Error('외부 AI 결과를 확인할 수 없습니다. 반환된 전체 결과를 붙여넣거나 .txt/.json 파일을 불러오세요.');
     }
     const approvedBase = await loadApprovedPilotBaseHtml(brandName);
     const prepared = prepareStructuredReportBase(approvedBase, brandName);
@@ -249,7 +249,7 @@ async function handleManualRender(event: MouseEvent, button: HTMLButtonElement):
   const { rawResearch, missingSteps } = readResearchSnapshot();
   if (!textarea?.value.trim()) {
     window.alert(mode === 'structured-json'
-      ? '외부 AI가 반환한 JSON 전체를 붙여넣거나 .json/.txt 응답 파일을 불러오세요.'
+      ? '외부 AI가 반환한 전체 결과를 붙여넣거나 .txt/.json 파일을 불러오세요.'
       : '기존 완성 HTML 문서를 호환용 입력창에 붙여넣으세요.');
     return;
   }
@@ -263,7 +263,7 @@ async function handleManualRender(event: MouseEvent, button: HTMLButtonElement):
   }
 
   const originalText = normalizeText(button.textContent) || (mode === 'structured-json'
-    ? 'JSON 검증 후 40페이지 보고서 만들기'
+    ? '결과 검증 후 40페이지 보고서 만들기'
     : '호환 HTML 검증 후 가져오기');
   button.disabled = true;
   button.dataset.fullReportBusy = 'true';
@@ -284,7 +284,7 @@ async function handleManualRender(event: MouseEvent, button: HTMLButtonElement):
     if (result.warnings.length) {
       window.alert(formatProductionReportV3Warnings(result.warnings));
     } else if (result.inputKind === 'structured-json') {
-      window.alert('JSON 검증을 통과했습니다. HTML은 외부 AI가 아니라 앱이 자동 생성했습니다.');
+      window.alert('결과 검증을 통과했습니다. 승인된 40페이지 레이아웃에 조사 내용을 배치했습니다.');
     }
     window.setTimeout(() => {
       button.disabled = false;
@@ -302,9 +302,9 @@ async function handleManualRender(event: MouseEvent, button: HTMLButtonElement):
 }
 
 function refreshPhase6Copy(): void {
-  const jsonTextarea = findPhase6Textarea('structured-json');
-  if (jsonTextarea) {
-    jsonTextarea.placeholder = '외부 AI가 반환한 ProductionReportV3 JSON 전체를 붙여넣으세요. Raw JSON과 ```json 코드펜스를 모두 지원합니다.';
+  const responseTextarea = findPhase6Textarea('structured-json');
+  if (responseTextarea) {
+    responseTextarea.placeholder = '외부 AI가 반환한 전체 결과를 붙여넣으세요. 코드블록이 포함돼도 앱이 자동으로 읽습니다.';
   }
   const compatTextarea = findPhase6Textarea('compat-html');
   if (compatTextarea) {
@@ -312,14 +312,20 @@ function refreshPhase6Copy(): void {
   }
   document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
     const text = normalizeText(element.textContent);
-    if (text === '외부 AI 수동 렌더링' || text === '외부 AI 완성 HTML 생성') {
-      element.textContent = '외부 AI 구조화 JSON 방식';
+    if (text === '외부 AI 수동 렌더링'
+      || text === '외부 AI 완성 HTML 생성'
+      || text === '외부 AI 구조화 JSON 생성'
+      || text === '외부 AI 구조화 JSON 방식') {
+      element.textContent = '외부 AI 보고서 작성 방식';
     }
-    if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.' || text.includes('콘텐츠 슬롯')) {
-      element.textContent = '외부 AI는 JSON 값만 생성하고 앱이 승인된 40페이지 HTML을 렌더링합니다.';
+    if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.'
+      || text.includes('콘텐츠 슬롯')
+      || text.includes('JSON 값만 생성')) {
+      element.textContent = '외부 AI는 조사 내용을 정리하고, 앱이 승인된 40페이지 레이아웃에 정확히 배치합니다.';
     }
-    if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
-      element.textContent = 'Step 0~5 조사 결과를 ProductionReportV3 JSON으로 검증한 뒤 앱이 40페이지 보고서를 생성합니다.';
+    if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.'
+      || text.includes('ProductionReportV3 JSON으로 검증')) {
+      element.textContent = 'Step 0~5 조사 결과를 검증한 뒤 앱이 승인된 40페이지 보고서를 생성합니다.';
     }
   });
 }
@@ -333,6 +339,7 @@ export function installFullReportPhase6Bridge(): void {
     if (!(button instanceof HTMLButtonElement)) return;
     const label = normalizeText(button.textContent);
     if (button.dataset.phase6Action === 'prompt-download'
+      || label.includes('외부 AI용 보고서 작성 프롬프트 다운로드')
       || label.includes('외부 AI용 JSON 프롬프트 다운로드')
       || label.includes('프롬프트 추출')) {
       void handlePromptExport(event, button);
@@ -340,6 +347,7 @@ export function installFullReportPhase6Bridge(): void {
     }
     if (button.dataset.phase6Action === 'structured-json'
       || button.dataset.phase6Action === 'compat-html'
+      || label.includes('결과 검증 후 40페이지 보고서 만들기')
       || label.includes('JSON 검증 후 40페이지 보고서 만들기')
       || label.includes('호환 HTML 검증 후 가져오기')
       || label.includes('결과물 뷰어에 렌더링하기')) {
