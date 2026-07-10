@@ -1,6 +1,5 @@
 const FULL_REPORT_SELECTOR = '.full-slide:not([data-full-report-export-clone="true"])';
-const FULL_REPORT_PAGE_COUNT = 48;
-const MAIN_DECK_PAGE_COUNT = 40;
+const FULL_REPORT_PAGE_COUNT = 40;
 const SLIDE_WIDTH_PX = 1280;
 const SLIDE_HEIGHT_PX = 720;
 const FRAME_MARKER = 'fullReportRuntimeV1';
@@ -13,10 +12,17 @@ export interface FullReportPreflightResult {
   overflowSlideIds: string[];
 }
 
+type FullReportViewerFit = {
+  fit: () => number;
+  reset: () => void;
+  scale: number;
+};
+
 type FullReportWindow = Window & {
   __REPORT_PREFLIGHT__?: () => FullReportPreflightResult;
   __NATIVE_REPORT_PRINT__?: () => void;
   __FULL_REPORT_NATIVE_PRINT__?: () => void;
+  __FULL_REPORT_VIEWER_FIT__?: FullReportViewerFit;
   __FULL_REPORT_RUNTIME__?: {
     version: '1.0.0';
     preflight: () => FullReportPreflightResult;
@@ -47,35 +53,32 @@ export function runFullReportPreflight(documentRef: Document): FullReportPreflig
   const pages = new Set<number>();
 
   if (slides.length !== FULL_REPORT_PAGE_COUNT) {
-    issues.push(`FULL 보고서는 정확히 ${FULL_REPORT_PAGE_COUNT}페이지여야 합니다. 현재 ${slides.length}페이지입니다.`);
+    issues.push(`FULL 보고서는 정확히 ${FULL_REPORT_PAGE_COUNT}페이지여야 한다. 현재 ${slides.length}페이지다.`);
   }
 
   slides.forEach((slide, index) => {
     delete slide.dataset.layoutOverflow;
     const expectedPage = index + 1;
     const page = Number(slide.dataset.page);
-    const expectedZone = index < MAIN_DECK_PAGE_COUNT ? 'main' : 'appendix';
 
-    if (!slide.id) issues.push(`페이지 ${expectedPage}의 ID가 없습니다.`);
+    if (!slide.id) issues.push(`페이지 ${expectedPage}의 ID가 없다.`);
     else if (ids.has(slide.id)) issues.push(`중복 슬라이드 ID: ${slide.id}`);
     else ids.add(slide.id);
 
-    if (!Number.isInteger(page)) issues.push(`페이지 ${expectedPage}의 data-page가 올바르지 않습니다.`);
+    if (!Number.isInteger(page)) issues.push(`페이지 ${expectedPage}의 data-page가 올바르지 않다.`);
     else {
       if (pages.has(page)) issues.push(`중복 페이지 번호: ${page}`);
       pages.add(page);
-      if (page !== expectedPage) issues.push(`페이지 순서 오류: 위치 ${expectedPage}에 data-page=${page}가 있습니다.`);
+      if (page !== expectedPage) issues.push(`페이지 순서 오류: 위치 ${expectedPage}에 data-page=${page}가 있다.`);
     }
 
-    if (slide.dataset.zone !== expectedZone) {
-      issues.push(`페이지 ${expectedPage}의 zone은 ${expectedZone}이어야 합니다.`);
-    }
+    if (slide.dataset.zone !== 'main') issues.push(`페이지 ${expectedPage}의 zone은 main이어야 한다.`);
 
     if (slide.offsetWidth > 0 && Math.abs(slide.offsetWidth - SLIDE_WIDTH_PX) > 1) {
-      issues.push(`페이지 ${expectedPage}의 너비가 ${slide.offsetWidth}px입니다. ${SLIDE_WIDTH_PX}px이어야 합니다.`);
+      issues.push(`페이지 ${expectedPage}의 너비가 ${slide.offsetWidth}px다. ${SLIDE_WIDTH_PX}px이어야 한다.`);
     }
     if (slide.offsetHeight > 0 && Math.abs(slide.offsetHeight - SLIDE_HEIGHT_PX) > 1) {
-      issues.push(`페이지 ${expectedPage}의 높이가 ${slide.offsetHeight}px입니다. ${SLIDE_HEIGHT_PX}px이어야 합니다.`);
+      issues.push(`페이지 ${expectedPage}의 높이가 ${slide.offsetHeight}px다. ${SLIDE_HEIGHT_PX}px이어야 한다.`);
     }
 
     if (slideBodyOverflows(slide)) {
@@ -85,47 +88,106 @@ export function runFullReportPreflight(documentRef: Document): FullReportPreflig
   });
 
   if (overflowSlideIds.length > 0) issues.push(`콘텐츠 오버플로: ${overflowSlideIds.join(', ')}`);
-  if (/\{\{[A-Z0-9_]+\}\}/.test(documentRef.body?.textContent ?? '')) {
-    issues.push('치환되지 않은 {{PLACEHOLDER}}가 남아 있습니다.');
-  }
+  if (/\{\{[A-Z0-9_]+\}\}/.test(documentRef.body?.textContent ?? '')) issues.push('치환되지 않은 placeholder가 남아 있다.');
 
-  const result = {
-    ok: issues.length === 0,
-    slideCount: slides.length,
-    issues,
-    overflowSlideIds,
-  };
+  const result = { ok: issues.length === 0, slideCount: slides.length, issues, overflowSlideIds };
   documentRef.documentElement.dataset.fullReportPreflight = result.ok ? 'passed' : 'failed';
   documentRef.documentElement.dataset.fullReportPageCount = String(slides.length);
   return result;
 }
 
-async function waitForFonts(documentRef: Document): Promise<void> {
-  if (!documentRef.fonts?.ready) return;
-  await documentRef.fonts.ready;
+function installViewerFit(documentRef: Document, windowRef: FullReportWindow): FullReportViewerFit {
+  if (windowRef.__FULL_REPORT_VIEWER_FIT__) return windowRef.__FULL_REPORT_VIEWER_FIT__;
+
+  const getFrames = () => Array.from(documentRef.querySelectorAll<HTMLElement>('.full-frame'));
+  const getInners = () => Array.from(documentRef.querySelectorAll<HTMLElement>('.full-frame-inner'));
+  const content = documentRef.querySelector<HTMLElement>('.full-report-content');
+
+  const apply = (scale: number) => {
+    getFrames().forEach((frame) => {
+      frame.style.setProperty('width', `${SLIDE_WIDTH_PX * scale}px`, 'important');
+      frame.style.setProperty('height', `${SLIDE_HEIGHT_PX * scale}px`, 'important');
+      frame.style.setProperty('min-width', `${SLIDE_WIDTH_PX * scale}px`, 'important');
+      frame.style.setProperty('min-height', `${SLIDE_HEIGHT_PX * scale}px`, 'important');
+      frame.dataset.viewerScale = scale.toFixed(4);
+    });
+    getInners().forEach((inner) => {
+      inner.style.setProperty('width', `${SLIDE_WIDTH_PX}px`, 'important');
+      inner.style.setProperty('height', `${SLIDE_HEIGHT_PX}px`, 'important');
+      inner.style.setProperty('transform', `scale(${scale})`, 'important');
+      inner.style.setProperty('transform-origin', 'top left', 'important');
+    });
+    documentRef.documentElement.dataset.fullReportViewerScale = scale.toFixed(4);
+    documentRef.documentElement.style.setProperty('overflow-x', 'hidden', 'important');
+    if (documentRef.body) documentRef.body.style.setProperty('overflow-x', 'hidden', 'important');
+    if (content) {
+      content.style.setProperty('max-width', '100vw', 'important');
+      content.style.setProperty('overflow-x', 'hidden', 'important');
+      content.style.setProperty('box-sizing', 'border-box', 'important');
+    }
+  };
+
+  const state: FullReportViewerFit = {
+    scale: 1,
+    fit: () => 1,
+    reset: () => undefined,
+  };
+
+  state.fit = () => {
+    if (windowRef.matchMedia?.('print').matches) return state.scale;
+    const frames = getFrames();
+    if (!frames.length) return state.scale;
+    const contentRect = content?.getBoundingClientRect();
+    const computed = content ? windowRef.getComputedStyle(content) : null;
+    const horizontalPadding = computed
+      ? Number.parseFloat(computed.paddingLeft || '0') + Number.parseFloat(computed.paddingRight || '0')
+      : 32;
+    const available = Math.max(
+      320,
+      (contentRect?.width || windowRef.innerWidth) - horizontalPadding - 2,
+    );
+    const scale = Math.min(1, available / SLIDE_WIDTH_PX);
+    apply(scale);
+    state.scale = scale;
+    return scale;
+  };
+
+  state.reset = () => {
+    apply(1);
+    state.scale = 1;
+  };
+
+  windowRef.__FULL_REPORT_VIEWER_FIT__ = state;
+  windowRef.addEventListener('resize', state.fit);
+  windowRef.addEventListener('beforeprint', state.reset);
+  windowRef.addEventListener('afterprint', state.fit);
+  windowRef.requestAnimationFrame(() => state.fit());
+  return state;
 }
 
-export async function exportFullReportPdf(
-  iframe: HTMLIFrameElement,
-  filename?: string,
-): Promise<void> {
+async function waitForFonts(documentRef: Document): Promise<void> {
+  if (documentRef.fonts?.ready) await documentRef.fonts.ready;
+}
+
+export async function exportFullReportPdf(iframe: HTMLIFrameElement, filename?: string): Promise<void> {
   const documentRef = iframe.contentDocument;
   const windowRef = iframe.contentWindow as FullReportWindow | null;
-  if (!documentRef || !windowRef) throw new Error('FULL 보고서 iframe에 접근할 수 없습니다.');
+  if (!documentRef || !windowRef) throw new Error('FULL 보고서 iframe에 접근할 수 없다.');
 
   const preflight = runFullReportPreflight(documentRef);
   if (!preflight.ok) throw new Error(`FULL PDF 사전검사 실패\n${preflight.issues.join('\n')}`);
-
   await waitForFonts(documentRef);
+  windowRef.__FULL_REPORT_VIEWER_FIT__?.reset();
 
   const nativePrint = windowRef.__FULL_REPORT_NATIVE_PRINT__;
-  if (!nativePrint) throw new Error('브라우저 네이티브 PDF 인쇄 기능을 준비하지 못했습니다.');
+  if (!nativePrint) throw new Error('브라우저 네이티브 PDF 인쇄 기능을 준비하지 못했다.');
 
   documentRef.documentElement.dataset.lastPdfPageCount = String(FULL_REPORT_PAGE_COUNT);
   documentRef.documentElement.dataset.lastPdfExportMode = 'native-print';
   documentRef.documentElement.dataset.lastPdfExportAt = new Date().toISOString();
   documentRef.documentElement.dataset.lastPdfFilename = filename || documentRef.title || 'Brand Consulting FULL Report';
   nativePrint();
+  windowRef.setTimeout(() => windowRef.__FULL_REPORT_VIEWER_FIT__?.fit(), 0);
 }
 
 async function exportWithAlert(iframe: HTMLIFrameElement): Promise<void> {
@@ -142,24 +204,18 @@ function installIntoFrame(iframe: HTMLIFrameElement): void {
   const windowRef = iframe.contentWindow as FullReportWindow | null;
   if (!documentRef?.documentElement || !windowRef || !isFullReportDocument(documentRef)) return;
 
-  // Claim FULL report ownership immediately, even before all 48 slides have
-  // finished parsing. This prevents the legacy load listener from replacing
-  // window.print during the short gap before the slide DOM is complete.
   documentRef.documentElement.dataset[LEGACY_LAYOUT_MARKER] = 'installed';
 
   const activate = () => {
     if (getFullReportSlides(documentRef).length === 0) return false;
-
     windowRef.__REPORT_PREFLIGHT__ = () => runFullReportPreflight(documentRef);
+    installViewerFit(documentRef, windowRef);
 
     const nativePrint = windowRef.__NATIVE_REPORT_PRINT__ || windowRef.print.bind(windowRef);
     if (!windowRef.__FULL_REPORT_NATIVE_PRINT__) windowRef.__FULL_REPORT_NATIVE_PRINT__ = nativePrint;
-    documentRef.documentElement.dataset.fullReportNativePrintSource = windowRef.__NATIVE_REPORT_PRINT__
-      ? 'legacy-native-backup'
-      : 'window-native';
+    documentRef.documentElement.dataset.fullReportNativePrintSource = windowRef.__NATIVE_REPORT_PRINT__ ? 'legacy-native-backup' : 'window-native';
 
     if (documentRef.documentElement.dataset[FRAME_MARKER] === 'installed') return true;
-
     documentRef.documentElement.dataset[FRAME_MARKER] = 'installed';
     windowRef.__FULL_REPORT_RUNTIME__ = {
       version: '1.0.0',
@@ -176,7 +232,7 @@ function installIntoFrame(iframe: HTMLIFrameElement): void {
 
     const result = runFullReportPreflight(documentRef);
     if (!result.ok) console.warn('[FULL Report Runtime] Preflight issues', result);
-    else console.info('[FULL Report Runtime] 48 pages passed preflight. Native PDF print is ready.');
+    else console.info('[FULL Report Runtime] 40 pages passed preflight. Native PDF print is ready.');
     return true;
   };
 

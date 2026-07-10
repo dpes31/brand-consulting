@@ -1,10 +1,10 @@
-name: Phase 6 PDF Runtime E2E
+name: Phase 6 Main40 Semantic Renderer E2E
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - fix/phase6-pdf-export-runtime-v1
+      - fix/phase6-main40-semantic-renderer-v4
   pull_request:
     branches:
       - main
@@ -40,46 +40,49 @@ jobs:
           build_code=$?
           if [ "$build_code" != "0" ]; then
             echo "$build_code" > phase6-v2-e2e-artifacts/local-e2e.exit
-            tail -n 220 phase6-v2-e2e-artifacts/local-build.log
+            tail -n 240 phase6-v2-e2e-artifacts/local-build.log
             exit 0
           fi
           npx vite preview --host 127.0.0.1 --port 4173 > phase6-v2-e2e-artifacts/local-server.log 2>&1 &
           server_pid=$!
           for attempt in {1..30}; do
-            if curl --fail --silent --show-error "$LOCAL_E2E_URL" > /dev/null; then
-              break
-            fi
+            if curl --fail --silent --show-error "$LOCAL_E2E_URL" > /dev/null; then break; fi
             sleep 2
           done
 
           PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-material-symbols-first-paint-v2.mjs > phase6-v2-e2e-artifacts/material-symbols-e2e.log 2>&1
           icon_code=$?
-
           if [ "$icon_code" = "0" ]; then
             PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-pdf-button-routing.mjs > phase6-v2-e2e-artifacts/pdf-button-routing.log 2>&1
             routing_code=$?
           else
             routing_code=$icon_code
           fi
-
           if [ "$routing_code" = "0" ]; then
-            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-five-competitor-native-print.mjs > phase6-v2-e2e-artifacts/full-report-e2e.log 2>&1
+            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-structured-renderer.mjs > phase6-v2-e2e-artifacts/structured-renderer-e2e.log 2>&1
+            structured_code=$?
+          else
+            structured_code=$routing_code
+          fi
+          if [ "$structured_code" = "0" ]; then
+            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-html-sanitizer.mjs > phase6-v2-e2e-artifacts/html-sanitizer-e2e.log 2>&1
             code=$?
           else
-            code=$routing_code
+            code=$structured_code
           fi
 
           kill "$server_pid" || true
           echo "$code" > phase6-v2-e2e-artifacts/local-e2e.exit
           tail -n 180 phase6-v2-e2e-artifacts/material-symbols-e2e.log
-          if [ -f phase6-v2-e2e-artifacts/pdf-button-routing.log ]; then tail -n 220 phase6-v2-e2e-artifacts/pdf-button-routing.log; fi
-          if [ -f phase6-v2-e2e-artifacts/full-report-e2e.log ]; then tail -n 260 phase6-v2-e2e-artifacts/full-report-e2e.log; fi
+          if [ -f phase6-v2-e2e-artifacts/pdf-button-routing.log ]; then tail -n 240 phase6-v2-e2e-artifacts/pdf-button-routing.log; fi
+          if [ -f phase6-v2-e2e-artifacts/structured-renderer-e2e.log ]; then tail -n 360 phase6-v2-e2e-artifacts/structured-renderer-e2e.log; fi
+          if [ -f phase6-v2-e2e-artifacts/html-sanitizer-e2e.log ]; then tail -n 280 phase6-v2-e2e-artifacts/html-sanitizer-e2e.log; fi
           exit 0
       - name: Upload E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase6-pdf-runtime-evidence
+          name: phase6-main40-semantic-renderer-evidence
           path: phase6-v2-e2e-artifacts
       - name: Enforce local E2E result
         run: test "$(cat phase6-v2-e2e-artifacts/local-e2e.exit)" = "0"

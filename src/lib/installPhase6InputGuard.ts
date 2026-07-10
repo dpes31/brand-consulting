@@ -8,20 +8,21 @@ function looksLikeHtml(value: string): boolean {
   return /<!doctype\s+html|<html\b/i.test(value);
 }
 
-function looksLikeJson(value: string): boolean {
+function looksLikeStructuredJson(value: string): boolean {
   const text = value.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-  return text.startsWith('{') && /"(?:mainSlides|appendixSlides|version|brand)"\s*:/.test(text);
+  return text.startsWith('{')
+    && /"version"\s*:\s*"3\.0\.0"/.test(text)
+    && /"pages"\s*:/.test(text);
 }
 
-function findPhase6Textarea(button: HTMLButtonElement): HTMLTextAreaElement | null {
-  const panel = button.closest('div');
-  const local = panel?.parentElement?.querySelector<HTMLTextAreaElement>('textarea');
-  if (local) return local;
-
-  return Array.from(document.querySelectorAll<HTMLTextAreaElement>('textarea')).find((textarea) => {
-    const placeholder = textarea.placeholder || '';
-    return placeholder.includes('외부') || placeholder.includes('html') || placeholder.includes('HTML');
-  }) || null;
+function findPhase6Textarea(
+  button: HTMLButtonElement,
+  mode: 'structured-json' | 'compat-html',
+): HTMLTextAreaElement | null {
+  return button.closest<HTMLElement>('[data-phase6-panel]')
+    ?.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`)
+    || document.querySelector<HTMLTextAreaElement>(`textarea[data-phase6-input-mode="${mode}"]`)
+    || null;
 }
 
 export function installPhase6InputGuard(): void {
@@ -35,32 +36,31 @@ export function installPhase6InputGuard(): void {
     if (!(button instanceof HTMLButtonElement)) return;
 
     const label = normalized(button.textContent);
-    if (!label.includes('결과물 뷰어에 렌더링하기')) return;
+    const action = button.dataset.phase6Action;
+    const mode = action === 'compat-html' || label.includes('호환 HTML 검증 후 가져오기')
+      ? 'compat-html'
+      : action === 'structured-json'
+        || label.includes('JSON 검증 후 40페이지 보고서 만들기')
+        || label.includes('결과물 뷰어에 렌더링하기')
+        ? 'structured-json'
+        : null;
+    if (!mode) return;
 
-    const textarea = findPhase6Textarea(button);
+    const textarea = findPhase6Textarea(button, mode);
     if (textarea?.dataset.fullReportValidatedHtml === 'true') {
       delete textarea.dataset.fullReportValidatedHtml;
       return;
     }
 
     const value = textarea?.value.trim() || '';
-    if (looksLikeJson(value)) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      window.alert(
-        '이 결과는 이전 Phase 6의 ProductionReportV1 JSON입니다.\n\n' +
-        '현재 Phase 6는 승인된 48페이지 양식에 조사 내용을 채운 완성 HTML 전체가 필요합니다. ' +
-        '앱에서 Phase 6 프롬프트를 다시 다운로드한 뒤, 외부 AI가 반환한 ```html ... ``` 전체를 붙여넣어 주세요.',
-      );
-      return;
-    }
+    const valid = mode === 'structured-json' ? looksLikeStructuredJson(value) : looksLikeHtml(value);
+    if (valid) return;
 
-    if (!looksLikeHtml(value)) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      window.alert('완성 HTML을 확인할 수 없습니다. <!DOCTYPE html>부터 </html>까지 포함된 전체 결과를 붙여넣어 주세요.');
-    }
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    window.alert(mode === 'structured-json'
+      ? 'ProductionReportV3 JSON을 확인할 수 없습니다. JSON 전체를 붙여넣거나 .json/.txt 파일을 불러오세요.'
+      : '호환용 완성 HTML 문서를 확인할 수 없습니다.');
   }, true);
 }

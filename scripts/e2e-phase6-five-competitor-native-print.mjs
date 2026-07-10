@@ -9,265 +9,243 @@ const appUrl = process.env.PREVIEW_URL;
 if (!appUrl) throw new Error('PREVIEW_URL is required.');
 
 const brand = '모노랩';
-const competitors = ['알파원', '베타랩', '감마코', '델타택스', '엡실론'];
+const candidates = ['알파원', '베타랩', '감마코', '델타택스', '엡실론'];
+const core = candidates.slice(0, 3);
 const artifactDir = path.resolve('phase6-v2-e2e-artifacts');
 await mkdir(artifactDir, { recursive: true });
 
-const stepFixtures = buildPhase6StepFixtures(brand);
-stepFixtures[0] += '\n핵심 KPI는 **123만 명**과 **456억 원**입니다.';
-stepFixtures[2] += `\n${competitors.map((name, index) => `${index + 1}. **${name} — ${91 - index * 8}점:** 직접 경쟁 위협`).join('\n')}`;
+const steps = buildPhase6StepFixtures(brand);
+steps[0] += '\n핵심 사실은 **123만 명**과 **456억 원**이다.';
+steps[2] += `\n${candidates.map((name, index) => `${index + 1}. **${name} — ${91 - index * 8}점:** 직접 경쟁 후보`).join('\n')}`;
 
-const baseStartMarker = '[IMMUTABLE APPROVED BASE HTML — START]';
-const baseEndMarker = '[IMMUTABLE APPROVED BASE HTML — END]';
+const startMarker = '[IMMUTABLE APPROVED BASE HTML — START]';
+const endMarker = '[IMMUTABLE APPROVED BASE HTML — END]';
 const slotPattern = /\[\[CONTENT:P(\d{2}):([A-Z0-9_-]+):(\d{3})\]\]/g;
 
-function fillResearchSlots(template) {
-  let filled = template;
-  const inject = (pageNumber, text) => {
-    const pattern = new RegExp(`\\[\\[CONTENT:P${pageNumber}:[^\\]]+\\]\\]`);
-    filled = filled.replace(pattern, text);
+function fillSlots(template) {
+  let result = template;
+  const inject = (page, value) => {
+    result = result.replace(new RegExp(`\\[\\[CONTENT:P${page}:[^\\]]+\\]\\]`), value);
   };
-  inject('04', `${brand} KPI 123만 명`);
-  inject('04', `${brand} 관리 규모 456억 원`);
-  competitors.forEach((name, index) => inject(String(12 + index).padStart(2, '0'), `${name} 직접 경쟁 위협`));
 
-  return filled.replace(slotPattern, (_slot, pageNumber, role, index) => {
-    if (role === 'I') return Number(index) % 2 === 0 ? '→' : '≠';
-    if (role === 'B') return String((Number(index) % 5) + 1).padStart(2, '0');
-    if (role.includes('PERSONA-INDEX')) return pageNumber === '23' ? '02' : pageNumber === '24' ? '03' : '01';
-    if (role === 'H1') return `${brand} 조사 전략`;
-    if (role === 'H2') return `${brand} P${pageNumber} 조사 결론`;
-    if (role.includes('FULL-BREADCRUMB')) return `STEP ${pageNumber} RESEARCH`;
-    if (role.includes('FULL-TAG')) return 'RESEARCH';
+  inject('04', `${brand} 이용자 123만 명`);
+  inject('04', `${brand} 관리 규모 456억 원`);
+  candidates.forEach((name) => inject('11', `${name} 경쟁 후보`));
+  core.forEach((name, index) => inject(String(13 + index).padStart(2, '0'), `${name} 핵심 경쟁사`));
+
+  return result.replace(slotPattern, (_slot, page, role, index) => {
+    if (role === 'I') return Number(index) % 2 ? '→' : '≠';
+    if (role === 'B') return String((Number(index) % 4) + 1).padStart(2, '0');
+    if (role.includes('PERSONA-INDEX')) return page === '23' ? '02' : page === '24' ? '03' : '01';
+    if (role === 'H1') return `${brand} 전략 보고서`;
+    if (role === 'H2') return `${brand} P${page} 핵심 결론`;
     if (role.includes('FULL-SOURCE')) return 'QA Fixture · Step 0–5 · 2026';
     if (role === 'STRONG') return '핵심 판단';
     if (role === 'SMALL') return '검증 근거';
     if (role === 'SPAN') return '조사 항목';
-    if (role === 'P') return '현재 조사에서 확인된 핵심 근거와 실행 의미';
-    return `${brand} 조사 근거 ${pageNumber}-${index}`;
+    if (role === 'P') return '현재 조사에서 확인된 핵심 근거와 실행 의미다.';
+    return `${brand} 조사 근거 ${page}-${index}`;
   });
 }
 
-function command(name, args) {
-  return execFileSync(name, args, { encoding: 'utf8' });
-}
-
+const command = (name, args) => execFileSync(name, args, { encoding: 'utf8' });
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1600, height: 1000 } });
 await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(appUrl).origin });
 const page = await context.newPage();
 const dialogs = [];
-page.on('dialog', async (dialog) => { dialogs.push(dialog.message()); await dialog.accept(); });
+page.on('dialog', async (dialog) => {
+  dialogs.push(dialog.message());
+  await dialog.accept();
+});
 
 try {
   await page.goto(appUrl, { waitUntil: 'networkidle', timeout: 120000 });
   await page.getByPlaceholder('Enter brand name for deep-dive analysis...').fill(brand);
   await page.getByRole('button', { name: 'Start Engine' }).click();
 
-  for (let step = 0; step < stepFixtures.length; step += 1) {
-    const textarea = page.locator('textarea:visible').last();
-    await textarea.waitFor({ timeout: 30000 });
-    await textarea.fill(stepFixtures[step]);
+  for (let step = 0; step < steps.length; step += 1) {
+    const area = page.locator('textarea:visible').last();
+    await area.fill(steps[step]);
     await page.getByRole('button', { name: 'Submit & Continue' }).click();
     if (step < 5) {
       await page.waitForFunction((submitted) => {
-        const area = [...document.querySelectorAll('textarea')].find((element) => element.offsetParent !== null);
-        return area && area.value !== submitted;
-      }, stepFixtures[step], { timeout: 30000 });
+        const current = [...document.querySelectorAll('textarea')].find((node) => node.offsetParent !== null);
+        return current?.value !== submitted;
+      }, steps[step]);
     }
   }
 
   await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });
-  const promptDownloadPromise = page.waitForEvent('download', { timeout: 60000 });
+  const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
   await page.getByRole('button', { name: /프롬프트 추출/ }).click();
-  const promptDownload = await promptDownloadPromise;
+  const download = await downloadPromise;
   const promptPath = path.join(artifactDir, 'phase6-prompt.txt');
-  await promptDownload.saveAs(promptPath);
-  const promptText = await readFile(promptPath, 'utf8');
+  await download.saveAs(promptPath);
+  const prompt = await readFile(promptPath, 'utf8');
 
-  assert.match(promptText, /Place all selected Direct Competitors in Main Deck Deep Dive pages 12–16/);
-  assert.match(promptText, /Appendix pages are never competitor overflow slots/);
-  const start = promptText.indexOf(baseStartMarker);
-  const end = promptText.indexOf(baseEndMarker);
+  assert.match(prompt, /40 Main Deck slides, zero Appendix slides/);
+  assert.match(prompt, /top three core Direct Competitors/);
+  assert.match(prompt, /Category Clichés/);
+  assert.match(prompt, /Decision Receipt \/ Close/);
+  assert.match(prompt, /~한다/);
+
+  const start = prompt.indexOf(startMarker);
+  const end = prompt.indexOf(endMarker);
   assert.ok(start >= 0 && end > start, 'Approved Base HTML markers are missing');
-  const approvedBaseHtml = promptText.slice(start + baseStartMarker.length, end).trim();
-  const simulatedExternalHtml = fillResearchSlots(approvedBaseHtml);
-  assert.doesNotMatch(simulatedExternalHtml, /\[\[CONTENT:/);
-  await writeFile(path.join(artifactDir, 'generated-report.html'), simulatedExternalHtml);
+  const html = fillSlots(prompt.slice(start + startMarker.length, end).trim());
+  assert.doesNotMatch(html, /\[\[CONTENT:/);
+  await writeFile(path.join(artifactDir, 'generated-report.html'), html);
 
   const phase6Input = page.locator('textarea:visible').last();
-  await phase6Input.fill(`\`\`\`html\n${simulatedExternalHtml}\n\`\`\``);
+  await phase6Input.fill(`\`\`\`html\n${html}\n\`\`\``);
+  const dialogsBeforeRender = dialogs.length;
   await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
-  await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 60000 });
+  await page.waitForTimeout(500);
+  if ((await page.locator('#fullscreen-viewer-iframe').count()) === 0) {
+    throw new Error(`Viewer did not open. New dialogs: ${JSON.stringify(dialogs.slice(dialogsBeforeRender))}`);
+  }
+
   const frame = page.frameLocator('#fullscreen-viewer-iframe');
   await frame.locator('.full-slide').first().waitFor({ timeout: 60000 });
 
-  assert.equal(await frame.locator('.full-slide').count(), 48);
-  assert.equal(await frame.locator('.full-nav a').count(), 48);
+  assert.equal(await frame.locator('.full-slide').count(), 40);
+  assert.equal(await frame.locator('.full-nav a').count(), 40);
+  assert.equal(await frame.locator('[data-zone="appendix"]').count(), 0);
+  assert.equal(await frame.locator('#creative-method').count(), 0);
 
-  const orderedIds = await frame.locator('.full-slide').evaluateAll((slides) => slides.map((slide) => slide.id));
-  assert.deepEqual(orderedIds.slice(10, 18), [
-    'comp-ranking','deep-dive-1','deep-dive-2','deep-dive-3','deep-dive-4','deep-dive-5','product-matrix','positioning',
+  const ids = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => node.id));
+  assert.deepEqual(ids.slice(10, 18), [
+    'comp-landscape','comp-ranking','deep-dive-1','deep-dive-2','deep-dive-3','product-matrix','category-cliche','positioning',
   ]);
-  assert.deepEqual(orderedIds.slice(28, 35), [
-    'creative-history-target','creative-history-1','creative-history-2','creative-history-3','creative-history-4','creative-history-5','creative-trajectory',
+  assert.deepEqual(ids.slice(28, 34), [
+    'creative-history-target','creative-history-1','creative-history-2','creative-history-3','creative-trajectory','creative-insight',
   ]);
-  assert.deepEqual(orderedIds.slice(40), [
-    'appendix-cover','appendix-receipt','appendix-negative','appendix-premortem','appendix-roadmap','appendix-measure','appendix-evidence-sources','appendix-back',
+  assert.deepEqual(ids.slice(34), [
+    'strategy-swot','root-cause','stp','strategy-routes','strategy-choice','decision-close',
   ]);
 
-  assert.equal(await frame.locator('#comp-ranking .ranking-table tbody tr').count(), 5);
-  assert.equal(await frame.locator('#product-matrix .matrix-table thead th').count(), 7);
-  assert.equal(await frame.locator('#positioning .map-dot.comp4').count(), 1);
-  assert.equal(await frame.locator('#positioning .map-dot.comp5').count(), 1);
-  assert.equal(await frame.locator('#creative-trajectory .trajectory-brand.comp4').count(), 1);
-  assert.equal(await frame.locator('#creative-trajectory .trajectory-brand.comp5').count(), 1);
+  const navBrand = (await frame.locator('.full-nav-brand').textContent())?.replace(/FULL REPORT V1/g, '').trim();
+  assert.equal(navBrand, brand);
+  assert.match(await frame.locator('#executive .full-breadcrumb').textContent(), /핵심 진단/);
+  assert.match(await frame.locator('#kpi .full-breadcrumb').textContent(), /FACTS/);
+  assert.match(await frame.locator('#category-target .full-breadcrumb').textContent(), /CATEGORY & TARGET/);
+  assert.match(await frame.locator('#market-shift .full-breadcrumb').textContent(), /CATEGORY SHIFT/);
+  assert.deepEqual(await frame.locator('#market-shift .ladder-step > span').allTextContents(), ['LEVEL 1','LEVEL 2','LEVEL 3','LEVEL 4','LEVEL 5']);
 
-  const personaAudit = {};
-  for (const id of ['persona-2', 'persona-3']) {
-    const result = await frame.locator(`#${id} .persona-index`).evaluate((element) => {
-      const style = getComputedStyle(element);
-      const lineHeight = Number.parseFloat(style.lineHeight);
-      const height = element.getBoundingClientRect().height;
-      return { text: element.textContent.trim(), whiteSpace: style.whiteSpace, lines: Math.round(height / lineHeight) };
-    });
-    personaAudit[id] = result;
-    assert.match(result.text, /^0[23]$/);
-    assert.equal(result.whiteSpace, 'nowrap');
-    assert.ok(result.lines <= 1, `${id} index wrapped: ${JSON.stringify(result)}`);
+  const allText = await frame.locator('body').innerText();
+  candidates.forEach((name) => assert.match(allText, new RegExp(name)));
+  for (let index = 0; index < core.length; index += 1) {
+    assert.match(await frame.locator(`#deep-dive-${index + 1}`).innerText(), new RegExp(core[index]));
   }
 
-  const choiceAudit = await frame.locator('#strategy-choice .choice-layout').evaluate((element) => {
-    const criteria = element.querySelector('.choice-criteria').getBoundingClientRect();
-    const finalChoice = element.querySelector('.choice-final').getBoundingClientRect();
-    return {
-      columns: getComputedStyle(element).gridTemplateColumns,
-      criteriaRight: criteria.right,
-      finalLeft: finalChoice.left,
-      finalBackground: getComputedStyle(element.querySelector('.choice-final')).backgroundColor,
-      finalColor: getComputedStyle(element.querySelector('.choice-final')).color,
-    };
-  });
-  assert.ok(choiceAudit.criteriaRight < choiceAudit.finalLeft, 'Final Choice did not retain the approved two-column layout');
-  assert.notEqual(choiceAudit.finalBackground, choiceAudit.finalColor);
+  const marketType = await frame.locator('#market-context').evaluate((slide) => ({
+    implication: Number.parseFloat(getComputedStyle(slide.querySelector('.market-force strong')).fontSize),
+    pageNumber: Number.parseFloat(getComputedStyle(slide.querySelector('.full-page')).fontSize),
+  }));
+  assert.ok(marketType.implication >= marketType.pageNumber);
 
-  const geometry = await frame.locator('.full-slide').evaluateAll((elements) => elements.map((element) => ({
-    id: element.id,
-    width: element.getBoundingClientRect().width,
-    height: element.getBoundingClientRect().height,
-    overflowX: element.scrollWidth - element.clientWidth,
-    overflowY: element.scrollHeight - element.clientHeight,
-  })));
-  assert.ok(geometry.every((item) => Math.round(item.width) === 1280 && Math.round(item.height) === 720));
-  const overflow = geometry.filter((item) => item.overflowX > 1 || item.overflowY > 1);
-  assert.deepEqual(overflow, []);
-
-  const darkIds = ['creative-history-target','creative-history-1','creative-history-2','creative-history-3','creative-history-4','creative-history-5'];
-  const darkAudit = {};
-  for (const id of darkIds) {
-    const result = await frame.locator(`#${id}`).evaluate((element) => ({
-      background: getComputedStyle(element).backgroundColor,
-      title: getComputedStyle(element.querySelector('.full-title-row h2')).color,
+  for (const id of ['persona-2','persona-3']) {
+    const persona = await frame.locator(`#${id} .persona-index`).evaluate((node) => ({
+      text: node.textContent.trim(),
+      whiteSpace: getComputedStyle(node).whiteSpace,
     }));
-    darkAudit[id] = result;
-    assert.equal(result.background, 'rgb(9, 10, 12)', `${id} dark background was lost`);
-    assert.notEqual(result.title, result.background, `${id} title has no contrast`);
+    assert.match(persona.text, /^0[23]$/);
+    assert.equal(persona.whiteSpace, 'nowrap');
   }
 
+  assert.equal(await frame.locator('.history-now').count(), 0);
+  const routeLabels = await frame.locator('#strategy-routes .route-row > b').allTextContents();
+  assert.deepEqual(routeLabels.map((label) => label.trim().charAt(0)), ['A','B','C','D']);
+
+  const geometry = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => {
+    const rect = node.getBoundingClientRect();
+    return {
+      id: node.id,
+      logicalWidth: node.offsetWidth,
+      logicalHeight: node.offsetHeight,
+      renderedWidth: rect.width,
+      renderedHeight: rect.height,
+      scale: rect.width / node.offsetWidth,
+      overflowX: node.scrollWidth - node.clientWidth,
+      overflowY: node.scrollHeight - node.clientHeight,
+    };
+  }));
+  assert.ok(geometry.every((item) => item.logicalWidth === 1280 && item.logicalHeight === 720));
+  assert.ok(geometry.every((item) => item.scale > 0 && item.scale <= 1.01));
+  assert.deepEqual(geometry.filter((item) => item.overflowX > 1 || item.overflowY > 1), []);
+
+  await frame.locator('#comp-landscape').screenshot({ path: path.join(artifactDir, 'screen-landscape.png') });
+  await frame.locator('#category-cliche').screenshot({ path: path.join(artifactDir, 'screen-category-cliches.png') });
+  await frame.locator('#creative-insight').screenshot({ path: path.join(artifactDir, 'screen-creative-insight.png') });
   await frame.locator('#strategy-choice').screenshot({ path: path.join(artifactDir, 'screen-final-choice.png') });
-  await frame.locator('#appendix-cover').screenshot({ path: path.join(artifactDir, 'screen-appendix-cover.png') });
-  await frame.locator('#persona-2').screenshot({ path: path.join(artifactDir, 'screen-persona-2.png') });
+  await frame.locator('#decision-close').screenshot({ path: path.join(artifactDir, 'screen-decision-close.png') });
 
   await page.evaluate(() => {
     const iframe = document.getElementById('fullscreen-viewer-iframe');
-    const windowRef = iframe.contentWindow;
-    const documentRef = iframe.contentDocument;
-    windowRef.__FULL_REPORT_NATIVE_PRINT__ = () => {
-      const count = Number(documentRef.documentElement.dataset.nativePrintTestCalls || '0') + 1;
-      documentRef.documentElement.dataset.nativePrintTestCalls = String(count);
+    iframe.contentWindow.__FULL_REPORT_NATIVE_PRINT__ = () => {
+      const root = iframe.contentDocument.documentElement;
+      root.dataset.calls = String(Number(root.dataset.calls || '0') + 1);
     };
   });
-  await page.getByRole('button', { name: 'Export PDF' }).last().click();
-  await page.waitForFunction(() => {
-    const iframe = document.getElementById('fullscreen-viewer-iframe');
-    return iframe?.contentDocument?.documentElement.dataset.nativePrintTestCalls === '1';
-  }, { timeout: 30000 });
 
-  const nativeRuntimeAudit = await page.evaluate(() => {
-    const iframe = document.getElementById('fullscreen-viewer-iframe');
-    const documentRef = iframe.contentDocument;
-    return {
-      calls: documentRef.documentElement.dataset.nativePrintTestCalls,
-      mode: documentRef.documentElement.dataset.lastPdfExportMode,
-      pages: documentRef.documentElement.dataset.lastPdfPageCount,
-      preflight: documentRef.documentElement.dataset.fullReportPreflight,
-    };
-  });
-  assert.deepEqual(nativeRuntimeAudit, { calls: '1', mode: 'native-print', pages: '48', preflight: 'passed' });
+  const exportButton = page.getByRole('button', { name: 'Export PDF' }).last();
+  await exportButton.click();
+  await page.waitForFunction(() => document.getElementById('fullscreen-viewer-iframe')?.contentDocument?.documentElement.dataset.calls === '1');
+  await exportButton.click();
+  await page.waitForFunction(() => document.getElementById('fullscreen-viewer-iframe')?.contentDocument?.documentElement.dataset.calls === '2');
+  await page.keyboard.press('Control+P');
+  await page.waitForFunction(() => document.getElementById('fullscreen-viewer-iframe')?.contentDocument?.documentElement.dataset.calls === '3');
+  await page.keyboard.press('Meta+P');
+  await page.waitForFunction(() => document.getElementById('fullscreen-viewer-iframe')?.contentDocument?.documentElement.dataset.calls === '4');
 
-  const transformedHtml = await page.evaluate(() => {
-    const iframe = document.getElementById('fullscreen-viewer-iframe');
-    return `<!DOCTYPE html>\n${iframe.contentDocument.documentElement.outerHTML}`;
-  });
+  const transformed = await page.evaluate(() => `<!DOCTYPE html>\n${document.getElementById('fullscreen-viewer-iframe').contentDocument.documentElement.outerHTML}`);
   const printPage = await context.newPage();
-  await printPage.setViewportSize({ width: 1280, height: 720 });
-  await printPage.setContent(transformedHtml, { waitUntil: 'networkidle', timeout: 120000 });
-  await printPage.waitForFunction(() => document.querySelectorAll('.full-slide').length === 48, { timeout: 60000 });
-  await printPage.evaluate(async () => { if (document.fonts?.ready) await document.fonts.ready; });
+  await printPage.setContent(transformed, { waitUntil: 'networkidle' });
   await printPage.emulateMedia({ media: 'print' });
-  const nativePdfPath = path.join(artifactDir, 'mono-lab-native-print.pdf');
-  await printPage.pdf({ path: nativePdfPath, printBackground: true, preferCSSPageSize: true, margin: { top: '0', right: '0', bottom: '0', left: '0' } });
+  const pdfPath = path.join(artifactDir, 'mono-lab-native-print.pdf');
+  await printPage.pdf({ path: pdfPath, printBackground: true, preferCSSPageSize: true });
   await printPage.close();
 
-  const pdfInfo = command('pdfinfo', [nativePdfPath]);
-  assert.match(pdfInfo, /Pages:\s+48\b/);
+  const pdfInfo = command('pdfinfo', [pdfPath]);
+  assert.match(pdfInfo, /Pages:\s+40\b/);
   assert.match(pdfInfo, /Page size:\s+960 x 540 pts/);
-  const pdfFonts = command('pdffonts', [nativePdfPath]);
-  const fontRows = pdfFonts.split('\n').filter((line) => /Type 0|TrueType|CID/.test(line));
-  assert.ok(fontRows.length > 0, 'Native PDF contains no embedded font objects');
-  const pdfImages = command('pdfimages', ['-list', nativePdfPath]);
-  const fullPageRasterRows = pdfImages.split('\n').filter((line) => /\s2560\s+1440\s/.test(line));
-  assert.equal(fullPageRasterRows.length, 0, 'Native PDF regressed to full-page JPEG images');
+  const fonts = command('pdffonts', [pdfPath]);
+  assert.ok(fonts.split('\n').some((line) => /Type 0|TrueType|CID/.test(line)));
+  const images = command('pdfimages', ['-list', pdfPath]);
+  assert.equal(images.split('\n').filter((line) => /\s2560\s+1440\s/.test(line)).length, 0);
 
-  for (const pageNumber of [12, 15, 16, 23, 24, 33, 34, 40, 41, 47]) {
-    const prefix = path.join(artifactDir, `pdf-page-${String(pageNumber).padStart(2, '0')}`);
-    command('pdftoppm', ['-f', String(pageNumber), '-l', String(pageNumber), '-singlefile', '-png', '-r', '120', nativePdfPath, prefix]);
-  }
-
-  await page.waitForTimeout(700);
-  await page.reload({ waitUntil: 'networkidle', timeout: 120000 });
+  await page.reload({ waitUntil: 'networkidle' });
   await page.getByText(brand, { exact: true }).first().click();
   await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 60000 });
   const reopened = page.frameLocator('#fullscreen-viewer-iframe');
-  await reopened.locator('.full-slide').first().waitFor({ timeout: 60000 });
-  assert.equal(await reopened.locator('.full-slide').count(), 48);
-  assert.equal(await reopened.locator('#appendix-cover').count(), 1);
-  assert.equal(await reopened.getByText('123만 명', { exact: false }).count() > 0, true);
+  await reopened.locator('.full-slide').first().waitFor();
+  assert.equal(await reopened.locator('.full-slide').count(), 40);
+  assert.equal(await reopened.locator('#decision-close').count(), 1);
 
   const summary = {
     appUrl,
     brand,
-    competitors,
-    renderedPages: 48,
-    navigationLinks: 48,
-    orderedIds,
+    candidates,
+    core,
+    pages: 40,
+    nav: 40,
+    ids,
+    marketType,
+    routeLabels,
     geometry,
-    overflowPages: overflow,
-    personaAudit,
-    choiceAudit,
-    darkAudit,
-    nativeRuntimeAudit,
-    nativePdf: { pageCount: 48, mediaBox: '960×540pt', embeddedFontRows: fontRows.length, fullPageRasterRows: fullPageRasterRows.length },
-    saveReopenPages: 48,
+    pdf: { pages: 40, size: '960x540pt' },
+    exports: 4,
+    reopened: 40,
     dialogs,
   };
   await writeFile(path.join(artifactDir, 'e2e-summary.json'), JSON.stringify(summary, null, 2));
-  await writeFile(path.join(artifactDir, 'pdffonts.txt'), pdfFonts);
-  await writeFile(path.join(artifactDir, 'pdfimages.txt'), pdfImages);
+  await writeFile(path.join(artifactDir, 'pdffonts.txt'), fonts);
+  await writeFile(path.join(artifactDir, 'pdfimages.txt'), images);
   console.log(JSON.stringify(summary, null, 2));
 } catch (error) {
   await page.screenshot({ path: path.join(artifactDir, '99-failure.png'), fullPage: true }).catch(() => undefined);
-  await writeFile(path.join(artifactDir, '99-failure.txt'), error instanceof Error ? `${error.stack || error.message}\n` : `${String(error)}\n`);
+  await writeFile(path.join(artifactDir, '99-failure.txt'), `${error instanceof Error ? error.stack || error.message : String(error)}\n\nDialogs:\n${JSON.stringify(dialogs, null, 2)}\n`);
   throw error;
 } finally {
   await browser.close();

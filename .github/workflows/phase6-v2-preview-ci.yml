@@ -1,9 +1,9 @@
-name: Phase 6 Color Correction Preview CI
+name: Phase 6 Main40 Preview CI
 
 on:
   push:
     branches:
-      - fix/phase6-report-color-consistency-v1
+      - fix/phase6-main40-semantic-renderer-v4
   pull_request:
     branches:
       - main
@@ -26,19 +26,19 @@ jobs:
         shell: bash
         run: |
           set +e
-          npm run build > phase6-color-build.log 2>&1
+          npm run build > phase6-main40-build.log 2>&1
           code=$?
-          echo "$code" > phase6-color-build.exit
-          tail -n 160 phase6-color-build.log
+          echo "$code" > phase6-main40-build.exit
+          tail -n 240 phase6-main40-build.log
           exit 0
       - name: Upload build diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase6-color-build-diagnostics
+          name: phase6-main40-build-diagnostics
           path: |
-            phase6-color-build.log
-            phase6-color-build.exit
+            phase6-main40-build.log
+            phase6-main40-build.exit
       - name: Enforce build result
         shell: bash
-        run: test "$(cat phase6-color-build.exit)" = "0"
+        run: test "$(cat phase6-main40-build.exit)" = "0"
