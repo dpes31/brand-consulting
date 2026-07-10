@@ -22,10 +22,22 @@ jobs:
         with:
           ref: fix/phase6-main40-semantic-renderer-v4
           fetch-depth: 0
+      - name: Correct patch literal escaping
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/apply-phase6-main40-v4.py')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('replace_once(runtime,\n"""  const preflight', 'replace_once(runtime,\nr"""  const preflight', 1)
+          s = s.replace("  const nativePrint = windowRef.__FULL_REPORT_NATIVE_PRINT__;\n\"\"\",\n\"\"\"  const preflight", "  const nativePrint = windowRef.__FULL_REPORT_NATIVE_PRINT__;\n\"\"\",\nr\"\"\"  const preflight", 1)
+          p.write_text(s, encoding='utf-8')
+          PY
       - name: Apply deterministic correction and capture diagnostics
         shell: bash
         run: |
           set +e
+          rm -f phase6-main40-apply.txt phase6-main40-apply-exit.txt
           python scripts/apply-phase6-main40-v4.py > phase6-main40-apply.txt 2>&1
           code=$?
           echo "$code" > phase6-main40-apply-exit.txt
