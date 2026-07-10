@@ -77,7 +77,7 @@ function fieldValue(definition, variant = 1) {
   if (kind === 'status') return 'not-found';
   if (kind === 'source') return 'QA Fixture · Phase 6 · 2026';
   if (/\.copy$/.test(key)) return `공개 원문 확인이 필요한 근거 상태다${suffix}`.slice(0, maxLength);
-  if (/\.(penetration|growth|preference|campaign|inflection|evidence|total)$/.test(key)) return '4';
+  if (/^comp-ranking\.rank\d+\.(penetration|growth|preference|campaign|inflection|evidence|total)$/.test(key)) return '4';
   if (/\.(differentiation|expansion|execution)$/.test(key)) return '4/5';
   if (/\.priority$/.test(key)) return 'HIGH';
   if (/\.period$/.test(key)) return '2026';
