@@ -26,26 +26,26 @@ jobs:
         shell: bash
         run: |
           set +e
-          python scripts/apply-phase6-main40-v4.py > phase6-main40-apply.log 2>&1
+          python scripts/apply-phase6-main40-v4.py > phase6-main40-apply.txt 2>&1
           code=$?
-          echo "$code" > phase6-main40-apply.exit
-          cat phase6-main40-apply.log
+          echo "$code" > phase6-main40-apply-exit.txt
+          cat phase6-main40-apply.txt
           exit 0
       - name: Commit correction or diagnostics
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ "$(cat phase6-main40-apply.exit)" = "0" ]; then
+          if [ "$(cat phase6-main40-apply-exit.txt)" = "0" ]; then
             rm -f scripts/apply-phase6-main40-v4.py
             rm -f .github/workflows/apply-phase6-main40-v4.yml
-            rm -f phase6-main40-apply.log phase6-main40-apply.exit
+            rm -f phase6-main40-apply.txt phase6-main40-apply-exit.txt
             rm -f docs/PHASE6_MAIN40_V4_PR_PENDING.md docs/PHASE6_MAIN40_V4_STATUS.md docs/PHASE6_MAIN40_V4_README.md docs/PHASE6_MAIN40_V4_DRAFT_ONLY.md docs/PHASE6_MAIN40_V4_TEMP_CLEANUP.md docs/PHASE6_MAIN40_V4_FINAL_TEMP_MARKER.md
             rm -f handoff/PHASE6_MAIN40_V4_PR_NOTE.md handoff/PHASE6_MAIN40_V4_STOP_EXTRA_MARKERS.md handoff/PHASE6_MAIN40_V4_SETUP_COMPLETE.md handoff/PHASE6_MAIN40_V4_NEXT.md handoff/PHASE6_MAIN40_V4_LOCK.md
             git add -A
             git commit -m "Restore Phase 6 40-page semantic renderer contract"
           else
-            git add phase6-main40-apply.log phase6-main40-apply.exit
+            git add -f phase6-main40-apply.txt phase6-main40-apply-exit.txt
             git commit -m "Record Phase 6 correction patch failure"
           fi
           git push origin HEAD:fix/phase6-main40-semantic-renderer-v4
