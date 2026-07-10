@@ -232,7 +232,7 @@ try {
   }
 
   await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });
-  await page.getByText('외부 AI 완성 HTML 생성', { exact: true }).waitFor({ timeout: 30000 });
+  await page.getByRole('heading', { name: '외부 AI 완성 HTML 생성', exact: true }).waitFor({ timeout: 30000 });
   await page.getByText('JSON이 아닙니다. 외부 AI는 승인 양식의 완성 HTML을 반환합니다.', { exact: true }).waitFor();
   const workflowSteps = await page.locator('#phase6-approved-html-workflow li').allTextContents();
   assert.equal(workflowSteps.length, 5);
