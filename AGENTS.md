@@ -19,7 +19,7 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Branch: `fix/phase6-approved-html-semantic-contract-v1`
 - Draft PR: `#22 Restore Phase 6 approved 40+8 HTML with semantic field locking`
 - Base: `main`
-- Current validated head: `6bbe7406a98e62774dfa591f28c5e03e1b5d155b`
+- Current validated head: `538d1c2d5382cd83fee0fd35716fddc7b7d6a895`
 - `main` remains unchanged.
 - Keep PR #22 Draft and do not merge without explicit owner Preview approval.
 
