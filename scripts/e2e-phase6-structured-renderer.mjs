@@ -47,9 +47,11 @@ function fieldValue(definition, variant = 1) {
     'persona-1.title': '불안한 성장 사업자',
     'persona-2.title': '비용 방어형',
     'persona-3.title': '사후불안형 위임 대표',
+    'stp.target.name': '불안한 성장 사업자',
+    'stp.target.description': '사업 성장이 내부 판단 역량을 앞선 대표를 우선한다',
     'stp.positioning': '성장 과정의 판단 근거와 책임을 보이게 하는 운영 파트너이다',
     'strategy-choice.bigIdeal': '모든 사업자는 중요한 판단을 이해하고 통제할 권리가 있다',
-    'strategy-choice.winningMove': '판단 근거를 남기는 운영 설명서',
+    'strategy-choice.winningMove': '판단 근거와 책임을 남기는 운영 설명서',
     'strategy-choice.proof': '적용·제외·검토·위험·책임을 하나의 기록으로 연결한다',
     'decision-close.principle': '맡겨도 결정의 근거와 통제권은 고객에게 남는다',
     'decision-close.support': `${brand}은 결과와 함께 판단의 이유를 설명한다`,
@@ -79,12 +81,12 @@ function fieldValue(definition, variant = 1) {
   if (/\.(differentiation|expansion|execution)$/.test(key)) return '4/5';
   if (/\.priority$/.test(key)) return 'HIGH';
   if (/\.period$/.test(key)) return '2026';
-  if (/\.stage$/.test(key)) return '핵심';
-  if (/\.type$/.test(key)) return '전략';
+  if (/\.stage\d+$/.test(key)) return `전환 단계 ${key.match(/\d+$/)?.[0] || ''}`;
+  if (/\.type$/.test(key)) return '책임 강화형';
   if (/\.title$/.test(key)) return `${hint.replace(/\d+/g, '').trim()}의 핵심 판단이다${suffix}`.slice(0, maxLength);
   if (/\.soWhat$/.test(key)) return `현재 조사 결과는 다음 실행을 요구한다${suffix}`.slice(0, maxLength);
   if (maxLength <= 10) return '4';
-  if (maxLength <= 24) return '핵심';
+  if (maxLength <= 24) return '핵심 판단';
   if (maxLength <= 45) return `검증 근거${suffix}`.slice(0, maxLength);
   if (maxLength <= 80) return `현재 조사에서 확인된 핵심 판단이다${suffix}`.slice(0, maxLength);
   return `현재 조사에서 확인된 근거를 이 의미 필드에만 정확히 반영한다${suffix}`.slice(0, maxLength);
@@ -94,14 +96,14 @@ function buildResponse(prompt, variant = 1, prefixStatusWithYear = false) {
   const schema = JSON.parse(section(prompt, '[FIELD SCHEMA]', '[EMPTY JSON SKELETON]'));
   const report = JSON.parse(section(prompt, '[EMPTY JSON SKELETON]', '[STEP 0–5 RESEARCH]'));
   const definitions = new Map();
-  schema.forEach((page) => page.fields.forEach((field) => definitions.set(field.key, field)));
+  schema.forEach((schemaPage) => schemaPage.fields.forEach((schemaField) => definitions.set(schemaField.key, schemaField)));
   report.generatedAt = variant === 1 ? '2026-07-09T00:00:00.000Z' : '2026-07-09T00:01:00.000Z';
-  report.pages.forEach((page) => {
-    Object.keys(page.fields).forEach((key) => {
+  report.pages.forEach((reportPage) => {
+    Object.keys(reportPage.fields).forEach((key) => {
       const definition = definitions.get(key);
       assert.ok(definition, `Missing definition for ${key}`);
       const value = fieldValue(definition, variant);
-      page.fields[key] = prefixStatusWithYear && definition.kind === 'status'
+      reportPage.fields[key] = prefixStatusWithYear && definition.kind === 'status'
         ? `${definition.fixedYear} · ${value}`
         : value;
     });
@@ -138,30 +140,30 @@ try {
   }
 
   await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });
-  await page.getByText('외부 AI 구조화 JSON 방식', { exact: true }).waitFor({ timeout: 30000 });
-  await page.getByText('HTML은 외부 AI가 아니라 앱이 자동 생성합니다.', { exact: true }).waitFor();
+  await page.getByText('외부 AI 보고서 작성 방식', { exact: true }).waitFor({ timeout: 30000 });
+  await page.getByText('레이아웃과 페이지 구성은 앱이 고정합니다. 외부 AI는 내용만 작성합니다.', { exact: true }).waitFor();
   const workflowStepCopies = [
-    '외부 AI용 JSON 프롬프트 다운로드',
+    '외부 AI용 보고서 작성 프롬프트 다운로드',
     '다운로드 파일을 외부 AI에 첨부',
-    'AI가 반환한 JSON 전체 복사',
-    'Phase 6 입력창에 JSON 붙여넣기',
-    'JSON 검증 후 40페이지 보고서 만들기',
+    'AI가 반환한 결과 전체 복사',
+    'Phase 6 입력창에 결과 붙여넣기',
+    '결과 검증 후 40페이지 보고서 만들기',
   ];
-  const workflowSteps = await page.locator('#phase6-external-json-workflow li').allTextContents();
+  const workflowSteps = await page.locator('#phase6-external-report-workflow li').allTextContents();
   assert.equal(workflowSteps.length, 5);
   workflowStepCopies.forEach((copy) => {
     assert.ok(workflowSteps.some((text) => text.includes(copy)), `Missing workflow label: ${copy}`);
   });
   assert.ok(await page.getByText('기존 완성 HTML 가져오기 — 호환용', { exact: true }).count() > 0);
   const structuredTextarea = page.locator('textarea[data-phase6-input-mode="structured-json"]');
-  const inputLabel = page.getByText('외부 AI가 반환한 JSON 붙여넣기', { exact: true });
+  const inputLabel = page.getByText('외부 AI가 반환한 결과 붙여넣기', { exact: true });
   const labelBeforeTextarea = await inputLabel.evaluate((node, textarea) => Boolean(
     node.compareDocumentPosition(textarea) & Node.DOCUMENT_POSITION_FOLLOWING
   ), await structuredTextarea.elementHandle());
   assert.equal(labelBeforeTextarea, true);
 
   const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
-  await page.getByRole('button', { name: /외부 AI용 JSON 프롬프트 다운로드/ }).click();
+  await page.getByRole('button', { name: /외부 AI용 보고서 작성 프롬프트 다운로드/ }).click();
   const download = await downloadPromise;
   const promptPath = path.join(artifactDir, 'phase6-structured-prompt.txt');
   await download.saveAs(promptPath);
@@ -174,14 +176,23 @@ try {
   assert.doesNotMatch(prompt, /\.timeline-container|\.timeline-card|data-year|data-copy-status/);
 
   const fieldSchema = JSON.parse(section(prompt, '[FIELD SCHEMA]', '[EMPTY JSON SKELETON]'));
-  const statusDefinitions = fieldSchema.flatMap((pageItem) => pageItem.fields).filter((field) => field.kind === 'status');
+  const allFieldKeys = fieldSchema.flatMap((schemaPage) => schemaPage.fields.map((schemaField) => schemaField.key));
+  assert.equal(allFieldKeys.filter((key) => /\.content\d+$/.test(key)).length, 0);
+  assert.ok(allFieldKeys.includes('jtbd.row1.jobType'));
+  assert.ok(allFieldKeys.includes('jtbd.row1.desiredProgress'));
+  assert.ok(!allFieldKeys.some((key) => /^consumer-target\.target\d+\.stage$/.test(key)));
+  assert.ok(!allFieldKeys.some((key) => /^loyalty\.stage\d+\.stage$/.test(key)));
+  assert.ok(!allFieldKeys.includes('loyalty.principle6'));
+  assert.equal(fieldSchema.length, 40);
+
+  const statusDefinitions = fieldSchema.flatMap((schemaPage) => schemaPage.fields).filter((schemaField) => schemaField.kind === 'status');
   assert.equal(statusDefinitions.length, 24);
-  assert.ok(statusDefinitions.every((field) => JSON.stringify(field.enum) === JSON.stringify([
+  assert.ok(statusDefinitions.every((schemaField) => JSON.stringify(schemaField.enum) === JSON.stringify([
     'verified-verbatim',
     'source-found-copy-unverified',
     'not-found',
   ])));
-  assert.deepEqual(statusDefinitions.slice(0, 6).map((field) => field.fixedYear), [2021, 2022, 2023, 2024, 2025, '2026 YTD']);
+  assert.deepEqual(statusDefinitions.slice(0, 6).map((schemaField) => schemaField.fixedYear), [2021, 2022, 2023, 2024, 2025, '2026 YTD']);
 
   const response1 = buildResponse(prompt, 1, true);
   const response2 = buildResponse(prompt, 2);
@@ -190,12 +201,34 @@ try {
 
   const input = page.locator('textarea[data-phase6-input-mode="structured-json"]');
   const fileInput = page.locator('input[data-phase6-response-file]');
-  const invalid = JSON.parse(JSON.stringify(response2));
-  invalid.pages.find((item) => item.id === 'creative-history-target').fields['creative-history-target.year2.status'] = '2022 · unknown';
-  await input.fill(JSON.stringify(invalid));
-  await page.getByRole('button', { name: 'JSON 검증 후 40페이지 보고서 만들기' }).click();
-  await page.waitForTimeout(1000);
-  assert.ok(dialogs.some((message) => message.includes('P29')
+  const actionButton = page.getByRole('button', { name: '결과 검증 후 40페이지 보고서 만들기' });
+
+  const invalidRank = JSON.parse(JSON.stringify(response2));
+  invalidRank.pages.find((item) => item.id === 'comp-ranking').fields['comp-ranking.rank1.name'] = '1';
+  invalidRank.pages.find((item) => item.id === 'comp-ranking').fields['comp-ranking.rank1.summaryName'] = '삼쩜삼';
+  const rankDialogStart = dialogs.length;
+  await input.fill(JSON.stringify(invalidRank));
+  await actionButton.click();
+  await page.waitForTimeout(800);
+  const rankDialogs = dialogs.slice(rankDialogStart);
+  assert.ok(rankDialogs.some((message) => message.includes('P12 Threat Ranking') && message.includes('경쟁사명이 아닌 “1”')));
+  assert.ok(rankDialogs.every((message) => !message.includes('P13 Deep Dive 제목')));
+
+  const invalidPersona = JSON.parse(JSON.stringify(response2));
+  invalidPersona.pages.find((item) => item.id === 'persona-1').fields['persona-1.situation1'] = '1';
+  const personaDialogStart = dialogs.length;
+  await input.fill(JSON.stringify(invalidPersona));
+  await actionButton.click();
+  await page.waitForTimeout(800);
+  assert.ok(dialogs.slice(personaDialogStart).some((message) => message.includes('P22 Persona') && message.includes('상황 1')));
+
+  const invalidStatus = JSON.parse(JSON.stringify(response2));
+  invalidStatus.pages.find((item) => item.id === 'creative-history-target').fields['creative-history-target.year2.status'] = '2022 · unknown';
+  const statusDialogStart = dialogs.length;
+  await input.fill(JSON.stringify(invalidStatus));
+  await actionButton.click();
+  await page.waitForTimeout(800);
+  assert.ok(dialogs.slice(statusDialogStart).some((message) => message.includes('P29')
     && message.includes('2022 상태')
     && message.includes('2022 · unknown')
     && message.includes('자동 복구할 수 없어 렌더링을 중단했습니다.')));
@@ -207,7 +240,7 @@ try {
     buffer: Buffer.from(fencedResponse),
   });
   assert.equal(await input.inputValue(), fencedResponse);
-  await page.getByRole('button', { name: 'JSON 검증 후 40페이지 보고서 만들기' }).click();
+  await actionButton.click();
   await page.locator('#fullscreen-viewer-iframe').waitFor({ timeout: 60000 });
   const frame = page.frameLocator('#fullscreen-viewer-iframe');
   await frame.locator('.full-slide').first().waitFor({ timeout: 60000 });
@@ -218,6 +251,7 @@ try {
   assert.equal(await frame.locator('.full-nav a').count(), 40);
   assert.equal(await frame.locator('[data-zone="appendix"]').count(), 0);
   assert.equal(await frame.locator('script').count(), 0);
+  assert.equal(await frame.locator('body').getAttribute('data-content-contract'), 'semantic-report-v4');
   assert.deepEqual(await frame.locator('#creative-history-target .history-card h3').allTextContents(), ['2021', '2022', '2023', '2024', '2025', '2026 YTD']);
   assert.equal(await frame.locator('#category-target .target-tension > b').allTextContents().then((items) => items.join('|')), 'WANT|AVOID');
   assert.deepEqual(await frame.locator('#comp-ranking .ranking-interpretation > div > b').allTextContents(), core);
@@ -238,18 +272,35 @@ try {
   assert.deepEqual((await frame.locator('#strategy-routes .route-row > b').allTextContents()).map((item) => item.trim().charAt(0)), ['A', 'B', 'C', 'D']);
   assert.equal((await frame.locator('#decision-close .back-cover-copy > h1').textContent()).trim(), '맡겨도 결정의 근거와 통제권은 고객에게 남는다');
 
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await page.waitForTimeout(500);
+  const viewerFit = await frame.locator('html').evaluate(() => {
+    const frames = [...document.querySelectorAll('.full-frame')];
+    const right = Math.max(...frames.map((node) => node.getBoundingClientRect().right));
+    return {
+      viewport: document.documentElement.clientWidth,
+      right,
+      scale: Number(document.documentElement.dataset.fullReportViewerScale || '1'),
+      horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  assert.ok(viewerFit.scale < 1 && viewerFit.scale > 0.5, `unexpected Viewer scale: ${JSON.stringify(viewerFit)}`);
+  assert.ok(viewerFit.right <= viewerFit.viewport + 2, `Viewer right clipping: ${JSON.stringify(viewerFit)}`);
+  assert.ok(viewerFit.horizontalOverflow <= 2, `Viewer horizontal overflow: ${JSON.stringify(viewerFit)}`);
+
   const geometry = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => ({
     id: node.id,
     width: node.offsetWidth,
     height: node.offsetHeight,
     overflowX: node.scrollWidth - node.clientWidth,
     overflowY: node.scrollHeight - node.clientHeight,
+    viewerScale: node.closest('.full-frame')?.dataset.viewerScale,
     frameWidth: node.closest('.full-frame')?.style.width,
     frameHeight: node.closest('.full-frame')?.style.height,
-    scale: node.closest('.full-frame-inner')?.style.transform,
+    transform: node.closest('.full-frame-inner')?.style.transform,
   })));
   assert.ok(geometry.every((item) => item.width === 1280 && item.height === 720));
-  assert.ok(geometry.every((item) => item.frameWidth === '1280px' && item.frameHeight === '720px' && item.scale === 'scale(1)'));
+  assert.ok(geometry.every((item) => Number(item.viewerScale) === viewerFit.scale));
   assert.deepEqual(geometry.filter((item) => item.overflowX > 1 || item.overflowY > 1), []);
 
   for (const id of ['category-target', 'comp-ranking', 'deep-dive-1', 'category-cliche', 'positioning', 'consumer-exec', 'consumer-trends', 'consumer-target', 'persona-1', 'pain-needs', 'aipl', 'loyalty', 'creative-history-1', 'creative-trajectory', 'creative-insight', 'root-cause', 'stp', 'strategy-routes', 'strategy-choice', 'decision-close']) {
@@ -294,19 +345,24 @@ try {
   const reopened = page.frameLocator('#fullscreen-viewer-iframe');
   await reopened.locator('.full-slide').first().waitFor();
   assert.equal(await reopened.locator('.full-slide').count(), 40);
-  assert.equal(await reopened.locator('body').getAttribute('data-content-contract'), 'structured-report-v3');
+  assert.equal(await reopened.locator('body').getAttribute('data-content-contract'), 'semantic-report-v4');
 
   const summary = {
     appUrl,
     brand,
     candidates,
     core,
-    promptContract: 'ProductionReportV3 JSON',
+    promptContract: 'ProductionReportV3 structured content',
     externalResponsesValidated: 2,
+    genericOrderFields: 0,
+    invalidRankBlockedAtP12: true,
+    invalidPersonaNumberBlocked: true,
     malformedStatusBlocked: true,
     normalizedStatusCount: 24,
     pages: 40,
+    appendix: 0,
     nav: 40,
+    viewerFit,
     geometry,
     pdf: { pages: 40, size: '960x540pt' },
     exports: 4,
