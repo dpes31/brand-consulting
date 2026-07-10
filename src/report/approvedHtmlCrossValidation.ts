@@ -101,9 +101,15 @@ function assertPersonaAlignment(documentRef: Document): void {
     const fixedIndex = text(documentRef, `#persona-${index} .persona-index`);
     if (fixedIndex !== `0${index}`) throw new Error(`P${21 + index} Persona 번호는 0${index}이어야 합니다.`);
     const labels = texts(documentRef, `#persona-${index} .persona-label`);
-    if (labels.join('|') !== 'SITUATION|REAL JTBD') throw new Error(`P${21 + index} Persona의 SITUATION / REAL JTBD 구조가 변경되었습니다.`);
+    const labelPair = labels.join('|');
+    if (!['상황|핵심 Job', 'SITUATION|REAL JTBD'].includes(labelPair)) {
+      throw new Error(`P${21 + index} Persona의 상황 / 핵심 Job 구조가 변경되었습니다.`);
+    }
     const identityLabels = texts(documentRef, `#persona-${index} .identity-shift span`);
-    if (identityLabels.join('|') !== 'AS-IS IDENTITY|TO-BE IDENTITY') throw new Error(`P${21 + index} Persona 정체성 구조가 변경되었습니다.`);
+    const identityPair = identityLabels.join('|');
+    if (!['현재 정체성|원하는 정체성', 'AS-IS IDENTITY|TO-BE IDENTITY'].includes(identityPair)) {
+      throw new Error(`P${21 + index} Persona의 현재 정체성 / 원하는 정체성 구조가 변경되었습니다.`);
+    }
   });
 }
 

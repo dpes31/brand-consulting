@@ -4,7 +4,7 @@ const SLOT_RULES = `[SEMANTIC HTML FIELD CONTRACT]
 - Each field already contains data-report-field, data-report-hint, data-report-max-length, and data-report-kind metadata. Use those meanings exactly.
 - Do not move a field to another page or section. Do not merge two fields. Do not place one field's content into another field.
 - Do not edit tag hierarchy, classes, IDs, data-page, data-zone, navigation, CSS, inline geometry, connectors, arrows, stage codes, fixed labels, table columns, or component order.
-- Fixed labels include WANT, AVOID, Evidence, Core Desire, Appeal, Threat Mechanism, Attack Point, Pain, 현재 문제, Unmet Need, 우선순위, A, I, P1, P2, L, SITUATION, REAL JTBD, AS-IS IDENTITY, TO-BE IDENTITY, SEGMENTATION, TARGETING, POSITIONING, SO WHAT, and all arrows.
+- Fixed labels include WANT, AVOID, Evidence, Core Desire, Appeal, Threat Mechanism, Attack Point, Pain, 현재 문제, Unmet Need, 우선순위, A, I, P1, P2, L, 상황, 핵심 Job, 현재 정체성, 원하는 정체성, SEGMENTATION, TARGETING, POSITIONING, SO WHAT, and all arrows.
 - Use exactly three core Direct Competitors selected by Threat Ranking. Use the same three and the same order in P12, P13–15, P16, P18, P30–33, and P34.
 - P17 CATEGORY CLICHÉS has exactly three columns: 반복 화법 / 현재 역할 / 구조적 한계. Do not restore or add a fourth '새 질문' column.
 - P18 POSITIONING requires four meaningful axis names. Never write X축, Y축, X axis, Y axis, or place a brand name in an axis field.

@@ -319,7 +319,9 @@ try {
   assert.deepEqual(await frame.locator('#positioning .axis').allTextContents(), ['일회성 문제 해결', '지속적 운영 관리', '전문가 검증 중심', '사용자 직접 통제']);
   assert.deepEqual(await frame.locator('#aipl .aipl-stage > b').allTextContents(), ['A', 'I', 'P1', 'P2', 'L']);
   assert.deepEqual(await frame.locator('#pain-needs .pain-head > *').allTextContents(), ['Pain', '현재 문제', 'Unmet Need', '우선순위']);
-  assert.deepEqual(await frame.locator('#persona-1 .persona-label').allTextContents(), ['SITUATION', 'REAL JTBD']);
+  assert.deepEqual(await frame.locator('#persona-1 .persona-label').allTextContents(), ['상황', '핵심 Job']);
+  assert.deepEqual(await frame.locator('#persona-1 .identity-shift span').allTextContents(), ['현재 정체성', '원하는 정체성']);
+  assert.equal((await frame.locator('#persona-1 .brand-role > span').textContent()).trim(), `${brand}의 역할`);
   assert.deepEqual(await frame.locator('#creative-history-target .history-card > h3').allTextContents(), ['2021', '2022', '2023', '2024', '2025', '2026 YTD']);
   assert.deepEqual(await frame.locator('#stp .stp-arrow').allTextContents(), ['→', '→']);
   assert.equal((await frame.locator('#appendix-back .back-cover-copy > h1').textContent()).replace(/\s+/g, ' ').trim(), '맡겨도 판단의 근거와 결정권은 고객에게 남습니다');
