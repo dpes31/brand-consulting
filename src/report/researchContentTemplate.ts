@@ -446,7 +446,7 @@ export function createResearchOnlyLayoutTemplate(source: string, brandName: stri
   const brand = documentRef.querySelector<HTMLElement>('.full-report-brand');
   if (brand) brand.textContent = brandName;
   documentRef.querySelectorAll<HTMLElement>('.brand-role > span').forEach((label) => {
-    label.textContent = `${brandName}의 역할`;
+    label.textContent = '브랜드의 역할';
   });
   const toolbar = documentRef.querySelector<HTMLElement>('.full-report-toolbar strong');
   if (toolbar) toolbar.textContent = `${brandName} FULL REPORT`;
