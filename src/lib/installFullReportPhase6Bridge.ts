@@ -1,5 +1,6 @@
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
 import { buildApprovedHtmlCompilationPrompt } from '../report/approvedHtmlPrompt';
+import { assertApprovedHtmlCrossPageConsistency } from '../report/approvedHtmlCrossValidation';
 import {
   extractCompleteFullReportHtml,
   loadApprovedPilotBaseHtml,
@@ -196,6 +197,7 @@ async function handleManualRender(event: MouseEvent, clickedButton: HTMLButtonEl
       .replace(/\\cite\{[^}]*\}/g, '');
     const html = finalizeApprovedHtmlFromExternalOutput(extracted, approvedBase, brandName);
     assertAllResearchSlotsFilled(html);
+    assertApprovedHtmlCrossPageConsistency(html, brandName);
     assertResearchEvidencePresent(html, rawResearch, brandName);
 
     textarea.dataset.fullReportValidatedHtml = 'true';
