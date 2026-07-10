@@ -12,10 +12,17 @@ export interface FullReportPreflightResult {
   overflowSlideIds: string[];
 }
 
+type FullReportViewerFit = {
+  fit: () => number;
+  reset: () => void;
+  scale: number;
+};
+
 type FullReportWindow = Window & {
   __REPORT_PREFLIGHT__?: () => FullReportPreflightResult;
   __NATIVE_REPORT_PRINT__?: () => void;
   __FULL_REPORT_NATIVE_PRINT__?: () => void;
+  __FULL_REPORT_VIEWER_FIT__?: FullReportViewerFit;
   __FULL_REPORT_RUNTIME__?: {
     version: '1.0.0';
     preflight: () => FullReportPreflightResult;
@@ -89,6 +96,75 @@ export function runFullReportPreflight(documentRef: Document): FullReportPreflig
   return result;
 }
 
+function installViewerFit(documentRef: Document, windowRef: FullReportWindow): FullReportViewerFit {
+  if (windowRef.__FULL_REPORT_VIEWER_FIT__) return windowRef.__FULL_REPORT_VIEWER_FIT__;
+
+  const getFrames = () => Array.from(documentRef.querySelectorAll<HTMLElement>('.full-frame'));
+  const getInners = () => Array.from(documentRef.querySelectorAll<HTMLElement>('.full-frame-inner'));
+  const content = documentRef.querySelector<HTMLElement>('.full-report-content');
+
+  const apply = (scale: number) => {
+    getFrames().forEach((frame) => {
+      frame.style.setProperty('width', `${SLIDE_WIDTH_PX * scale}px`, 'important');
+      frame.style.setProperty('height', `${SLIDE_HEIGHT_PX * scale}px`, 'important');
+      frame.style.setProperty('min-width', `${SLIDE_WIDTH_PX * scale}px`, 'important');
+      frame.style.setProperty('min-height', `${SLIDE_HEIGHT_PX * scale}px`, 'important');
+      frame.dataset.viewerScale = scale.toFixed(4);
+    });
+    getInners().forEach((inner) => {
+      inner.style.setProperty('width', `${SLIDE_WIDTH_PX}px`, 'important');
+      inner.style.setProperty('height', `${SLIDE_HEIGHT_PX}px`, 'important');
+      inner.style.setProperty('transform', `scale(${scale})`, 'important');
+      inner.style.setProperty('transform-origin', 'top left', 'important');
+    });
+    documentRef.documentElement.dataset.fullReportViewerScale = scale.toFixed(4);
+    documentRef.documentElement.style.setProperty('overflow-x', 'hidden', 'important');
+    if (documentRef.body) documentRef.body.style.setProperty('overflow-x', 'hidden', 'important');
+    if (content) {
+      content.style.setProperty('max-width', '100vw', 'important');
+      content.style.setProperty('overflow-x', 'hidden', 'important');
+      content.style.setProperty('box-sizing', 'border-box', 'important');
+    }
+  };
+
+  const state: FullReportViewerFit = {
+    scale: 1,
+    fit: () => 1,
+    reset: () => undefined,
+  };
+
+  state.fit = () => {
+    if (windowRef.matchMedia?.('print').matches) return state.scale;
+    const frames = getFrames();
+    if (!frames.length) return state.scale;
+    const contentRect = content?.getBoundingClientRect();
+    const computed = content ? windowRef.getComputedStyle(content) : null;
+    const horizontalPadding = computed
+      ? Number.parseFloat(computed.paddingLeft || '0') + Number.parseFloat(computed.paddingRight || '0')
+      : 32;
+    const available = Math.max(
+      320,
+      (contentRect?.width || windowRef.innerWidth) - horizontalPadding - 2,
+    );
+    const scale = Math.min(1, available / SLIDE_WIDTH_PX);
+    apply(scale);
+    state.scale = scale;
+    return scale;
+  };
+
+  state.reset = () => {
+    apply(1);
+    state.scale = 1;
+  };
+
+  windowRef.__FULL_REPORT_VIEWER_FIT__ = state;
+  windowRef.addEventListener('resize', state.fit);
+  windowRef.addEventListener('beforeprint', state.reset);
+  windowRef.addEventListener('afterprint', state.fit);
+  windowRef.requestAnimationFrame(() => state.fit());
+  return state;
+}
+
 async function waitForFonts(documentRef: Document): Promise<void> {
   if (documentRef.fonts?.ready) await documentRef.fonts.ready;
 }
@@ -101,6 +177,7 @@ export async function exportFullReportPdf(iframe: HTMLIFrameElement, filename?: 
   const preflight = runFullReportPreflight(documentRef);
   if (!preflight.ok) throw new Error(`FULL PDF 사전검사 실패\n${preflight.issues.join('\n')}`);
   await waitForFonts(documentRef);
+  windowRef.__FULL_REPORT_VIEWER_FIT__?.reset();
 
   const nativePrint = windowRef.__FULL_REPORT_NATIVE_PRINT__;
   if (!nativePrint) throw new Error('브라우저 네이티브 PDF 인쇄 기능을 준비하지 못했다.');
@@ -110,6 +187,7 @@ export async function exportFullReportPdf(iframe: HTMLIFrameElement, filename?: 
   documentRef.documentElement.dataset.lastPdfExportAt = new Date().toISOString();
   documentRef.documentElement.dataset.lastPdfFilename = filename || documentRef.title || 'Brand Consulting FULL Report';
   nativePrint();
+  windowRef.setTimeout(() => windowRef.__FULL_REPORT_VIEWER_FIT__?.fit(), 0);
 }
 
 async function exportWithAlert(iframe: HTMLIFrameElement): Promise<void> {
@@ -131,6 +209,7 @@ function installIntoFrame(iframe: HTMLIFrameElement): void {
   const activate = () => {
     if (getFullReportSlides(documentRef).length === 0) return false;
     windowRef.__REPORT_PREFLIGHT__ = () => runFullReportPreflight(documentRef);
+    installViewerFit(documentRef, windowRef);
 
     const nativePrint = windowRef.__NATIVE_REPORT_PRINT__ || windowRef.print.bind(windowRef);
     if (!windowRef.__FULL_REPORT_NATIVE_PRINT__) windowRef.__FULL_REPORT_NATIVE_PRINT__ = nativePrint;
