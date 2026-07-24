@@ -231,7 +231,7 @@ function refreshPhase6Copy(): void {
     document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
       const text = normalizeText(element.textContent);
       if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI 완성 HTML 생성';
-      if (text.includes('무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.')) {
+      if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.') {
         element.textContent = '외부 AI는 완성 HTML을 작성하고, 앱은 승인된 40페이지 구조와 의미 필드를 검증합니다.';
       }
       if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
