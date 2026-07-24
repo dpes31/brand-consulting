@@ -11,6 +11,7 @@ if (!appUrl) throw new Error('PREVIEW_URL is required.');
 const brand = '모노랩';
 const candidates = ['알파원', '베타랩', '감마코', '델타택스', '엡실론'];
 const core = candidates.slice(0, 3);
+const targetNames = ['실행형 사업자', '검증형 사업자', '성장형 사업자'];
 const artifactDir = path.resolve('phase6-v2-e2e-artifacts');
 await mkdir(artifactDir, { recursive: true });
 
@@ -18,34 +19,91 @@ const steps = buildPhase6StepFixtures(brand);
 steps[0] += '\n핵심 사실은 **123만 명**과 **456억 원**이다.';
 steps[2] += `\n${candidates.map((name, index) => `${index + 1}. **${name} — ${91 - index * 8}점:** 직접 경쟁 후보`).join('\n')}`;
 
-const startMarker = '[IMMUTABLE APPROVED BASE HTML — START]';
-const endMarker = '[IMMUTABLE APPROVED BASE HTML — END]';
-const slotPattern = /\[\[CONTENT:P(\d{2}):([A-Z0-9_-]+):(\d{3})\]\]/g;
+const startMarker = '[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — START]';
+const endMarker = '[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — END]';
+const tokenPattern = /\[\[FIELD:([a-z0-9.-]+)\]\]/gi;
 
-function fillSlots(template) {
-  let result = template;
-  const inject = (page, value) => {
-    result = result.replace(new RegExp(`\\[\\[CONTENT:P${page}:[^\\]]+\\]\\]`), value);
-  };
+function semanticValue(key) {
+  const candidate = key.match(/^comp-landscape\.candidate([1-5])\.name$/);
+  if (candidate) return candidates[Number(candidate[1]) - 1];
 
-  inject('04', `${brand} 이용자 123만 명`);
-  inject('04', `${brand} 관리 규모 456억 원`);
-  candidates.forEach((name) => inject('11', `${name} 경쟁 후보`));
-  core.forEach((name, index) => inject(String(13 + index).padStart(2, '0'), `${name} 핵심 경쟁사`));
+  const rankName = key.match(/^comp-ranking\.rank([1-3])\.(name|summaryName)$/);
+  if (rankName) return core[Number(rankName[1]) - 1];
 
-  return result.replace(slotPattern, (_slot, page, role, index) => {
-    if (role === 'I') return Number(index) % 2 ? '→' : '≠';
-    if (role === 'B') return String((Number(index) % 4) + 1).padStart(2, '0');
-    if (role.includes('PERSONA-INDEX')) return page === '23' ? '02' : page === '24' ? '03' : '01';
-    if (role === 'H1') return `${brand} 전략 보고서`;
-    if (role === 'H2') return `${brand} P${page} 핵심 결론`;
-    if (role.includes('FULL-SOURCE')) return 'QA Fixture · Step 0–5 · 2026';
-    if (role === 'STRONG') return '핵심 판단';
-    if (role === 'SMALL') return '검증 근거';
-    if (role === 'SPAN') return '조사 항목';
-    if (role === 'P') return '현재 조사에서 확인된 핵심 근거와 실행 의미다.';
-    return `${brand} 조사 근거 ${page}-${index}`;
-  });
+  const deepTitle = key.match(/^deep-dive-([1-3])\.title$/);
+  if (deepTitle) return `${core[Number(deepTitle[1]) - 1]}이 핵심 위협이다`;
+
+  const matrixName = key.match(/^product-matrix\.column([1-4])\.name$/);
+  if (matrixName) return Number(matrixName[1]) === 1 ? brand : core[Number(matrixName[1]) - 2];
+
+  const mapName = key.match(/^positioning\.competitor([1-3])\.name$/);
+  if (mapName) return core[Number(mapName[1]) - 1];
+  if (key === 'positioning.targetAsIs') return `${brand} AS-IS`;
+  if (key === 'positioning.targetToBe') return `${brand} TO-BE`;
+  if (key === 'positioning.axis.xLeft') return '수동 확인 중심';
+  if (key === 'positioning.axis.xRight') return '자동 실행 중심';
+  if (key === 'positioning.axis.yTop') return '전략 판단 강화';
+  if (key === 'positioning.axis.yBottom') return '단순 정보 제공';
+
+  if (key === 'creative-history-target.title') return `${brand} Creative History`;
+  const historyTitle = key.match(/^creative-history-([1-3])\.title$/);
+  if (historyTitle) return `${core[Number(historyTitle[1]) - 1]} Creative History`;
+
+  const trajectoryName = key.match(/^creative-trajectory\.brand([1-4])\.name$/);
+  if (trajectoryName) return Number(trajectoryName[1]) === 1 ? brand : core[Number(trajectoryName[1]) - 2];
+  if (/^creative-trajectory\.brand[1-4]\.meaning$/.test(key)) return '전략 역할 검증';
+
+  const target = key.match(/^consumer-target\.target([1-3])\.name$/);
+  if (target) return targetNames[Number(target[1]) - 1];
+  const personaTitle = key.match(/^persona-([1-3])\.title$/);
+  if (personaTitle) return targetNames[Number(personaTitle[1]) - 1];
+
+  const segment = key.match(/^stp\.segment([1-3])\.name$/);
+  if (segment) return targetNames[Number(segment[1]) - 1];
+  if (key === 'stp.target.name') return targetNames[0];
+  if (key === 'stp.target.description') return '검증 후 바로 실행하려는 핵심 사업자';
+  if (key === 'stp.positioning') return `${targetNames[0]}에게 판단과 실행을 연결하는 ${brand}의 차별적 포지셔닝`;
+
+  if (/\.status$/.test(key)) return 'source-found-copy-unverified';
+  if (/^creative-history-(?:target|[1-3])\.year[1-6]\.copy$/.test(key)) return '출처에서 캠페인 존재를 확인했으나 원문 카피는 미검증';
+  if (/\.source(?:\.|$)/.test(key)) return 'QA Fixture · Step 0–5 · 2026';
+
+  if (key === 'decision-close.principle') return `${brand}은 판단을 실행으로 바꾼다`;
+  if (key === 'decision-close.support') return '검증된 근거가 다음 행동까지 이어지게 한다';
+  if (key === 'strategy-choice.bigIdeal') return '더 나은 판단은 더 빠른 실행을 만든다';
+  if (key === 'strategy-choice.winningMove') return '판단에서 실행까지';
+  if (key === 'strategy-choice.proof') return `${brand}의 데이터와 실행 기능이 한 흐름으로 연결된다`;
+
+  if (/^strategy-routes\.route[A-D]\.type$/.test(key)) return '성장 전략';
+  if (/^strategy-routes\.route[A-D]\.proposition$/.test(key)) return `${key.match(/route([A-D])/)[1]}안은 판단과 실행의 간극을 줄인다`;
+  if (/^strategy-routes\.route[A-D]\.direction$/.test(key)) return '핵심 고객의 실제 행동 장벽을 직접 해결한다';
+  if (/^strategy-routes\.route[A-D]\.tradeoff$/.test(key)) return '단기 주목보다 장기 브랜드 자산을 우선한다';
+  if (/^strategy-routes\.route[A-D]\.(differentiation|expansion|execution)$/.test(key)) return '상';
+
+  if (/^persona-[1-3]\.situation\d+$/.test(key)) return '정보를 확인한 뒤 바로 행동해야 하는 실제 상황';
+  if (/^persona-[1-3]\.(surfaceNeed|realJob|fear1|fear2|asIsIdentity|toBeIdentity|brandRole)$/.test(key)) {
+    return '불확실성을 줄이고 확신 있게 다음 행동으로 이동한다';
+  }
+
+  if (/^jtbd\.row\d+\.(jobType|desiredProgress|currentAlternative|limitation|brandOpportunity)$/.test(key)) {
+    return '검증된 근거로 더 나은 판단과 실행을 완성한다';
+  }
+
+  if (/^aipl\.stage\d+\.(action|evidence|state)$/.test(key)) return '근거를 확인하고 다음 행동으로 이동한다';
+  if (/^comp-ranking\.rank[1-3]\.(penetration|growth|preference|campaign|inflection|total)$/.test(key)) return '85';
+  if (/\.(score|rating|value)$/.test(key)) return '85';
+  if (/\.title$/.test(key)) return `${brand}의 핵심 전략 판단`;
+  if (/\.soWhat$/.test(key)) return '검증된 근거를 하나의 선택과 실행으로 연결해야 한다';
+  if (/\.period$/.test(key)) return '2026';
+  if (/\.label$/.test(key)) return '핵심 근거';
+  if (/\.name$/.test(key)) return '검증 대상';
+  return '현재 조사에서 확인된 핵심 근거와 실행 의미';
+}
+
+function fillSemanticFields(template) {
+  const result = template.replace(tokenPattern, (_token, key) => semanticValue(key));
+  assert.doesNotMatch(result, /\[\[FIELD:/);
+  return result.replace('</body>', '<script>document.addEventListener("click",()=>window.print())</script></body>');
 }
 
 const command = (name, args) => execFileSync(name, args, { encoding: 'utf8' });
@@ -78,30 +136,32 @@ try {
 
   await page.getByText('브리핑 종료 및 포맷팅 (Phase 6)').waitFor({ timeout: 30000 });
   const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
-  await page.getByRole('button', { name: /프롬프트 추출/ }).click();
+  await page.getByRole('button', { name: /완성 HTML 프롬프트 다운로드/ }).click();
   const download = await downloadPromise;
   const promptPath = path.join(artifactDir, 'phase6-prompt.txt');
   await download.saveAs(promptPath);
   const prompt = await readFile(promptPath, 'utf8');
 
-  assert.match(prompt, /40 Main Deck slides, zero Appendix slides/);
-  assert.match(prompt, /top three core Direct Competitors/);
+  assert.match(prompt, /Return one complete standalone HTML document, not JSON/);
+  assert.match(prompt, /Main Deck: exactly 40 pages/);
+  assert.match(prompt, /Appendix: 0 pages/);
+  assert.match(prompt, /P12 selects the core three/);
   assert.match(prompt, /Category Clichés/);
-  assert.match(prompt, /Decision Receipt \/ Close/);
+  assert.match(prompt, /Decision Close/);
   assert.match(prompt, /~한다/);
+  assert.ok(prompt.indexOf('[STEP 0–5 RESEARCH — SOURCE OF TRUTH]') < prompt.indexOf(startMarker));
 
   const start = prompt.indexOf(startMarker);
   const end = prompt.indexOf(endMarker);
-  assert.ok(start >= 0 && end > start, 'Approved Base HTML markers are missing');
-  const html = fillSlots(prompt.slice(start + startMarker.length, end).trim());
-  assert.doesNotMatch(html, /\[\[CONTENT:/);
+  assert.ok(start >= 0 && end > start, 'Semantic HTML template markers are missing');
+  const html = fillSemanticFields(prompt.slice(start + startMarker.length, end).trim());
   await writeFile(path.join(artifactDir, 'generated-report.html'), html);
 
   const phase6Input = page.locator('textarea:visible').last();
   await phase6Input.fill(`\`\`\`html\n${html}\n\`\`\``);
   const dialogsBeforeRender = dialogs.length;
   await page.getByRole('button', { name: '결과물 뷰어에 렌더링하기' }).click();
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(1200);
   if ((await page.locator('#fullscreen-viewer-iframe').count()) === 0) {
     throw new Error(`Viewer did not open. New dialogs: ${JSON.stringify(dialogs.slice(dialogsBeforeRender))}`);
   }
@@ -113,6 +173,8 @@ try {
   assert.equal(await frame.locator('.full-nav a').count(), 40);
   assert.equal(await frame.locator('[data-zone="appendix"]').count(), 0);
   assert.equal(await frame.locator('#creative-method').count(), 0);
+  assert.equal(await frame.locator('script').count(), 0);
+  assert.equal(await frame.locator('[data-report-field$=".content1"]').count(), 0);
 
   const ids = await frame.locator('.full-slide').evaluateAll((nodes) => nodes.map((node) => node.id));
   assert.deepEqual(ids.slice(10, 18), [
@@ -125,7 +187,7 @@ try {
     'strategy-swot','root-cause','stp','strategy-routes','strategy-choice','decision-close',
   ]);
 
-  const navBrand = (await frame.locator('.full-nav-brand').textContent())?.replace(/FULL REPORT V1/g, '').trim();
+  const navBrand = (await frame.locator('.full-nav-brand').textContent())?.replace(/FULL REPORT V\d/g, '').trim();
   assert.equal(navBrand, brand);
   assert.match(await frame.locator('#executive .full-breadcrumb').textContent(), /핵심 진단/);
   assert.match(await frame.locator('#kpi .full-breadcrumb').textContent(), /FACTS/);
