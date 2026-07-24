@@ -14,10 +14,11 @@ const legacy = read('public/template.html');
 const css = read('public/full-report-v1.css');
 const approvedCss = read('public/full-report-approved-v1.css');
 const pilotCss = read('src/pages/BiznupFullIntegrated.css');
-const compiler = read('src/report/fullReportCompiler.ts');
+const compiler = read('src/report/fullReportCompilerV3.ts');
+const semanticHtml = read('src/report/semanticHtmlReportV5.ts');
+const definitionPolicy = read('src/report/structuredDefinitionPolicy.ts');
+const domSafety = read('src/report/reportDomSafety.ts');
 const pagePlan = read('src/lib/installPhase6PagePlanV2.ts');
-const researchTemplate = read('src/report/researchContentTemplate.ts');
-const slotRules = read('src/report/researchSlotPrompt.ts');
 const apiCompiler = read('src/lib/geminiCompiler.ts');
 const bridge = read('src/lib/installFullReportPhase6Bridge.ts');
 const runtime = read('src/lib/installFullReportRuntimeCompatibility.ts');
@@ -34,8 +35,7 @@ check(compiler.includes('11 Competitive Landscape'), 'Landscape page missing.');
 check(compiler.includes('17 Category Clichés'), 'Category Clichés page missing.');
 check(compiler.includes('34 Creative Insight'), 'Creative Insight page missing.');
 check(compiler.includes('40 Decision Receipt / Close'), 'Decision Close page missing.');
-check(compiler.includes('IMMUTABLE APPROVED BASE HTML — START'), 'Approved Base HTML marker missing.');
-check(compiler.includes('assertApprovedFullReportHtml'), 'HTML validator missing.');
+check(compiler.includes('loadApprovedPilotBaseHtml'), 'Approved 40-page base capture missing.');
 
 check(pagePlan.includes('focus3-main40-no-appendix-v3'), '40-page page-plan version missing.');
 check(pagePlan.includes("'comp-landscape'"), 'Landscape not retained in page plan.');
@@ -45,24 +45,42 @@ check(pagePlan.includes("'decision-close'"), 'Decision Close not promoted to pag
 check(!pagePlan.includes("'creative-method'"), 'Creative Methodology remains in the output plan.');
 check(pagePlan.includes("dataset.reportAppendixCount = '0'"), 'Appendix count must be zero.');
 
-check(researchTemplate.includes('const PAGE_COUNT = 40'), 'Research template page count must be 40.');
-check(researchTemplate.includes("13: 'deep-dive-1'"), 'Core competitor Deep Dive mapping missing.');
-check(researchTemplate.includes("32: 'creative-history-3'"), 'Core competitor Creative History mapping missing.');
-check(slotRules.includes('Competitive Landscape'), 'Landscape prompt contract missing.');
-check(slotRules.includes('top three'), 'Core-three prompt contract missing.');
-check(slotRules.includes('~한다'), 'Declarative consulting tone missing.');
+check(semanticHtml.includes('Return one complete standalone HTML document, not JSON.'), 'Complete HTML output contract missing.');
+check(semanticHtml.includes('[STEP 0–5 RESEARCH — SOURCE OF TRUTH]'), 'Step 0–5 research block missing.');
+check(
+  semanticHtml.indexOf('[STEP 0–5 RESEARCH — SOURCE OF TRUTH]')
+    < semanticHtml.indexOf('[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — START]'),
+  'Step 0–5 research must appear before the large HTML template.',
+);
+check(semanticHtml.includes('[[FIELD:${key}]]'), 'Semantic field token generation missing.');
+check(semanticHtml.includes('compileSemanticHtmlReportV5'), 'Semantic HTML compiler missing.');
+check(semanticHtml.includes('sanitizeCompatibleFullReportHtml'), 'Active-content sanitizer missing.');
+check(semanticHtml.includes('computeReportDomFingerprint'), 'Approved DOM fingerprint validation missing.');
+check(semanticHtml.includes('renderSemanticReportV4'), 'Approved DOM reassembly missing.');
+check(semanticHtml.includes("dataset.contentContract = 'semantic-html-v5'"), 'Semantic HTML output marker missing.');
+
+check(definitionPolicy.includes('GENERIC_ORDER_FIELD'), 'Generic order field guard missing.');
+check(definitionPolicy.includes('jtbd.row'), 'JTBD semantic role mapping missing.');
+check(domSafety.includes("querySelectorAll('script,noscript,base')"), 'Script sanitizer missing.');
+check(domSafety.includes('FULL_REPORT_PAGE_COUNT = 40'), 'DOM safety page count must be 40.');
 
 for (const source of [apiCompiler, bridge]) {
   check(source.includes('loadApprovedPilotBaseHtml'), 'A Phase 6 path does not load the approved Pilot.');
-  check(source.includes('buildFullReportHtmlPrompt'), 'A Phase 6 path does not use the HTML prompt.');
-  check(source.includes('extractCompleteFullReportHtml'), 'A Phase 6 path does not import complete HTML.');
-  check(source.includes('assertApprovedFullReportHtml'), 'A Phase 6 path does not validate complete HTML.');
-  check(!source.includes('assembleFullReportHtml'), 'A Phase 6 path still uses JSON assembly.');
+  check(source.includes('createSemanticHtmlTemplateV5'), 'A Phase 6 path does not create the semantic HTML template.');
+  check(source.includes('buildSemanticHtmlPromptV5'), 'A Phase 6 path does not use the complete HTML prompt.');
+  check(source.includes('compileSemanticHtmlReportV5'), 'A Phase 6 path does not validate and compile returned HTML.');
+  check(!source.includes('createResearchOnlyLayoutTemplate'), 'A Phase 6 path still uses ordinal CONTENT SLOT generation.');
+  check(!source.includes('addResearchSlotRules'), 'A Phase 6 path still uses ordinal slot prompt rules.');
+  check(!source.includes('extractProductionReportJson'), 'A Phase 6 path exposes JSON as the external result.');
 }
+
+check(bridge.includes('완성 HTML 프롬프트 다운로드'), 'User-facing complete HTML action missing.');
+check(bridge.includes('phase6_complete_html_prompt_'), 'Complete HTML prompt filename missing.');
+check(!bridge.includes('structured-json'), 'JSON input mode remains in the user workflow.');
 
 check(runtime.includes('FULL_REPORT_PAGE_COUNT = 40'), 'Native PDF preflight must use 40 pages.');
 check(pdfBridge.includes('FULL_PAGE_COUNT = 40'), 'PDF button bridge must use 40 pages.');
 check(main.includes('installFullReportPhase6Bridge()'), 'Phase 6 HTML bridge not installed.');
 check(main.includes('installPhase6PagePlanV2()'), 'Restored Phase 6 page plan not installed.');
 
-console.log('FULL report contract PASS: approved 40-page Main Deck uses Landscape-to-core-three logic and no Appendix.');
+console.log('FULL report contract PASS: complete semantic HTML, 40 Main pages, zero Appendix, no ordinal slot or external JSON path.');
