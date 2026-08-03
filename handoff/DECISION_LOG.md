@@ -41,11 +41,11 @@
 - Step 3: one core consumer Brief → `friction-flow`; `implementationStatus: planned`; `metrics: []`
 - Step 5: one final strategy Brief → `choice-architecture`; `implementationStatus: planned`; `metrics: []`
 
-## D-007 — Approved Pilot is structure, not sample content
+## D-007 — Approved Pilot owns structure, not sample content
 
-**Decision:** The approved Pilot provides DOM, CSS, component, order, navigation, and print structure only. Completed Biznup wording is never a generated-report content source.
+**Decision:** The approved Pilot provides DOM, CSS, component hierarchy, order, navigation, and print structure only. Completed Biznup wording is never a generated-report content source.
 
-**Implementation:** Sample text becomes `CONTENT SLOT` tokens filled only from current Step 0–5 research. Unresolved slots block rendering.
+**Current implementation:** Variable content is bound to stable semantic `data-report-field` keys. External AI values are validated and reassembled into the approved DOM. Text-node-order `CONTENT SLOT` mapping is superseded and prohibited.
 
 ## D-008 — Exact user brand is immutable
 
@@ -60,8 +60,8 @@
 - Page 40 is Decision Receipt / Close.
 - Every slide uses logical 1280×720 geometry.
 - PDF MediaBox is 960×540pt.
-- Historical D-013/D-018 40+8 and 48-page rules are superseded.
-- Creative Methodology and Appendix A1–A7 are excluded from the approved output.
+- Historical 40+8 and 48-page rules are superseded.
+- Creative Methodology and Appendix A1–A7 are excluded.
 
 ## D-010 — Candidate-five to core-three competitor logic
 
@@ -71,22 +71,17 @@
 - Page 12 Threat Ranking selects the core three when three supported candidates exist.
 - Pages 13–15, 16, 18, 30–32, and 33 use the same core-three set in ranking order.
 - Never invent competitors to fill capacity.
+- Explicit unused rows may be hidden rather than rendered as a false competitor.
 
-**Reason:** A broad Landscape supports defensible selection, while three core competitors preserve report focus and restore the approved logic.
+## D-011 — Restore strategic bridge pages
 
-## D-011 — Restore the missing strategic bridge pages
+**Decision:** Competitive Landscape, Category Clichés, and Creative Insight remain in the Main Deck.
 
-**Decision:** Restore these pages to the Main Deck:
-
-- Competitive Landscape
-- Category Clichés
-- Creative Insight
-
-**Reason:** Removing them to accommodate competitors 4–5 broke the logical sequence from category scan → selection → differentiation → strategy.
+**Reason:** They preserve the sequence category scan → competitor selection → differentiation → strategy.
 
 ## D-012 — Fixed 40-page plan
 
-**Decision:** Use the following exact sequence:
+**Decision:** Use this exact sequence:
 
 1. Cover
 2. 핵심 진단
@@ -141,8 +136,6 @@
 
 **Decision:** Titles, conclusions, body judgments, and SO WHAT statements use decisive Korean endings such as `~한다`, `~이다`, `~다`.
 
-**Rule:** Avoid `~합니다`, `~입니다`, `~됩니다`, and `~해야 합니다` except verified quotations or fixed UI labels.
-
 ## D-015 — Final Choice composition
 
 **Decision:** Page 39 retains the approved two-column composition:
@@ -156,12 +149,12 @@ Generic full-width or stacked choice layouts are invalid.
 
 **Decision:** Phase 6 FULL reports use Chromium native print after blocking preflight, not full-page JPEG conversion.
 
-**Current acceptance:**
+**Acceptance:**
 
 - exactly 40 pages
 - all pages `data-zone="main"`
 - 960×540pt MediaBox
-- embedded Pretendard fonts
+- embedded font objects
 - no full-page 2560×1440 raster rows
 - same HTML in Viewer, saved project, reopened project, and PDF
 
@@ -169,37 +162,96 @@ Generic full-width or stacked choice layouts are invalid.
 
 **Decision:** Legacy `.slide-wrapper > .slide` printing never owns a Phase 6 FULL `.full-slide` report.
 
-**Implementation:**
-
-- install FULL runtime before Legacy guard
-- retain browser-native print
-- route visible `Export PDF`, Windows `Ctrl+P`, and macOS `Cmd+P` to the active FULL Viewer iframe
-- show clear guidance when no FULL report exists
-
 ## D-018 — Actual-button PDF E2E is mandatory
 
 **Decision:** PDF completion requires the actual app journey:
 
 - visible Export PDF button
 - active Viewer iframe
-- first export
-- second consecutive export
-- `Ctrl+P`
-- `Cmd+P`
-- save → reload → reopen → export
-- page count, dimensions, fonts, raster structure, overflow, navigation, persistence
+- first and second consecutive exports
+- `Ctrl+P` and `Cmd+P`
+- save → reload → reopen
+- page count, dimensions, fonts, raster structure, overflow, navigation, and persistence
 
-Helper tests, standalone HTML, or successful deployment alone are insufficient.
+Successful deployment or helper-only tests are insufficient.
 
-## D-019 — Current implementation record
+## D-019 — External AI returns complete HTML, never JSON
+
+**Decision:** The owner-approved external workflow is:
+
+`Step 0–5 → complete HTML prompt → external AI complete 40-page HTML → app validation and approved-DOM reassembly`.
+
+**Consequences:**
+
+- `Return JSON only` and `Never return HTML` are prohibited in the external Phase 6 prompt.
+- PR #21 and PR #23 JSON-only external workflows are superseded audit records.
+- A JSON workflow may not be hidden behind generic UI labels.
+- Internal validation objects do not change the user-facing HTML input/output contract.
+
+## D-020 — Semantic fields replace text-order slots
+
+**Decision:** Variable content uses stable role-based keys, not DOM text order.
+
+Examples:
+
+- `comp-ranking.rank1.name`
+- `persona-1.realJob`
+- `aipl.stage3.action`
+- `strategy-choice.winningMove`
+
+**Rules:**
+
+- `[[FIELD:semantic.key]]` exists only in the exported authoring template.
+- Every field token must be replaced before import.
+- Returned field set and approved field set must match exactly.
+- Generic `.contentN` and `[[CONTENT:Pxx:TAG:nnn]]` mappings are invalid.
+- External DOM/CSS is not trusted; validated values are moved into the approved DOM.
+
+## D-021 — Rich text uses safe HTML, not literal bracket notation
+
+**Decision:** Rich fields may contain only `<mark>` and `<br>` descendants. All other fields are plain text.
+
+**Reason:** `[[important phrase]]` was rendered literally in a real external-AI result.
+
+**Blocking rule:** Any unresolved `[[FIELD:...]]`, `[[POSITION:...]]`, or literal `[[...]]` in the compiled report is an error.
+
+## D-022 — P18 Positioning requires semantic coordinates
+
+**Decision:** P18 labels and point geometry are both data-driven.
+
+- Axis poles are defensible Step 2 attributes, not literal axis labels.
+- Target labels normalize to `<brand> AS-IS · ...` and `<brand> TO-BE · ...`.
+- Ten position values cover core competitors 1–3 and target AS-IS/TO-BE.
+- x=0 left, x=100 right; y=0 top, y=100 bottom.
+- Coordinates are integers 0–100.
+- AS-IS and TO-BE must show meaningful movement.
+- Applied positions are stored in DOM data attributes for validation and persistence.
+
+**Reason:** A real result changed axis wording while leaving all points at sample coordinates.
+
+## D-023 — Creative History status codes are canonical
+
+**Decision:** Stored and rendered status values are exactly:
+
+- `verified-verbatim`
+- `source-found-copy-unverified`
+- `not-found`
+
+**Compatibility:** Common humanized variants such as `VERIFIED`, `COPY UNVERIFIED`, and `NOT FOUND` may be normalized on import, but new prompts demand canonical values.
+
+## D-024 — Current implementation record
 
 **Decision:** Continue only on:
 
-- branch `fix/phase6-approved-main40-no-appendix-v3`
-- Draft PR #20
+- branch `fix/phase6-main40-final-html-semantic-v5`
+- Draft PR #24
 
-**Validated head:** `7d94b1895c47e9db7268c9d181060e0a735c1d9b`
+**Validated product/E2E head:** `64a80282e82948229392330c055be5404dc90805`
 
-**Validation:** Production build PASS; Phase 6 browser/PDF E2E PASS. Vercel deployment is temporarily blocked by account build-rate limiting, not by code failure.
+**Validation:** Production build PASS; browser/PDF E2E PASS; Vercel Ready; E2E screenshots and all 40 PDF page renders inspected.
 
-**Superseded:** PR #18 and PR #19. Do not merge them.
+**Preview:** `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
+
+**Approval:** Keep Draft and do not merge until explicit owner approval.
+
+**Superseded:** PR #18–#23. Do not merge them.
