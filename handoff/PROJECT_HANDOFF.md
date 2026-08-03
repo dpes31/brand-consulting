@@ -6,13 +6,15 @@
 - Production branch: `main`
 - Production commit before this work: `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`
 - Production URL: `https://brand-consulting.vercel.app/`
-- Active branch: `fix/phase6-approved-main40-no-appendix-v3`
-- Draft PR: #20 `Restore approved 40-page report structure without Appendix`
-- Current validated head: `7d94b1895c47e9db7268c9d181060e0a735c1d9b`
+- Active branch: `fix/phase6-main40-final-html-semantic-v5`
+- Draft PR: #24 `Restore Phase 6 complete HTML output with semantic field locking`
+- Validated product/E2E head before documentation: `64a80282e82948229392330c055be5404dc90805`
+- Latest documentation sequence begins at `c05868dcc194eda701da515d08516ef69295ab6a`
 - Production build/contracts: PASS
 - Phase 6 browser/PDF E2E: PASS
-- Current Vercel deployment is blocked only by the account build-rate limit. A new Preview URL is not yet available for this head.
-- Preview-first only. Do not merge PR #20 without explicit owner approval after authenticated Preview review.
+- Vercel deployment: Ready
+- Preview URL: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
+- Preview-first only. Keep PR #24 Draft and do not merge without explicit owner approval.
 - Immutable rollback branches:
   - `backup/main-before-full-report-v1-2026-07-01`
   - `backup-production-stable-20260622`
@@ -20,6 +22,7 @@
 
 ## Owner-approved output contract
 
+- External AI final output: one complete standalone HTML document, not JSON
 - Main Deck: exactly 40 pages
 - Appendix: 0 pages
 - Page 40: Decision Receipt / Close
@@ -37,14 +40,53 @@
 The normal `/` application flow is:
 
 `Step 0–5 research`
-→ `approved Pilot DOM/CSS capture after the 40-page transform is ready`
-→ `sample content neutralized into CONTENT SLOT tokens`
-→ `external AI or internal API fills every slot from current research`
-→ `blocking validation`
-→ `40-page standalone HTML`
+→ `complete HTML writing prompt download`
+→ `external AI fills stable semantic fields and P18 coordinates`
+→ `external AI returns one complete 40-page HTML`
+→ `Phase 6 paste`
+→ `active-content sanitization`
+→ `approved-DOM fingerprint and semantic validation`
+→ `cross-page competitor/brand/persona validation`
+→ `P18 axis and coordinate validation`
+→ `validated values reassembled into the approved DOM`
 → `Viewer / save / reopen / Export PDF`
 
-The Pilot is a layout source only. Its Biznup conclusions, figures, competitors, personas, Creative History, sources, SWOT, STP, and strategy are removed before the Phase 6 prompt is exported. Connector glyphs remain fixed symbols and are not content slots.
+The Pilot is a layout source only. External AI DOM/CSS changes are never trusted as final structure. The app reads validated semantic values from the returned HTML, then reconstructs the report in the approved 40-page DOM.
+
+## Semantic field contract
+
+- Stable content keys use `data-report-field`, for example:
+  - `comp-ranking.rank1.name`
+  - `persona-1.realJob`
+  - `aipl.stage3.action`
+  - `strategy-choice.winningMove`
+- Text-node-order fields and `[[CONTENT:Pxx:TAG:nnn]]` are forbidden in the current workflow.
+- Prompt placeholders use `[[FIELD:semantic.key]]`; all must be replaced before import.
+- Rich fields permit only `<mark>` and `<br>`.
+- Plain text, source, and status fields permit no child markup.
+- Literal `[[...]]` highlight notation is rejected.
+- Scripts, event handlers, JavaScript URLs, refresh redirects, forms, embeds, and autoplay media are removed or rejected.
+- The final DOM fingerprint must match the approved 40-page component structure.
+
+## P18 Positioning contract
+
+P18 is now data-driven rather than sample-position-driven.
+
+- Axis labels are semantic fields grounded in Step 2.
+- Axis poles must be meaningful, distinct attributes; literal `X축`, `Y축`, `좌`, `우`, `상`, and `하` are invalid.
+- Target labels are normalized to:
+  - `<brand> AS-IS · <description>`
+  - `<brand> TO-BE · <description>`
+- Ten coordinate tokens are included for:
+  - core competitors 1–3 x/y
+  - target AS-IS x/y
+  - target TO-BE x/y
+- Coordinate system:
+  - x=0 left, x=100 right
+  - y=0 top, y=100 bottom
+- All values are integers from 0 to 100.
+- AS-IS and TO-BE must show a meaningful visual movement.
+- Compiled positions are stored as inline `left/top`, `data-position-x/y`, and `data-positioning-coordinate-contract="semantic-0-100-v1"`.
 
 ## Approved candidate-five to core-three competitor flow
 
@@ -57,6 +99,7 @@ The Pilot is a layout source only. Its Biznup conclusions, figures, competitors,
   - pages 30–32 Competitor Creative History 1–3
   - page 33 Message Trajectory
 - A fourth or fifth core competitor is never invented.
+- Explicit unused rows such as `추가 후보 없음` are hidden in the compiled report.
 
 ## Fixed 40-page plan
 
@@ -95,57 +138,73 @@ The Pilot is a layout source only. Its Biznup conclusions, figures, competitors,
 39. Final Choice
 40. Decision Receipt / Close
 
-Removed from the output:
+Excluded:
 
 - Creative Methodology
 - Appendix A1–A7
 - competitor 4–5 Deep Dive pages
 - competitor 4–5 Creative History pages
 
-## Page-specific locks
-
-- Page 2 label: `핵심 진단`
-- Page 4 label: `FACTS`
-- Page 5 label: `CATEGORY & TARGET`
-- Page 9 strategic implication type is at least the page-number size
-- Page 10 chapter: `CATEGORY SHIFT`; levels: `LEVEL 1`–`LEVEL 5`
-- Persona pages retain the approved Situation / JTBD / identity-shift grammar and reuse page 21 target names
-- Persona indices `02` and `03` stay on one line
-- Pain Points, AIPL, Creative Insight, STP, and Four Strategic Directions retain the approved structures
-- Creative History uses the centered six-year system without decorative NOW circles
-- Page 39 retains the two-column Selection Criteria / Final Choice composition
-
 ## Blocking validation
 
 Phase 6 rejects a report when:
 
-- any `CONTENT SLOT` remains unresolved;
+- any `[[FIELD:...]]` or `[[POSITION:...]]` token remains;
+- literal `[[...]]` highlight syntax remains;
+- a field contains disallowed child HTML;
+- the returned semantic-field set differs from the approved set;
+- the approved DOM fingerprint changes;
 - the report does not contain exactly 40 `.full-slide` pages;
 - any page uses a zone other than `main`;
-- any Appendix page remains;
-- page IDs or labels are missing or duplicated;
-- Competitive Landscape, Category Clichés, Creative Insight, Final Choice, or Decision Close is missing;
-- Creative Methodology remains;
+- any Appendix or Creative Methodology page remains;
+- page IDs, order, or required structures differ;
 - the exact user-entered brand name is absent;
-- Step 0 FACTS evidence is insufficient;
-- Landscape candidates or the Threat Ranking core three are missing from their assigned pages;
-- an unapproved script is included.
+- P12 core competitor names are invalid, duplicated, or inconsistent downstream;
+- Persona, JTBD, AIPL, STP, routes, or Final Choice contain structural labels instead of meaning;
+- P18 target labels, axes, coordinates, or movement are invalid;
+- Creative History status is outside the canonical values;
+- an unapproved script or active element is included.
+
+## Real-world defects closed in PR #24
+
+The owner-provided Biznup external-AI result exposed these defects; all are now regression-covered:
+
+1. P18 AS-IS/TO-BE descriptions omitted the exact brand and state labels.
+2. `[[important phrase]]` appeared literally in rendered pages.
+3. P18 axis labels changed but brand dots remained at sample coordinates.
+4. Creative History statuses were humanized as `VERIFIED`, `COPY UNVERIFIED`, and `NOT FOUND`.
+5. `추가 후보 없음` appeared as a visible competitor row.
+6. Earlier E2E asserted stale prompt copy instead of the actual HTML workflow.
+
+Corrections:
+
+- automatic brand/state normalization for P18;
+- `<mark>` authoring contract and final literal-bracket rejection;
+- ten semantic P18 coordinate values and applied map positions;
+- status normalization to canonical codes;
+- unused candidate-row hiding;
+- E2E coverage of the exact failure modes.
 
 ## Current validation evidence
 
-Validated against a non-Biznup brand `모노랩` with five candidates and three selected core competitors.
+Validated with non-Biznup brand `모노랩`, five Landscape candidates, three selected core competitors, deliberate unsafe script injection, humanized Creative History statuses, a rich-text `<mark>`, and custom P18 coordinates.
 
-- Production build and report contracts: PASS
+- Production build/contracts: PASS
+- Browser/PDF E2E: PASS
 - Exact pages: 40
 - Navigation links: 40
 - Appendix pages: 0
 - Required order and IDs: PASS
-- Candidate-five Landscape: PASS
-- Same core-three downstream set: PASS
-- Exact user brand in navigation and report: PASS
-- Page 9 type-size requirement: 12px vs 12px PASS
-- Persona 02/03 nowrap: PASS
-- History decorative NOW elements: 0
+- No generic order fields: PASS
+- No unresolved `[[...]]`: PASS
+- Script removal: PASS
+- Exact user brand: PASS
+- Candidate-five / core-three propagation: PASS
+- P18 axis contract: PASS
+- P18 custom coordinates applied: PASS
+- P18 AS-IS/TO-BE brand labels normalized: PASS
+- Creative History status normalization: PASS
+- `<mark>` highlight rendered: PASS
 - Logical geometry: all pages 1280×720
 - Overflow: 0 pages
 - Actual `Export PDF` button: PASS
@@ -153,15 +212,19 @@ Validated against a non-Biznup brand `모노랩` with five candidates and three 
 - Windows `Ctrl+P`: PASS
 - macOS `Cmd+P`: PASS
 - Native PDF: 40 pages, 960×540pt
-- Embedded Pretendard font objects: 6
+- Embedded font objects: PASS
 - Full-page raster rows: 0
 - Save → reload → reopen: 40 pages PASS
 - Material Symbols cold-load regression: PASS
+- PDF preflight: no warnings
+- E2E screenshots and all 40 rendered PDF pages visually inspected
 
-Evidence artifact for head `7d94b1895c47e9db7268c9d181060e0a735c1d9b`:
+Evidence:
 
-- Workflow: `Phase 6 PDF Runtime E2E` run 261
-- Artifact: `phase6-pdf-runtime-evidence` ID `8140150404`
+- Product/E2E head: `64a80282e82948229392330c055be5404dc90805`
+- Workflow: `Phase 6 PDF Runtime E2E` run `30799168241`
+- Artifact: `phase6-pdf-runtime-evidence` ID `8850131424`
+- Vercel deployment: `GNQ2CvgR72wcmtuHDc1JrWft4hHS`
 
 ## PDF runtime boundary
 
@@ -208,15 +271,23 @@ A FULL report never enters the Legacy selector. The visible `Export PDF` button,
 ## Creative History factuality
 
 - Target brand and each core competitor retain independent 2021–2026 pages.
-- Allowed statuses:
+- Canonical statuses:
   - `verified-verbatim`
   - `source-found-copy-unverified`
   - `not-found`
+- Import compatibility normalizes common humanized variants.
 - Only verified-verbatim copy may use quotation marks.
 - Message Trajectory and Strategic So What remain mandatory.
 
-## Excluded experiments
+## Excluded or superseded implementations
 
 - `feature-visualization-engine-v1` / PR #6: failed audit implementation; never merge
 - PR #8, #9, #10: superseded experiments; never restore
-- PR #18 and PR #19: superseded branch-transfer attempts for this Main40 task; do not merge
+- PR #18, #19, #20: superseded Main40 branch attempts; do not merge
+- PR #21: JSON-only external workflow; superseded
+- PR #22: HTML restoration with obsolete 48-page contract; superseded
+- PR #23: 40-page but JSON-only external workflow hidden behind generic labels; superseded
+
+## Remaining approval gate
+
+Technical implementation and automated/visual QA are complete on the Draft branch. The only remaining gate is owner review of the Ready Vercel Preview. Do not merge `main` until the owner explicitly approves.
