@@ -12,19 +12,43 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Preserve validated and audit branches.
 - `feature-visualization-engine-v1` and PR #6 are failed audit records and must not be merged.
 - Do not restore discarded implementations from PR #8, #9, or #10.
+- PR #21, #22, and #23 are superseded Phase 6 audit records. Do not merge or restore their JSON-only external workflow.
 - Preserve `public/template.html` as the Legacy rollback asset. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
 
 ## Current checkpoint
 
 - Production branch: `main`
 - Production commit before this work: `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`
-- Active branch: `fix/phase6-approved-main40-no-appendix-v3`
-- Draft PR: `#20 Restore approved 40-page report structure without Appendix`
-- Current validated head: `7d94b1895c47e9db7268c9d181060e0a735c1d9b`
+- Active branch: `fix/phase6-main40-final-html-semantic-v5`
+- Draft PR: `#24 Restore Phase 6 complete HTML output with semantic field locking`
+- Current validated head before documentation: `64a80282e82948229392330c055be5404dc90805`
 - Production build/contracts: PASS
 - Phase 6 browser/PDF E2E: PASS
-- Vercel deployment for the current head is temporarily blocked by the account build-rate limit, not by a product build failure.
-- Keep PR #20 Draft and do not merge to `main` before owner Preview approval.
+- Vercel Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
+- Vercel deployment status: Ready
+- Keep PR #24 Draft. Do not merge to `main` before explicit owner Preview approval.
+
+## Owner-approved Phase 6 flow
+
+`Step 0–5 research`
+→ `complete HTML writing prompt download`
+→ `external AI returns one complete standalone 40-page HTML document`
+→ `Phase 6 paste`
+→ `active-content sanitization`
+→ `semantic-field, cross-page, positioning, and approved-DOM validation`
+→ `approved DOM reassembly`
+→ `Viewer / save / reopen / native PDF`
+
+External AI output is HTML, not JSON. Do not relabel a JSON workflow as HTML.
+
+## Semantic HTML contract
+
+- Variable report content uses stable `data-report-field` keys such as `comp-ranking.rank1.name`, not text-node order or `[[CONTENT:Pxx:TAG:nnn]]` slots.
+- Prompt template tokens use `[[FIELD:semantic.key]]` only as authoring placeholders. Every token must be replaced before import.
+- Rich fields permit only `<mark>` and `<br>` descendants. Plain text, source, and status fields permit no child HTML.
+- Literal `[[...]]` highlight syntax is prohibited in the returned or compiled HTML.
+- External CSS, DOM changes, IDs, classes, navigation changes, and page reordering are not trusted. Only validated semantic values and P18 coordinates are transferred into the approved DOM.
+- Scripts, event handlers, JavaScript URLs, refresh redirects, and active form/media content are removed or rejected.
 
 ## Product invariants
 
@@ -35,10 +59,10 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Use Pretendard; major titles use weight 900.
 - Preserve Korean word units with `word-break: keep-all`.
 - Preserve the exact user-entered brand name without translation or romanization.
-- Do not invent figures, dates, models, scores, axes, sources, competitors, or copy.
+- Do not invent figures, dates, models, scores, axes, coordinates, sources, competitors, or copy.
 - Only `verified-verbatim` advertising copy may use quotation marks.
 - Do not expose raw source URLs in final reports.
-- Titles, body judgments, and SO WHAT statements use decisive Korean declarative endings such as `~한다`, `~이다`, `~다`; avoid explanatory polite endings except verified quotations or fixed UI labels.
+- Titles, judgments, and SO WHAT statements use decisive Korean endings such as `~한다`, `~이다`, `~다`.
 
 ## Approved competitor logic
 
@@ -46,7 +70,7 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Page 12 Threat Ranking selects the core three when three supported candidates exist.
 - Pages 13–15 Deep Dive, page 16 Product Matrix, page 18 Positioning, pages 30–32 Competitor Creative History, and page 33 Message Trajectory use the same core-three set in ranking order.
 - Never invent a fourth or fifth core competitor.
-- Unsupported candidates remain evidence gaps.
+- If an unused candidate row is explicitly `추가 후보 없음`, `없음`, or `not-found`, hide it in the compiled report.
 
 ## Fixed 40-page plan
 
@@ -85,7 +109,7 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 39. Final Choice
 40. Decision Receipt / Close
 
-Creative Methodology and Appendix A1–A7 are not part of the approved output.
+Creative Methodology and Appendix A1–A7 are excluded.
 
 ## Page grammar locks
 
@@ -98,12 +122,35 @@ Creative Methodology and Appendix A1–A7 are not part of the approved output.
 - Persona titles reuse the three target names stated on page 21 CORE TARGET.
 - Persona indices `02` and `03` stay on one line.
 - Page 26 retains `Pain / 현재 문제 / Unmet Need / 우선순위`.
-- Page 27 retains the approved AIPL friction-flow and avoids unnecessary English.
-- Creative History uses the approved centered six-year system and does not add decorative NOW circles.
-- Page 34 retains the approved Current Copy / Missing Character Creative Insight comparison; connector glyphs remain symbols, never prose.
+- Page 27 retains the approved AIPL friction-flow.
+- Creative History uses the approved centered six-year system without decorative NOW circles.
+- Page 34 retains Current Copy / Missing Character; connector glyphs remain symbols.
 - Page 37 retains `Segmentation → Targeting → Positioning`.
-- Page 38 retains four alternatives labelled A/B/C/D and the approved 차별/확장/실행 comparison.
-- Page 39 retains the approved two-column Selection Criteria / Final Choice composition.
+- Page 38 retains A/B/C/D and 차별/확장/실행 comparison.
+- Page 39 retains the two-column Selection Criteria / Final Choice composition.
+
+## P18 Positioning contract
+
+- Axis poles are generated from defensible Step 2 attributes, never literal `X축`, `Y축`, `좌`, `우`, `상`, or `하`.
+- `positioning.targetAsIs` must resolve to `<exact brand> AS-IS · <description>`.
+- `positioning.targetToBe` must resolve to `<exact brand> TO-BE · <description>`.
+- Position tokens use ten `[[POSITION:...]]` values for the core three, target AS-IS, and target TO-BE.
+- Coordinate system: x=0 left, x=100 right, y=0 top, y=100 bottom.
+- Coordinates must be integers from 0 through 100.
+- Target AS-IS and TO-BE must have a meaningful visual movement distance.
+- The compiled DOM stores the applied values in `data-position-x`, `data-position-y`, and `data-positioning-coordinate-contract="semantic-0-100-v1"`.
+
+## Creative History factuality
+
+- Target brand and each core competitor retain independent 2021–2026 pages.
+- Canonical statuses:
+  - `verified-verbatim`
+  - `source-found-copy-unverified`
+  - `not-found`
+- Import compatibility normalizes `VERIFIED`, `COPY UNVERIFIED`, and `NOT FOUND` to the canonical values.
+- Only verified-verbatim copy may use quotation marks.
+- Preserve Message Trajectory and Strategic So What.
+- Dark Creative History pages retain dark paper and readable foreground.
 
 ## Validated Visual Intent contracts
 
@@ -111,39 +158,6 @@ Creative Methodology and Appendix A1–A7 are not part of the approved output.
 - Step 2: Candidate Landscape → Threat Ranking → core three; Product Matrix uses `feature-matrix`; Positioning is used only when common axes are defensible.
 - Step 3: exactly one core consumer-decision Brief; accepted recipe `friction-flow`; `implementationStatus: planned`; `metrics: []`.
 - Step 5: exactly one final strategy-decision Brief; accepted recipe `choice-architecture`; `implementationStatus: planned`; `metrics: []`.
-- Step 3 and Step 5 prompt-copy guards restore the complete contract immediately before prompt copy.
-
-## Approved report architecture
-
-- Route: `/?pilot=full-integrated&brand=<exact user-entered brand>`.
-- Phase 6 captures the approved Pilot after the 40-page transform is ready.
-- Sample report text is neutralized into `[[CONTENT:...]]` slots.
-- External AI or the internal API fills slots only from current Step 0–5 research.
-- External AI returns one complete standalone HTML document, not JSON.
-- Connector slots are locked to short visual symbols.
-- Viewer, saved project, reopened project, and PDF use the same FULL HTML.
-
-Production flow:
-
-`Step 0–5 research → approved Pilot DOM capture → research-only CONTENT SLOT shell → complete 40-page HTML → blocking validation → Viewer / save / reopen / Export PDF`
-
-## Creative History factuality
-
-- Target brand and each of the core three competitors retain independent 2021–2026 Creative History pages.
-- Allowed statuses:
-  - `verified-verbatim`
-  - `source-found-copy-unverified`
-  - `not-found`
-- Preserve Message Trajectory and Strategic So What.
-- Dark Creative History pages retain dark paper and readable foreground.
-
-## Material Symbols first-paint rule
-
-- Material Symbols ligature strings must never appear before the icon font loads.
-- Reserve a fixed icon box from first paint.
-- Keep `.material-symbols-outlined` hidden until `document.fonts.check(...)` confirms readiness.
-- Install the readiness guard before React renders.
-- Preserve the cold-load E2E that delays the icon font and verifies zero ligature flash and zero button movement.
 
 ## PDF runtime boundary and acceptance
 
@@ -151,17 +165,17 @@ Production flow:
 - Phase 6 FULL reports use `.full-slide`, `installFullReportRuntimeCompatibility`, and browser-native print.
 - Install the FULL runtime before the Legacy layout/PDF guard.
 - Never pass a FULL report to the Legacy selector.
-- The visible `Export PDF` button, Windows `Ctrl+P`, and macOS `Cmd+P` converge on the same active Viewer iframe and native-print path.
-- Preserve actual-button browser E2E with two consecutive exports and save → reload → reopen → export.
-- Preflight must pass exactly 40 `.full-slide` pages, all `data-zone="main"`.
+- Visible `Export PDF`, Windows `Ctrl+P`, and macOS `Cmd+P` converge on the active Viewer iframe and native-print path.
+- Preserve actual-button browser E2E with two consecutive exports and save → reload → reopen.
+- Preflight requires exactly 40 `.full-slide` pages, all `data-zone="main"`.
 - PDF MediaBox is 960×540pt.
 - Embedded font objects must be present.
 - No full-page 2560×1440 raster rows are allowed.
-- Do not declare a PDF task complete without satisfying `docs/PDF_EXPORT_E2E_STANDARD.md`.
+- Do not declare visual completion without inspecting E2E screenshots and rendered PDF pages.
 
 ## Documentation
 
-Update these whenever architecture, branch state, report contracts, or rollback procedures change:
+Update these whenever architecture, branch state, report contracts, validation, or rollback procedures change:
 
 - `AGENTS.md`
 - `handoff/PROJECT_HANDOFF.md`
