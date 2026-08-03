@@ -104,6 +104,7 @@ function semanticValue(key) {
   }
 
   if (/^aipl\.stage\d+\.(action|evidence|state)$/.test(key)) return '근거를 확인하고 다음 행동으로 이동한다';
+  if (/^comp-ranking\.rank[1-3]\.evidence$/.test(key)) return '공식자료·외부DB';
   if (/^comp-ranking\.rank[1-3]\.(penetration|growth|preference|campaign|inflection|total)$/.test(key)) return '85';
   if (/\.(score|rating|value)$/.test(key)) return '85';
   if (/\.title$/.test(key)) return `${brand}의 핵심 전략 판단`;
