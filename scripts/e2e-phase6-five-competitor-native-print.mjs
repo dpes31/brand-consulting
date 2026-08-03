@@ -22,6 +22,19 @@ steps[2] += `\n${candidates.map((name, index) => `${index + 1}. **${name} — ${
 const startMarker = '[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — START]';
 const endMarker = '[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — END]';
 const tokenPattern = /\[\[FIELD:([a-z0-9.-]+)\]\]/gi;
+const positionPattern = /\[\[POSITION:([a-z0-9.-]+)\]\]/gi;
+const coordinates = {
+  'positioning.competitor1.x': 20,
+  'positioning.competitor1.y': 72,
+  'positioning.competitor2.x': 58,
+  'positioning.competitor2.y': 42,
+  'positioning.competitor3.x': 74,
+  'positioning.competitor3.y': 78,
+  'positioning.targetAsIs.x': 38,
+  'positioning.targetAsIs.y': 55,
+  'positioning.targetToBe.x': 85,
+  'positioning.targetToBe.y': 18,
+};
 
 function semanticValue(key) {
   const candidate = key.match(/^comp-landscape\.candidate([1-5])\.name$/);
@@ -38,8 +51,8 @@ function semanticValue(key) {
 
   const mapName = key.match(/^positioning\.competitor([1-3])\.name$/);
   if (mapName) return core[Number(mapName[1]) - 1];
-  if (key === 'positioning.targetAsIs') return `${brand} AS-IS`;
-  if (key === 'positioning.targetToBe') return `${brand} TO-BE`;
+  if (key === 'positioning.targetAsIs') return '현재의 환급 중심 인식';
+  if (key === 'positioning.targetToBe') return '선제적 사업 안전망';
   if (key === 'positioning.axis.xLeft') return '수동 확인 중심';
   if (key === 'positioning.axis.xRight') return '자동 실행 중심';
   if (key === 'positioning.axis.yTop') return '전략 판단 강화';
@@ -64,10 +77,11 @@ function semanticValue(key) {
   if (key === 'stp.target.description') return '검증 후 바로 실행하려는 핵심 사업자';
   if (key === 'stp.positioning') return `${targetNames[0]}에게 판단과 실행을 연결하는 ${brand}의 차별적 포지셔닝`;
 
-  if (/\.status$/.test(key)) return 'source-found-copy-unverified';
+  if (/\.status$/.test(key)) return 'COPY UNVERIFIED';
   if (/^creative-history-(?:target|[1-3])\.year[1-6]\.copy$/.test(key)) return '출처에서 캠페인 존재를 확인했으나 원문 카피는 미검증';
   if (/\.source(?:\.|$)/.test(key)) return 'QA Fixture · Step 0–5 · 2026';
 
+  if (key === 'cover.headline') return `<mark>${brand}</mark>은 판단을 실행으로 바꾼다`;
   if (key === 'decision-close.principle') return `${brand}은 판단을 실행으로 바꾼다`;
   if (key === 'decision-close.support') return '검증된 근거가 다음 행동까지 이어지게 한다';
   if (key === 'strategy-choice.bigIdeal') return '더 나은 판단은 더 빠른 실행을 만든다';
@@ -101,8 +115,10 @@ function semanticValue(key) {
 }
 
 function fillSemanticFields(template) {
-  const result = template.replace(tokenPattern, (_token, key) => semanticValue(key));
-  assert.doesNotMatch(result, /\[\[FIELD:/);
+  const result = template
+    .replace(tokenPattern, (_token, key) => semanticValue(key))
+    .replace(positionPattern, (_token, key) => String(coordinates[key]));
+  assert.doesNotMatch(result, /\[\[(?:FIELD|POSITION):/);
   return result.replace('</body>', '<script>document.addEventListener("click",()=>window.print())</script></body>');
 }
 
@@ -146,9 +162,12 @@ try {
   assert.match(prompt, /Main Deck: exactly 40 pages/);
   assert.match(prompt, /Appendix: 0 pages/);
   assert.match(prompt, /P12 selects the core three/);
-  assert.match(prompt, /Category Clichés/);
+  assert.match(prompt, /P18 positioning\.targetAsIs must start exactly/);
+  assert.match(prompt, /Replace every \[\[POSITION:semantic\.key\]\]/);
+  assert.match(prompt, /<mark>important phrase<\/mark>/);
   assert.match(prompt, /Decision Close/);
   assert.match(prompt, /~한다/);
+  assert.doesNotMatch(prompt, /Return JSON only|Never return HTML|\[\[CONTENT:/);
   assert.ok(prompt.indexOf('[STEP 0–5 RESEARCH — SOURCE OF TRUTH]') < prompt.indexOf(startMarker));
 
   const start = prompt.indexOf(startMarker);
@@ -196,10 +215,53 @@ try {
   assert.deepEqual(await frame.locator('#market-shift .ladder-step > span').allTextContents(), ['LEVEL 1','LEVEL 2','LEVEL 3','LEVEL 4','LEVEL 5']);
 
   const allText = await frame.locator('body').innerText();
+  assert.doesNotMatch(allText, /\[\[/);
   candidates.forEach((name) => assert.match(allText, new RegExp(name)));
   for (let index = 0; index < core.length; index += 1) {
     assert.match(await frame.locator(`#deep-dive-${index + 1}`).innerText(), new RegExp(core[index]));
   }
+
+  assert.equal(await frame.locator('#cover mark').count(), 1);
+  const statusTexts = await frame.locator('.history-status').allTextContents();
+  assert.ok(statusTexts.length >= 24);
+  assert.ok(statusTexts.every((value) => value.trim() === 'source-found-copy-unverified'));
+
+  const positioning = await frame.locator('#positioning').evaluate((slide) => {
+    const point = (selector) => {
+      const node = slide.querySelector(selector);
+      return {
+        text: node?.textContent?.trim() || '',
+        x: node?.dataset.positionX || '',
+        y: node?.dataset.positionY || '',
+        left: node?.style.left || '',
+        top: node?.style.top || '',
+      };
+    };
+    return {
+      contract: slide.querySelector('.position-map')?.dataset.positioningCoordinateContract || '',
+      asIs: point('.map-dot.biz-as'),
+      toBe: point('.map-dot.biz-to'),
+      competitor1: point('.map-dot.sam'),
+      axes: [
+        slide.querySelector('.axis-x-left')?.textContent?.trim(),
+        slide.querySelector('.axis-x-right')?.textContent?.trim(),
+        slide.querySelector('.axis-y-top')?.textContent?.trim(),
+        slide.querySelector('.axis-y-bottom')?.textContent?.trim(),
+      ],
+    };
+  });
+  assert.equal(positioning.contract, 'semantic-0-100-v1');
+  assert.match(positioning.asIs.text, new RegExp(`${brand} AS-IS`));
+  assert.match(positioning.toBe.text, new RegExp(`${brand} TO-BE`));
+  assert.deepEqual(
+    [positioning.asIs.x, positioning.asIs.y, positioning.toBe.x, positioning.toBe.y],
+    ['38', '55', '85', '18'],
+  );
+  assert.deepEqual(
+    [positioning.asIs.left, positioning.asIs.top, positioning.toBe.left, positioning.toBe.top],
+    ['38%', '55%', '85%', '18%'],
+  );
+  assert.deepEqual(positioning.axes, ['수동 확인 중심', '자동 실행 중심', '전략 판단 강화', '단순 정보 제공']);
 
   const marketType = await frame.locator('#market-context').evaluate((slide) => ({
     implication: Number.parseFloat(getComputedStyle(slide.querySelector('.market-force strong')).fontSize),
@@ -237,9 +299,9 @@ try {
   assert.ok(geometry.every((item) => item.scale > 0 && item.scale <= 1.01));
   assert.deepEqual(geometry.filter((item) => item.overflowX > 1 || item.overflowY > 1), []);
 
-  await frame.locator('#comp-landscape').screenshot({ path: path.join(artifactDir, 'screen-landscape.png') });
+  await frame.locator('#positioning').screenshot({ path: path.join(artifactDir, 'screen-positioning.png') });
   await frame.locator('#category-cliche').screenshot({ path: path.join(artifactDir, 'screen-category-cliches.png') });
-  await frame.locator('#creative-insight').screenshot({ path: path.join(artifactDir, 'screen-creative-insight.png') });
+  await frame.locator('#creative-history-target').screenshot({ path: path.join(artifactDir, 'screen-creative-history.png') });
   await frame.locator('#strategy-choice').screenshot({ path: path.join(artifactDir, 'screen-final-choice.png') });
   await frame.locator('#decision-close').screenshot({ path: path.join(artifactDir, 'screen-decision-close.png') });
 
@@ -284,6 +346,7 @@ try {
   await reopened.locator('.full-slide').first().waitFor();
   assert.equal(await reopened.locator('.full-slide').count(), 40);
   assert.equal(await reopened.locator('#decision-close').count(), 1);
+  assert.match(await reopened.locator('#positioning .map-dot.biz-to').textContent(), new RegExp(`${brand} TO-BE`));
 
   const summary = {
     appUrl,
@@ -294,6 +357,7 @@ try {
     nav: 40,
     ids,
     marketType,
+    positioning,
     routeLabels,
     geometry,
     pdf: { pages: 40, size: '960x540pt' },
