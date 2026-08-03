@@ -178,5 +178,80 @@
   - save/reload/reopen at 40 pages;
   - Material Symbols cold-load regression.
 - Production build/contracts and Phase 6 browser/PDF E2E both passed.
-- Current Vercel deployment is temporarily blocked by the account build-rate limit; no product build failure remains.
-- PR #20 remains Draft and unmerged pending Preview availability and owner review.
+- PR #20 remained Draft and was later superseded by the complete-HTML semantic correction.
+
+## 2026-07-20 to 2026-08-03 — HTML/JSON architecture audit
+
+- Audited PR #4 through PR #23 and the owner’s downloaded Phase 6 prompts and generated HTML files.
+- Confirmed that JSON had been introduced, corrected back to complete HTML, and later reintroduced.
+- Identified PR #21 as the explicit JSON-only architecture shift and PR #23 as a 40-page JSON-only recurrence hidden behind generic UI labels.
+- Confirmed the owner had already locked the desired flow as complete standalone HTML.
+- Identified the content-mixing root cause as tag-order `CONTENT SLOT` mapping rather than missing research.
+- Retained PR #21–#23 as failure audit records and prohibited merging them.
+
+## 2026-08-03 — PR #24 Phase 6 complete HTML semantic correction
+
+- Created `fix/phase6-main40-final-html-semantic-v5` and Draft PR #24 from the approved Main40 work line.
+- Restored the owner-approved external workflow:
+  - Step 0–5 research
+  - complete HTML prompt download
+  - external AI complete 40-page HTML
+  - Phase 6 import
+  - validation and approved-DOM reassembly
+  - Viewer / save / reopen / PDF
+- Removed JSON-only instructions from the external prompt.
+- Moved Step 0–5 research before the large HTML template.
+- Replaced tag-order content mapping with stable semantic field keys.
+- Added exact field-set and approved-DOM fingerprint validation.
+- Added sanitization for scripts, event handlers, JavaScript URLs, refresh redirects, forms, embeds, and autoplay media.
+- Added cross-page validation for:
+  - P11 candidate set
+  - P12 core-three ranking
+  - P13–18 and P30–33 competitor continuity
+  - exact user brand
+  - Persona/JTBD/AIPL/STP/route/Final Choice meaning boundaries
+- The owner supplied a real Biznup prompt, generated 40-page HTML, and screenshot showing P18 validation failure.
+- Full audit of that result found:
+  - P18 AS-IS/TO-BE descriptions lacked the exact brand/state prefixes;
+  - 44 literal `[[...]]` highlight strings remained;
+  - P18 axes changed while map dots stayed at sample coordinates;
+  - Creative History used humanized status labels;
+  - `추가 후보 없음` appeared as a visible candidate row.
+- Corrected the prompt and compiler:
+  - rich fields use `<mark>` and `<br>` only;
+  - final literal `[[...]]` is blocked;
+  - P18 target labels normalize to exact brand AS-IS/TO-BE labels;
+  - ten semantic coordinate values drive the three competitors and target AS-IS/TO-BE;
+  - axis poles, coordinate ranges, and movement are validated;
+  - common humanized status labels normalize to canonical status codes;
+  - explicit unused candidate rows are hidden.
+- Strengthened `scripts/e2e-phase6-five-competitor-native-print.mjs` to reproduce the owner-reported defects rather than checking stale prompt copy.
+- E2E fixture deliberately included:
+  - an unsafe script;
+  - `<mark>` rich text;
+  - humanized `COPY UNVERIFIED` status values;
+  - brandless AS-IS/TO-BE descriptions;
+  - custom P18 coordinate values.
+- Validated product/E2E head: `64a80282e82948229392330c055be5404dc90805`.
+- Results:
+  - Production build/contracts: PASS
+  - Browser/PDF E2E: PASS
+  - 40 pages / 40 navigation links / Appendix 0
+  - Script removal PASS
+  - unresolved `[[...]]` 0
+  - semantic field and DOM fingerprint PASS
+  - P18 labels, axes, coordinates, and movement PASS
+  - Creative History status normalization PASS
+  - 1280×720 geometry and overflow 0
+  - actual Export PDF, second export, Ctrl+P, Cmd+P PASS
+  - save/reload/reopen PASS
+  - PDF 40 pages, 960×540pt, embedded fonts, no full-page raster rows
+  - PDF preflight warnings 0
+  - E2E screenshots inspected
+  - all 40 PDF pages rendered and visually inspected
+- Workflow run: `30799168241`.
+- Evidence artifact: `phase6-pdf-runtime-evidence`, ID `8850131424`.
+- Vercel deployment `GNQ2CvgR72wcmtuHDc1JrWft4hHS`: Ready.
+- Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`.
+- Updated AGENTS, Project Handoff, Decision Log, Work Log, and Report Template Specification to remove stale PR #20 / CONTENT SLOT architecture.
+- PR #24 remains Draft and unmerged pending explicit owner Preview approval.
