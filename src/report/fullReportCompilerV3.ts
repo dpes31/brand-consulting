@@ -24,6 +24,15 @@ function css(documentRef: Document): string {
   return blocks.join('\n\n');
 }
 
+function approvedPilotReady(documentRef: Document | null): boolean {
+  return Boolean(
+    documentRef
+    && documentRef.documentElement.dataset.phase6PagePlanReady === 'true'
+    && documentRef.documentElement.dataset.fullReportV4Ready === 'true'
+    && documentRef.querySelectorAll('.full-slide').length === PAGE_COUNT,
+  );
+}
+
 export async function loadApprovedPilotBaseHtml(brandName: string): Promise<string> {
   const frame = document.createElement('iframe');
   frame.style.cssText = 'position:fixed;left:-20000px;top:0;width:1700px;height:1000px;border:0;opacity:0;pointer-events:none';
@@ -42,13 +51,14 @@ export async function loadApprovedPilotBaseHtml(brandName: string): Promise<stri
     });
     const start = Date.now();
     while (Date.now() - start < 30000) {
-      const doc = frame.contentDocument;
-      if (doc?.documentElement.dataset.phase6PagePlanReady === 'true' && doc.querySelectorAll('.full-slide').length === PAGE_COUNT) break;
+      if (approvedPilotReady(frame.contentDocument)) break;
       await new Promise((resolve) => window.setTimeout(resolve, 100));
     }
     const doc = frame.contentDocument;
     const root = doc?.getElementById('root');
-    if (!doc || !root || doc.querySelectorAll('.full-slide').length !== PAGE_COUNT) throw new Error('40-page Pilot unavailable');
+    if (!approvedPilotReady(doc) || !root) {
+      throw new Error('40-page Pilot or V4 visual runtime unavailable');
+    }
     return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${brandName} Strategic Report</title>${links(doc)}<style data-approved-pilot-css="true">${css(doc)}</style></head><body data-report-version="full-report-v1" data-approved-pilot="full-integrated" data-phase6-page-plan="focus3-main40-no-appendix-v3"><div id="root">${root.innerHTML}</div></body></html>`;
   } finally {
     frame.remove();
