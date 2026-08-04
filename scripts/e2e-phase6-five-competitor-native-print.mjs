@@ -133,6 +133,8 @@ function semanticValue(key) {
   }
 
   if (/^aipl\.stage\d+\.(action|evidence|state)$/.test(key)) return '위생 근거를 확인하고 다음 선택 행동으로 이동한다';
+  if (/^market-context\.force\d+\.type$/.test(key)) return '위생 기준 변화';
+  if (/^pain-needs\.row\d+\.priority$/.test(key)) return 'HIGH';
   if (/^comp-ranking\.rank[1-3]\.evidence$/.test(key)) return '공식자료·외부DB';
   if (/^comp-ranking\.rank[1-3]\.(penetration|growth|preference|campaign|inflection|total)$/.test(key)) return '85';
   if (/\.(score|rating|value)$/.test(key)) return '85';
