@@ -92,6 +92,22 @@ function entityFromSeed(name: string): ReportIdentityEntity {
   return { canonicalName: value, displayName: value, aliases: [value] };
 }
 
+function appendMergedCandidate(
+  target: ReportIdentityEntity[],
+  entity: ReportIdentityEntity,
+): void {
+  const existing = target.find((item) => (
+    looksLikeSameEntity(item.canonicalName, entity.canonicalName)
+    || item.aliases.some((alias) => looksLikeSameEntity(alias, entity.canonicalName))
+    || entity.aliases.some((alias) => looksLikeSameEntity(alias, item.canonicalName))
+  ));
+  if (existing) {
+    existing.aliases = dedupe([...existing.aliases, entity.canonicalName, ...entity.aliases]);
+    return;
+  }
+  target.push({ ...entity, aliases: dedupe(entity.aliases) });
+}
+
 export function buildReportIdentityLock(
   targetBrand: string,
   registry: CompetitorRegistry | null,
@@ -119,11 +135,9 @@ export function buildReportIdentityLock(
   const reviewedEntities = (registry?.reviewedCandidates || [])
     .map((item) => entityFromSeed(item.name));
   const seedEntities = brief.mandatoryReviewSeeds.map(entityFromSeed);
-  const candidateMap = new Map<string, ReportIdentityEntity>();
-  [...selectedEntities, ...reviewedEntities, ...seedEntities].forEach((entity) => {
-    const key = normalized(entity.canonicalName);
-    if (key && !candidateMap.has(key)) candidateMap.set(key, entity);
-  });
+  const landscapeCandidates: ReportIdentityEntity[] = [];
+  [...selectedEntities, ...reviewedEntities, ...seedEntities]
+    .forEach((entity) => appendMergedCandidate(landscapeCandidates, entity));
 
   const core = selectedEntities.slice(0, 3);
   return {
@@ -134,7 +148,7 @@ export function buildReportIdentityLock(
       aliases: [brand],
     },
     coreCompetitors: [core[0], core[1], core[2]],
-    landscapeCandidates: Array.from(candidateMap.values()).slice(0, 5),
+    landscapeCandidates: landscapeCandidates.slice(0, 5),
     reviewedNames: dedupe([
       brand,
       ...selectedEntities.flatMap((item) => item.aliases),
@@ -172,18 +186,22 @@ strategicOpponent는 기업 경쟁사명이 아니므로 Registry나 브랜드 �
 [REPORT IDENTITY LOCK — END]`;
 }
 
+function fieldSelector(key: string): string {
+  return `[data-report-field="${key.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"]`;
+}
+
 function setField(documentRef: Document, key: string, value: string): void {
-  const element = documentRef.querySelector<HTMLElement>(`[data-report-field="${CSS.escape(key)}"]`);
+  const element = documentRef.querySelector<HTMLElement>(fieldSelector(key));
   if (element) element.textContent = value;
 }
 
 function fieldText(documentRef: Document, key: string): string {
-  return clean(documentRef.querySelector<HTMLElement>(`[data-report-field="${CSS.escape(key)}"]`)?.textContent);
+  return clean(documentRef.querySelector<HTMLElement>(fieldSelector(key))?.textContent);
 }
 
 function replaceKnownAlias(value: string, entity: ReportIdentityEntity): string {
   let result = clean(value);
-  for (const alias of entity.aliases.sort((a, b) => b.length - a.length)) {
+  for (const alias of [...entity.aliases].sort((a, b) => b.length - a.length)) {
     if (!alias) continue;
     const index = result.toLocaleLowerCase('ko-KR').indexOf(alias.toLocaleLowerCase('ko-KR'));
     if (index >= 0) {
@@ -200,11 +218,15 @@ function lockedTitle(value: string, entity: ReportIdentityEntity, fallbackSuffix
   return replaced ? `${entity.displayName} · ${replaced}` : `${entity.displayName} ${fallbackSuffix}`;
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function normalizePositioningLabel(value: string, brand: string, mode: 'AS-IS' | 'TO-BE'): string {
   const required = `${brand} ${mode}`;
   const raw = clean(value);
   const withoutPrefix = raw
-    .replace(new RegExp(`^${brand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'i'), '')
+    .replace(new RegExp(`^${escapeRegExp(brand)}\\s*`, 'i'), '')
     .replace(new RegExp(`^${mode.replace('-', '[-\\s]?')}\\s*[·:—-]*\\s*`, 'i'), '')
     .trim();
   return withoutPrefix ? `${required} · ${withoutPrefix}` : required;
