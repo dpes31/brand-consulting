@@ -14,8 +14,10 @@ export const LIGHTWEIGHT_SEMANTIC_HTML_CONTRACT = 'semantic-html-v6-workbook';
 export const LIGHTWEIGHT_TEMPLATE_START = '[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — START]';
 export const LIGHTWEIGHT_TEMPLATE_END = '[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — END]';
 
-const FIELD_TOKEN = /\[\[FIELD:([a-z0-9.-]+)\]\]/i;
-const POSITION_TOKEN = /\[\[POSITION:([a-z0-9.-]+)\]\]/i;
+const LEGACY_FIELD_TOKEN = /\[\[FIELD:([a-z0-9.-]+)\]\]/i;
+const LEGACY_POSITION_TOKEN = /\[\[POSITION:([a-z0-9.-]+)\]\]/i;
+const COMPACT_FIELD_TOKEN = /\[\[F\]\]/i;
+const COMPACT_POSITION_TOKEN = /\[\[P\]\]/i;
 const POSITIONING_COORDINATE_KEYS = [
   'positioning.competitor1.x',
   'positioning.competitor1.y',
@@ -45,21 +47,27 @@ function cleanResearch(raw: string): string {
     .trim();
 }
 
+function compactKind(kind: StructuredFieldKind): string {
+  if (kind === 'rich') return 'r';
+  if (kind === 'source') return 's';
+  if (kind === 'status') return 'c';
+  return 't';
+}
+
 function fieldMarkup(definition: StructuredFieldDefinition): string {
   const attributes = [
     `data-report-field="${escapeHtml(definition.key)}"`,
-    `data-report-hint="${escapeHtml(definition.hint)}"`,
-    `data-report-max-length="${definition.maxLength}"`,
-    `data-report-kind="${definition.kind}"`,
+    `data-k="${compactKind(definition.kind)}"`,
+    `data-m="${definition.maxLength}"`,
   ];
-  if (definition.enum?.length) attributes.push(`data-report-enum="${escapeHtml(definition.enum.join('|'))}"`);
-  if (definition.fixedYear !== undefined) attributes.push(`data-report-fixed-year="${escapeHtml(String(definition.fixedYear))}"`);
-  return `<div ${attributes.join(' ')}>[[FIELD:${definition.key}]]</div>`;
+  if (definition.enum?.length) attributes.push(`data-e="${escapeHtml(definition.enum.join('|'))}"`);
+  if (definition.fixedYear !== undefined) attributes.push(`data-y="${escapeHtml(String(definition.fixedYear))}"`);
+  return `<div ${attributes.join(' ')}>[[F]]</div>`;
 }
 
 function coordinateMarkup(): string {
   return POSITIONING_COORDINATE_KEYS
-    .map((key) => `<data data-report-coordinate-field="${key}" hidden>[[POSITION:${key}]]</data>`)
+    .map((key) => `<data data-report-coordinate-field="${key}" hidden>[[P]]</data>`)
     .join('');
 }
 
@@ -74,10 +82,10 @@ export function createSemanticHtmlWorkbookV6(
       .map(fieldMarkup)
       .join('');
     const coordinates = pageId === 'positioning' ? coordinateMarkup() : '';
-    return `<section class="full-slide" id="${pageId}" data-page="${index + 1}" data-zone="main"><h1>P${String(index + 1).padStart(2, '0')} · ${pageId}</h1>${fields}${coordinates}</section>`;
+    return `<section class="full-slide" id="${pageId}" data-page="${index + 1}" data-zone="main">${fields}${coordinates}</section>`;
   }).join('');
 
-  const html = `<!DOCTYPE html>\n<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(brandName)} Phase 6 Semantic Workbook</title></head><body data-content-contract="${LIGHTWEIGHT_SEMANTIC_HTML_CONTRACT}" data-report-page-count="40" data-report-appendix-count="0">${pages}</body></html>`;
+  const html = `<!DOCTYPE html>\n<html lang="ko"><head><meta charset="UTF-8"><title>${escapeHtml(brandName)} Phase 6 Workbook</title></head><body data-content-contract="${LIGHTWEIGHT_SEMANTIC_HTML_CONTRACT}" data-report-page-count="40" data-report-appendix-count="0">${pages}</body></html>`;
   return { html, definitions };
 }
 
@@ -94,14 +102,14 @@ Your first visible characters must be <!DOCTYPE html>. Your last visible charact
 [FINAL OUTPUT CONTRACT]
 - Return one complete standalone HTML document, not JSON.
 - Preserve the exact brand spelling: ${brandName}
-- Main Deck: exactly 40 pages.
-- Appendix: 0 pages.
-- The supplied HTML is a lightweight 40-page semantic workbook. The application owns the final visual CSS and approved Renderer.
+- Main Deck: exactly 40 pages. Appendix: 0 pages.
+- This is a compact semantic workbook. The application owns the final visual CSS and approved Renderer.
 - Keep all 40 .full-slide sections, IDs, data attributes, field elements, and page order unchanged.
-- Replace only the [[FIELD:semantic.key]] token inside each data-report-field element.
-- Replace every [[POSITION:semantic.key]] token inside data-report-coordinate-field elements with one integer from 0 to 100.
+- Replace each [[F]] inside a data-report-field element with that semantic key's content.
+- Field metadata: data-k=t plain text, r rich text, s source, c Creative History status; data-m is the hard character limit; data-e is the allowed enum; data-y is the fixed year.
+- Replace each [[P]] inside a data-report-coordinate-field element with one integer from 0 to 100.
 - Do not add CSS, scripts, navigation, diagrams, tables, wrapper elements, or explanatory text.
-- Never move content between fields, create a new field, remove a field, merge fields, or place prose in numbers, labels, arrows, axes, coordinates, or headings.
+- Never move content between fields, create/remove/merge fields, or place prose in numbers, labels, axes, coordinates, or headings.
 - Return raw HTML only from <!DOCTYPE html> through </html>. Do not use Markdown code fences.
 
 [STEP 0–5 RESEARCH — SOURCE OF TRUTH]
@@ -110,32 +118,29 @@ ${cleanResearch(rawResearch)}
 [STRATEGIC WRITING RULES]
 - Use only the Step 0–5 research above. Do not invent facts, figures, dates, quotations, competitors, scores, axes, models, coordinates, or sources.
 - Titles and SO WHAT statements use decisive Korean consulting language: ~한다, ~이다, ~다.
-- Preserve the page logic: Brand Fact → Market/Competitor → Consumer tension → Creative gap → Root Cause → STP → Four Routes → Final Choice → Decision Close.
+- Preserve the logic: Brand Fact → Market/Competitor → Consumer tension → Creative gap → Root Cause → STP → Four Routes → Final Choice → Decision Close.
 - P11 reviews up to five evidence-supported direct competitors. P12 selects the core three.
-- P13–18 and P30–33 must use the same three competitors in the same ranking order.
-- P18 positioning.targetAsIs must start exactly with “${brandName} AS-IS · ”.
-- P18 positioning.targetToBe must start exactly with “${brandName} TO-BE · ”.
-- P18 axis poles must be meaningful, mutually distinct Step 2 attributes. Never write literal X축 or Y축.
-- P18 coordinates use x=0 left, x=100 right, y=0 top, y=100 bottom. Derive every point from the stated axis logic.
-- P22–24 Persona titles must exactly match the first three target names on P21.
+- P13–18 and P30–33 use the same three competitors in the same ranking order.
+- P18 positioning.targetAsIs starts exactly with “${brandName} AS-IS · ”; positioning.targetToBe starts exactly with “${brandName} TO-BE · ”.
+- P18 axis poles are meaningful, distinct Step 2 attributes. Never write literal X축 or Y축.
+- P18 coordinates use x=0 left, x=100 right, y=0 top, y=100 bottom and follow the declared axis logic.
+- P22–24 Persona titles exactly match the first three target names on P21.
 - P27 keeps A → I → P1 → P2 → L and separates action, evidence, and state.
-- P37 keeps Segmentation → Targeting → Positioning.
-- P38 keeps A/B/C/D route boundaries. P39 is Final Choice. P40 is Decision Close.
-- In data-report-kind="rich" fields, use <mark>important phrase</mark> for one short highlight. Never output literal [[important phrase]].
-- In text, source, and status fields, use plain text only. Do not add HTML tags.
-- Respect every data-report-max-length as a hard limit. Summarize instead of shrinking type.
+- P37 keeps Segmentation → Targeting → Positioning. P38 keeps A/B/C/D. P39 is Final Choice. P40 is Decision Close.
+- In data-k="r" fields, use <mark>important phrase</mark> for one short highlight. Never output literal [[important phrase]].
+- In data-k="t", "s", or "c" fields, use plain text only. Respect every data-m limit.
 - Raw URLs are prohibited. Use publisher · material title · year.
 
 [CREATIVE HISTORY FACTUALITY]
 ${creativeDirective || 'Use verified-verbatim / source-found-copy-unverified / not-found exactly. Keep 2021–2025 and 2026 YTD. Only verified-verbatim copy may use quotation marks.'}
-- Every Creative History status field must contain exactly one of: verified-verbatim, source-found-copy-unverified, not-found.
+- Every Creative History status field contains exactly one of: verified-verbatim, source-found-copy-unverified, not-found.
 
 ${LIGHTWEIGHT_TEMPLATE_START}
 ${semanticWorkbookHtml}
 ${LIGHTWEIGHT_TEMPLATE_END}
 
 [FINAL CHECK]
-Confirm that every [[FIELD:...]] and [[POSITION:...]] token is replaced, no literal [[...]] remains, the document contains exactly 40 .full-slide sections, and no Appendix exists. Return the raw complete HTML now.`;
+Replace every [[F]] and [[P]], leave no literal [[...]], retain exactly 40 .full-slide sections, and include no Appendix. Return the raw complete HTML now.`;
 }
 
 function fieldSelector(key: string): string {
@@ -188,6 +193,10 @@ function returnedFields(
     if (page?.id !== definition.pageId) {
       throw new Error(`${definition.key} 필드가 승인 페이지 #${definition.pageId} 밖으로 이동했다.`);
     }
+    const value = element.textContent || '';
+    if (COMPACT_FIELD_TOKEN.test(value) || LEGACY_FIELD_TOKEN.test(value)) {
+      throw new Error(`조사 내용으로 교체되지 않은 의미 필드가 남았다: ${definition.key}`);
+    }
     assertAllowedFieldMarkup(element, definition.kind, definition.key);
   });
   for (const key of map.keys()) {
@@ -237,7 +246,7 @@ export function compileSemanticHtmlReportV6(
     const target = expandedDocument.querySelector<HTMLElement>(`data[data-report-coordinate-field="${key}"]`);
     if (!source || !target) throw new Error(`P18 좌표 필드가 누락됐다: ${key}`);
     const value = (source.textContent || '').trim();
-    if (FIELD_TOKEN.test(value) || POSITION_TOKEN.test(value)) {
+    if (COMPACT_POSITION_TOKEN.test(value) || LEGACY_POSITION_TOKEN.test(value)) {
       throw new Error(`P18 좌표 필드가 교체되지 않았다: ${key}`);
     }
     target.textContent = value;
