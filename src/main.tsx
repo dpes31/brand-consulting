@@ -13,12 +13,15 @@ import { installVisualIntentWorkflowGuard } from './lib/installVisualIntentWorkf
 import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
 import { installPhase6InputGuard } from './lib/installPhase6InputGuard'
+import { installPhase6ApprovedBaseCachePolicy } from './lib/installPhase6ApprovedBaseCachePolicy'
 import { installFullReportPhase6Bridge } from './lib/installFullReportPhase6Bridge'
 import { installFullReportSourceRegistry } from './lib/installFullReportSourceRegistry'
 import { installFullReportPdfButtonBridge } from './lib/installFullReportPdfButtonBridge'
 import { installFullReportRuntimeCompatibility } from './lib/installFullReportRuntimeCompatibility'
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
 import { installPhase6PagePlanV2 } from './lib/installPhase6PagePlanV2'
+import { installUserBriefContract } from './lib/userBriefContract'
+import { installUserBriefInputNormalizer } from './lib/installUserBriefInputNormalizer'
 
 installMaterialSymbolsReady()
 installIframePreRepair()
@@ -28,7 +31,10 @@ installVisualIntentBriefPolicy()
 installStep3VisualIntentContract()
 installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
+installUserBriefContract()
+installUserBriefInputNormalizer()
 installPhase6InputGuard()
+installPhase6ApprovedBaseCachePolicy()
 installFullReportPhase6Bridge()
 installFullReportSourceRegistry()
 installCreativeHistoryContract()

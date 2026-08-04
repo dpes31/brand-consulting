@@ -1,27 +1,52 @@
-const PAGE_COUNT = 48;
-const MAIN_COUNT = 40;
+const PAGE_COUNT = 40;
 const SLOT_PREFIX = '[[CONTENT:';
 const SLOT_PATTERN = /\[\[CONTENT:P\d{2}:[A-Z0-9_-]+:\d{3}\]\]/g;
 
 const DYNAMIC_IDS: Record<number, string> = {
-  12: 'deep-dive-1',
-  13: 'deep-dive-2',
-  14: 'deep-dive-3',
-  15: 'deep-dive-4',
-  16: 'deep-dive-5',
+  13: 'deep-dive-1',
+  14: 'deep-dive-2',
+  15: 'deep-dive-3',
   29: 'creative-history-target',
   30: 'creative-history-1',
   31: 'creative-history-2',
   32: 'creative-history-3',
-  33: 'creative-history-4',
-  34: 'creative-history-5',
 };
+
+const FIXED_TEXT_SELECTORS = [
+  '.full-breadcrumb',
+  '.full-tag',
+  '.full-page',
+  '.full-implication > span',
+  '#market-shift .ladder-step > span',
+  '#comp-landscape .candidate-head',
+  '#comp-ranking .ranking-table thead',
+  '#product-matrix .matrix-table thead',
+  '#category-cliche .cliche-head',
+  '.persona-label',
+  '.identity-shift span',
+  '.brand-role span',
+  '#pain-needs .pain-head',
+  '#aipl .aipl-stage > b',
+  '#aipl .aipl-stage > span',
+  '#aipl .friction-analysis > span',
+  '#creative-insight .current-copy > span',
+  '#creative-insight .missing-character > span',
+  '#creative-insight .gap-arrow',
+  '#stp .stp-layout > div > span',
+  '#strategy-routes .route-head',
+  '#strategy-routes .route-row > b',
+  '#decision-close .back-cover-copy > span',
+].join(',');
 
 function serialize(documentRef: Document): string {
   return `<!DOCTYPE html>\n${documentRef.documentElement.outerHTML}`;
 }
 
 function roleOf(element: Element | null): string {
+  // Connector glyphs must stay short symbols even when the <i> element has a
+  // descriptive class. Giving every <i> slot the stable I role prevents an AI
+  // response from placing prose inside arrows or comparison-axis connectors.
+  if (element?.tagName === 'I') return 'I';
   const raw = element
     ? Array.from(element.classList).find((name) => !name.startsWith('is-')) || element.tagName
     : 'TEXT';
@@ -31,8 +56,7 @@ function roleOf(element: Element | null): string {
 function keepText(element: Element | null, text: string): boolean {
   if (!element) return false;
   if (element.closest('style,script,noscript')) return true;
-  if (element.classList.contains('full-page')) return true;
-  if (element.matches('.full-implication > span')) return true;
+  if (element.closest(FIXED_TEXT_SELECTORS)) return true;
   return /^SO WHAT$/i.test(text);
 }
 
@@ -75,6 +99,19 @@ function neutralizeStyleSelectors(documentRef: Document, idMap: Map<string, stri
   });
 }
 
+function applyExactBrandName(documentRef: Document, brandName: string): void {
+  const brand = documentRef.querySelector<HTMLElement>('.full-nav-brand, .full-report-brand, .report-brand');
+  if (brand) {
+    brand.replaceChildren(documentRef.createTextNode(brandName));
+    const version = documentRef.createElement('span');
+    version.textContent = 'FULL REPORT V1';
+    brand.appendChild(version);
+  }
+
+  const toolbar = documentRef.querySelector<HTMLElement>('.full-report-toolbar strong');
+  if (toolbar) toolbar.textContent = `${brandName} FULL REPORT`;
+}
+
 export function createResearchOnlyLayoutTemplate(source: string, brandName: string): string {
   if (typeof DOMParser === 'undefined') throw new Error('HTML 템플릿 변환기를 사용할 수 없습니다.');
   const documentRef = new DOMParser().parseFromString(source, 'text/html');
@@ -86,7 +123,7 @@ export function createResearchOnlyLayoutTemplate(source: string, brandName: stri
   slides.forEach((slide, index) => {
     const page = index + 1;
     slide.dataset.page = String(page);
-    slide.dataset.zone = index < MAIN_COUNT ? 'main' : 'appendix';
+    slide.dataset.zone = 'main';
     const nextId = DYNAMIC_IDS[page];
     if (nextId && slide.id !== nextId) {
       idMap.set(slide.id, nextId);
@@ -103,20 +140,19 @@ export function createResearchOnlyLayoutTemplate(source: string, brandName: stri
     if (element instanceof HTMLImageElement) element.alt = 'Report visual';
   });
 
-  const brand = documentRef.querySelector<HTMLElement>('.full-report-brand');
-  if (brand) brand.textContent = brandName;
-  const toolbar = documentRef.querySelector<HTMLElement>('.full-report-toolbar strong');
-  if (toolbar) toolbar.textContent = `${brandName} FULL REPORT`;
+  applyExactBrandName(documentRef, brandName);
   documentRef.title = `${brandName} Strategic Report`;
   documentRef.documentElement.lang = 'ko';
   documentRef.body.dataset.reportVersion = 'full-report-v1';
   documentRef.body.dataset.approvedPilot = 'full-integrated';
-  documentRef.body.dataset.contentContract = 'research-slots-v1';
+  documentRef.body.dataset.contentContract = 'research-slots-v2';
   documentRef.body.dataset.contentSlotCount = String(slotCount);
   documentRef.body.dataset.contentState = 'template';
-  documentRef.body.dataset.phase6PagePlan = 'competitor5-main40-appendix8-v2';
+  documentRef.body.dataset.phase6PagePlan = 'focus3-main40-no-appendix-v3';
+  documentRef.body.dataset.reportPageCount = String(PAGE_COUNT);
+  documentRef.body.dataset.reportAppendixCount = '0';
 
-  if (slotCount < 200) throw new Error(`콘텐츠 중립화 슬롯이 충분하지 않습니다. 현재 ${slotCount}개입니다.`);
+  if (slotCount < 180) throw new Error(`콘텐츠 중립화 슬롯이 충분하지 않습니다. 현재 ${slotCount}개입니다.`);
   return serialize(documentRef);
 }
 
@@ -164,10 +200,19 @@ export function assertResearchEvidencePresent(html: string, rawResearch: string,
   const text = comparable(documentRef.body.textContent || '');
   if (!text.includes(comparable(brandName))) throw new Error(`조사 브랜드명 "${brandName}"이 보고서에 없습니다.`);
 
-  const competitors = directCompetitors(rawResearch);
-  const missing = competitors.filter((name) => !text.includes(comparable(name)));
-  if (competitors.length >= 2 && missing.length) {
-    throw new Error(`Step 2 핵심 경쟁사가 반영되지 않았습니다: ${missing.join(', ')}`);
+  const candidates = directCompetitors(rawResearch);
+  const missingCandidates = candidates.filter((name) => !text.includes(comparable(name)));
+  if (candidates.length >= 3 && missingCandidates.length) {
+    throw new Error(`Step 2 경쟁 후보가 Landscape에 반영되지 않았습니다: ${missingCandidates.join(', ')}`);
+  }
+
+  const core = candidates.slice(0, 3);
+  const focusText = comparable([
+    ...Array.from(documentRef.querySelectorAll<HTMLElement>('#deep-dive-1,#deep-dive-2,#deep-dive-3,#product-matrix,#positioning,#creative-history-1,#creative-history-2,#creative-history-3,#creative-trajectory')),
+  ].map((node) => node.textContent || '').join(' '));
+  const missingCore = core.filter((name) => !focusText.includes(comparable(name)));
+  if (core.length === 3 && missingCore.length) {
+    throw new Error(`Threat Ranking 상위 3개 핵심 경쟁사가 심층 분석에 반영되지 않았습니다: ${missingCore.join(', ')}`);
   }
 
   const values = kpiValues(rawResearch);

@@ -4,184 +4,238 @@
 
 - Repository: `dpes31/brand-consulting`
 - Production branch: `main`
-- Production commit before this PR: `e22de49396a1ccb3590c5d7eb751b4d0edf759fc`
-- Active branch: `fix/phase6-pdf-export-runtime-v1`
-- Draft PR: #17 `Fix Phase 6 PDF export runtime routing`
+- Production commit before PR #24: `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`
 - Production URL: `https://brand-consulting.vercel.app/`
-- Preview URL: `https://brand-consulting-git-fix-phase6-pdf-exp-e3547f-dpes31s-projects.vercel.app/`
-- Preview-first only; do not merge PR #17 without explicit owner approval.
-- Immutable rollback branches:
-  - `backup/main-before-full-report-v1-2026-07-01`
-  - `backup-production-stable-20260622`
-- `public/template.html` remains the legacy rollback asset. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
+- Active branch: `fix/phase6-main40-final-html-semantic-v5`
+- Draft PR: `#24 Restore Phase 6 complete HTML output with semantic field locking`
+- Validated implementation head before documentation updates: `351c4247c4a9bf713955985c8963d2ddb0eb4257`
+- Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
+- Preview CI run `30888643138`: PASS
+- LG browser/PDF E2E run `30888643175`: PASS
+- Vercel: success
+- `main`: unchanged and unmerged
+- PR #24 remains Draft.
+- Protected rollback branches and Legacy `public/template.html` remain untouched.
 
-## Current Phase 6 architecture
+## Critical current truth
 
-The normal `/` application flow is:
+The V6 lightweight semantic-workbook experiment is rejected.
+
+Owner testing produced `LG_퓨리케어_40페이지_전략리포트.html`, which contained 40 sections and semantic fields but no CSS, navigation, tables, diagrams, images, or approved visual report format. It also contained repeated JTBD content, `UNVERIFIED` statuses, and raw URLs.
+
+Do not restore or describe the lightweight workbook as a finished report.
+
+Rejected active identifiers:
+
+- `createSemanticHtmlWorkbookV6`
+- `buildSemanticHtmlPromptV6`
+- `compileSemanticHtmlReportV6`
+- `phase6_lightweight_html_prompt_<brand>.txt`
+- `완성 HTML 프롬프트 다운로드 (경량)`
+
+Full audit: `handoff/PHASE6_LIGHTWEIGHT_HTML_TIMEOUT_MITIGATION_2026-08-04.md`.
+
+## Owner-approved output contract
+
+- External AI returns one complete standalone **styled visual HTML report**, not JSON and not a semantic workbook.
+- The returned file must directly display the approved report when opened in a browser.
+- Preserve approved CSS, 1280×720 page DOM, layout hierarchy, tables, diagrams, navigation, classes, IDs, and data attributes.
+- Main Deck: exactly 40 pages.
+- Appendix: 0 pages.
+- Page 40: Decision Receipt / Close.
+- Native PDF: 40 pages, 960×540pt.
+- Exact user-entered brand name; no translation or arbitrary abbreviation.
+- Raw source URLs prohibited.
+- Only `verified-verbatim` advertising copy may use quotation marks.
+
+## Active Phase 6 journey
 
 `Step 0–5 research`
-→ `approved Pilot DOM/CSS capture after Page Plan V2 is ready`
-→ `sample report text neutralized into CONTENT SLOT tokens`
-→ `external AI or internal API fills every slot from current research`
-→ `blocking validation`
-→ `48-page standalone HTML`
+→ `phase6_complete_html_prompt_<brand>.txt`
+→ `external AI returns complete styled 40-page HTML`
+→ `paste or .html/.htm/.txt upload`
+→ `active-content / User Brief / Report Identity / semantic-field / DOM / cross-page / P18 validation`
+→ `approved DOM reassembly`
 → `Viewer / save / reopen / Export PDF`
 
-The approved Pilot is a layout source only. Its Biznup conclusions, figures, competitors, personas, Creative History, sources, SWOT, STP, and strategy are removed before the Phase 6 prompt is exported.
+Active implementation uses:
 
-## Fixed report contract
+- `createSemanticHtmlTemplateV5`
+- `buildSemanticHtmlPromptV5`
+- `compileSemanticHtmlReportV5`
 
-- Main Deck: exactly 40 pages
-- Appendix: exactly 8 pages
-- Total: exactly 48 pages
-- Canvas: 1280×720, exact 16:9
-- Typeface: Pretendard
-- Major titles: weight 900
-- Korean copy: `word-break: keep-all`
-- Exact user-entered brand name; no translation or romanization
-- Raw URLs are not exposed
-- Unverified advertising copy is not quoted
+External and internal API paths both use this V5 contract.
 
-## Five-competitor Page Plan V2
+## Timeout status
 
-Step 2 selects 2–5 direct competitors. Five is maximum capacity and must never be filled through invention.
+The original external-chat timeout is unresolved.
 
-Main Deck:
+Measured previous owner Biznup prompt:
 
-- 11: Threat Ranking, up to five direct competitors
-- 12–16: Deep Dive 1–5
-- 17: Product Matrix, target + up to five competitors
-- 18: Positioning, target + up to five competitors
-- 19–28: Consumer
-- 29: Target Brand Creative History
-- 30–34: Competitor Creative History 1–5
-- 35: Message Trajectory, target + up to five competitors
-- 36–40: SWOT, Root Cause, STP, Four Directions, Final Choice
+- total: 647,215 bytes
+- approved visual template: approximately 449,802 bytes
+- Step 0–5 research: approximately 194,109 bytes
 
-Appendix:
+Restoring the correct visual artifact also restores a larger prompt. Do not claim the timeout is solved.
 
-- A1: Appendix divider
-- A2: Winning Move Specification
-- A3: Via Negativa
-- A4: Pre-mortem
-- A5: Execution Roadmap
-- A6: Measurement Plan
-- A7: Evidence Gaps + Source Labels
-- A8: Decision Receipt / Close
+A deterministic page-batch generation and merge workflow is a possible next direction, but it changes the user journey and is not implemented or approved. Do not silently split, remove visual format, restore JSON, or concatenate unvalidated outputs.
 
-Appendix is not competitor overflow. If fewer than five direct competitors are supported, unused approved competitor pages disclose evidence gaps.
+## User Brief Lock
 
-## PR #17 — PDF error root cause
+The application preserves a brand-keyed Brief containing:
 
-The actual app showed:
+- exact target brand
+- mandatory competitor review seeds
+- strategic opponent/category convention
+- client need/campaign direction
+- reference note
+- attachment manifest
 
-`PDF 생성 오류 — 출력할 슬라이드를 찾지 못했습니다.`
+The Brief is injected into every Step 0–5 prompt and Phase 6, persisted by brand, and restored when the same brand is reopened.
 
-Confirmed cause:
+A sentence such as `브랜드가 아니라 위생이라는 단어 자체` is a strategic opponent, not a competitor identity.
 
-1. The legacy iframe layout/PDF runtime installed before the FULL report runtime.
-2. The legacy runtime replaced `iframe.contentWindow.print()` with a raster exporter that searches only `.slide-wrapper > .slide`.
-3. The FULL runtime then captured that already-overridden function as if it were browser-native print.
-4. Phase 6 FULL reports use `.full-slide`, so the legacy exporter found zero slides.
+## Report Identity Lock
 
-## PR #17 correction
+The app owns:
 
-- Install `installFullReportRuntimeCompatibility()` before the legacy `installIframeLayoutSafety()` guard.
-- On a FULL document, mark the legacy layout/PDF runtime as already handled.
-- Retain the real browser-native print function from `window.print` or the legacy native backup.
-- Route every host `Export PDF` button to:
-  1. the active fullscreen FULL report iframe;
-  2. another active FULL report iframe;
-  3. a stable offscreen iframe rebuilt from retained FULL HTML.
-- Prevent the React button handler and legacy exporter from also firing.
-- When no FULL report exists, show a clear instruction instead of a zero-slide error.
-- Disable the clicked button while export is being prepared, then restore it.
+- target brand display name
+- core competitor 1–3 ranking order
+- canonical names
+- display names
+- aliases
+- Landscape candidates
 
-## PDF runtime boundary
+Apply across P11, P12, P13–16, P18, and P29–33. Aliases such as `삼성전자` and `삼성 비스포크 정수기` resolve to one entity.
 
-Two report systems coexist and must remain separated:
+## Approved sample leakage protection
 
-- Legacy reports: `.slide-wrapper > .slide`, handled by `installIframeLayoutSafety` and `exportReportPdf`.
-- Phase 6 FULL reports: `.full-slide`, handled by `installFullReportRuntimeCompatibility` and browser-native print.
+The Biznup source supplies layout only.
 
-A FULL report must never be passed to the legacy slide selector.
+Neutralize:
 
-## PR #17 verification
+- Cover `BIZNUP` → `BRAND REPORT`
+- P25 `비즈넵 기회` → `브랜드 기회`
+- Persona role label → exact target brand
+- navigation, toolbar, title, and errors → exact target brand
 
-Automated build and browser tests passed:
+Block unapproved sample identities such as 비즈넵/BIZNUP, 삼쩜삼, 더낸세금/혜움, SSEM/쌤157.
 
-- Production build and report contracts: PASS
-- Actual app `Export PDF` button with no report: clear guidance, no zero-slide error
-- Actual app `Export PDF` button with a 48-page FULL report: PASS
-- Two consecutive native-print invocations: PASS
-- FULL runtime ownership: PASS
-- Legacy runtime did not override FULL print: PASS
-- 48-page preflight: PASS
-- Five-competitor Phase 6 regression: PASS
-- 48 navigation links: PASS
-- 1280×720 geometry and zero overflow: PASS
-- Save/reopen: 48 pages PASS
-- Native PDF: 48 pages, 960×540pt, embedded fonts, zero full-page raster rows
-- Vercel Preview: Ready
+## External AI execution package
 
-## Blocking validation
+Current copied execution sentence:
 
-Phase 6 rejects results when:
+`첨부한 파일은 참고자료가 아니라 실행 지시문입니다. 파일 전체를 읽고 승인된 CSS·레이아웃·도식·표·내비게이션을 그대로 보존한 완성 40페이지 HTML만 즉시 생성하십시오. 계획·설명·확인 질문 없이 바로 작업하고, 결과 파일에는 <!DOCTYPE html>부터 </html>까지의 HTML만 저장하십시오.`
 
-- any `CONTENT SLOT` remains unresolved;
-- the report does not contain exactly 48 `.full-slide` pages;
-- Main/Appendix count is not 40/8;
-- page IDs or labels are missing or duplicated;
-- required approved layouts are missing;
-- the exact user-entered brand name is absent;
-- Step 0 KPI evidence is insufficient;
-- any selected Step 2 direct competitor is missing;
-- an unapproved script is included.
+The prompt includes:
 
-## Validated Step contracts
+- Visual Artifact Lock
+- complete-report prohibition against workbook output
+- P25 role separation
+- duplicate generic filler prohibition
+- canonical Creative History status requirement
+- raw URL prohibition
+- fabrication prohibition
 
-### Step 0
+## Semantic and security contract
 
-- Exactly one Growth Story Visual Intent Brief
-- Accepted recipe: `milestone-timeline`
-- Three accepted runs: 100% agreement
+- Stable `data-report-field` keys replace DOM-order slots.
+- `[[CONTENT:Pxx:TAG:nnn]]` and generic `.contentN` are prohibited.
+- Every `[[FIELD:semantic.key]]` and `[[POSITION:semantic.key]]` token must be replaced.
+- Rich fields allow only `<mark>` and `<br>`.
+- Scripts, handlers, JavaScript URLs, redirects, forms, embeds, and autoplay media are removed or rejected.
+- Returned field set must match the approved field set.
+- Approved DOM fingerprint must remain unchanged.
+- Runtime blocks raw URLs and noncanonical Creative History status values.
 
-### Step 2
+## Fixed 40-page plan
 
-- Threat Ranking: `rank-scorecard`
-- 2–5 direct competitors selected through Registry/Threat Ranking
-- Independent Deep Dive per selected competitor
-- Product Matrix: `feature-matrix`
-- Positioning Map only when common axes are defensible
-- Independent six-year Creative History per selected competitor
+1. Cover
+2. 핵심 진단
+3. Brand Identity
+4. FACTS
+5. Category & Target
+6. Growth Story
+7. Core Inflection
+8. Product USP & Best Self
+9. Market Context
+10. Category Shift
+11. Competitive Landscape
+12. Threat Ranking
+13–15. Deep Dive 1–3
+16. Product Matrix
+17. Category Clichés
+18. Positioning
+19. Consumer Executive Conclusion
+20. Trends
+21. Core Target
+22–24. Persona 1–3
+25. JTBD & Identity Alignment
+26. Pain Points & Unmet Needs
+27. AIPL Bottleneck
+28. Purchase to Loyalty
+29. Target Brand Creative History
+30–32. Competitor Creative History 1–3
+33. Message Trajectory
+34. Creative Insight
+35. SWOT
+36. GAP & Root Cause
+37. STP
+38. Four Strategic Directions
+39. Final Choice
+40. Decision Receipt / Close
 
-### Step 3
+Creative Methodology and Appendix A1–A7 are excluded.
 
-- Trends, Persona, Identity Alignment, JTBD, AIPL, and Unmet Needs remain
-- Exactly one core consumer-decision Brief
-- Accepted recipe: `friction-flow`
-- `implementationStatus: planned`
-- `metrics: []`
+## LG 퓨리케어 regression validation
 
-### Step 5
+Fixture:
 
-- SWOT, GAP, Root Cause, three ToT routes, Big IdeaL, Winning Move, Via Negativa, Pre-mortem, and execution sequence remain
-- Exactly one final strategy-decision Brief
-- Accepted recipe: `choice-architecture`
-- `implementationStatus: planned`
-- `metrics: []`
+- target: `LG 퓨리케어 정수기`
+- seeds: 코웨이 / 삼성 비스포크 정수기 / SK매직 / 쿠쿠
+- Registry core: 코웨이 / 삼성전자 / SK매직
+- strategic opponent: `위생이라는 단어 자체`
+- client need: `위생의 격이 다른 정수기`
 
-## Creative History factuality
+Validated at code head `351c4247c4a9bf713955985c8963d2ddb0eb4257`:
 
-- Target brand and every selected competitor retain independent 2021–2026 pages.
-- Allowed statuses:
-  - `verified-verbatim`
-  - `source-found-copy-unverified`
-  - `not-found`
-- Only verified-verbatim copy may use quotation marks.
-- Message Trajectory and Strategic So What remain mandatory.
+- complete styled prompt path: PASS
+- V6 workbook inactive in external/internal paths: PASS
+- 40 pages / 40 navigation links / Appendix 0: PASS
+- CSS, navigation, tables, and diagrams present: PASS
+- User Brief / Identity / alias correction: PASS
+- sample leakage: 0
+- scripts: 0 after sanitization
+- P18 labels, axes, coordinates, movement: PASS
+- 1280×720 and overflow 0: PASS
+- save → reload → reopen: PASS
+- repeated Export PDF / Ctrl+P / Cmd+P: PASS
+- native PDF: 40 pages, 960×540pt
 
-## Excluded experiments
+The QA fixture copy is not owner content-quality approval.
 
-- `feature-visualization-engine-v1` / PR #6: failed audit implementation; never merge
-- PR #8, #9, #10: superseded experiments; never restore
+## Active implementation files
+
+- `src/lib/userBriefContract.ts`
+- `src/lib/installUserBriefInputNormalizer.ts`
+- `src/report/reportIdentityLock.ts`
+- `src/report/phase6PromptPackage.ts`
+- `src/report/semanticHtmlReportV5.ts`
+- `src/lib/installFullReportPhase6Bridge.ts`
+- `src/lib/geminiCompiler.ts`
+- `src/report/semanticReportV4.ts`
+- `src/report/structuredReportCrossValidation.ts`
+- `src/report/reportDomSafety.ts`
+- `scripts/test-full-report-contract.mjs`
+- `scripts/test-full-report-runtime.mjs`
+- `scripts/e2e-phase6-five-competitor-native-print.mjs`
+
+`src/report/semanticHtmlReportV6.ts` may remain only as rejected audit code until an explicit cleanup decision. It must not be imported by active Phase 6 paths.
+
+## Remaining gate
+
+- PR #24 is not approved for merge.
+- The correct visual format has been restored.
+- The timeout constraint remains unresolved.
+- The next architecture decision is whether to approve a deterministic batch-generation workflow that preserves the complete visual artifact.
+- Do not merge to `main` without explicit owner approval.

@@ -31,11 +31,17 @@ function v4Inflection() {
   gap.className = 'inflection-gap is-structured-v4';
   gap.innerHTML = `
     <div class="inflection-reality-v4">
-      <small>PRODUCT REALITY · 실제 제품 진화</small>
-      <div class="product-evolution"><span>환급</span><i>→</i><span>케어</span><i>→</i><span>SeNa</span><i>→</i><span>종합 세무관리</span></div>
+      <span style="color:var(--full-muted);font-size:9.5px;font-weight:900;letter-spacing:.025em">PRODUCT</span>
+      <strong style="display:block;margin-top:12px;font-size:12px;line-height:1.45">환급 → 케어 → SeNa → 종합 세무관리</strong>
     </div>
-    <div class="inflection-gap-v4"><small>BRAND GAP · 핵심 간극</small><strong>제품은 확장됐지만<br>소비자 인식은 환급에 고정</strong></div>
-    <div class="inflection-perception-v4"><small>CURRENT PERCEPTION · 현재 인식</small><strong>사장님 세금 환급</strong></div>
+    <div class="inflection-gap-v4">
+      <div style="color:var(--full-muted);font-size:9.5px;font-weight:900;letter-spacing:.025em">BRAND GAP · 핵심 간극</div>
+      <div style="margin-top:8px;color:var(--full-red);font-size:24px;font-weight:900">≠</div>
+    </div>
+    <div class="inflection-perception-v4">
+      <span style="color:var(--full-muted);font-size:9.5px;font-weight:900;letter-spacing:.025em">PERCEPTION</span>
+      <strong>사장님 세금 환급</strong>
+    </div>
   `;
 }
 
@@ -82,12 +88,14 @@ function applyFullReportV4() {
   v4DeepDives();
   v4SemanticHierarchy();
   v4Note('#aipl', V4_AIPL, 'aipl-header-note');
-  ['#comp-landscape', '#consumer-exec', '#persona-1', '#persona-2', '#persona-3', '#jtbd'].forEach((id) => {
+  document.querySelectorAll<HTMLElement>('#comp-landscape .jtbd-header-note, #jtbd .jtbd-header-note').forEach((note) => note.remove());
+  ['#consumer-exec', '#persona-1', '#persona-2', '#persona-3'].forEach((id) => {
     const oldNote = document.querySelector<HTMLElement>(`${id} .jtbd-header-note`);
     if (oldNote) oldNote.textContent = V4_JTBD;
     else v4Note(id, V4_JTBD, 'jtbd-header-note');
   });
   document.querySelector<HTMLElement>('#creative-method .history-scope')?.remove();
+  document.documentElement.dataset.fullReportV4Ready = 'true';
 }
 
 window.addEventListener('DOMContentLoaded', () => window.setTimeout(applyFullReportV4, 520));

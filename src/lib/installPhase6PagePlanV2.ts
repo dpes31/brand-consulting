@@ -1,21 +1,15 @@
-const PLAN_VERSION = 'competitor5-main40-appendix8-v2';
+const PLAN_VERSION = 'focus3-main40-no-appendix-v3';
+const SOURCE_PAGE_COUNT = 48;
 const MAIN_COUNT = 40;
+const JOB_DEFINITION = 'JOB : 고객이 특정 상황에서 달성하고 싶어 하는 근본적인 목표나 해결하고자 하는 일을 뜻함';
 
 const MAIN_IDS = [
   'cover','executive','identity','kpi','category-target','growth','inflection','portfolio',
-  'market-context','market-shift','comp-ranking',
-  'deep-삼쩜삼','deep-더낸세금·혜움','deep-SSEM','deep-dive-4','deep-dive-5',
-  'product-matrix','positioning',
-  'consumer-exec','consumer-trends','consumer-target','persona-1','persona-2','persona-3',
-  'jtbd','pain-needs','aipl','loyalty',
-  'creative-비즈넵','creative-삼쩜삼','creative-더낸세금·혜움','creative-SSEM·쌤157',
-  'creative-history-4','creative-history-5','creative-trajectory',
-  'strategy-swot','root-cause','stp','strategy-routes','strategy-choice',
-] as const;
-
-const APPENDIX_IDS = [
-  'appendix-cover','appendix-receipt','appendix-negative','appendix-premortem',
-  'appendix-roadmap','appendix-measure','appendix-evidence-sources','appendix-back',
+  'market-context','market-shift',
+  'comp-landscape','comp-ranking','deep-삼쩜삼','deep-더낸세금·혜움','deep-SSEM','product-matrix','category-cliche','positioning',
+  'consumer-exec','consumer-trends','consumer-target','persona-1','persona-2','persona-3','jtbd','pain-needs','aipl','loyalty',
+  'creative-비즈넵','creative-삼쩜삼','creative-더낸세금·혜움','creative-SSEM·쌤157','creative-trajectory','creative-insight',
+  'strategy-swot','root-cause','stp','strategy-routes','strategy-choice','decision-close',
 ] as const;
 
 const NAV_GROUPS = [
@@ -23,29 +17,16 @@ const NAV_GROUPS = [
   ['I. MARKET', MAIN_IDS.slice(8, 10)],
   ['II. COMPETITOR', MAIN_IDS.slice(10, 18)],
   ['III. CONSUMER', MAIN_IDS.slice(18, 28)],
-  ['IV. CREATIVE', MAIN_IDS.slice(28, 35)],
-  ['V. STRATEGY', MAIN_IDS.slice(35, 40)],
-  ['APPENDIX', APPENDIX_IDS],
+  ['IV. CREATIVE', MAIN_IDS.slice(28, 34)],
+  ['V. STRATEGY', MAIN_IDS.slice(34, 40)],
 ] as const;
 
-type Meta = { id: string; chapter: string; title: string; tag: string };
+type Meta = { id: string; chapter: string; title?: string; tag?: string };
 
 function getSlide(documentRef: Document, id: string): HTMLElement {
   const node = documentRef.getElementById(id);
   if (!(node instanceof HTMLElement)) throw new Error(`Missing Phase 6 slide: ${id}`);
   return node;
-}
-
-function cloneSlide(documentRef: Document, id: string): HTMLElement {
-  return getSlide(documentRef, id).cloneNode(true) as HTMLElement;
-}
-
-function copySlide(source: HTMLElement, target: HTMLElement): void {
-  target.className = source.className;
-  target.innerHTML = source.innerHTML;
-  Array.from(target.attributes)
-    .filter((attribute) => attribute.name.startsWith('data-'))
-    .forEach((attribute) => target.removeAttribute(attribute.name));
 }
 
 function setMeta(target: HTMLElement, meta: Meta): void {
@@ -54,167 +35,165 @@ function setMeta(target: HTMLElement, meta: Meta): void {
   const title = target.querySelector<HTMLElement>('.full-title-row h2');
   const tag = target.querySelector<HTMLElement>('.full-tag');
   if (breadcrumb) breadcrumb.textContent = meta.chapter;
-  if (title) title.textContent = meta.title;
-  if (tag) tag.textContent = meta.tag;
+  if (title && meta.title) title.textContent = meta.title;
+  if (tag && meta.tag) tag.textContent = meta.tag;
 }
 
-function makeAppendixCover(target: HTMLElement): void {
-  target.id = 'appendix-cover';
-  target.className = 'full-slide full-slide--dark appendix-divider';
-  target.innerHTML = `
-    <header class="full-slide-header">
-      <div class="full-breadcrumb">APPENDIX</div>
-      <div class="full-title-row"><h2>전략을 실행 가능한 증거와 통제 장치로 전환합니다</h2><div class="full-title-meta"><span class="full-tag">APPENDIX</span><span class="full-page">A1</span></div></div>
-    </header>
-    <div class="full-slide-body">
-      <div class="appendix-divider-layout">
-        <span>STRATEGIC EVIDENCE & EXECUTION PACK</span>
-        <h3>APPENDIX</h3>
-        <p>Winning Move · Via Negativa · Pre-mortem · Roadmap · Measurement · Evidence & Sources</p>
-        <div class="appendix-divider-index"><b>01</b><span>PRODUCT PROOF</span><b>02</b><span>RISK CONTROL</span><b>03</b><span>EXECUTION & KPI</span><b>04</b><span>EVIDENCE REGISTER</span></div>
-      </div>
-    </div>`;
+function restoreApprovedLabels(documentRef: Document): void {
+  setMeta(getSlide(documentRef, 'executive'), {
+    id: 'executive',
+    chapter: 'EXECUTIVE / 핵심 진단',
+    tag: '핵심 진단',
+  });
+  setMeta(getSlide(documentRef, 'kpi'), {
+    id: 'kpi',
+    chapter: '0. BRAND FACT BOOK / FACTS',
+    tag: 'FACTS',
+  });
+  setMeta(getSlide(documentRef, 'category-target'), {
+    id: 'category-target',
+    chapter: '0. BRAND FACT BOOK / CATEGORY & TARGET',
+  });
+  setMeta(getSlide(documentRef, 'market-shift'), {
+    id: 'market-shift',
+    chapter: 'I. MARKET > CATEGORY SHIFT',
+    tag: 'CATEGORY SHIFT',
+  });
+
+  documentRef.querySelectorAll<HTMLElement>('#market-shift .ladder-step > span').forEach((label, index) => {
+    label.textContent = `LEVEL ${index + 1}`;
+    label.style.fontSize = '9px';
+    label.style.whiteSpace = 'nowrap';
+  });
+
+  ['persona-1', 'persona-2', 'persona-3'].forEach((id) => {
+    getSlide(documentRef, id).dataset.personaTitleSource = 'core-target';
+  });
 }
 
-function addRankingCapacity(documentRef: Document): void {
-  const table = documentRef.querySelector<HTMLTableElement>('#comp-ranking .ranking-table');
-  const body = table?.tBodies.item(0);
-  const sourceRow = body?.rows.item(Math.max(0, (body?.rows.length || 1) - 1));
-  if (body && sourceRow) {
-    while (body.rows.length < 5) {
-      const row = sourceRow.cloneNode(true) as HTMLTableRowElement;
-      const rank = body.rows.length + 1;
-      Array.from(row.cells).forEach((cell, index) => {
-        if (index === 0) cell.textContent = String(rank);
-        else if (index === 1) cell.textContent = `DIRECT COMPETITOR ${rank}`;
-        else if (index === row.cells.length - 1) cell.textContent = '—';
-        else cell.textContent = 'N/A';
-      });
-      body.appendChild(row);
+function ensureJobDefinitionNotes(documentRef: Document): void {
+  documentRef.querySelectorAll('#comp-landscape .jtbd-header-note, #jtbd .jtbd-header-note').forEach((node) => node.remove());
+
+  const categoryJob = documentRef.querySelector<HTMLElement>('#comp-landscape .category-job');
+  if (categoryJob) {
+    const label = categoryJob.querySelector<HTMLElement>(':scope > span');
+    if (label) label.textContent = 'CATEGORY JOB';
+    let note = categoryJob.querySelector<HTMLElement>(':scope > .job-definition-note--category');
+    if (!note) {
+      note = documentRef.createElement('div');
+      note.className = 'job-definition-note job-definition-note--category';
+      categoryJob.appendChild(note);
     }
+    note.textContent = JOB_DEFINITION;
+    note.style.gridColumn = '1 / -1';
+    note.style.marginTop = '2px';
+    note.style.paddingTop = '6px';
+    note.style.borderTop = '1px solid rgba(91,103,214,.18)';
+    note.style.color = 'var(--full-muted)';
+    note.style.fontSize = '8px';
+    note.style.lineHeight = '1.45';
+    note.style.wordBreak = 'keep-all';
   }
 
-  const interpretation = documentRef.querySelector<HTMLElement>('#comp-ranking .ranking-interpretation');
-  const sourceCard = interpretation?.lastElementChild;
-  if (interpretation && sourceCard) {
-    while (interpretation.children.length < 5) {
-      const card = sourceCard.cloneNode(true) as HTMLElement;
-      const index = interpretation.children.length + 1;
-      const name = card.querySelector<HTMLElement>('b');
-      const copy = card.querySelector<HTMLElement>('p');
-      if (name) name.textContent = `DIRECT COMPETITOR ${index}`;
-      if (copy) copy.textContent = '선택 메커니즘과 위협 구조를 독립 검증';
-      interpretation.appendChild(card);
+  const jtbdBody = documentRef.querySelector<HTMLElement>('#jtbd .full-slide-body');
+  const jtbdTable = jtbdBody?.querySelector<HTMLElement>('.jtbd-table');
+  if (jtbdBody && jtbdTable) {
+    let note = jtbdBody.querySelector<HTMLElement>(':scope > .job-definition-note--table');
+    if (!note) {
+      note = documentRef.createElement('div');
+      note.className = 'job-definition-note job-definition-note--table';
+      jtbdBody.insertBefore(note, jtbdTable);
     }
+    note.textContent = JOB_DEFINITION;
+    note.style.margin = '0 0 7px';
+    note.style.color = 'var(--full-muted)';
+    note.style.fontSize = '8px';
+    note.style.lineHeight = '1.45';
+    note.style.wordBreak = 'keep-all';
   }
 }
 
-function addMatrixCapacity(documentRef: Document): void {
-  const table = documentRef.querySelector<HTMLTableElement>('#product-matrix .matrix-table');
-  const header = table?.tHead?.rows.item(0);
-  if (!table || !header) return;
-  while (header.cells.length < 7) {
-    const cell = documentRef.createElement('th');
-    cell.textContent = `DIRECT ${header.cells.length - 1}`;
-    header.appendChild(cell);
+function restoreApprovedVisuals(documentRef: Document): void {
+  documentRef.querySelectorAll<HTMLElement>('#market-context .market-force strong').forEach((node) => {
+    node.style.fontSize = '12px';
+    node.style.lineHeight = '1.5';
+  });
+  documentRef.querySelectorAll<HTMLElement>('.persona-index').forEach((node) => {
+    node.style.minWidth = '62px';
+    node.style.whiteSpace = 'nowrap';
+    node.style.wordBreak = 'normal';
+    node.style.overflowWrap = 'normal';
+  });
+  documentRef.querySelectorAll('.history-now').forEach((node) => node.remove());
+  documentRef.querySelectorAll<HTMLElement>('.history-original .history-card').forEach((node) => {
+    node.style.alignItems = 'center';
+    node.style.textAlign = 'center';
+    node.style.borderRadius = '0';
+  });
+  const creative = documentRef.querySelector<HTMLElement>('#creative-insight .creative-gap-layout');
+  if (creative) creative.style.alignItems = 'center';
+  const stp = documentRef.querySelector<HTMLElement>('#stp .stp-layout');
+  if (stp) stp.style.alignItems = 'center';
+  const choice = documentRef.querySelector<HTMLElement>('#strategy-choice .choice-final');
+  if (choice) {
+    choice.style.gridColumn = 'auto';
+    choice.style.marginTop = '0';
   }
-  Array.from(table.tBodies.item(0)?.rows || []).forEach((row) => {
-    while (row.cells.length < 7) {
-      const source = row.cells.item(Math.max(1, row.cells.length - 1));
-      const cell = source ? source.cloneNode(true) as HTMLTableCellElement : documentRef.createElement('td');
-      cell.classList.remove('is-target');
-      cell.textContent = '조사 근거 입력';
-      row.appendChild(cell);
-    }
-  });
 }
 
-function addPositioningCapacity(documentRef: Document): void {
-  const map = documentRef.querySelector<HTMLElement>('#positioning .position-map');
-  if (!map || map.querySelector('.map-dot.comp4')) return;
-  ['comp4','comp5'].forEach((className, index) => {
-    const dot = documentRef.createElement('div');
-    dot.className = `map-dot ${className}`;
-    dot.textContent = `DIRECT ${index + 4}`;
-    map.appendChild(dot);
+function promoteDecisionClose(documentRef: Document): void {
+  const close = getSlide(documentRef, 'appendix-back');
+  setMeta(close, {
+    id: 'decision-close',
+    chapter: 'V. STRATEGY > DECISION RECEIPT',
+    title: '최종 선택을 브랜드 원칙과 실행 문장으로 고정한다',
+    tag: 'DECISION RECEIPT',
   });
-}
-
-function addTrajectoryCapacity(documentRef: Document): void {
-  const map = documentRef.querySelector<HTMLElement>('#creative-trajectory .trajectory-map');
-  const source = map?.querySelector<HTMLElement>('.trajectory-brand.ssem');
-  if (!map || !source || map.querySelector('.trajectory-brand.comp4')) return;
-  ['comp4','comp5'].forEach((className, index) => {
-    const row = source.cloneNode(true) as HTMLElement;
-    row.className = `trajectory-brand ${className}`;
-    const brand = row.querySelector<HTMLElement>('b');
-    if (brand) brand.textContent = `DIRECT COMPETITOR ${index + 4}`;
-    map.appendChild(row);
-  });
-}
-
-function combineEvidenceSources(
-  documentRef: Document,
-  evidenceTemplate: HTMLElement,
-  sourcesTemplate: HTMLElement,
-  target: HTMLElement,
-): void {
-  copySlide(evidenceTemplate, target);
-  setMeta(target, {
-    id: 'appendix-evidence-sources',
-    chapter: 'APPENDIX > EVIDENCE & SOURCE REGISTER',
-    title: '증거 공백과 출처 등급을 한 장에서 관리합니다',
-    tag: 'EVIDENCE REGISTER',
-  });
-  const body = target.querySelector<HTMLElement>('.full-slide-body');
-  const evidence = evidenceTemplate.querySelector<HTMLElement>('.evidence-gap-grid')?.cloneNode(true) as HTMLElement | undefined;
-  const sources = sourcesTemplate.querySelector<HTMLElement>('.source-hierarchy')?.cloneNode(true) as HTMLElement | undefined;
-  if (!body || !evidence || !sources) return;
-  const layout = documentRef.createElement('div');
-  layout.className = 'appendix-evidence-source-layout';
-  const left = documentRef.createElement('section');
-  left.className = 'appendix-register-panel appendix-register-panel--evidence';
-  left.innerHTML = '<span class="appendix-register-label">EVIDENCE GAPS</span>';
-  left.appendChild(evidence);
-  const right = documentRef.createElement('section');
-  right.className = 'appendix-register-panel appendix-register-panel--sources';
-  right.innerHTML = '<span class="appendix-register-label">SOURCE LABELS</span>';
-  right.appendChild(sources);
-  layout.append(left, right);
-  body.replaceChildren(layout);
+  close.classList.remove('appendix-slide');
+  close.dataset.reportRole = 'decision-close';
 }
 
 function applyLabels(documentRef: Document): void {
-  [...MAIN_IDS, ...APPENDIX_IDS].forEach((id, index) => {
+  MAIN_IDS.forEach((id, index) => {
     const target = getSlide(documentRef, id);
-    const main = index < MAIN_COUNT;
     target.dataset.page = String(index + 1);
-    target.dataset.zone = main ? 'main' : 'appendix';
+    target.dataset.zone = 'main';
     const page = target.querySelector<HTMLElement>('.full-page');
-    if (page) page.textContent = main ? String(index + 1).padStart(2, '0') : `A${index - MAIN_COUNT + 1}`;
+    if (page) page.textContent = String(index + 1).padStart(2, '0');
   });
 }
 
 function reorder(documentRef: Document): void {
   const content = documentRef.querySelector<HTMLElement>('.full-report-content');
   if (!content) throw new Error('Missing Phase 6 report content.');
-  const labels = Array.from(content.querySelectorAll<HTMLElement>(':scope > .full-report-section-label'));
-  const mainLabel = labels[0];
-  const appendixLabel = labels[1];
-  if (!mainLabel || !appendixLabel) throw new Error('Missing Phase 6 section labels.');
 
   const frameFor = (id: string): HTMLElement => {
     const target = getSlide(documentRef, id);
     return target.closest<HTMLElement>('.full-frame') || target;
   };
   const mainFrames = MAIN_IDS.map(frameFor);
-  const appendixFrames = APPENDIX_IDS.map(frameFor);
-  Array.from(content.querySelectorAll<HTMLElement>(':scope > .full-frame')).forEach((frame) => frame.remove());
 
+  Array.from(content.querySelectorAll<HTMLElement>(':scope > .full-frame')).forEach((frame) => frame.remove());
+  const labels = Array.from(content.querySelectorAll<HTMLElement>(':scope > .full-report-section-label'));
+  const mainLabel = labels[0] || documentRef.createElement('div');
+  mainLabel.className = 'full-report-section-label';
   mainLabel.textContent = 'MAIN DECK · 40 PAGES';
-  appendixLabel.textContent = 'APPENDIX · 8 PAGES';
+  labels.forEach((label) => label.remove());
+
+  const toolbar = content.querySelector<HTMLElement>('.full-report-toolbar');
+  if (toolbar) toolbar.after(mainLabel);
+  else content.prepend(mainLabel);
   mainLabel.after(...mainFrames);
-  appendixLabel.after(...appendixFrames);
+
+  const toolbarText = content.querySelector<HTMLElement>('.full-report-toolbar > div:first-child span');
+  if (toolbarText) toolbarText.textContent = '40 Main · Appendix 없음 · 16:9';
+  const toolbarStats = content.querySelector<HTMLElement>('.full-report-toolbar > div:last-child');
+  if (toolbarStats) {
+    Array.from(toolbarStats.querySelectorAll<HTMLElement>('span')).forEach((node) => node.remove());
+    const badge = documentRef.createElement('span');
+    badge.textContent = 'Main 40/40';
+    toolbarStats.prepend(badge);
+  }
 }
 
 function rebuildNav(documentRef: Document): void {
@@ -240,67 +219,28 @@ function rebuildNav(documentRef: Document): void {
 }
 
 function transform(documentRef: Document): boolean {
-  if (documentRef.body.dataset.phase6PagePlan === PLAN_VERSION) return true;
-  if (documentRef.querySelectorAll('.full-slide').length !== 48) return false;
+  if (documentRef.body.dataset.phase6PagePlan === PLAN_VERSION) {
+    ensureJobDefinitionNotes(documentRef);
+    return true;
+  }
+  const currentCount = documentRef.querySelectorAll('.full-slide').length;
+  if (currentCount !== SOURCE_PAGE_COUNT) return false;
 
-  const deepTemplate = cloneSlide(documentRef, 'deep-SSEM');
-  const historyTemplate = cloneSlide(documentRef, 'creative-SSEM·쌤157');
-  const receiptTemplate = cloneSlide(documentRef, 'appendix-receipt');
-  const negativeTemplate = cloneSlide(documentRef, 'appendix-negative');
-  const premortemTemplate = cloneSlide(documentRef, 'appendix-premortem');
-  const roadmapTemplate = cloneSlide(documentRef, 'appendix-roadmap');
-  const measureTemplate = cloneSlide(documentRef, 'appendix-measure');
-  const evidenceTemplate = cloneSlide(documentRef, 'appendix-evidence');
-  const sourcesTemplate = cloneSlide(documentRef, 'appendix-sources');
-
-  const deep4 = getSlide(documentRef, 'appendix-receipt');
-  copySlide(deepTemplate, deep4);
-  setMeta(deep4, { id: 'deep-dive-4', chapter: 'II. COMPETITOR > DEEP DIVE 4', title: '네 번째 직접 경쟁사의 선택 메커니즘을 독립 검증합니다', tag: 'DEEP DIVE' });
-
-  const deep5 = getSlide(documentRef, 'appendix-premortem');
-  copySlide(deepTemplate, deep5);
-  setMeta(deep5, { id: 'deep-dive-5', chapter: 'II. COMPETITOR > DEEP DIVE 5', title: '다섯 번째 직접 경쟁사의 선택 메커니즘을 독립 검증합니다', tag: 'DEEP DIVE' });
-
-  const history4 = getSlide(documentRef, 'appendix-negative');
-  copySlide(historyTemplate, history4);
-  setMeta(history4, { id: 'creative-history-4', chapter: 'IV. CREATIVE > COMPETITOR HISTORY 4', title: '네 번째 직접 경쟁사의 6개년 메시지 이동을 검증합니다', tag: '2021–2026 YTD' });
-
-  const history5 = getSlide(documentRef, 'appendix-roadmap');
-  copySlide(historyTemplate, history5);
-  setMeta(history5, { id: 'creative-history-5', chapter: 'IV. CREATIVE > COMPETITOR HISTORY 5', title: '다섯 번째 직접 경쟁사의 6개년 메시지 이동을 검증합니다', tag: '2021–2026 YTD' });
-
-  makeAppendixCover(getSlide(documentRef, 'comp-landscape'));
-
-  const appendixReceipt = getSlide(documentRef, 'category-cliche');
-  copySlide(receiptTemplate, appendixReceipt);
-  setMeta(appendixReceipt, { id: 'appendix-receipt', chapter: 'APPENDIX > WINNING MOVE SPECIFICATION', title: 'Winning Move를 실제 제품 증거의 구조로 전환합니다', tag: 'PRODUCT PROOF' });
-
-  const appendixNegative = getSlide(documentRef, 'creative-method');
-  copySlide(negativeTemplate, appendixNegative);
-  setMeta(appendixNegative, { id: 'appendix-negative', chapter: 'APPENDIX > VIA NEGATIVA', title: '새 표현보다 먼저 중단해야 할 카테고리 습관을 명시합니다', tag: 'REMOVE' });
-
-  const appendixPremortem = getSlide(documentRef, 'creative-insight');
-  copySlide(premortemTemplate, appendixPremortem);
-  setMeta(appendixPremortem, { id: 'appendix-premortem', chapter: 'APPENDIX > PRE-MORTEM', title: '실패 가능성을 실행 전에 가정하고 통제 조건을 설계합니다', tag: 'RISK' });
-
-  const appendixRoadmap = getSlide(documentRef, 'appendix-measure');
-  copySlide(roadmapTemplate, appendixRoadmap);
-  setMeta(appendixRoadmap, { id: 'appendix-roadmap', chapter: 'APPENDIX > EXECUTION ROADMAP', title: '제품 증거부터 브랜드 확장까지 실행 순서를 고정합니다', tag: 'ROADMAP' });
-
-  const appendixMeasure = getSlide(documentRef, 'appendix-evidence');
-  copySlide(measureTemplate, appendixMeasure);
-  setMeta(appendixMeasure, { id: 'appendix-measure', chapter: 'APPENDIX > MEASUREMENT PLAN', title: '성과와 위험 지표를 함께 측정합니다', tag: 'KPI' });
-
-  combineEvidenceSources(documentRef, evidenceTemplate, sourcesTemplate, getSlide(documentRef, 'appendix-sources'));
-  addRankingCapacity(documentRef);
-  addMatrixCapacity(documentRef);
-  addPositioningCapacity(documentRef);
-  addTrajectoryCapacity(documentRef);
+  restoreApprovedLabels(documentRef);
+  promoteDecisionClose(documentRef);
   applyLabels(documentRef);
   reorder(documentRef);
   rebuildNav(documentRef);
+  restoreApprovedVisuals(documentRef);
+  ensureJobDefinitionNotes(documentRef);
+
+  if (documentRef.querySelectorAll('.full-slide').length !== MAIN_COUNT) {
+    throw new Error('Phase 6 Main Deck must contain exactly 40 slides after restoration.');
+  }
 
   documentRef.body.dataset.phase6PagePlan = PLAN_VERSION;
+  documentRef.body.dataset.reportPageCount = String(MAIN_COUNT);
+  documentRef.body.dataset.reportAppendixCount = '0';
   documentRef.documentElement.dataset.phase6PagePlanReady = 'true';
   documentRef.dispatchEvent(new CustomEvent('phase6-page-plan-ready'));
   return true;
@@ -316,7 +256,7 @@ export function installPhase6PagePlanV2(): () => void {
     try {
       return transform(document);
     } catch (error) {
-      console.error('[Phase 6 Page Plan V2]', error);
+      console.error('[Phase 6 Page Plan V3]', error);
       document.documentElement.dataset.phase6PagePlanReady = 'failed';
       return false;
     }

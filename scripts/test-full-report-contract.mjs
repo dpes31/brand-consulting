@@ -11,56 +11,97 @@ const blobSha = (content) => createHash('sha1')
   .digest('hex');
 
 const legacy = read('public/template.html');
-const template = read('public/template-full-report-v1.html');
 const css = read('public/full-report-v1.css');
 const approvedCss = read('public/full-report-approved-v1.css');
 const pilotCss = read('src/pages/BiznupFullIntegrated.css');
-const runtime = read('public/full-report-v1.js');
-const contract = read('src/report/productionReportContract.ts');
-const compiler = read('src/report/fullReportCompiler.ts');
+const compiler = read('src/report/fullReportCompilerV3.ts');
+const semanticHtml = read('src/report/semanticHtmlReportV5.ts');
+const definitionPolicy = read('src/report/structuredDefinitionPolicy.ts');
+const domSafety = read('src/report/reportDomSafety.ts');
+const pagePlan = read('src/lib/installPhase6PagePlanV2.ts');
+const cachePolicy = read('src/lib/installPhase6ApprovedBaseCachePolicy.ts');
+const densityV2 = read('src/pages/full-report-density-v2-runtime.ts');
+const visualV4 = read('src/pages/full-report-v4-runtime.ts');
 const apiCompiler = read('src/lib/geminiCompiler.ts');
 const bridge = read('src/lib/installFullReportPhase6Bridge.ts');
-const inputGuard = read('src/lib/installPhase6InputGuard.ts');
+const runtime = read('src/lib/installFullReportRuntimeCompatibility.ts');
+const pdfBridge = read('src/lib/installFullReportPdfButtonBridge.ts');
 const main = read('src/main.tsx');
 
+const jobDefinition = 'JOB : 고객이 특정 상황에서 달성하고 싶어 하는 근본적인 목표나 해결하고자 하는 일을 뜻함';
+
 check(blobSha(legacy) === '22bc6937b3d672e063d4b240c5a39b9c61700fec', 'Legacy template changed.');
-check(template.includes('data-report-version="full-report-v1"'), 'FULL template marker missing.');
-check(template.includes('{{REPORT_JSON}}'), 'Compatibility data placeholder missing.');
 check(approvedCss.includes('/full-report-approved-v1/base.css'), 'Approved Pilot CSS missing.');
 check(pilotCss.trim() === "@import url('/full-report-approved-v1.css');", 'Pilot CSS entrypoint changed.');
 check(css.includes('--slide-w:1280px') && css.includes('--slide-h:720px'), '1280x720 lock missing.');
-check(runtime.includes('report.mainSlides.length !== 40'), 'Main Deck runtime check missing.');
-check(runtime.includes('report.appendixSlides.length !== 8'), 'Appendix runtime check missing.');
-check(contract.includes('PRODUCTION_MAIN_PAGE_COUNT = 40'), 'Main contract missing.');
-check(contract.includes('PRODUCTION_APPENDIX_PAGE_COUNT = 8'), 'Appendix contract missing.');
 
-const pages = [...compiler.matchAll(/^\s*\[(\d+),\s*'(main|appendix)'/gm)];
-check(pages.length === 48, `Page plan has ${pages.length} entries.`);
-check(pages.filter(([, , zone]) => zone === 'main').length === 40, 'Main plan must contain 40 pages.');
-check(pages.filter(([, , zone]) => zone === 'appendix').length === 8, 'Appendix plan must contain 8 pages.');
-check(compiler.includes('ONE complete standalone HTML document, not JSON'), 'Complete HTML output rule missing.');
-check(compiler.includes('IMMUTABLE APPROVED BASE HTML — START'), 'Approved Base HTML marker missing.');
-check(compiler.includes('VISUAL INTENT BRIEF INTERPRETATION'), 'Visual Intent interpretation missing.');
+check(compiler.includes('const PAGE_COUNT = 40'), 'Compiler page count must be 40.');
+check(compiler.includes('11 Competitive Landscape'), 'Landscape page missing.');
+check(compiler.includes('17 Category Clichés'), 'Category Clichés page missing.');
+check(compiler.includes('34 Creative Insight'), 'Creative Insight page missing.');
+check(compiler.includes('40 Decision Receipt / Close'), 'Decision Close page missing.');
+check(compiler.includes('loadApprovedPilotBaseHtml'), 'Approved 40-page base capture missing.');
+check(compiler.includes("dataset.fullReportV4Ready === 'true'"), 'Approved base capture does not wait for V4 visual runtime.');
+
+check(pagePlan.includes('focus3-main40-no-appendix-v3'), '40-page page-plan version missing.');
+check(pagePlan.includes("'comp-landscape'"), 'Landscape not retained in page plan.');
+check(pagePlan.includes("'category-cliche'"), 'Category Clichés not retained in page plan.');
+check(pagePlan.includes("'creative-insight'"), 'Creative Insight not retained in page plan.');
+check(pagePlan.includes("'decision-close'"), 'Decision Close not promoted to page 40.');
+check(!pagePlan.includes("'creative-method'"), 'Creative Methodology remains in the output plan.');
+check(pagePlan.includes("dataset.reportAppendixCount = '0'"), 'Appendix count must be zero.');
+check(pagePlan.includes(jobDefinition), 'Required JOB definition note is missing.');
+check(pagePlan.includes('job-definition-note--category'), 'P11 CATEGORY JOB note hook is missing.');
+check(pagePlan.includes('job-definition-note--table'), 'P25 Job 층위 note hook is missing.');
+
+check(cachePolicy.includes('brand-consulting:phase6-semantic-html-v5:'), 'V5 approved-base cache invalidation is missing.');
+check(cachePolicy.includes('sessionStorage.removeItem'), 'Approved-base cache removal is missing.');
+check(main.includes('installPhase6ApprovedBaseCachePolicy()'), 'Approved-base cache policy is not installed before Phase 6.');
+check(!densityV2.includes("['#comp-landscape', '#consumer-exec'"), 'Density V2 still injects an obsolete P11 JTBD header note.');
+check(!densityV2.includes('foundingJtbd.appendChild'), 'Density V2 still injects identity.content1.');
+check(visualV4.includes("dataset.fullReportV4Ready = 'true'"), 'V4 runtime readiness marker is missing.');
+check(!visualV4.includes("['#comp-landscape', '#consumer-exec'"), 'V4 still overwrites the P11/P25 JOB note.');
+check(!visualV4.includes('<small>PRODUCT REALITY'), 'V4 inflection still creates ordinal small-note fields.');
+
+check(semanticHtml.includes('Return one complete standalone HTML document, not JSON.'), 'Complete HTML output contract missing.');
+check(semanticHtml.includes('[STEP 0–5 RESEARCH — SOURCE OF TRUTH]'), 'Step 0–5 research block missing.');
 check(
-  compiler.includes('It does NOT mean that the final output should be JSON.') ||
-  compiler.includes('Visual Intent Brief JSON is an intermediate assignment brief, not the final output format.'),
-  'Visual Intent final-output rule missing.',
+  semanticHtml.indexOf('[STEP 0–5 RESEARCH — SOURCE OF TRUTH]')
+    < semanticHtml.indexOf('[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — START]'),
+  'Step 0–5 research must appear before the large HTML template.',
 );
-check(compiler.includes('loadApprovedPilotBaseHtml'), 'Pilot capture missing.');
-check(compiler.includes('assertApprovedFullReportHtml'), 'HTML validator missing.');
+check(semanticHtml.includes('[[FIELD:${key}]]'), 'Semantic field token generation missing.');
+check(semanticHtml.includes('compileSemanticHtmlReportV5'), 'Semantic HTML compiler missing.');
+check(semanticHtml.includes('sanitizeCompatibleFullReportHtml'), 'Active-content sanitizer missing.');
+check(semanticHtml.includes('computeReportDomFingerprint'), 'Approved DOM fingerprint validation missing.');
+check(semanticHtml.includes('renderSemanticReportV4'), 'Approved DOM reassembly missing.');
+check(semanticHtml.includes("dataset.contentContract = 'semantic-html-v5'"), 'Semantic HTML output marker missing.');
+
+check(definitionPolicy.includes('GENERIC_ORDER_FIELD'), 'Generic order field guard missing.');
+check(definitionPolicy.includes('jtbd.row'), 'JTBD semantic role mapping missing.');
+check(domSafety.includes("querySelectorAll('script,noscript,base')"), 'Script sanitizer missing.');
+check(domSafety.includes('FULL_REPORT_PAGE_COUNT = 40'), 'DOM safety page count must be 40.');
 
 for (const source of [apiCompiler, bridge]) {
   check(source.includes('loadApprovedPilotBaseHtml'), 'A Phase 6 path does not load the approved Pilot.');
-  check(source.includes('buildFullReportHtmlPrompt'), 'A Phase 6 path does not use the HTML prompt.');
-  check(source.includes('extractCompleteFullReportHtml'), 'A Phase 6 path does not import complete HTML.');
-  check(source.includes('assertApprovedFullReportHtml'), 'A Phase 6 path does not validate complete HTML.');
-  check(!source.includes('assembleFullReportHtml'), 'A Phase 6 path still uses JSON assembly.');
+  check(source.includes('createSemanticHtmlTemplateV5'), 'A Phase 6 path does not create the semantic HTML template.');
+  check(source.includes('buildSemanticHtmlPromptV5'), 'A Phase 6 path does not use the complete HTML prompt.');
+  check(source.includes('compileSemanticHtmlReportV5'), 'A Phase 6 path does not validate and compile returned HTML.');
+  check(!source.includes('createSemanticHtmlWorkbookV6'), 'A Phase 6 path still uses the lightweight workbook.');
+  check(!source.includes('createResearchOnlyLayoutTemplate'), 'A Phase 6 path still uses ordinal CONTENT SLOT generation.');
+  check(!source.includes('addResearchSlotRules'), 'A Phase 6 path still uses ordinal slot prompt rules.');
+  check(!source.includes('extractProductionReportJson'), 'A Phase 6 path exposes JSON as the external result.');
 }
 
-check(inputGuard.includes('looksLikeJson'), 'Obsolete JSON guard missing.');
-check(inputGuard.includes('완성 HTML'), 'Complete HTML guidance missing.');
-check(main.includes('installPhase6InputGuard()'), 'Phase 6 input guard not installed.');
-check(main.includes('installFullReportPhase6Bridge()'), 'Phase 6 HTML bridge not installed.');
-check(main.includes('installPhase6PagePlanV2()'), 'Five-competitor Phase 6 page plan not installed.');
+check(bridge.includes('완성 HTML 프롬프트 다운로드'), 'User-facing complete HTML action missing.');
+check(bridge.includes('phase6_complete_html_prompt_'), 'Complete HTML prompt filename missing.');
+check(bridge.includes('CSS·레이아웃·도식·내비게이션'), 'Full visual artifact guidance missing.');
+check(!bridge.includes('phase6_lightweight_html_prompt_'), 'Lightweight prompt filename remains active.');
+check(!bridge.includes('structured-json'), 'JSON input mode remains in the user workflow.');
 
-console.log('FULL report contract PASS: approved 40+8 HTML uses the five-competitor page plan.');
+check(runtime.includes('FULL_REPORT_PAGE_COUNT = 40'), 'Native PDF preflight must use 40 pages.');
+check(pdfBridge.includes('FULL_PAGE_COUNT = 40'), 'PDF button bridge must use 40 pages.');
+check(main.includes('installFullReportPhase6Bridge()'), 'Phase 6 HTML bridge not installed.');
+check(main.includes('installPhase6PagePlanV2()'), 'Restored Phase 6 page plan not installed.');
+
+console.log('FULL report contract PASS: complete styled semantic HTML, deterministic V4 capture, fixed JOB notes, 40 Main pages, zero Appendix, no lightweight workbook, ordinal slot, or external JSON path.');
