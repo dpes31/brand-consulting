@@ -13,6 +13,7 @@ import { installVisualIntentWorkflowGuard } from './lib/installVisualIntentWorkf
 import { installPromptWorkflowGuard } from './lib/installPromptWorkflowGuard'
 import { installReportViewerUX } from './lib/installReportViewerUX'
 import { installPhase6InputGuard } from './lib/installPhase6InputGuard'
+import { installPhase6ApprovedBaseCachePolicy } from './lib/installPhase6ApprovedBaseCachePolicy'
 import { installFullReportPhase6Bridge } from './lib/installFullReportPhase6Bridge'
 import { installFullReportSourceRegistry } from './lib/installFullReportSourceRegistry'
 import { installFullReportPdfButtonBridge } from './lib/installFullReportPdfButtonBridge'
@@ -33,6 +34,7 @@ installVisualIntentWorkflowGuard()
 installUserBriefContract()
 installUserBriefInputNormalizer()
 installPhase6InputGuard()
+installPhase6ApprovedBaseCachePolicy()
 installFullReportPhase6Bridge()
 installFullReportSourceRegistry()
 installCreativeHistoryContract()
