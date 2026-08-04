@@ -357,7 +357,7 @@ function refreshPhase6Copy(): void {
     });
     const promptButton = Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
       .find((candidate) => normalizeText(candidate.textContent).includes('프롬프트 추출'));
-    if (promptButton) promptButton.textContent = '경량 HTML 프롬프트 다운로드';
+    if (promptButton) promptButton.textContent = '완성 HTML 프롬프트 다운로드 (경량)';
   } finally {
     refreshing = false;
   }
