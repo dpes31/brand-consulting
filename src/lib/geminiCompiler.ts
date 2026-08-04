@@ -7,10 +7,10 @@ import {
 import { getActiveUserBrief } from './userBriefContract';
 import { loadApprovedPilotBaseHtml } from '../report/fullReportCompilerV3';
 import {
-  buildSemanticHtmlPromptV5,
-  compileSemanticHtmlReportV5,
-  createSemanticHtmlTemplateV5,
-} from '../report/semanticHtmlReportV5';
+  buildSemanticHtmlPromptV6,
+  compileSemanticHtmlReportV6,
+  createSemanticHtmlWorkbookV6,
+} from '../report/semanticHtmlReportV6';
 import {
   applyFinalReportIdentityPolicy,
   applyReportIdentityLockToExternalHtml,
@@ -33,11 +33,11 @@ export async function compileReportToHTML(
     const identityLock = buildReportIdentityLock(brandName, registry, brief);
     const rawApprovedBase = await loadApprovedPilotBaseHtml(brandName);
     const approvedBase = sanitizeApprovedSampleBaseHtml(rawApprovedBase, brandName);
-    const semanticTemplate = createSemanticHtmlTemplateV5(approvedBase, brandName);
-    const compilerPrompt = buildSemanticHtmlPromptV5(
+    const semanticWorkbook = createSemanticHtmlWorkbookV6(approvedBase, brandName);
+    const compilerPrompt = buildSemanticHtmlPromptV6(
       rawData,
       brandName,
-      semanticTemplate.html,
+      semanticWorkbook.html,
       buildCreativeHistoryCompilerDirective(rawData),
     );
     const prompt = buildPhase6PromptPackage(compilerPrompt, brief, identityLock);
@@ -53,7 +53,7 @@ export async function compileReportToHTML(
     });
     const result = await chat.sendMessage({ message: prompt });
     const identityLockedOutput = applyReportIdentityLockToExternalHtml(result.text || '', identityLock);
-    const compiled = compileSemanticHtmlReportV5(identityLockedOutput, approvedBase, brandName);
+    const compiled = compileSemanticHtmlReportV6(identityLockedOutput, approvedBase, brandName);
     return applyFinalReportIdentityPolicy(compiled, identityLock);
   } catch (error) {
     throw normalizePhase6Error(error, brandName);
