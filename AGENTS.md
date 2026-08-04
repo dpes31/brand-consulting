@@ -5,7 +5,7 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 ## Safety
 
 - Use Preview-first feature branches. Merge only with explicit owner approval.
-- Never modify or delete:
+- Never modify, force-move, or delete:
   - `backup-production-stable-20260622`
   - `backup/main-before-full-report-v1-2026-07-01`
 - Preserve milestone history; do not squash unless explicitly approved.
@@ -14,7 +14,8 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
   - `feature-visualization-engine-v1` / PR #6
   - discarded PR #8, #9, #10 implementations
   - superseded PR #18–#23 Phase 6 attempts
-- Successful deployment alone is not completion. Inspect actual Viewer screens and PDF evidence.
+  - the rejected V6 lightweight semantic-workbook path introduced inside PR #24
+- Successful deployment alone is not completion. Inspect actual Viewer screens and rendered PDF evidence.
 
 ## Current checkpoint
 
@@ -22,7 +23,7 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Production commit before PR #24: `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`
 - Active branch: `fix/phase6-main40-final-html-semantic-v5`
 - Draft PR: `#24 Restore Phase 6 complete HTML output with semantic field locking`
-- Current validated implementation head before this documentation commit: `eb3ab64398e461b7bafaec6b834d7f1348c50a67`
+- Current validated implementation head before this documentation commit: `351c4247c4a9bf713955985c8963d2ddb0eb4257`
 - Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
 - Production build/contracts: PASS
 - LG 퓨리케어 browser/PDF E2E: PASS
@@ -33,31 +34,28 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 ## Owner-approved Phase 6 flow
 
 `Step 0–5 research`
-→ `lightweight complete HTML prompt download`
-→ `external AI returns one compact standalone 40-page semantic HTML document`
+→ `complete styled HTML prompt download`
+→ `external AI returns one complete standalone 40-page visual HTML document`
 → `paste or .html/.htm/.txt upload`
-→ `User Brief / Report Identity / semantic-field / page-order validation`
-→ `approved visual DOM expansion`
-→ `active-content / DOM fingerprint / cross-page / P18 validation`
+→ `active-content / User Brief / Report Identity / semantic-field / DOM / cross-page / P18 validation`
+→ `approved DOM reassembly`
 → `Viewer / save / reopen / native PDF`
 
-External AI output is HTML, not JSON. Never relabel or restore a JSON-only external workflow.
+External AI output is HTML, not JSON. The external result must be a directly viewable report, not a data workbook.
 
-## Lightweight HTML timeout mitigation
+## Rejected lightweight-workbook experiment
 
-The previous Phase 6 prompt duplicated application-owned CSS, layout, navigation, and decorative DOM in the external attachment. The measured owner Biznup file was 647,215 bytes; approximately 449,802 bytes were the fixed visual template.
+The V6 timeout experiment removed CSS, final layout wrappers, tables, diagrams, and navigation from the external artifact and asked the app to expand a semantic workbook later. Owner testing produced a 40-section field dump with no visual report format. It also contained repeated JTBD cells, noncanonical `UNVERIFIED` statuses, and raw URLs.
 
-Current V6 behavior:
+Therefore:
 
-- Download filename: `phase6_lightweight_html_prompt_<brand>.txt`.
-- UI action: `완성 HTML 프롬프트 다운로드 (경량)`.
-- External workbook retains exactly 40 page sections, semantic field keys, compact field metadata, and P18 coordinate keys.
-- External workbook excludes fixed CSS, final visual wrappers, navigation, and decorative DOM.
-- The app expands returned semantic values into the approved visual Renderer and then reuses the V5 security, fingerprint, cross-page, and P18 validators.
-- External output remains HTML. This is not the PR #21/#23 JSON workflow.
-- Latest LG fixture prompt size: 129,638 bytes.
-- Same-volume Biznup prompt estimate: approximately 292KB, about 55% smaller than the previous 647KB file.
-- If the compact file still times out in a new external chat, do not silently split or revert to JSON. Preserve evidence and design an explicit deterministic batch-merge contract for separate approval.
+- `phase6_lightweight_html_prompt_<brand>.txt` is rejected.
+- `완성 HTML 프롬프트 다운로드 (경량)` is rejected.
+- `createSemanticHtmlWorkbookV6`, `buildSemanticHtmlPromptV6`, and `compileSemanticHtmlReportV6` must not be active in external or internal Phase 6 paths.
+- Do not describe a semantic workbook as a complete HTML report.
+- Do not remove approved CSS, 1280×720 page DOM, tables, diagrams, navigation, or decorative structure to reduce attachment size.
+- The previous 647KB timeout problem remains unresolved after restoring the correct visual contract.
+- A deterministic multi-batch generation and merge workflow would materially change the user journey and requires explicit owner approval before implementation.
 
 ## User Brief Lock
 
@@ -77,7 +75,7 @@ Rules:
 - Restore it when the same brand is reopened.
 - Separate company competitors from statements such as `브랜드가 아니라 위생이라는 단어 자체`.
 - Strategic opponent is not a competitor brand and must never enter the Registry.
-- Client need is a final strategy Constraint, not evidence to fabricate conclusions.
+- Client need is a final strategy constraint, not evidence to fabricate conclusions.
 
 ## Report Identity Lock
 
@@ -108,41 +106,43 @@ The approved Biznup report is a layout source only. Final visible text must be n
 - navigation, toolbar, and document title → exact target brand
 - brand-specific error copy → current target brand
 
-Block unapproved visible sample identities such as `비즈넵/BIZNUP`, `삼쩜삼`, `더낸세금/혜움`, `SSEM/쌤157`. Permit one only when it is legitimately included in the target or Registry/alias lock.
+Block unapproved visible sample identities such as `비즈넵/BIZNUP`, `삼쩜삼`, `더낸세금/혜움`, `SSEM/쌤157`. Permit one only when legitimately included in the target or Registry/alias lock.
 
 ## External AI attachment execution contract
 
 The downloaded file is itself an execution request. On download, copy this chat-level instruction:
 
-`첨부한 파일은 참고자료가 아니라 실행 지시문입니다. 파일 전체를 읽고 지금 즉시 완성된 40페이지 HTML만 생성하십시오. 계획·설명·확인 질문 없이 바로 작업하고, 결과 파일에는 <!DOCTYPE html>부터 </html>까지의 HTML만 저장하십시오.`
+`첨부한 파일은 참고자료가 아니라 실행 지시문입니다. 파일 전체를 읽고 승인된 CSS·레이아웃·도식·표·내비게이션을 그대로 보존한 완성 40페이지 HTML만 즉시 생성하십시오. 계획·설명·확인 질문 없이 바로 작업하고, 결과 파일에는 <!DOCTYPE html>부터 </html>까지의 HTML만 저장하십시오.`
 
 The output artifact:
 
 - begins with `<!DOCTYPE html>`;
 - ends with `</html>`;
 - uses raw HTML without Markdown fences;
+- includes the approved CSS, 1280×720 page DOM, tables, diagrams, navigation, IDs, classes, and visual structure;
 - contains exactly 40 `.full-slide` sections in approved ID order;
 - contains every required `data-report-field` and P18 coordinate field;
-- does not contain prompt instructions, Step 0–5 source text outside the report, or analysis notes.
+- is directly viewable as the approved report when opened in a browser;
+- does not contain prompt instructions, Step 0–5 source text outside report pages, or analysis notes.
 
-## Semantic HTML contract
+## Semantic HTML and quality contract
 
 - Variable report content uses stable `data-report-field` keys, not DOM text order.
 - `[[CONTENT:Pxx:TAG:nnn]]` and generic `.contentN` mappings are prohibited.
 - Prompt tokens use `[[FIELD:semantic.key]]`; every token must be replaced before import.
 - P18 uses `[[POSITION:semantic.key]]`; every coordinate token must be replaced with an integer 0–100.
-- V6 compact metadata:
-  - `data-k=t`: plain text
-  - `data-k=r`: rich text
-  - `data-k=s`: source
-  - `data-k=c`: Creative History status
-  - `data-m`: hard max length
-  - optional `data-e` and `data-y`
 - Rich fields allow only `<mark>` and `<br>` descendants.
 - Plain text, source, and status fields permit no child markup.
 - Literal `[[...]]` is prohibited in returned and compiled HTML.
 - External DOM/CSS changes are not trusted. Only validated semantic values and P18 coordinates move into the approved DOM.
 - Remove or reject scripts, event handlers, JavaScript URLs, refresh redirects, forms, embeds, and autoplay media.
+- Do not expose raw URLs. Use `발행처 · 자료명 · 연도`.
+- Creative History status is exactly one of:
+  - `verified-verbatim`
+  - `source-found-copy-unverified`
+  - `not-found`
+- Do not fill distinct fields with one repeated generic sentence. P25 Job Type / Desired Progress / Current Alternative / Limitation / Brand Opportunity must answer different questions.
+- Do not invent figures, dates, models, scores, axes, coordinates, sources, competitors, or advertising copy.
 
 ## HTML file upload
 
@@ -161,9 +161,7 @@ The output artifact:
 - Typeface: Pretendard; major titles weight 900.
 - Korean wrapping: `word-break: keep-all`.
 - Preserve the exact user-entered brand name without translation or romanization.
-- Do not invent figures, dates, models, scores, axes, coordinates, sources, competitors, or advertising copy.
 - Only `verified-verbatim` copy may use quotation marks.
-- Do not expose raw URLs.
 - Titles and SO WHAT statements use decisive Korean endings: `~한다`, `~이다`, `~다`.
 
 ## Competitor rules
@@ -239,16 +237,6 @@ Creative Methodology and Appendix A1–A7 are excluded.
 - Coordinates are integers 0–100.
 - AS-IS and TO-BE must show meaningful movement.
 - Store applied positions in `data-position-x`, `data-position-y`, and `data-positioning-coordinate-contract="semantic-0-100-v1"`.
-
-## Creative History factuality
-
-- Target brand and each core competitor have independent 2021–2026 YTD pages.
-- Canonical statuses:
-  - `verified-verbatim`
-  - `source-found-copy-unverified`
-  - `not-found`
-- Import may normalize common humanized variants, but new prompts demand canonical codes.
-- Preserve Message Trajectory and Strategic So What.
 
 ## Validated Visual Intent contracts
 
