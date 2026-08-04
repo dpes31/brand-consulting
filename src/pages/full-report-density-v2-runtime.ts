@@ -11,6 +11,24 @@ function addHeaderNote(slideId: string): void {
   body.prepend(note);
 }
 
+function semanticInflectionMarkup(): string {
+  const labelStyle = 'color:var(--full-muted);font-size:9px;font-weight:900;letter-spacing:.04em';
+  return `
+    <div class="inflection-reality">
+      <span style="${labelStyle}">PRODUCT</span>
+      <strong>환급 → 케어 → SeNa → 종합 세무관리</strong>
+    </div>
+    <div class="inflection-bridge">
+      <div style="color:var(--full-muted);font-size:9px;font-weight:900;letter-spacing:.04em">BRAND GAP · 핵심 간극</div>
+      <div style="margin-top:7px;color:var(--full-red);font-size:24px;font-weight:900">≠</div>
+    </div>
+    <div class="inflection-perception">
+      <span style="${labelStyle}">PERCEPTION</span>
+      <strong>사장님 세금 환급</strong>
+    </div>
+  `;
+}
+
 function applyFullReportV2(): void {
   if (!new URLSearchParams(window.location.search).get('pilot')?.includes('full-integrated')) return;
 
@@ -40,15 +58,10 @@ function applyFullReportV2(): void {
   });
 
   document.querySelectorAll<HTMLElement>('.jtbd-note').forEach((note) => note.remove());
-  ['#comp-landscape', '#consumer-exec', '#persona-1', '#persona-2', '#persona-3', '#jtbd'].forEach(addHeaderNote);
+  document.querySelectorAll<HTMLElement>('#comp-landscape .jtbd-header-note, #jtbd .jtbd-header-note').forEach((note) => note.remove());
+  ['#consumer-exec', '#persona-1', '#persona-2', '#persona-3'].forEach(addHeaderNote);
 
-  const foundingJtbd = document.querySelector<HTMLElement>('#identity .identity-jtbd');
-  if (foundingJtbd && !foundingJtbd.querySelector('.founding-jtbd-note')) {
-    const note = document.createElement('small');
-    note.className = 'founding-jtbd-note';
-    note.textContent = '사업자는 세법의 최종 책임을 부담하지만 공제·감면·신고 규칙을 파악하기 어렵고';
-    foundingJtbd.appendChild(note);
-  }
+  document.querySelector<HTMLElement>('#identity .founding-jtbd-note')?.remove();
 
   const headers = document.querySelectorAll<HTMLTableCellElement>('#consumer-exec .jtbd-mini thead th');
   if (headers[0]) headers[0].textContent = '고객이 원하는 변화';
@@ -56,22 +69,8 @@ function applyFullReportV2(): void {
 
   const inflectionGap = document.querySelector<HTMLElement>('#inflection .inflection-gap');
   if (inflectionGap && !inflectionGap.classList.contains('is-structured-v3')) {
-    inflectionGap.classList.add('is-structured-v3');
-    inflectionGap.innerHTML = `
-      <div class="inflection-reality">
-        <small>PRODUCT REALITY · 실제 제품 진화</small>
-        <strong>환급 → 케어 → SeNa → 종합 세무관리</strong>
-      </div>
-      <div class="inflection-bridge">
-        <small>BRAND GAP · 핵심 간극</small>
-        <strong>제품은 확장됐지만<br />소비자 인식은 환급에 고정</strong>
-        <i>→</i>
-      </div>
-      <div class="inflection-perception">
-        <small>CURRENT PERCEPTION · 현재 인식</small>
-        <strong>사장님 세금 환급</strong>
-      </div>
-    `;
+    inflectionGap.className = 'inflection-gap is-structured-v3';
+    inflectionGap.innerHTML = semanticInflectionMarkup();
   }
 
   document.querySelector<HTMLElement>('#root-cause .root-cause-tree')?.classList.add('root-cause-flow-v3');
