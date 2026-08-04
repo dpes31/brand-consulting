@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, `handoff/PHASE6_USER_BRIEF_IDENTITY_LOCK_2026-08-04.md`, `docs/REPORT_TEMPLATE_SPEC.md`, and `docs/PDF_EXPORT_E2E_STANDARD.md` before changing this repository.
+Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, `handoff/PHASE6_USER_BRIEF_IDENTITY_LOCK_2026-08-04.md`, `handoff/PHASE6_LIGHTWEIGHT_HTML_TIMEOUT_MITIGATION_2026-08-04.md`, `docs/REPORT_TEMPLATE_SPEC.md`, and `docs/PDF_EXPORT_E2E_STANDARD.md` before changing this repository.
 
 ## Safety
 
@@ -22,7 +22,7 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Production commit before PR #24: `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`
 - Active branch: `fix/phase6-main40-final-html-semantic-v5`
 - Draft PR: `#24 Restore Phase 6 complete HTML output with semantic field locking`
-- Current documented implementation line: `4b04d494edad25743458626f2b3740abed2a7603`
+- Current validated implementation head before this documentation commit: `eb3ab64398e461b7bafaec6b834d7f1348c50a67`
 - Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
 - Production build/contracts: PASS
 - LG 퓨리케어 browser/PDF E2E: PASS
@@ -33,15 +33,31 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 ## Owner-approved Phase 6 flow
 
 `Step 0–5 research`
-→ `complete HTML prompt download`
-→ `external AI returns one complete standalone 40-page HTML document`
+→ `lightweight complete HTML prompt download`
+→ `external AI returns one compact standalone 40-page semantic HTML document`
 → `paste or .html/.htm/.txt upload`
-→ `active-content sanitization`
-→ `User Brief / Report Identity / semantic-field / DOM / cross-page / P18 validation`
-→ `approved DOM reassembly`
+→ `User Brief / Report Identity / semantic-field / page-order validation`
+→ `approved visual DOM expansion`
+→ `active-content / DOM fingerprint / cross-page / P18 validation`
 → `Viewer / save / reopen / native PDF`
 
 External AI output is HTML, not JSON. Never relabel or restore a JSON-only external workflow.
+
+## Lightweight HTML timeout mitigation
+
+The previous Phase 6 prompt duplicated application-owned CSS, layout, navigation, and decorative DOM in the external attachment. The measured owner Biznup file was 647,215 bytes; approximately 449,802 bytes were the fixed visual template.
+
+Current V6 behavior:
+
+- Download filename: `phase6_lightweight_html_prompt_<brand>.txt`.
+- UI action: `완성 HTML 프롬프트 다운로드 (경량)`.
+- External workbook retains exactly 40 page sections, semantic field keys, compact field metadata, and P18 coordinate keys.
+- External workbook excludes fixed CSS, final visual wrappers, navigation, and decorative DOM.
+- The app expands returned semantic values into the approved visual Renderer and then reuses the V5 security, fingerprint, cross-page, and P18 validators.
+- External output remains HTML. This is not the PR #21/#23 JSON workflow.
+- Latest LG fixture prompt size: 129,638 bytes.
+- Same-volume Biznup prompt estimate: approximately 292KB, about 55% smaller than the previous 647KB file.
+- If the compact file still times out in a new external chat, do not silently split or revert to JSON. Preserve evidence and design an explicit deterministic batch-merge contract for separate approval.
 
 ## User Brief Lock
 
@@ -105,6 +121,8 @@ The output artifact:
 - begins with `<!DOCTYPE html>`;
 - ends with `</html>`;
 - uses raw HTML without Markdown fences;
+- contains exactly 40 `.full-slide` sections in approved ID order;
+- contains every required `data-report-field` and P18 coordinate field;
 - does not contain prompt instructions, Step 0–5 source text outside the report, or analysis notes.
 
 ## Semantic HTML contract
@@ -112,6 +130,14 @@ The output artifact:
 - Variable report content uses stable `data-report-field` keys, not DOM text order.
 - `[[CONTENT:Pxx:TAG:nnn]]` and generic `.contentN` mappings are prohibited.
 - Prompt tokens use `[[FIELD:semantic.key]]`; every token must be replaced before import.
+- P18 uses `[[POSITION:semantic.key]]`; every coordinate token must be replaced with an integer 0–100.
+- V6 compact metadata:
+  - `data-k=t`: plain text
+  - `data-k=r`: rich text
+  - `data-k=s`: source
+  - `data-k=c`: Creative History status
+  - `data-m`: hard max length
+  - optional `data-e` and `data-y`
 - Rich fields allow only `<mark>` and `<br>` descendants.
 - Plain text, source, and status fields permit no child markup.
 - Literal `[[...]]` is prohibited in returned and compiled HTML.
@@ -250,5 +276,6 @@ Update these when architecture, contracts, branch state, validation, or rollback
 - `handoff/WORK_LOG.md`
 - `handoff/DECISION_LOG.md`
 - `handoff/PHASE6_USER_BRIEF_IDENTITY_LOCK_2026-08-04.md`
+- `handoff/PHASE6_LIGHTWEIGHT_HTML_TIMEOUT_MITIGATION_2026-08-04.md`
 - `docs/REPORT_TEMPLATE_SPEC.md`
 - `docs/PDF_EXPORT_E2E_STANDARD.md`
