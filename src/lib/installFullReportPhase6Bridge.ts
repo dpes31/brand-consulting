@@ -1,10 +1,26 @@
 import { buildCreativeHistoryCompilerDirective } from './creativeHistoryContract';
+import {
+  getActiveCompetitorRegistry,
+  parseCompetitorRegistry,
+} from './competitorSelection';
+import { getActiveUserBrief } from './userBriefContract';
 import { loadApprovedPilotBaseHtml } from '../report/fullReportCompilerV3';
 import {
   buildSemanticHtmlPromptV5,
   compileSemanticHtmlReportV5,
   createSemanticHtmlTemplateV5,
 } from '../report/semanticHtmlReportV5';
+import {
+  applyFinalReportIdentityPolicy,
+  applyReportIdentityLockToExternalHtml,
+  buildReportIdentityLock,
+  sanitizeApprovedSampleBaseHtml,
+} from '../report/reportIdentityLock';
+import {
+  buildPhase6PromptPackage,
+  EXTERNAL_AI_EXECUTION_MESSAGE,
+  normalizePhase6Error,
+} from '../report/phase6PromptPackage';
 
 const PHASE_INPUTS_SESSION_KEY = 'brand-consulting:phase-inputs';
 const ACTIVE_BRAND_SESSION_KEYS = [
@@ -13,6 +29,7 @@ const ACTIVE_BRAND_SESSION_KEYS = [
 ] as const;
 const REQUIRED_PHASE_STEPS = ['0', '1', '2', '3', '4', '5'] as const;
 const BASE_KEY_PREFIX = 'brand-consulting:phase6-semantic-html-v5:';
+const MAX_HTML_FILE_BYTES = 20 * 1024 * 1024;
 
 let installed = false;
 let refreshing = false;
@@ -40,10 +57,16 @@ function normalizeStepKey(value: string): string | null {
   return match?.[1] ?? null;
 }
 
-function readResearchSnapshot(): { rawResearch: string; missingSteps: string[] } {
+type ResearchSnapshot = {
+  rawResearch: string;
+  missingSteps: string[];
+  phaseInputs: Record<string, string>;
+};
+
+function readResearchSnapshot(): ResearchSnapshot {
   try {
     const raw = sessionStorage.getItem(PHASE_INPUTS_SESSION_KEY);
-    if (!raw) return { rawResearch: '', missingSteps: [...REQUIRED_PHASE_STEPS] };
+    if (!raw) return { rawResearch: '', missingSteps: [...REQUIRED_PHASE_STEPS], phaseInputs: {} };
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const values = new Map<string, string>();
     Object.entries(parsed).forEach(([key, value]) => {
@@ -56,9 +79,13 @@ function readResearchSnapshot(): { rawResearch: string; missingSteps: string[] }
       .filter((step) => values.has(step))
       .map((step) => `\n\n## STEP ${step}\n${values.get(step)}`)
       .join('');
-    return { rawResearch, missingSteps };
+    return {
+      rawResearch,
+      missingSteps,
+      phaseInputs: Object.fromEntries(values.entries()),
+    };
   } catch {
-    return { rawResearch: '', missingSteps: [...REQUIRED_PHASE_STEPS] };
+    return { rawResearch: '', missingSteps: [...REQUIRED_PHASE_STEPS], phaseInputs: {} };
   }
 }
 
@@ -69,11 +96,12 @@ function baseStorageKey(brandName: string): string {
 async function loadExactApprovedBase(brandName: string): Promise<string> {
   try {
     const stored = sessionStorage.getItem(baseStorageKey(brandName));
-    if (stored?.trim()) return stored;
+    if (stored?.trim()) return sanitizeApprovedSampleBaseHtml(stored, brandName);
   } catch {
     // Recapture below.
   }
-  const base = await loadApprovedPilotBaseHtml(brandName);
+  const rawBase = await loadApprovedPilotBaseHtml(brandName);
+  const base = sanitizeApprovedSampleBaseHtml(rawBase, brandName);
   try {
     sessionStorage.setItem(baseStorageKey(brandName), base);
   } catch {
@@ -129,10 +157,20 @@ function stopReactClick(event: MouseEvent): void {
   event.stopImmediatePropagation();
 }
 
+function resolveIdentityContext(
+  brandName: string,
+  phaseInputs: Record<string, string>,
+) {
+  const brief = getActiveUserBrief(brandName);
+  const registry = getActiveCompetitorRegistry() || parseCompetitorRegistry(phaseInputs['2']);
+  const identityLock = buildReportIdentityLock(brandName, registry, brief);
+  return { brief, identityLock };
+}
+
 async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement): Promise<void> {
   stopReactClick(event);
   const brandName = readBrandName();
-  const { rawResearch, missingSteps } = readResearchSnapshot();
+  const { rawResearch, missingSteps, phaseInputs } = readResearchSnapshot();
   if (!brandName) {
     window.alert('브랜드명을 확인할 수 없다. Phase 0에서 브랜드명을 다시 입력해야 한다.');
     return;
@@ -144,29 +182,27 @@ async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement):
 
   const originalText = normalizeText(button.textContent) || '프롬프트 추출';
   button.disabled = true;
-  button.textContent = '40페이지 의미 필드 준비 중...';
+  button.textContent = 'Brief·Identity Lock 준비 중...';
   try {
-    const approvedBase = await loadApprovedPilotBaseHtml(brandName);
-    try {
-      sessionStorage.setItem(baseStorageKey(brandName), approvedBase);
-    } catch {
-      // Continue with the current in-memory base.
-    }
+    const { brief, identityLock } = resolveIdentityContext(brandName, phaseInputs);
+    const approvedBase = await loadExactApprovedBase(brandName);
     const semanticTemplate = createSemanticHtmlTemplateV5(approvedBase, brandName);
-    const prompt = buildSemanticHtmlPromptV5(
+    const compilerPrompt = buildSemanticHtmlPromptV5(
       rawResearch,
       brandName,
       semanticTemplate.html,
       buildCreativeHistoryCompilerDirective(rawResearch),
     );
-    await copyText(prompt);
+    const prompt = buildPhase6PromptPackage(compilerPrompt, brief, identityLock);
+    await copyText(EXTERNAL_AI_EXECUTION_MESSAGE);
     downloadPrompt(prompt, brandName);
     window.alert(
-      '완성 HTML 작성 프롬프트를 복사하고 파일로 저장했다.\n\n'
-      + '외부 AI는 Step 0~5 조사 내용을 의미 필드에 작성하고, 최종 결과로 40페이지 HTML 전체를 반환한다.',
+      '완성 HTML 작성 프롬프트를 파일로 저장했다.\n\n'
+      + '외부 AI 채팅에 파일을 첨부한 뒤 바로 붙여넣을 실행 문장도 클립보드에 복사했다.\n'
+      + '외부 AI는 완성된 40페이지 HTML만 반환해야 한다.',
     );
   } catch (error) {
-    window.alert(`Phase 6 프롬프트 생성 오류: ${error instanceof Error ? error.message : String(error)}`);
+    window.alert(`Phase 6 프롬프트 생성 오류: ${normalizePhase6Error(error, brandName).message}`);
   } finally {
     button.disabled = false;
     button.textContent = originalText;
@@ -185,9 +221,9 @@ async function handleManualRender(
 
   stopReactClick(event);
   const brandName = readBrandName();
-  const { rawResearch, missingSteps } = readResearchSnapshot();
+  const { rawResearch, missingSteps, phaseInputs } = readResearchSnapshot();
   if (!textarea.value.trim()) {
-    window.alert('외부 AI가 생성한 완성 HTML 전체를 입력창에 붙여넣어야 한다.');
+    window.alert('외부 AI가 생성한 완성 HTML 전체를 붙여넣거나 .html 파일을 불러와야 한다.');
     return;
   }
   if (!brandName) {
@@ -201,23 +237,99 @@ async function handleManualRender(
 
   const originalText = normalizeText(button.textContent) || '결과물 뷰어에 렌더링하기';
   button.disabled = true;
-  button.textContent = 'HTML 의미 필드 검증 중...';
+  button.textContent = 'Brief·Identity·HTML 검증 중...';
   try {
+    const { identityLock } = resolveIdentityContext(brandName, phaseInputs);
     const approvedBase = await loadExactApprovedBase(brandName);
-    const compiledHtml = compileSemanticHtmlReportV5(textarea.value, approvedBase, brandName)
+    const identityLockedOutput = applyReportIdentityLockToExternalHtml(textarea.value, identityLock);
+    const compiled = compileSemanticHtmlReportV5(identityLockedOutput, approvedBase, brandName)
       .replace(/\[cite[:\s]*\d*[\],]*/g, '')
       .replace(/\[cite_start\]/g, '')
       .replace(/\\cite\{[^}]*\}/g, '');
+    const compiledHtml = applyFinalReportIdentityPolicy(compiled, identityLock);
 
     setControlledTextareaValue(textarea, compiledHtml);
     textarea.dataset.phase6CompiledHtmlV5 = 'true';
     window.setTimeout(() => button.click(), 0);
   } catch (error) {
-    window.alert(`FULL 보고서 검증 오류: ${error instanceof Error ? error.message : String(error)}`);
+    window.alert(`FULL 보고서 검증 오류: ${normalizePhase6Error(error, brandName).message}`);
   } finally {
     button.disabled = false;
     button.textContent = originalText;
   }
+}
+
+function ensureExecutionCommand(textarea: HTMLTextAreaElement): void {
+  const parent = textarea.parentElement;
+  if (!parent || parent.querySelector('[data-phase6-execution-command]')) return;
+  const panel = document.createElement('div');
+  panel.dataset.phase6ExecutionCommand = 'true';
+  panel.className = 'mb-3 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-left';
+
+  const heading = document.createElement('div');
+  heading.className = 'mb-1 text-[11px] font-black text-amber-200';
+  heading.textContent = '외부 AI에 파일과 함께 전송할 실행 문장';
+  const copy = document.createElement('p');
+  copy.className = 'text-[10px] leading-relaxed text-slate-300';
+  copy.textContent = EXTERNAL_AI_EXECUTION_MESSAGE;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'mt-2 rounded-md border border-amber-300/30 px-2.5 py-1.5 text-[10px] font-bold text-amber-200 hover:bg-amber-300/10';
+  button.textContent = '실행 문장 복사';
+  button.addEventListener('click', () => {
+    void copyText(EXTERNAL_AI_EXECUTION_MESSAGE).then(() => {
+      button.textContent = '복사 완료';
+      window.setTimeout(() => { button.textContent = '실행 문장 복사'; }, 1500);
+    });
+  });
+  panel.append(heading, copy, button);
+  parent.insertBefore(panel, textarea);
+}
+
+function ensureHtmlFileUpload(textarea: HTMLTextAreaElement): void {
+  const parent = textarea.parentElement;
+  if (!parent || parent.querySelector('[data-phase6-html-upload-row]')) return;
+  const row = document.createElement('div');
+  row.dataset.phase6HtmlUploadRow = 'true';
+  row.className = 'mb-2 flex items-center justify-between gap-3';
+
+  const status = document.createElement('span');
+  status.className = 'min-w-0 flex-1 truncate text-[10px] text-slate-400';
+  status.textContent = 'HTML 코드 붙여넣기 또는 파일 업로드';
+
+  const label = document.createElement('label');
+  label.className = 'shrink-0 cursor-pointer rounded-md border border-[#2DD4BF]/35 px-3 py-1.5 text-[10px] font-bold text-[#2DD4BF] hover:bg-[#2DD4BF]/10';
+  label.textContent = '.html / .htm / .txt 불러오기';
+
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.html,.htm,.txt,text/html,text/plain';
+  input.hidden = true;
+  input.dataset.phase6HtmlUpload = 'true';
+  input.addEventListener('change', async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    try {
+      if (file.size > MAX_HTML_FILE_BYTES) {
+        throw new Error(`파일이 너무 크다. 최대 ${MAX_HTML_FILE_BYTES / 1024 / 1024}MB까지 지원한다.`);
+      }
+      const value = await file.text();
+      if (!value.trim()) throw new Error('선택한 파일이 비어 있다.');
+      setControlledTextareaValue(textarea, value);
+      textarea.dataset.phase6UploadName = file.name;
+      status.textContent = `${file.name} · ${(file.size / 1024).toFixed(0)}KB 불러오기 완료`;
+      status.className = 'min-w-0 flex-1 truncate text-[10px] font-bold text-[#2DD4BF]';
+    } catch (error) {
+      status.textContent = error instanceof Error ? error.message : String(error);
+      status.className = 'min-w-0 flex-1 truncate text-[10px] font-bold text-red-400';
+    } finally {
+      input.value = '';
+    }
+  });
+
+  label.appendChild(input);
+  row.append(status, label);
+  parent.insertBefore(row, textarea);
 }
 
 function refreshPhase6Copy(): void {
@@ -226,16 +338,18 @@ function refreshPhase6Copy(): void {
   try {
     const textarea = findPhase6Textarea();
     if (textarea) {
-      textarea.placeholder = '외부 AI가 반환한 40페이지 완성 HTML 전체를 붙여넣으세요. 앱이 Script를 제거하고 의미 필드와 승인 DOM을 검증합니다.';
+      textarea.placeholder = '외부 AI가 반환한 40페이지 완성 HTML 전체를 붙여넣거나 .html 파일을 불러오세요. 앱이 Script·Brief·Identity·승인 DOM을 검증합니다.';
+      ensureExecutionCommand(textarea);
+      ensureHtmlFileUpload(textarea);
     }
     document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
       const text = normalizeText(element.textContent);
       if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI 완성 HTML 생성';
       if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.') {
-        element.textContent = '외부 AI는 완성 HTML을 작성하고, 앱은 승인된 40페이지 구조와 의미 필드를 검증합니다.';
+        element.textContent = '외부 AI는 완성 HTML을 작성하고, 앱은 User Brief·브랜드·경쟁사·40페이지 구조를 검증합니다.';
       }
       if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
-        element.textContent = 'Step 0~5 조사 내용을 승인된 40페이지 HTML 보고서로 완성합니다.';
+        element.textContent = 'Step 0~5 조사와 User Brief를 승인된 40페이지 HTML 보고서로 완성합니다.';
       }
     });
     const promptButton = Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
