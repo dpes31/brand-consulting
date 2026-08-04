@@ -37,6 +37,7 @@ ${EXTERNAL_AI_EXECUTION_MESSAGE}
 5. 산출 파일의 첫 바이트는 <!DOCTYPE html>, 마지막 바이트는 </html>이어야 합니다.
 6. Markdown 코드펜스를 사용하지 마십시오.
 7. 내부 추출 또는 파일 저장 시 첫 <!DOCTYPE html>부터 마지막 </html>까지만 저장하십시오.
+8. Replace every [[POSITION:semantic.key]] token with one integer from 0 to 100.
 
 <<<USER_BRIEF_LOCK_START>>>
 ${buildUserBriefPromptBlock(brief)}
