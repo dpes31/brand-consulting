@@ -19,11 +19,16 @@ const semanticHtml = read('src/report/semanticHtmlReportV5.ts');
 const definitionPolicy = read('src/report/structuredDefinitionPolicy.ts');
 const domSafety = read('src/report/reportDomSafety.ts');
 const pagePlan = read('src/lib/installPhase6PagePlanV2.ts');
+const cachePolicy = read('src/lib/installPhase6ApprovedBaseCachePolicy.ts');
+const densityV2 = read('src/pages/full-report-density-v2-runtime.ts');
+const visualV4 = read('src/pages/full-report-v4-runtime.ts');
 const apiCompiler = read('src/lib/geminiCompiler.ts');
 const bridge = read('src/lib/installFullReportPhase6Bridge.ts');
 const runtime = read('src/lib/installFullReportRuntimeCompatibility.ts');
 const pdfBridge = read('src/lib/installFullReportPdfButtonBridge.ts');
 const main = read('src/main.tsx');
+
+const jobDefinition = 'JOB : 고객이 특정 상황에서 달성하고 싶어 하는 근본적인 목표나 해결하고자 하는 일을 뜻함';
 
 check(blobSha(legacy) === '22bc6937b3d672e063d4b240c5a39b9c61700fec', 'Legacy template changed.');
 check(approvedCss.includes('/full-report-approved-v1/base.css'), 'Approved Pilot CSS missing.');
@@ -36,6 +41,7 @@ check(compiler.includes('17 Category Clichés'), 'Category Clichés page missing
 check(compiler.includes('34 Creative Insight'), 'Creative Insight page missing.');
 check(compiler.includes('40 Decision Receipt / Close'), 'Decision Close page missing.');
 check(compiler.includes('loadApprovedPilotBaseHtml'), 'Approved 40-page base capture missing.');
+check(compiler.includes("dataset.fullReportV4Ready === 'true'"), 'Approved base capture does not wait for V4 visual runtime.');
 
 check(pagePlan.includes('focus3-main40-no-appendix-v3'), '40-page page-plan version missing.');
 check(pagePlan.includes("'comp-landscape'"), 'Landscape not retained in page plan.');
@@ -44,6 +50,18 @@ check(pagePlan.includes("'creative-insight'"), 'Creative Insight not retained in
 check(pagePlan.includes("'decision-close'"), 'Decision Close not promoted to page 40.');
 check(!pagePlan.includes("'creative-method'"), 'Creative Methodology remains in the output plan.');
 check(pagePlan.includes("dataset.reportAppendixCount = '0'"), 'Appendix count must be zero.');
+check(pagePlan.includes(jobDefinition), 'Required JOB definition note is missing.');
+check(pagePlan.includes('job-definition-note--category'), 'P11 CATEGORY JOB note hook is missing.');
+check(pagePlan.includes('job-definition-note--table'), 'P25 Job 층위 note hook is missing.');
+
+check(cachePolicy.includes('brand-consulting:phase6-semantic-html-v5:'), 'V5 approved-base cache invalidation is missing.');
+check(cachePolicy.includes('sessionStorage.removeItem'), 'Approved-base cache removal is missing.');
+check(main.includes('installPhase6ApprovedBaseCachePolicy()'), 'Approved-base cache policy is not installed before Phase 6.');
+check(!densityV2.includes("['#comp-landscape', '#consumer-exec'"), 'Density V2 still injects an obsolete P11 JTBD header note.');
+check(!densityV2.includes('foundingJtbd.appendChild'), 'Density V2 still injects identity.content1.');
+check(visualV4.includes("dataset.fullReportV4Ready = 'true'"), 'V4 runtime readiness marker is missing.');
+check(!visualV4.includes("['#comp-landscape', '#consumer-exec'"), 'V4 still overwrites the P11/P25 JOB note.');
+check(!visualV4.includes('<small>PRODUCT REALITY'), 'V4 inflection still creates ordinal small-note fields.');
 
 check(semanticHtml.includes('Return one complete standalone HTML document, not JSON.'), 'Complete HTML output contract missing.');
 check(semanticHtml.includes('[STEP 0–5 RESEARCH — SOURCE OF TRUTH]'), 'Step 0–5 research block missing.');
@@ -86,4 +104,4 @@ check(pdfBridge.includes('FULL_PAGE_COUNT = 40'), 'PDF button bridge must use 40
 check(main.includes('installFullReportPhase6Bridge()'), 'Phase 6 HTML bridge not installed.');
 check(main.includes('installPhase6PagePlanV2()'), 'Restored Phase 6 page plan not installed.');
 
-console.log('FULL report contract PASS: complete styled semantic HTML, 40 Main pages, zero Appendix, no lightweight workbook, ordinal slot, or external JSON path.');
+console.log('FULL report contract PASS: complete styled semantic HTML, deterministic V4 capture, fixed JOB notes, 40 Main pages, zero Appendix, no lightweight workbook, ordinal slot, or external JSON path.');
