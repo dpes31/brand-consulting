@@ -88,16 +88,9 @@
 ### User Brief Lock
 
 - Added `src/lib/userBriefContract.ts`.
-- Added brand-keyed persistence for:
-  - target brand
-  - mandatory review seeds
-  - strategic opponent/category convention
-  - client need/campaign direction
-  - reference note
-  - attachment manifest
+- Added brand-keyed persistence for target brand, review seeds, strategic opponent, client need, reference note, and attachment manifest.
 - Injected User Brief into every Step 0–5 prompt and Phase 6.
-- Added a separate strategic-opponent field.
-- Added automatic mixed-input separation.
+- Added a separate strategic-opponent field and automatic mixed-input separation.
 - Added `src/lib/installUserBriefInputNormalizer.ts` for immediate React/UI synchronization.
 
 ### Report Identity Lock
@@ -106,94 +99,131 @@
 - App now owns target brand, core-three order, canonical names, display names, aliases, and Landscape candidates.
 - Applied identity to P11, P12, P13–16, P18, P29–33.
 - Merged Samsung parent/product aliases as one entity.
-- Corrected target alias drift such as `LG전자` back to the exact target `LG 퓨리케어 정수기`.
+- Corrected target alias drift such as `LG전자` back to `LG 퓨리케어 정수기`.
 
 ### Sample leakage prevention
 
 - Cover `BIZNUP` → `BRAND REPORT`.
 - P25 `비즈넵 기회` → `브랜드 기회`.
-- Persona role label → exact target brand.
-- Navigation, toolbar, and title → exact target brand.
-- Hardcoded brand error copy → current target brand.
-- Added a blocking gate for unapproved Biznup and sample-competitor text.
+- Persona role label, navigation, toolbar, title, and errors use the exact target brand.
+- Added blocking gates for unapproved sample text.
 
-### External AI execution package
+### External AI execution package and HTML upload
 
 - Added `src/report/phase6PromptPackage.ts`.
 - Added an automatically copied chat-level execution message.
-- Added explicit User Brief, Identity, compiler, research, and template boundaries.
-- Standardized output to raw HTML only:
-  - first bytes `<!DOCTYPE html>`
-  - last bytes `</html>`
-  - no Markdown fences
-  - no instruction/research contamination outside the report
-
-### HTML file upload
-
+- Standardized output to raw HTML only from `<!DOCTYPE html>` through `</html>`.
 - Added `.html/.htm/.txt` upload, maximum 20MB.
-- File content is loaded into the existing controlled textarea.
-- Upload and paste share exactly one Sanitizer, Identity, semantic, Viewer, save, and PDF path.
+- Upload and paste share one Sanitizer, Identity, semantic, Viewer, save, and PDF path.
+- Updated `src/lib/geminiCompiler.ts` for internal API parity.
 
-### Internal API parity
+### Initial LG 퓨리케어 validation
 
-- Updated `src/lib/geminiCompiler.ts` so internal Gemini compilation uses the same User Brief and Identity locks as the external workflow.
-
-### LG 퓨리케어 E2E
-
-Updated `scripts/e2e-phase6-five-competitor-native-print.mjs` to use:
-
-- target `LG 퓨리케어 정수기`
-- seeds 코웨이 / 삼성 비스포크 정수기 / SK매직 / 쿠쿠
-- Registry core 코웨이 / 삼성전자 / SK매직
-- strategic opponent `위생이라는 단어 자체`
-- client need `위생의 격이 다른 정수기`
-- reference guidance on large-appliance advertising grammar
-
-The simulated external HTML deliberately contained:
-
-- target alias `LG전자`
-- competitor alias `삼성 비스포크 정수기`
-- unsafe script
-- humanized Creative History status
-- brandless P18 labels
-- custom P18 coordinates
-
-### Final validated results before documentation cleanup
-
-- Implementation head: `3f8b42952a7508669be0b3fd88a0db12e15a85cf`
-- Production build/contracts: PASS
-- Phase 6 PDF Runtime E2E run `30881036785`: PASS
-- Phase 6 Preview CI run `30881036772`: PASS
-- Vercel: success
-- HTML file upload: PASS
-- User Brief in prompt: PASS
-- strategic opponent separation: PASS
-- exact P16/P29/P33 target identity: PASS
-- core-three P12–18/P30–33: PASS
-- Samsung alias canonicalization: PASS
-- unapproved sample leakage: 0
-- unresolved `[[...]]`: 0
-- scripts: 0
-- pages/navigation: 40/40
-- Appendix: 0
-- logical geometry: 1280×720
-- overflow: 0
-- P18 axes/coordinates: PASS
-- PDF: 40 pages, 960×540pt
-- repeat Export PDF / Ctrl+P / Cmd+P: PASS
-- save → reload → reopen: PASS
+- Target: `LG 퓨리케어 정수기`.
+- Seeds: 코웨이 / 삼성 비스포크 정수기 / SK매직 / 쿠쿠.
+- Registry core: 코웨이 / 삼성전자 / SK매직.
+- Strategic opponent: `위생이라는 단어 자체`.
+- Client need: `위생의 격이 다른 정수기`.
+- Validated file upload, identity correction, no sample leakage, 40 pages, PDF, and persistence.
 
 ### Cleanup
 
-- Removed four duplicate inactive implementations that could have caused future contract divergence:
+- Removed duplicate inactive implementations:
   - `src/lib/installPhase6HtmlUpload.ts`
   - `src/lib/installUserBriefLock.ts`
   - `src/lib/reportIdentityLock.ts`
   - `src/lib/userBriefLock.ts`
-- Kept one active implementation path only.
+
+## 2026-08-04 — Phase 6 external-message timeout mitigation
+
+### Reproduction and measurement
+
+Owner repeatedly received `메시지 전송 시간이 초과되었습니다. 다시 시도해 주세요` when sending the downloaded Phase 6 prompt to an external AI chat.
+
+Measured previous owner Biznup prompt:
+
+- total file: 647,215 bytes
+- fixed visual template: approximately 449,802 bytes
+- Step 0–5 research: approximately 194,109 bytes
+
+The package duplicated application-owned CSS, layout, navigation, decorative DOM, and fixed report chrome. Retrying the same file was not considered a sufficient correction.
+
+### V6 compact semantic HTML workbook
+
+- Added `src/report/semanticHtmlReportV6.ts`.
+- Kept external output as HTML, not JSON.
+- Replaced the full visual template in the attachment with exactly 40 compact semantic page sections.
+- Retained:
+  - approved page IDs and order
+  - stable `data-report-field` keys
+  - compact `data-k`, `data-m`, optional `data-e`, `data-y`
+  - P18 coordinate fields
+  - `[[FIELD:semantic.key]]` and `[[POSITION:semantic.key]]` tokens
+- Removed from external transfer:
+  - final CSS
+  - navigation markup
+  - decorative DOM
+  - fixed layout wrappers not needed for writing
+  - sample brand content
+- `compileSemanticHtmlReportV6` expands returned values into the approved V5 visual semantic template, then runs the existing V5 sanitizer, DOM fingerprint, cross-page, Identity, and P18 validation chain.
+
+### Runtime conversion
+
+Updated:
+
+- `src/lib/installFullReportPhase6Bridge.ts`
+- `src/lib/geminiCompiler.ts`
+- `src/report/phase6PromptPackage.ts`
+- `scripts/test-full-report-contract.mjs`
+- `scripts/test-full-report-runtime.mjs`
+- `scripts/e2e-phase6-five-competitor-native-print.mjs`
+
+New user-facing artifacts:
+
+- action: `완성 HTML 프롬프트 다운로드 (경량)`
+- filename: `phase6_lightweight_html_prompt_<brand>.txt`
+- download alert displays generated KB and explains removed fixed visual payload.
+
+### Size results
+
+At implementation head `eb3ab64398e461b7bafaec6b834d7f1348c50a67`:
+
+- LG fixture prompt: 129,638 bytes
+- LG returned compact HTML fixture: 106,997 bytes
+- native PDF: 462,487 bytes
+- estimated same-volume Biznup prompt: approximately 292KB
+- estimated reduction versus previous 647KB prompt: about 55%
+
+### Final validation
+
+- Preview CI run `30883605720`: PASS
+- PDF Runtime E2E run `30883605708`: PASS
+- Vercel: success
+- compact HTML upload → approved visual Renderer: PASS
+- 40 pages / 40 navigation links / Appendix 0: PASS
+- User Brief / Identity / alias correction: PASS
+- sample leakage: 0
+- unresolved tokens: 0
+- script removal: PASS
+- P18 axes, labels, coordinates, movement: PASS
+- Creative History status normalization: PASS
+- 1280×720 and overflow 0: PASS
+- PDF 40 pages, 960×540pt: PASS
+- repeated export, Ctrl+P, Cmd+P, save/reopen: PASS
+
+Visual evidence inspected:
+
+- P17 Category Clichés
+- P18 Positioning
+- P29 Creative History
+- P39 Final Choice
+- P40 Decision Close
+
+No clipping or overflow was observed in the inspected evidence. Repetitive fixture text is not content-quality approval.
 
 ### Current gate
 
 - Draft PR #24 remains open and unmerged.
 - Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
-- Owner Preview test and explicit approval are required before merge.
+- Owner must download the new compact prompt, use a new external AI chat, complete the return-HTML import, and explicitly approve before merge.
+- If the compact prompt still times out, preserve the exact file and error. Deterministic page-batch merge is the next fallback but is not implemented or approved.
