@@ -19,6 +19,14 @@ const STRUCTURAL_COMPETITOR_VALUES = new Set([
   '총점',
 ]);
 
+const CREATIVE_HISTORY_STATUS_VALUES = new Set([
+  'verified-verbatim',
+  'source-found-copy-unverified',
+  'not-found',
+]);
+
+const RAW_URL_PATTERN = /(?:https?:\/\/|www\.)/i;
+
 function page(report: StructuredReportV3, id: string) {
   return report.pages.find((item) => item.id === id);
 }
@@ -44,8 +52,69 @@ function invalidCompetitorName(name: string): boolean {
     || STRUCTURAL_COMPETITOR_VALUES.has(token);
 }
 
-export function validateStructuredReportCrossPage(report: StructuredReportV3): string[] {
+function validateFieldQuality(report: StructuredReportV3): string[] {
   const errors: string[] = [];
+
+  report.pages.forEach((reportPage) => {
+    const duplicateCandidates = new Map<string, string[]>();
+
+    Object.entries(reportPage.fields).forEach(([key, fieldValue]) => {
+      const text = fieldValue.trim();
+      if (!text) return;
+
+      if (RAW_URL_PATTERN.test(text)) {
+        errors.push(
+          `P${reportPage.page} ${reportPage.id} · ${key}에 raw URL이 들어갔다. `
+          + '발행처 · 자료명 · 연도 형식으로 바꿔야 한다.',
+        );
+      }
+
+      if (key.endsWith('.status') && !CREATIVE_HISTORY_STATUS_VALUES.has(text)) {
+        errors.push(
+          `P${reportPage.page} ${reportPage.id} · ${key} 상태값 “${text}”은 허용되지 않는다. `
+          + 'verified-verbatim / source-found-copy-unverified / not-found 중 하나여야 한다.',
+        );
+      }
+
+      if (/\.source(?:\.|$)|\.status$/.test(key)) return;
+      const token = normalized(text);
+      if (token.length < 12) return;
+      const keys = duplicateCandidates.get(token) || [];
+      keys.push(key);
+      duplicateCandidates.set(token, keys);
+    });
+
+    duplicateCandidates.forEach((keys) => {
+      if (keys.length < 4) return;
+      errors.push(
+        `P${reportPage.page} ${reportPage.id} · 동일 문장이 ${keys.length}개 의미 필드에 반복됐다: `
+        + `${keys.slice(0, 6).join(', ')}. 각 필드는 고유한 질문과 역할에 맞게 작성해야 한다.`,
+      );
+    });
+  });
+
+  [1, 2, 3].forEach((row) => {
+    const keys = [
+      `jtbd.row${row}.jobType`,
+      `jtbd.row${row}.desiredProgress`,
+      `jtbd.row${row}.currentAlternative`,
+      `jtbd.row${row}.limitation`,
+      `jtbd.row${row}.brandOpportunity`,
+    ];
+    const values = keys.map((key) => normalized(value(report, 'jtbd', key))).filter(Boolean);
+    if (new Set(values).size < 3) {
+      errors.push(
+        `P25 JTBD · ${row}행의 Job Type / Desired Progress / Current Alternative / Limitation / Brand Opportunity가 `
+        + '서로 구분되지 않았다. 같은 문장을 복사하지 말고 각 열의 의미를 독립적으로 작성해야 한다.',
+      );
+    }
+  });
+
+  return errors;
+}
+
+export function validateStructuredReportCrossPage(report: StructuredReportV3): string[] {
+  const errors: string[] = [...validateFieldQuality(report)];
   const candidates = [1, 2, 3, 4, 5]
     .map((index) => value(report, 'comp-landscape', `comp-landscape.candidate${index}.name`))
     .filter(Boolean);
