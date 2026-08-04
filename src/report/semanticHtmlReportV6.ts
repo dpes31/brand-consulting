@@ -119,7 +119,8 @@ ${cleanResearch(rawResearch)}
 - Preserve the logic: Brand Fact → Market/Competitor → Consumer tension → Creative gap → Root Cause → STP → Four Routes → Final Choice → Decision Close.
 - P11 reviews up to five evidence-supported direct competitors. P12 selects the core three.
 - P13–18 and P30–33 use the same three competitors in the same ranking order.
-- P18 positioning.targetAsIs starts exactly with “${brandName} AS-IS · ”; positioning.targetToBe starts exactly with “${brandName} TO-BE · ”.
+- P18 positioning.targetAsIs must start exactly with “${brandName} AS-IS · ”.
+- P18 positioning.targetToBe must start exactly with “${brandName} TO-BE · ”.
 - P18 axis poles are meaningful, distinct Step 2 attributes. Never write literal X축 or Y축.
 - P18 coordinates use x=0 left, x=100 right, y=0 top, y=100 bottom and follow the declared axis logic.
 - P22–24 Persona titles exactly match the first three target names on P21.
