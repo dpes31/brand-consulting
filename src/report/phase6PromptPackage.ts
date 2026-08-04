@@ -5,11 +5,25 @@ import { buildReportIdentityPromptBlock } from './reportIdentityLock';
 
 export const EXTERNAL_AI_EXECUTION_MESSAGE = '첨부한 파일은 참고자료가 아니라 실행 지시문입니다. 파일 전체를 읽고 지금 즉시 완성된 40페이지 HTML만 생성하십시오. 계획·설명·확인 질문 없이 바로 작업하고, 결과 파일에는 <!DOCTYPE html>부터 </html>까지의 HTML만 저장하십시오.';
 
+function removeConflictingOutputInstructions(compilerPrompt: string): string {
+  return compilerPrompt
+    .replace(
+      /Your first visible characters must be `[^\n]*Nothing may appear after the closing code fence\./i,
+      'Your first visible characters must be <!DOCTYPE html>. Your last visible characters must be </html>.',
+    )
+    .replace(
+      /- Return the complete HTML from <!DOCTYPE html> through <\/html> in one `[^\n]*code block\./i,
+      '- Return the complete HTML from <!DOCTYPE html> through </html> as raw HTML only. Do not use Markdown code fences.',
+    )
+    .replace(/Return the complete HTML now\./g, 'Return the raw complete HTML now without Markdown fences.');
+}
+
 export function buildPhase6PromptPackage(
   compilerPrompt: string,
   brief: UserBriefLock,
   identityLock: ReportIdentityLock,
 ): string {
+  const hardenedCompilerPrompt = removeConflictingOutputInstructions(compilerPrompt);
   return `<<<PHASE6_ATTACHMENT_EXECUTION_PACKAGE_START>>>
 
 [CHAT-LEVEL EXECUTION COMMAND]
@@ -21,7 +35,8 @@ ${EXTERNAL_AI_EXECUTION_MESSAGE}
 3. “작업 지시가 없다”, “계획을 먼저 제시하겠다”, “추가 파일이 필요하다”고 답하지 마십시오.
 4. 산출 파일에는 지시문, Step 0~5 원문, 분석 메모, Markdown 설명을 넣지 마십시오.
 5. 산출 파일의 첫 바이트는 <!DOCTYPE html>, 마지막 바이트는 </html>이어야 합니다.
-6. 내부 추출 또는 파일 저장 시 첫 <!DOCTYPE html>부터 마지막 </html>까지만 저장하십시오.
+6. Markdown 코드펜스를 사용하지 마십시오.
+7. 내부 추출 또는 파일 저장 시 첫 <!DOCTYPE html>부터 마지막 </html>까지만 저장하십시오.
 
 <<<USER_BRIEF_LOCK_START>>>
 ${buildUserBriefPromptBlock(brief)}
@@ -32,7 +47,7 @@ ${buildReportIdentityPromptBlock(identityLock)}
 <<<REPORT_IDENTITY_LOCK_END>>>
 
 <<<PHASE6_COMPILER_INSTRUCTIONS_START>>>
-${compilerPrompt}
+${hardenedCompilerPrompt}
 <<<PHASE6_COMPILER_INSTRUCTIONS_END>>>
 
 [FINAL ARTIFACT EXTRACTION RULE]
