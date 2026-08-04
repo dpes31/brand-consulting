@@ -56,7 +56,7 @@ export async function loadApprovedPilotBaseHtml(brandName: string): Promise<stri
     }
     const doc = frame.contentDocument;
     const root = doc?.getElementById('root');
-    if (!approvedPilotReady(doc) || !root) {
+    if (!doc || !root || !approvedPilotReady(doc)) {
       throw new Error('40-page Pilot or V4 visual runtime unavailable');
     }
     return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${brandName} Strategic Report</title>${links(doc)}<style data-approved-pilot-css="true">${css(doc)}</style></head><body data-report-version="full-report-v1" data-approved-pilot="full-integrated" data-phase6-page-plan="focus3-main40-no-appendix-v3"><div id="root">${root.innerHTML}</div></body></html>`;
