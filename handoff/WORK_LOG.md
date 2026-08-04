@@ -56,174 +56,107 @@
 ## 2026-08-03 — PR #24 semantic HTML restoration
 
 - Created `fix/phase6-main40-final-html-semantic-v5` and Draft PR #24.
-- Restored:
-  - Step 0–5 research
-  - complete HTML prompt download
-  - external AI complete 40-page HTML
-  - app validation and approved-DOM reassembly
-  - Viewer / save / reopen / PDF
+- Restored Step 0–5 research, complete HTML prompt download, external AI complete 40-page HTML, validation, approved-DOM reassembly, Viewer, persistence, and PDF.
 - Removed JSON-only external instructions.
 - Moved Step 0–5 research before the large HTML template.
 - Replaced text-order slots with stable `data-report-field` keys.
-- Added exact semantic-field-set, DOM fingerprint, cross-page, and security validation.
-- Added P18 semantic axes and ten coordinate values.
-- Added `<mark>` rich text contract and literal `[[...]]` rejection.
-- Added Creative History status normalization.
-- Hid explicit unused candidate rows.
-- Validated 40 pages, 40 navigation links, Appendix 0, PDF, persistence, and visual evidence.
+- Added semantic-field-set, DOM fingerprint, cross-page, security, and P18 coordinate validation.
+- Added `<mark>` rich text contract, literal token rejection, Creative History normalization, and unused candidate row hiding.
 
 ## 2026-08-04 — User Brief / Identity / upload correction
 
-### Owner-reported issues
+- Added persistent User Brief for target brand, review seeds, strategic opponent, client need, reference note, and attachments.
+- Injected Brief into every Step 0–5 prompt and Phase 6.
+- Added strategic-opponent separation and immediate UI normalization.
+- Added Report Identity Lock across P11–18 and P29–33.
+- Added Samsung alias canonicalization and exact target-brand correction.
+- Neutralized Biznup sample content and added sample leakage blocking.
+- Added executable attachment package and raw-HTML-only output contract.
+- Added `.html/.htm/.txt` upload up to 20MB using the same validation path as paste.
+- Updated internal API for Brief and Identity parity.
+- Removed duplicate inactive implementations.
 
-- External AI sometimes treated the Phase 6 prompt as a passive attachment.
-- First output could contain instructions, research, and HTML in one contaminated file.
-- Large HTML copying was too slow; file upload was needed.
-- Strategy Settings mixed company competitors and `위생이라는 단어 자체`.
-- Client need and reference guidance were not a durable project contract.
-- Target brand and competitor names diverged across P14, P16, P18, P29–33.
-- `삼성전자` and `삼성 비스포크 정수기` required alias normalization.
-- Non-Biznup reports retained `BIZNUP` and `비즈넵 기회`.
+## 2026-08-04 — External-message timeout experiment
 
-### User Brief Lock
+### Reproduction
 
-- Added `src/lib/userBriefContract.ts`.
-- Added brand-keyed persistence for target brand, review seeds, strategic opponent, client need, reference note, and attachment manifest.
-- Injected User Brief into every Step 0–5 prompt and Phase 6.
-- Added a separate strategic-opponent field and automatic mixed-input separation.
-- Added `src/lib/installUserBriefInputNormalizer.ts` for immediate React/UI synchronization.
+- Owner repeatedly received `메시지 전송 시간이 초과되었습니다. 다시 시도해 주세요`.
+- Measured owner Biznup prompt: 647,215 bytes.
+- Fixed visual template: approximately 449,802 bytes.
+- Step 0–5 research: approximately 194,109 bytes.
 
-### Report Identity Lock
-
-- Added `src/report/reportIdentityLock.ts`.
-- App now owns target brand, core-three order, canonical names, display names, aliases, and Landscape candidates.
-- Applied identity to P11, P12, P13–16, P18, P29–33.
-- Merged Samsung parent/product aliases as one entity.
-- Corrected target alias drift such as `LG전자` back to `LG 퓨리케어 정수기`.
-
-### Sample leakage prevention
-
-- Cover `BIZNUP` → `BRAND REPORT`.
-- P25 `비즈넵 기회` → `브랜드 기회`.
-- Persona role label, navigation, toolbar, title, and errors use the exact target brand.
-- Added blocking gates for unapproved sample text.
-
-### External AI execution package and HTML upload
-
-- Added `src/report/phase6PromptPackage.ts`.
-- Added an automatically copied chat-level execution message.
-- Standardized output to raw HTML only from `<!DOCTYPE html>` through `</html>`.
-- Added `.html/.htm/.txt` upload, maximum 20MB.
-- Upload and paste share one Sanitizer, Identity, semantic, Viewer, save, and PDF path.
-- Updated `src/lib/geminiCompiler.ts` for internal API parity.
-
-### Initial LG 퓨리케어 validation
-
-- Target: `LG 퓨리케어 정수기`.
-- Seeds: 코웨이 / 삼성 비스포크 정수기 / SK매직 / 쿠쿠.
-- Registry core: 코웨이 / 삼성전자 / SK매직.
-- Strategic opponent: `위생이라는 단어 자체`.
-- Client need: `위생의 격이 다른 정수기`.
-- Validated file upload, identity correction, no sample leakage, 40 pages, PDF, and persistence.
-
-### Cleanup
-
-- Removed duplicate inactive implementations:
-  - `src/lib/installPhase6HtmlUpload.ts`
-  - `src/lib/installUserBriefLock.ts`
-  - `src/lib/reportIdentityLock.ts`
-  - `src/lib/userBriefLock.ts`
-
-## 2026-08-04 — Phase 6 external-message timeout mitigation
-
-### Reproduction and measurement
-
-Owner repeatedly received `메시지 전송 시간이 초과되었습니다. 다시 시도해 주세요` when sending the downloaded Phase 6 prompt to an external AI chat.
-
-Measured previous owner Biznup prompt:
-
-- total file: 647,215 bytes
-- fixed visual template: approximately 449,802 bytes
-- Step 0–5 research: approximately 194,109 bytes
-
-The package duplicated application-owned CSS, layout, navigation, decorative DOM, and fixed report chrome. Retrying the same file was not considered a sufficient correction.
-
-### V6 compact semantic HTML workbook
+### V6 lightweight workbook attempt
 
 - Added `src/report/semanticHtmlReportV6.ts`.
-- Kept external output as HTML, not JSON.
-- Replaced the full visual template in the attachment with exactly 40 compact semantic page sections.
-- Retained:
-  - approved page IDs and order
-  - stable `data-report-field` keys
-  - compact `data-k`, `data-m`, optional `data-e`, `data-y`
-  - P18 coordinate fields
-  - `[[FIELD:semantic.key]]` and `[[POSITION:semantic.key]]` tokens
-- Removed from external transfer:
-  - final CSS
-  - navigation markup
-  - decorative DOM
-  - fixed layout wrappers not needed for writing
-  - sample brand content
-- `compileSemanticHtmlReportV6` expands returned values into the approved V5 visual semantic template, then runs the existing V5 sanitizer, DOM fingerprint, cross-page, Identity, and P18 validation chain.
+- Removed final CSS, navigation, visual wrappers, tables, diagrams, and decorative DOM from the external attachment.
+- Kept 40 page sections, semantic fields, compact metadata, and P18 coordinates.
+- Intended app-side expansion into the approved V5 Renderer.
+- Reduced LG fixture prompt to 129,638 bytes.
+- Automated Renderer/PDF tests passed because the app expanded the workbook after import.
 
-### Runtime conversion
+### Owner round-trip failure
 
-Updated:
+The owner’s external AI returned `LG_퓨리케어_40페이지_전략리포트.html`.
 
-- `src/lib/installFullReportPhase6Bridge.ts`
-- `src/lib/geminiCompiler.ts`
-- `src/report/phase6PromptPackage.ts`
-- `scripts/test-full-report-contract.mjs`
-- `scripts/test-full-report-runtime.mjs`
-- `scripts/e2e-phase6-five-competitor-native-print.mjs`
+Direct inspection found:
 
-New user-facing artifacts:
+- 40 sections and 757 semantic fields
+- CSS 0
+- navigation 0
+- tables 0
+- SVG/images 0
+- approved report format absent
+- P25 same sentence repeated across 17 fields
+- `UNVERIFIED` repeated across 24 status fields
+- repeated generic source wording
+- raw URLs exposed
 
-- action: `완성 HTML 프롬프트 다운로드 (경량)`
-- filename: `phase6_lightweight_html_prompt_<brand>.txt`
-- download alert displays generated KB and explains removed fixed visual payload.
+The experiment solved payload size by deleting the artifact the owner expected. It was therefore rejected.
 
-### Size results
+## 2026-08-04 — V5 complete styled HTML restoration
 
-At implementation head `eb3ab64398e461b7bafaec6b834d7f1348c50a67`:
+### Code restoration
 
-- LG fixture prompt: 129,638 bytes
-- LG returned compact HTML fixture: 106,997 bytes
-- native PDF: 462,487 bytes
-- estimated same-volume Biznup prompt: approximately 292KB
-- estimated reduction versus previous 647KB prompt: about 55%
+- Restored `src/lib/installFullReportPhase6Bridge.ts` to:
+  - `createSemanticHtmlTemplateV5`
+  - `buildSemanticHtmlPromptV5`
+  - `compileSemanticHtmlReportV5`
+- Restored filename `phase6_complete_html_prompt_<brand>.txt`.
+- Removed active `경량` labels and workbook instructions.
+- Restored internal `src/lib/geminiCompiler.ts` to the same V5 complete styled HTML contract.
+- Updated static/runtime contract tests so active V6 workbook references fail CI.
+- Strengthened `src/report/phase6PromptPackage.ts` with:
+  - Visual Artifact Lock
+  - CSS/layout/diagram/table/navigation preservation
+  - data-workbook prohibition
+  - duplicate generic content prohibition
+  - P25 role separation
+  - canonical Creative History statuses
+  - raw URL and fabrication prohibition
+- Added objective runtime blocking for raw URLs and noncanonical Creative History status values.
 
-### Final validation
+### Validation
 
-- Preview CI run `30883605720`: PASS
-- PDF Runtime E2E run `30883605708`: PASS
-- Vercel: success
-- compact HTML upload → approved visual Renderer: PASS
+Validated implementation head before documentation updates:
+
+`351c4247c4a9bf713955985c8963d2ddb0eb4257`
+
+- Preview CI run `30888643138`: PASS
+- PDF Runtime E2E run `30888643175`: PASS
+- complete styled prompt fixture: approximately 493KB
+- generated styled HTML fixture: approximately 470KB
+- CSS/style structures present
+- navigation present
+- tables and diagrams present
 - 40 pages / 40 navigation links / Appendix 0: PASS
-- User Brief / Identity / alias correction: PASS
-- sample leakage: 0
-- unresolved tokens: 0
-- script removal: PASS
-- P18 axes, labels, coordinates, movement: PASS
-- Creative History status normalization: PASS
-- 1280×720 and overflow 0: PASS
-- PDF 40 pages, 960×540pt: PASS
-- repeated export, Ctrl+P, Cmd+P, save/reopen: PASS
+- Viewer / save / reopen / repeated PDF export: PASS
+- PDF: 40 pages, 960×540pt: PASS
 
-Visual evidence inspected:
+### Current truth
 
-- P17 Category Clichés
-- P18 Positioning
-- P29 Creative History
-- P39 Final Choice
-- P40 Decision Close
-
-No clipping or overflow was observed in the inspected evidence. Repetitive fixture text is not content-quality approval.
-
-### Current gate
-
-- Draft PR #24 remains open and unmerged.
-- Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
-- Owner must download the new compact prompt, use a new external AI chat, complete the return-HTML import, and explicitly approve before merge.
-- If the compact prompt still times out, preserve the exact file and error. Deterministic page-batch merge is the next fallback but is not implemented or approved.
+- The approved report format is restored.
+- The V6 lightweight workbook is rejected and must not be reactivated.
+- The original large-attachment timeout is not solved.
+- A page-batch generation/merge workflow would change the user journey and is not implemented or approved.
+- PR #24 remains Draft and unmerged.
+- `main`, Legacy template, and protected backup branches remain unchanged.
