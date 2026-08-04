@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, `handoff/PHASE6_USER_BRIEF_IDENTITY_LOCK_2026-08-04.md`, `handoff/PHASE6_LIGHTWEIGHT_HTML_TIMEOUT_MITIGATION_2026-08-04.md`, `docs/REPORT_TEMPLATE_SPEC.md`, and `docs/PDF_EXPORT_E2E_STANDARD.md` before changing this repository.
+Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.md`, `handoff/PHASE6_USER_BRIEF_IDENTITY_LOCK_2026-08-04.md`, `handoff/PHASE6_LIGHTWEIGHT_HTML_TIMEOUT_MITIGATION_2026-08-04.md`, `handoff/PHASE6_GENERIC_FIELD_AND_JOB_NOTE_FIX_2026-08-04.md`, `docs/REPORT_TEMPLATE_SPEC.md`, and `docs/PDF_EXPORT_E2E_STANDARD.md` before changing this repository.
 
 ## Safety
 
@@ -23,7 +23,7 @@ Read `handoff/PROJECT_HANDOFF.md`, `handoff/WORK_LOG.md`, `handoff/DECISION_LOG.
 - Production commit before PR #24: `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`
 - Active branch: `fix/phase6-main40-final-html-semantic-v5`
 - Draft PR: `#24 Restore Phase 6 complete HTML output with semantic field locking`
-- Current validated implementation head before this documentation commit: `351c4247c4a9bf713955985c8963d2ddb0eb4257`
+- Current validated implementation head before this documentation commit: `d52f7019dc8a5ecf0b8f19bb4ca02afc8202d677`
 - Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
 - Production build/contracts: PASS
 - LG 퓨리케어 browser/PDF E2E: PASS
@@ -56,6 +56,36 @@ Therefore:
 - Do not remove approved CSS, 1280×720 page DOM, tables, diagrams, navigation, or decorative structure to reduce attachment size.
 - The previous 647KB timeout problem remains unresolved after restoring the correct visual contract.
 - A deterministic multi-batch generation and merge workflow would materially change the user journey and requires explicit owner approval before implementation.
+
+## Approved-base cache and semantic DOM lock
+
+The approved Phase 6 base is derived application output, not user research.
+
+- Clear prior-session keys beginning with:
+  - `brand-consulting:phase6-semantic-html-v5:`
+  - `brand-consulting:phase6-semantic-html-v6:`
+- Cache invalidation must not delete Step 0–5 research, User Brief, Competitor Registry, saved projects, or completed reports.
+- Capture the hidden Pilot only after:
+  - `phase6PagePlanReady === true`
+  - `fullReportV4Ready === true`
+  - exactly 40 `.full-slide` pages
+- P3 must not contain `.founding-jtbd-note`; it previously became `identity.content1`.
+- P7 V2/V4 visual runtime DOM must expose exactly the semantic PRODUCT label/value and PERCEPTION label/value. Fixed captions must not become `inflection.contentN`.
+- Generic `.contentN` fields remain blocking errors. Do not silence the validator to accommodate unowned runtime DOM.
+- Full correction record: `handoff/PHASE6_GENERIC_FIELD_AND_JOB_NOTE_FIX_2026-08-04.md`.
+
+## Fixed JOB definition notes
+
+The exact fixed explanatory text is:
+
+`JOB : 고객이 특정 상황에서 달성하고 싶어 하는 근본적인 목표나 해결하고자 하는 일을 뜻함`
+
+It must appear exactly twice:
+
+- P11: below `CATEGORY JOB`
+- P25: immediately above the table whose first header is `Job 층위`
+
+These notes are app-owned explanatory DOM, not external-AI content fields. Do not restore the obsolete generic `.jtbd-header-note` on P11 or P25.
 
 ## User Brief Lock
 
@@ -218,8 +248,10 @@ Creative Methodology and Appendix A1–A7 are excluded.
 - P4: `FACTS`
 - P5: `CATEGORY & TARGET`
 - P10: `CATEGORY SHIFT`, `LEVEL 1`–`LEVEL 5`
+- P11: `CATEGORY JOB`, followed by the exact fixed JOB definition below it.
 - Persona: `SITUATION / REAL JTBD / AS-IS IDENTITY / TO-BE IDENTITY / <brand>의 역할`
 - Persona titles reuse P21 target names; indices `02` and `03` stay on one line.
+- P25: exact fixed JOB definition immediately above `Job 층위`.
 - P26 retains Pain / current problem / Unmet Need / priority.
 - P27 retains the approved AIPL friction-flow.
 - Creative History retains centered six-year cards without decorative NOW circles.
@@ -265,5 +297,6 @@ Update these when architecture, contracts, branch state, validation, or rollback
 - `handoff/DECISION_LOG.md`
 - `handoff/PHASE6_USER_BRIEF_IDENTITY_LOCK_2026-08-04.md`
 - `handoff/PHASE6_LIGHTWEIGHT_HTML_TIMEOUT_MITIGATION_2026-08-04.md`
+- `handoff/PHASE6_GENERIC_FIELD_AND_JOB_NOTE_FIX_2026-08-04.md`
 - `docs/REPORT_TEMPLATE_SPEC.md`
 - `docs/PDF_EXPORT_E2E_STANDARD.md`
