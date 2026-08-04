@@ -8,21 +8,46 @@
 - Production URL: `https://brand-consulting.vercel.app/`
 - Active branch: `fix/phase6-main40-final-html-semantic-v5`
 - Draft PR: `#24 Restore Phase 6 complete HTML output with semantic field locking`
-- Current documentation sequence: begins at `4b04d494edad25743458626f2b3740abed2a7603`
+- Current validated implementation head before documentation: `eb3ab64398e461b7bafaec6b834d7f1348c50a67`
 - Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
 - Production build/contracts: PASS
 - LG 퓨리케어 browser/PDF E2E: PASS
 - Vercel: success
 - `main`: unchanged and unmerged
-- Merge gate: explicit owner approval after Preview test
+- Merge gate: explicit owner approval after real external-AI compact-prompt round trip
 - Protected rollback branches:
   - `backup/main-before-full-report-v1-2026-07-01`
   - `backup-production-stable-20260622`
 - Legacy `public/template.html` remains untouched. Verified blob SHA: `22bc6937b3d672e063d4b240c5a39b9c61700fec`.
 
+## Immediate owner issue and correction
+
+Owner repeatedly received:
+
+`메시지 전송 시간이 초과되었습니다. 다시 시도해 주세요`
+
+Measured previous owner Biznup prompt:
+
+- total: 647,215 bytes
+- application-owned visual template: approximately 449,802 bytes
+- Step 0–5 research: approximately 194,109 bytes
+
+The external package unnecessarily transferred the full fixed CSS, layout, navigation, decorative DOM, and content fields, then requested the full visual document again.
+
+PR #24 now uses a compact semantic HTML workbook:
+
+- Latest LG fixture prompt: 129,638 bytes.
+- Same-volume Biznup estimate: approximately 292KB.
+- Estimated reduction versus prior Biznup prompt: about 55%.
+- Final external output remains HTML, not JSON.
+- The app expands returned values into the approved visual Renderer.
+
+Full record: `handoff/PHASE6_LIGHTWEIGHT_HTML_TIMEOUT_MITIGATION_2026-08-04.md`.
+
 ## Owner-approved output contract
 
-- External AI returns one complete standalone HTML document, not JSON.
+- External AI returns one compact standalone 40-page semantic HTML document, not JSON.
+- The application owns and reconstructs the final approved visual HTML/CSS Renderer.
 - Main Deck: exactly 40 pages.
 - Appendix: 0 pages.
 - Page 40: Decision Receipt / Close.
@@ -38,15 +63,49 @@
 ## Current Phase 6 journey
 
 `Step 0–5 research`
-→ `complete HTML prompt download`
-→ `external AI returns complete 40-page HTML`
+→ `lightweight complete HTML prompt download`
+→ `external AI returns compact 40-page semantic HTML`
 → `paste or HTML file upload`
-→ `active-content sanitization`
-→ `User Brief / Report Identity / semantic-field / DOM / cross-page / P18 validation`
-→ `approved DOM reassembly`
+→ `User Brief / Report Identity / page / semantic-field validation`
+→ `approved visual DOM expansion`
+→ `active-content / DOM fingerprint / cross-page / P18 validation`
 → `Viewer / save / reopen / Export PDF`
 
 The Pilot owns visual structure only. External HTML DOM/CSS changes are never trusted as final output.
+
+## Lightweight semantic HTML V6
+
+Implementation: `src/report/semanticHtmlReportV6.ts`.
+
+The external workbook contains:
+
+- exactly 40 `.full-slide` sections;
+- approved page IDs and order;
+- stable `data-report-field` keys;
+- P18 coordinate fields;
+- compact metadata:
+  - `data-k=t` plain text
+  - `data-k=r` rich text
+  - `data-k=s` source
+  - `data-k=c` Creative History status
+  - `data-m` hard maximum length
+  - optional `data-e` enum and `data-y` fixed year;
+- `[[FIELD:semantic.key]]` tokens;
+- `[[POSITION:semantic.key]]` tokens.
+
+It excludes final CSS, navigation, decorative DOM, fixed visual wrappers, and sample brand content.
+
+After import, `compileSemanticHtmlReportV6` copies validated values into the approved V5 semantic template and invokes the existing V5 Sanitizer, DOM fingerprint, cross-page, Identity, and P18 validation chain.
+
+External file name:
+
+`phase6_lightweight_html_prompt_<brand>.txt`
+
+UI action:
+
+`완성 HTML 프롬프트 다운로드 (경량)`
+
+Do not use previous `phase6_complete_html_prompt_...` or other large prompt files for the timeout retest.
 
 ## User Brief Lock
 
@@ -115,6 +174,8 @@ The output must:
 - begin with `<!DOCTYPE html>`;
 - end with `</html>`;
 - use raw HTML without Markdown fences;
+- retain all 40 page sections and approved IDs;
+- replace every field and position token;
 - exclude prompt instructions, source research outside report pages, and analysis notes.
 
 ## HTML file upload
@@ -124,8 +185,10 @@ Phase 6 supports `.html`, `.htm`, and `.txt`, up to 20MB.
 Upload and paste both feed the same controlled textarea and use the same:
 
 - complete-document extraction;
-- active-content sanitization;
 - User Brief/Identity lock;
+- compact workbook validation;
+- approved visual DOM expansion;
+- active-content sanitization;
 - semantic-field validation;
 - approved DOM fingerprint;
 - cross-page validation;
@@ -137,7 +200,7 @@ Upload and paste both feed the same controlled textarea and use the same:
 
 - Variable content uses stable `data-report-field` keys.
 - `[[CONTENT:Pxx:TAG:nnn]]`, text-node order, and generic `.contentN` are prohibited.
-- `[[FIELD:semantic.key]]` and `[[POSITION:semantic.key]]` exist only in the authoring template and must all be replaced.
+- `[[FIELD:semantic.key]]` and `[[POSITION:semantic.key]]` exist only in the authoring workbook and must all be replaced.
 - Rich fields allow only `<mark>` and `<br>`.
 - Other fields are plain text.
 - Literal `[[...]]` is rejected.
@@ -232,11 +295,12 @@ Deliberate external-output defects:
 - brandless P18 state descriptions
 - custom P18 coordinates
 
-Validated:
+Validated at implementation head `eb3ab64398e461b7bafaec6b834d7f1348c50a67`:
 
 - User Brief in Step/Phase 6 prompt: PASS
 - strategic opponent separation: PASS
-- HTML file upload: PASS
+- lightweight HTML file upload: PASS
+- compact HTML → approved visual Renderer: PASS
 - exact target identity P16/P29/P33: PASS
 - core-three identity P12–18/P30–33: PASS
 - Samsung alias canonicalization: PASS
@@ -252,6 +316,19 @@ Validated:
 - native PDF: 40 pages, 960×540pt
 - repeat export / Ctrl+P / Cmd+P: PASS
 - save → reload → reopen: PASS
+- Preview CI run `30883605720`: PASS
+- PDF Runtime E2E run `30883605708`: PASS
+- Vercel: success
+
+Visual evidence inspected:
+
+- P17 Category Clichés
+- P18 Positioning
+- P29 Creative History
+- P39 Final Choice
+- P40 Decision Close
+
+No clipping or overflow was observed. The fixture copy is repetitive QA text and is not content-quality approval.
 
 ## Active implementation files
 
@@ -259,12 +336,15 @@ Validated:
 - `src/lib/installUserBriefInputNormalizer.ts`
 - `src/report/reportIdentityLock.ts`
 - `src/report/phase6PromptPackage.ts`
+- `src/report/semanticHtmlReportV6.ts`
+- `src/report/semanticHtmlReportV5.ts`
 - `src/lib/installFullReportPhase6Bridge.ts`
 - `src/lib/geminiCompiler.ts`
-- `src/report/semanticHtmlReportV5.ts`
 - `src/report/semanticReportV4.ts`
 - `src/report/structuredReportCrossValidation.ts`
 - `src/report/reportDomSafety.ts`
+- `scripts/test-full-report-contract.mjs`
+- `scripts/test-full-report-runtime.mjs`
 - `scripts/e2e-phase6-five-competitor-native-print.mjs`
 
 ## Superseded implementations
@@ -278,4 +358,4 @@ Validated:
 
 ## Remaining gate
 
-Technical implementation and LG automated/visual QA are complete on the Draft branch. The remaining gate is owner testing of the Preview. Do not merge PR #24 until the owner explicitly approves.
+Technical implementation and LG automated/visual QA are complete on the Draft branch. The remaining gate is owner testing of the newly downloaded compact prompt in a new external AI chat and completing the HTML import round trip. Do not merge PR #24 until the owner explicitly approves.
