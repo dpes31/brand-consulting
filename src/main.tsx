@@ -19,6 +19,7 @@ import { installFullReportPdfButtonBridge } from './lib/installFullReportPdfButt
 import { installFullReportRuntimeCompatibility } from './lib/installFullReportRuntimeCompatibility'
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
 import { installPhase6PagePlanV2 } from './lib/installPhase6PagePlanV2'
+import { installUserBriefContract } from './lib/userBriefContract'
 
 installMaterialSymbolsReady()
 installIframePreRepair()
@@ -28,6 +29,7 @@ installVisualIntentBriefPolicy()
 installStep3VisualIntentContract()
 installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
+installUserBriefContract()
 installPhase6InputGuard()
 installFullReportPhase6Bridge()
 installFullReportSourceRegistry()
