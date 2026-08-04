@@ -1,6 +1,7 @@
 const PLAN_VERSION = 'focus3-main40-no-appendix-v3';
 const SOURCE_PAGE_COUNT = 48;
 const MAIN_COUNT = 40;
+const JOB_DEFINITION = 'JOB : 고객이 특정 상황에서 달성하고 싶어 하는 근본적인 목표나 해결하고자 하는 일을 뜻함';
 
 const MAIN_IDS = [
   'cover','executive','identity','kpi','category-target','growth','inflection','portfolio',
@@ -68,6 +69,48 @@ function restoreApprovedLabels(documentRef: Document): void {
   ['persona-1', 'persona-2', 'persona-3'].forEach((id) => {
     getSlide(documentRef, id).dataset.personaTitleSource = 'core-target';
   });
+}
+
+function ensureJobDefinitionNotes(documentRef: Document): void {
+  documentRef.querySelectorAll('#comp-landscape .jtbd-header-note, #jtbd .jtbd-header-note').forEach((node) => node.remove());
+
+  const categoryJob = documentRef.querySelector<HTMLElement>('#comp-landscape .category-job');
+  if (categoryJob) {
+    const label = categoryJob.querySelector<HTMLElement>(':scope > span');
+    if (label) label.textContent = 'CATEGORY JOB';
+    let note = categoryJob.querySelector<HTMLElement>(':scope > .job-definition-note--category');
+    if (!note) {
+      note = documentRef.createElement('div');
+      note.className = 'job-definition-note job-definition-note--category';
+      categoryJob.appendChild(note);
+    }
+    note.textContent = JOB_DEFINITION;
+    note.style.gridColumn = '1 / -1';
+    note.style.marginTop = '2px';
+    note.style.paddingTop = '6px';
+    note.style.borderTop = '1px solid rgba(91,103,214,.18)';
+    note.style.color = 'var(--full-muted)';
+    note.style.fontSize = '8px';
+    note.style.lineHeight = '1.45';
+    note.style.wordBreak = 'keep-all';
+  }
+
+  const jtbdBody = documentRef.querySelector<HTMLElement>('#jtbd .full-slide-body');
+  const jtbdTable = jtbdBody?.querySelector<HTMLElement>('.jtbd-table');
+  if (jtbdBody && jtbdTable) {
+    let note = jtbdBody.querySelector<HTMLElement>(':scope > .job-definition-note--table');
+    if (!note) {
+      note = documentRef.createElement('div');
+      note.className = 'job-definition-note job-definition-note--table';
+      jtbdBody.insertBefore(note, jtbdTable);
+    }
+    note.textContent = JOB_DEFINITION;
+    note.style.margin = '0 0 7px';
+    note.style.color = 'var(--full-muted)';
+    note.style.fontSize = '8px';
+    note.style.lineHeight = '1.45';
+    note.style.wordBreak = 'keep-all';
+  }
 }
 
 function restoreApprovedVisuals(documentRef: Document): void {
@@ -176,7 +219,10 @@ function rebuildNav(documentRef: Document): void {
 }
 
 function transform(documentRef: Document): boolean {
-  if (documentRef.body.dataset.phase6PagePlan === PLAN_VERSION) return true;
+  if (documentRef.body.dataset.phase6PagePlan === PLAN_VERSION) {
+    ensureJobDefinitionNotes(documentRef);
+    return true;
+  }
   const currentCount = documentRef.querySelectorAll('.full-slide').length;
   if (currentCount !== SOURCE_PAGE_COUNT) return false;
 
@@ -186,6 +232,7 @@ function transform(documentRef: Document): boolean {
   reorder(documentRef);
   rebuildNav(documentRef);
   restoreApprovedVisuals(documentRef);
+  ensureJobDefinitionNotes(documentRef);
 
   if (documentRef.querySelectorAll('.full-slide').length !== MAIN_COUNT) {
     throw new Error('Phase 6 Main Deck must contain exactly 40 slides after restoration.');
