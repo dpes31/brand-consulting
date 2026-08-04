@@ -50,7 +50,7 @@ check(semanticHtmlV6.includes('Return one complete standalone HTML document, not
 check(semanticHtmlV6.includes('[STEP 0–5 RESEARCH — SOURCE OF TRUTH]'), 'Step 0–5 research block missing.');
 check(
   semanticHtmlV6.indexOf('[STEP 0–5 RESEARCH — SOURCE OF TRUTH]')
-    < semanticHtmlV6.indexOf('[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — START]'),
+    < semanticHtmlV6.indexOf('${LIGHTWEIGHT_TEMPLATE_START}'),
   'Step 0–5 research must appear before the lightweight HTML workbook.',
 );
 check(semanticHtmlV6.includes('[[FIELD:${definition.key}]]'), 'Semantic field token generation missing.');
