@@ -51,6 +51,28 @@ function normalizeVisibleBrief(): void {
   }
 }
 
+function stabilizePhase6UploadInput(): void {
+  const input = document.querySelector<HTMLInputElement>('input[data-phase6-html-upload]');
+  if (!input || input.dataset.accessibleFileInput === 'true') return;
+  input.hidden = false;
+  input.tabIndex = -1;
+  input.setAttribute('aria-hidden', 'true');
+  input.style.cssText = [
+    'position:absolute',
+    'width:1px',
+    'height:1px',
+    'opacity:0',
+    'overflow:hidden',
+    'pointer-events:none',
+  ].join(';');
+  input.dataset.accessibleFileInput = 'true';
+}
+
+function refresh(): void {
+  normalizeVisibleBrief();
+  stabilizePhase6UploadInput();
+}
+
 export function installUserBriefInputNormalizer(): void {
   if (installed || typeof document === 'undefined') return;
   installed = true;
@@ -60,8 +82,8 @@ export function installUserBriefInputNormalizer(): void {
   document.addEventListener('change', (event) => {
     if (event.target === findCompetitorControl()) window.setTimeout(normalizeVisibleBrief, 0);
   }, true);
-  const observer = new MutationObserver(() => normalizeVisibleBrief());
+  const observer = new MutationObserver(refresh);
   observer.observe(document.documentElement, { childList: true, subtree: true });
-  window.setInterval(normalizeVisibleBrief, 500);
-  window.setTimeout(normalizeVisibleBrief, 150);
+  window.setInterval(refresh, 500);
+  window.setTimeout(refresh, 150);
 }
