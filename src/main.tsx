@@ -20,6 +20,7 @@ import { installFullReportRuntimeCompatibility } from './lib/installFullReportRu
 import { installDeploymentStatus } from './lib/installDeploymentStatus'
 import { installPhase6PagePlanV2 } from './lib/installPhase6PagePlanV2'
 import { installUserBriefContract } from './lib/userBriefContract'
+import { installUserBriefInputNormalizer } from './lib/installUserBriefInputNormalizer'
 
 installMaterialSymbolsReady()
 installIframePreRepair()
@@ -30,6 +31,7 @@ installStep3VisualIntentContract()
 installStep5VisualIntentContract()
 installVisualIntentWorkflowGuard()
 installUserBriefContract()
+installUserBriefInputNormalizer()
 installPhase6InputGuard()
 installFullReportPhase6Bridge()
 installFullReportSourceRegistry()
