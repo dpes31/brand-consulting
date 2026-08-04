@@ -6,10 +6,10 @@ import {
 import { getActiveUserBrief } from './userBriefContract';
 import { loadApprovedPilotBaseHtml } from '../report/fullReportCompilerV3';
 import {
-  buildSemanticHtmlPromptV6,
-  compileSemanticHtmlReportV6,
-  createSemanticHtmlWorkbookV6,
-} from '../report/semanticHtmlReportV6';
+  buildSemanticHtmlPromptV5,
+  compileSemanticHtmlReportV5,
+  createSemanticHtmlTemplateV5,
+} from '../report/semanticHtmlReportV5';
 import {
   applyFinalReportIdentityPolicy,
   applyReportIdentityLockToExternalHtml,
@@ -28,7 +28,7 @@ const ACTIVE_BRAND_SESSION_KEYS = [
   'brand-consulting:brand-name',
 ] as const;
 const REQUIRED_PHASE_STEPS = ['0', '1', '2', '3', '4', '5'] as const;
-const BASE_KEY_PREFIX = 'brand-consulting:phase6-semantic-html-v6:';
+const BASE_KEY_PREFIX = 'brand-consulting:phase6-semantic-html-v5:';
 const MAX_HTML_FILE_BYTES = 20 * 1024 * 1024;
 
 let installed = false;
@@ -110,17 +110,16 @@ async function loadExactApprovedBase(brandName: string): Promise<string> {
   return base;
 }
 
-function downloadPrompt(prompt: string, brandName: string): number {
+function downloadPrompt(prompt: string, brandName: string): void {
   const blob = new Blob([prompt], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `phase6_lightweight_html_prompt_${brandName || 'brand'}.txt`;
+  anchor.download = `phase6_complete_html_prompt_${brandName || 'brand'}.txt`;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
-  return blob.size;
 }
 
 async function copyText(text: string): Promise<void> {
@@ -183,26 +182,24 @@ async function handlePromptExport(event: MouseEvent, button: HTMLButtonElement):
 
   const originalText = normalizeText(button.textContent) || '프롬프트 추출';
   button.disabled = true;
-  button.textContent = '경량 HTML·Identity Lock 준비 중...';
+  button.textContent = 'Brief·Identity Lock 준비 중...';
   try {
     const { brief, identityLock } = resolveIdentityContext(brandName, phaseInputs);
     const approvedBase = await loadExactApprovedBase(brandName);
-    const semanticWorkbook = createSemanticHtmlWorkbookV6(approvedBase, brandName);
-    const compilerPrompt = buildSemanticHtmlPromptV6(
+    const semanticTemplate = createSemanticHtmlTemplateV5(approvedBase, brandName);
+    const compilerPrompt = buildSemanticHtmlPromptV5(
       rawResearch,
       brandName,
-      semanticWorkbook.html,
+      semanticTemplate.html,
       buildCreativeHistoryCompilerDirective(rawResearch),
     );
     const prompt = buildPhase6PromptPackage(compilerPrompt, brief, identityLock);
     await copyText(EXTERNAL_AI_EXECUTION_MESSAGE);
-    const promptBytes = downloadPrompt(prompt, brandName);
-    const promptKilobytes = Math.ceil(promptBytes / 1024);
+    downloadPrompt(prompt, brandName);
     window.alert(
-      `경량 HTML 작성 프롬프트를 저장했다. (${promptKilobytes}KB)\n\n`
-      + '고정 CSS·레이아웃·장식 DOM은 전송 파일에서 제외했다.\n'
-      + '외부 AI 채팅에 파일을 첨부하고 클립보드의 실행 문장을 전송하십시오.\n'
-      + '외부 AI 결과는 40페이지 의미 필드 HTML이며, 앱이 승인된 최종 Renderer로 조립합니다.',
+      '완성 HTML 작성 프롬프트를 파일로 저장했다.\n\n'
+      + '외부 AI 채팅에 파일을 첨부한 뒤 바로 붙여넣을 실행 문장도 클립보드에 복사했다.\n'
+      + '외부 AI는 CSS·레이아웃·도식·내비게이션을 포함한 완성된 40페이지 HTML만 반환해야 한다.',
     );
   } catch (error) {
     window.alert(`Phase 6 프롬프트 생성 오류: ${normalizePhase6Error(error, brandName).message}`);
@@ -217,8 +214,8 @@ async function handleManualRender(
   button: HTMLButtonElement,
   textarea: HTMLTextAreaElement,
 ): Promise<void> {
-  if (textarea.dataset.phase6CompiledHtmlV6 === 'true') {
-    delete textarea.dataset.phase6CompiledHtmlV6;
+  if (textarea.dataset.phase6CompiledHtmlV5 === 'true') {
+    delete textarea.dataset.phase6CompiledHtmlV5;
     return;
   }
 
@@ -226,7 +223,7 @@ async function handleManualRender(
   const brandName = readBrandName();
   const { rawResearch, missingSteps, phaseInputs } = readResearchSnapshot();
   if (!textarea.value.trim()) {
-    window.alert('외부 AI가 생성한 40페이지 HTML 전체를 붙여넣거나 .html 파일을 불러와야 한다.');
+    window.alert('외부 AI가 생성한 완성 HTML 전체를 붙여넣거나 .html 파일을 불러와야 한다.');
     return;
   }
   if (!brandName) {
@@ -240,19 +237,19 @@ async function handleManualRender(
 
   const originalText = normalizeText(button.textContent) || '결과물 뷰어에 렌더링하기';
   button.disabled = true;
-  button.textContent = 'Brief·Identity·경량 HTML 검증 중...';
+  button.textContent = 'Brief·Identity·HTML 검증 중...';
   try {
     const { identityLock } = resolveIdentityContext(brandName, phaseInputs);
     const approvedBase = await loadExactApprovedBase(brandName);
     const identityLockedOutput = applyReportIdentityLockToExternalHtml(textarea.value, identityLock);
-    const compiled = compileSemanticHtmlReportV6(identityLockedOutput, approvedBase, brandName)
+    const compiled = compileSemanticHtmlReportV5(identityLockedOutput, approvedBase, brandName)
       .replace(/\[cite[:\s]*\d*[\],]*/g, '')
       .replace(/\[cite_start\]/g, '')
       .replace(/\\cite\{[^}]*\}/g, '');
     const compiledHtml = applyFinalReportIdentityPolicy(compiled, identityLock);
 
     setControlledTextareaValue(textarea, compiledHtml);
-    textarea.dataset.phase6CompiledHtmlV6 = 'true';
+    textarea.dataset.phase6CompiledHtmlV5 = 'true';
     window.setTimeout(() => button.click(), 0);
   } catch (error) {
     window.alert(`FULL 보고서 검증 오류: ${normalizePhase6Error(error, brandName).message}`);
@@ -298,7 +295,7 @@ function ensureHtmlFileUpload(textarea: HTMLTextAreaElement): void {
 
   const status = document.createElement('span');
   status.className = 'min-w-0 flex-1 truncate text-[10px] text-slate-400';
-  status.textContent = '경량 HTML 코드 붙여넣기 또는 파일 업로드';
+  status.textContent = '완성 HTML 코드 붙여넣기 또는 파일 업로드';
 
   const label = document.createElement('label');
   label.className = 'shrink-0 cursor-pointer rounded-md border border-[#2DD4BF]/35 px-3 py-1.5 text-[10px] font-bold text-[#2DD4BF] hover:bg-[#2DD4BF]/10';
@@ -341,23 +338,23 @@ function refreshPhase6Copy(): void {
   try {
     const textarea = findPhase6Textarea();
     if (textarea) {
-      textarea.placeholder = '외부 AI가 반환한 경량 40페이지 HTML을 붙여넣거나 파일로 불러오세요. 앱이 승인된 시각 Renderer에 조립하고 검증합니다.';
+      textarea.placeholder = '외부 AI가 반환한 CSS·레이아웃·도식·내비게이션 포함 40페이지 완성 HTML을 붙여넣거나 .html 파일을 불러오세요.';
       ensureExecutionCommand(textarea);
       ensureHtmlFileUpload(textarea);
     }
     document.querySelectorAll<HTMLElement>('div, p').forEach((element) => {
       const text = normalizeText(element.textContent);
-      if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI 40페이지 HTML 생성';
+      if (text === '외부 AI 수동 렌더링') element.textContent = '외부 AI 완성 HTML 생성';
       if (text === '무료 제미나이 웹을 사용해 렌더링 비용을 없앱니다.') {
-        element.textContent = '외부 AI는 경량 의미 필드 HTML을 작성하고, 앱은 승인된 최종 시각 Renderer로 조립합니다.';
+        element.textContent = '외부 AI는 승인 양식이 포함된 완성 HTML을 작성하고, 앱은 User Brief·브랜드·경쟁사·40페이지 구조를 검증합니다.';
       }
       if (text === '수집된 데이터를 바탕으로 04번 보고서 양식 결과물을 생성합니다.') {
-        element.textContent = 'Step 0~5 조사와 User Brief를 40페이지 HTML 보고서로 완성합니다.';
+        element.textContent = 'Step 0~5 조사와 User Brief를 승인된 40페이지 HTML 보고서로 완성합니다.';
       }
     });
     const promptButton = Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
       .find((candidate) => normalizeText(candidate.textContent).includes('프롬프트 추출'));
-    if (promptButton) promptButton.textContent = '완성 HTML 프롬프트 다운로드 (경량)';
+    if (promptButton) promptButton.textContent = '완성 HTML 프롬프트 다운로드';
   } finally {
     refreshing = false;
   }
@@ -374,7 +371,7 @@ export function installFullReportPhase6Bridge(): void {
     if (!(button instanceof HTMLButtonElement)) return;
     const label = normalizeText(button.textContent);
 
-    if (label.includes('프롬프트 추출') || label.includes('HTML 프롬프트')) {
+    if (label.includes('프롬프트 추출') || label.includes('완성 HTML 프롬프트')) {
       void handlePromptExport(event, button);
       return;
     }
