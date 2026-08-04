@@ -9,7 +9,8 @@ const gitBlobSha = (content) => createHash('sha1').update(`blob ${Buffer.byteLen
 const runtime = read('src/lib/installFullReportRuntimeCompatibility.ts');
 const pdfBridge = read('src/lib/installFullReportPdfButtonBridge.ts');
 const compiler = read('src/report/fullReportCompilerV3.ts');
-const semanticHtml = read('src/report/semanticHtmlReportV5.ts');
+const semanticHtmlV5 = read('src/report/semanticHtmlReportV5.ts');
+const semanticHtmlV6 = read('src/report/semanticHtmlReportV6.ts');
 const definitionPolicy = read('src/report/structuredDefinitionPolicy.ts');
 const domSafety = read('src/report/reportDomSafety.ts');
 const pagePlan = read('src/lib/installPhase6PagePlanV2.ts');
@@ -48,19 +49,23 @@ assert.match(compiler, /34 Creative Insight/);
 assert.match(compiler, /40 Decision Receipt \/ Close/);
 assert.match(compiler, /loadApprovedPilotBaseHtml/);
 
-assert.match(semanticHtml, /createSemanticHtmlTemplateV5/);
-assert.match(semanticHtml, /buildSemanticHtmlPromptV5/);
-assert.match(semanticHtml, /compileSemanticHtmlReportV5/);
-assert.match(semanticHtml, /Return one complete standalone HTML document, not JSON/);
-assert.match(semanticHtml, /\[STEP 0–5 RESEARCH — SOURCE OF TRUTH\]/);
-assert.match(semanticHtml, /\[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — START\]/);
-assert.match(semanticHtml, /sanitizeCompatibleFullReportHtml/);
-assert.match(semanticHtml, /computeReportDomFingerprint/);
-assert.match(semanticHtml, /assertStructuredReportCrossPage/);
-assert.match(semanticHtml, /renderSemanticReportV4/);
-assert.match(semanticHtml, /semantic-html-v5/);
-assert.doesNotMatch(semanticHtml, /Return JSON only/);
-assert.doesNotMatch(semanticHtml, /CONTENT:P\d/);
+assert.match(semanticHtmlV6, /createSemanticHtmlWorkbookV6/);
+assert.match(semanticHtmlV6, /buildSemanticHtmlPromptV6/);
+assert.match(semanticHtmlV6, /compileSemanticHtmlReportV6/);
+assert.match(semanticHtmlV6, /Return one complete standalone HTML document, not JSON/);
+assert.match(semanticHtmlV6, /\[STEP 0–5 RESEARCH — SOURCE OF TRUTH\]/);
+assert.match(semanticHtmlV6, /LIGHTWEIGHT_TEMPLATE_START/);
+assert.match(semanticHtmlV6, /semantic-html-v6-workbook/);
+assert.match(semanticHtmlV6, /compileSemanticHtmlReportV5/);
+assert.match(semanticHtmlV6, /createSemanticHtmlTemplateV5/);
+assert.doesNotMatch(semanticHtmlV6, /Return JSON only/);
+assert.doesNotMatch(semanticHtmlV6, /CONTENT:P\d/);
+
+assert.match(semanticHtmlV5, /sanitizeCompatibleFullReportHtml/);
+assert.match(semanticHtmlV5, /computeReportDomFingerprint/);
+assert.match(semanticHtmlV5, /assertStructuredReportCrossPage/);
+assert.match(semanticHtmlV5, /renderSemanticReportV4/);
+assert.match(semanticHtmlV5, /semantic-html-v5/);
 
 assert.match(definitionPolicy, /GENERIC_ORDER_FIELD/);
 assert.match(definitionPolicy, /jtbd\.row/);
@@ -70,15 +75,16 @@ assert.match(domSafety, /computeReportDomFingerprint/);
 
 for (const source of [apiCompiler, bridge]) {
   assert.match(source, /loadApprovedPilotBaseHtml/);
-  assert.match(source, /createSemanticHtmlTemplateV5/);
-  assert.match(source, /buildSemanticHtmlPromptV5/);
-  assert.match(source, /compileSemanticHtmlReportV5/);
+  assert.match(source, /createSemanticHtmlWorkbookV6/);
+  assert.match(source, /buildSemanticHtmlPromptV6/);
+  assert.match(source, /compileSemanticHtmlReportV6/);
   assert.doesNotMatch(source, /createResearchOnlyLayoutTemplate/);
   assert.doesNotMatch(source, /addResearchSlotRules/);
   assert.doesNotMatch(source, /extractProductionReportJson/);
 }
 assert.match(bridge, /완성 HTML 프롬프트 다운로드/);
-assert.match(bridge, /phase6_complete_html_prompt_/);
+assert.match(bridge, /phase6_lightweight_html_prompt_/);
+assert.match(bridge, /고정 CSS·레이아웃·장식 DOM은 전송 파일에서 제외했다/);
 assert.doesNotMatch(bridge, /structured-json/);
 
 assert.match(normalizer, /FULL_REPORT_PAGE_COUNT = 40/);
@@ -87,4 +93,4 @@ assert.match(main, /installFullReportRuntimeCompatibility/);
 assert.match(main, /installFullReportPhase6Bridge/);
 assert.match(main, /installPhase6PagePlanV2/);
 assert.equal(packageJson.scripts['test:full-report-runtime'], 'node scripts/test-full-report-runtime.mjs');
-console.log('FULL report runtime compatibility passed for complete semantic HTML, 40 pages, no Appendix.');
+console.log('FULL report runtime compatibility passed for lightweight semantic HTML input, approved 40-page Renderer, and zero Appendix.');
