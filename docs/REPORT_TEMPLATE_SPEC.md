@@ -6,7 +6,8 @@ Approved Phase 6 production target for the Brand Consulting Generator.
 
 - Production route: `/`, Phase 6
 - Layout source: `/?pilot=full-integrated&brand=<exact brand>`
-- External AI final output: complete standalone HTML, not JSON
+- External AI final output: compact standalone semantic HTML, not JSON
+- Application final output: approved complete visual HTML/CSS report
 - Main Deck: exactly 40 pages
 - Appendix: 0 pages
 - Final page: Decision Receipt / Close
@@ -21,15 +22,74 @@ The approved Biznup Pilot supplies layout only. Its sample wording is not a vali
 ## Phase 6 production journey
 
 `Step 0–5 research`
-→ `complete HTML prompt download`
-→ `external AI returns one complete 40-page HTML`
+→ `lightweight complete HTML prompt download`
+→ `external AI returns one compact 40-page semantic HTML`
 → `paste or HTML file upload`
-→ `active-content sanitization`
-→ `User Brief / Report Identity / semantic-field / DOM / cross-page / P18 validation`
-→ `approved DOM reassembly`
+→ `User Brief / Report Identity / page-order / semantic-field validation`
+→ `approved visual DOM expansion`
+→ `active-content / DOM fingerprint / cross-page / P18 validation`
 → `Viewer / save / reopen / native PDF`
 
-The application owns structure. External AI writes content but does not own final DOM/CSS.
+The application owns structure and final visual rendering. External AI writes semantic content but does not own final DOM/CSS.
+
+## Lightweight HTML timeout mitigation
+
+The previous prompt duplicated application-owned CSS, layout, navigation, decorative DOM, and fixed report chrome.
+
+Measured owner Biznup prompt:
+
+- total: 647,215 bytes
+- fixed visual template: approximately 449,802 bytes
+- Step 0–5 research: approximately 194,109 bytes
+
+Current V6 compact workbook:
+
+- implementation: `src/report/semanticHtmlReportV6.ts`
+- download action: `완성 HTML 프롬프트 다운로드 (경량)`
+- filename: `phase6_lightweight_html_prompt_<brand>.txt`
+- latest LG fixture prompt: 129,638 bytes
+- same-volume Biznup estimate: approximately 292KB
+- estimated reduction: about 55%
+
+The compact workbook retains the complete 40-page semantic writing contract while removing fixed visual assets from the external transfer. External output remains HTML; this is not the superseded JSON workflow.
+
+## Compact semantic workbook contract
+
+The external workbook must contain:
+
+- exactly 40 `.full-slide` sections;
+- approved page IDs and order;
+- all stable `data-report-field` keys;
+- all required P18 `data-report-coordinate-field` keys;
+- `[[FIELD:semantic.key]]` authoring tokens;
+- `[[POSITION:semantic.key]]` authoring tokens;
+- compact field metadata:
+  - `data-k=t`: plain text
+  - `data-k=r`: rich text
+  - `data-k=s`: source
+  - `data-k=c`: Creative History status
+  - `data-m`: hard character limit
+  - optional `data-e`: allowed enum
+  - optional `data-y`: fixed year.
+
+The external workbook excludes:
+
+- final CSS;
+- navigation markup;
+- decorative DOM;
+- fixed layout wrappers not required for semantic writing;
+- sample brand content.
+
+After import, `compileSemanticHtmlReportV6`:
+
+1. validates exact 40-page skeleton and page order;
+2. validates field count, keys, page placement, and permitted markup;
+3. validates P18 coordinate field completeness;
+4. copies values into the approved V5 semantic visual template;
+5. invokes the existing V5 Sanitizer, DOM fingerprint, cross-page, Identity, and P18 validation chain;
+6. returns the final approved full visual HTML report.
+
+External CSS and structural changes never enter the final report.
 
 ## User Brief Lock
 
@@ -120,13 +180,15 @@ The package must contain explicit boundaries for:
 - Report Identity Lock
 - compiler instructions
 - Step 0–5 research
-- immutable semantic template
+- immutable compact semantic HTML workbook
 
 The generated artifact:
 
 - starts with `<!DOCTYPE html>`;
 - ends with `</html>`;
 - is raw HTML without Markdown fences;
+- retains exactly 40 approved page sections;
+- replaces every field and position token;
 - excludes prompt instructions, source research outside report pages, and analysis notes.
 
 ## HTML file upload
@@ -141,8 +203,10 @@ Phase 6 supports:
 Upload loads file text into the same controlled textarea as paste. Both methods must use one identical:
 
 - complete-document extraction
-- Sanitizer
+- compact workbook skeleton validation
 - User Brief/Identity lock
+- approved visual DOM expansion
+- Sanitizer
 - semantic-field validation
 - DOM fingerprint validation
 - cross-page validation
@@ -163,15 +227,18 @@ A separate relaxed upload renderer is prohibited.
   - `aipl.stage3.action`
   - `strategy-choice.winningMove`
 - Returned and approved field sets must match exactly.
-- Missing, duplicated, added, or reordered roles block compilation.
+- Missing, duplicated, added, or moved roles block compilation.
 - `[[CONTENT:Pxx:TAG:nnn]]`, DOM text order, and generic `.contentN` fields are prohibited.
 
 ### Field markup
 
-- `rich`: only `<mark>` and `<br>` descendants
-- `text`: plain text
-- `source`: plain text; application owns `SOURCE ·`
-- `status`: plain text and canonical status code
+- `data-k=r` / rich: only `<mark>` and `<br>` descendants
+- `data-k=t` / text: plain text
+- `data-k=s` / source: plain text; application owns `SOURCE ·`
+- `data-k=c` / status: plain text and canonical status code
+- `data-m`: hard content-length limit
+- `data-e`: exact allowed enum when present
+- `data-y`: exact fixed year when present
 
 ### Token completion
 
@@ -185,14 +252,15 @@ The compiled report contains none of:
 ## Approved DOM and security
 
 1. Extract one complete HTML document.
-2. Remove scripts, noscript, base, refresh redirects, event handlers, and JavaScript URLs.
-3. Reject forms, inputs, embeds, objects, iframes, and autoplay media.
-4. Canonicalize to the 40-page contract.
-5. Compare the returned DOM fingerprint with the approved fingerprint.
-6. Read only validated semantic values and P18 coordinates.
-7. Apply User Brief and Report Identity locks.
-8. Re-render into the approved base DOM.
-9. Run sample leakage validation.
+2. Validate compact workbook page count, IDs, order, field set, and coordinate set.
+3. Read only permitted semantic values and P18 coordinates.
+4. Expand values into the approved visual semantic template.
+5. Remove scripts, noscript, base, refresh redirects, event handlers, and JavaScript URLs.
+6. Reject forms, inputs, embeds, objects, iframes, and autoplay media.
+7. Canonicalize to the 40-page contract.
+8. Compare the final DOM fingerprint with the approved fingerprint.
+9. Apply User Brief and Report Identity locks.
+10. Run cross-page, P18, factuality, and sample leakage validation.
 
 External CSS or DOM changes never become final report structure.
 
@@ -200,12 +268,13 @@ External CSS or DOM changes never become final report structure.
 
 Reject when:
 
-- slide count is not 40;
+- compact or final slide count is not 40;
 - any page zone is not `main`;
 - any Appendix or Creative Methodology page remains;
 - page IDs, order, or required structures differ;
 - any unresolved field, position, literal bracket, or legacy content token remains;
 - field set differs from the approved set;
+- a field is moved to another page;
 - a field contains disallowed markup;
 - approved DOM fingerprint changes;
 - exact target brand is absent or altered;
@@ -348,9 +417,10 @@ Poles are meaningful Step 2 attributes. Literal axis names or directional shorth
 - `src/lib/installUserBriefInputNormalizer.ts`
 - `src/report/reportIdentityLock.ts`
 - `src/report/phase6PromptPackage.ts`
+- `src/report/semanticHtmlReportV6.ts`
+- `src/report/semanticHtmlReportV5.ts`
 - `src/lib/installFullReportPhase6Bridge.ts`
 - `src/lib/geminiCompiler.ts`
-- `src/report/semanticHtmlReportV5.ts`
 - `src/report/semanticReportV4.ts`
 - `src/report/structuredReportV3.ts`
 - `src/report/structuredDefinitionPolicy.ts`
@@ -358,6 +428,8 @@ Poles are meaningful Step 2 attributes. Literal axis names or directional shorth
 - `src/report/reportDomSafety.ts`
 - `src/lib/installFullReportRuntimeCompatibility.ts`
 - `src/lib/installFullReportPdfButtonBridge.ts`
+- `scripts/test-full-report-contract.mjs`
+- `scripts/test-full-report-runtime.mjs`
 - `scripts/e2e-phase6-five-competitor-native-print.mjs`
 
 ## Minimum QA
@@ -365,6 +437,8 @@ Poles are meaningful Step 2 attributes. Literal axis names or directional shorth
 - exact 40 pages and 40 navigation links
 - Appendix 0
 - exact page order and IDs
+- compact prompt size displayed
+- no fixed visual CSS/layout payload in the compact workbook
 - no legacy content slots or generic fields
 - no unresolved tokens or literal brackets
 - script and active-content removal
@@ -391,15 +465,30 @@ Poles are meaningful Step 2 attributes. Literal axis names or directional shorth
 - Registry core: 코웨이 / 삼성전자 / SK매직
 - strategic opponent: `위생이라는 단어 자체`
 - client need: `위생의 격이 다른 정수기`
-- Implementation head before documentation: `3f8b42952a7508669be0b3fd88a0db12e15a85cf`
-- Preview CI run `30881036772`: PASS
-- PDF Runtime E2E run `30881036785`: PASS
+- Implementation head before documentation: `eb3ab64398e461b7bafaec6b834d7f1348c50a67`
+- compact fixture prompt: 129,638 bytes
+- compact returned fixture HTML: 106,997 bytes
+- Preview CI run `30883605720`: PASS
+- PDF Runtime E2E run `30883605708`: PASS
 - Vercel: success
+- inspected P17, P18, P29, P39, P40 evidence: no clipping or overflow
 - Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
+
+## Timeout fallback boundary
+
+If the newly downloaded compact prompt still times out in a new external AI chat:
+
+- preserve the exact downloaded file and the error evidence;
+- do not revert to JSON;
+- do not omit Step 0–5 research;
+- do not concatenate unvalidated manual fragments;
+- require a separately approved deterministic page-batch semantic HTML merge contract.
+
+That fallback is not implemented in the current branch.
 
 ## Protected rollback and approval
 
 - `public/template.html` remains untouched.
 - Protected branches remain untouched.
 - Draft PR #24 remains unmerged.
-- Owner Preview approval is required before merge.
+- Owner must successfully send the new compact prompt, import the returned HTML, and explicitly approve before merge.
