@@ -14,10 +14,8 @@ export const LIGHTWEIGHT_SEMANTIC_HTML_CONTRACT = 'semantic-html-v6-workbook';
 export const LIGHTWEIGHT_TEMPLATE_START = '[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — START]';
 export const LIGHTWEIGHT_TEMPLATE_END = '[IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — END]';
 
-const LEGACY_FIELD_TOKEN = /\[\[FIELD:([a-z0-9.-]+)\]\]/i;
-const LEGACY_POSITION_TOKEN = /\[\[POSITION:([a-z0-9.-]+)\]\]/i;
-const COMPACT_FIELD_TOKEN = /\[\[F\]\]/i;
-const COMPACT_POSITION_TOKEN = /\[\[P\]\]/i;
+const FIELD_TOKEN = /\[\[FIELD:([a-z0-9.-]+)\]\]/i;
+const POSITION_TOKEN = /\[\[POSITION:([a-z0-9.-]+)\]\]/i;
 const POSITIONING_COORDINATE_KEYS = [
   'positioning.competitor1.x',
   'positioning.competitor1.y',
@@ -62,12 +60,12 @@ function fieldMarkup(definition: StructuredFieldDefinition): string {
   ];
   if (definition.enum?.length) attributes.push(`data-e="${escapeHtml(definition.enum.join('|'))}"`);
   if (definition.fixedYear !== undefined) attributes.push(`data-y="${escapeHtml(String(definition.fixedYear))}"`);
-  return `<div ${attributes.join(' ')}>[[F]]</div>`;
+  return `<div ${attributes.join(' ')}>[[FIELD:${definition.key}]]</div>`;
 }
 
 function coordinateMarkup(): string {
   return POSITIONING_COORDINATE_KEYS
-    .map((key) => `<data data-report-coordinate-field="${key}" hidden>[[P]]</data>`)
+    .map((key) => `<data data-report-coordinate-field="${key}" hidden>[[POSITION:${key}]]</data>`)
     .join('');
 }
 
@@ -105,9 +103,9 @@ Your first visible characters must be <!DOCTYPE html>. Your last visible charact
 - Main Deck: exactly 40 pages. Appendix: 0 pages.
 - This is a compact semantic workbook. The application owns the final visual CSS and approved Renderer.
 - Keep all 40 .full-slide sections, IDs, data attributes, field elements, and page order unchanged.
-- Replace each [[F]] inside a data-report-field element with that semantic key's content.
+- Replace each [[FIELD:semantic.key]] token inside its data-report-field element.
 - Field metadata: data-k=t plain text, r rich text, s source, c Creative History status; data-m is the hard character limit; data-e is the allowed enum; data-y is the fixed year.
-- Replace each [[P]] inside a data-report-coordinate-field element with one integer from 0 to 100.
+- Replace each [[POSITION:semantic.key]] token inside its data-report-coordinate-field element with one integer from 0 to 100.
 - Do not add CSS, scripts, navigation, diagrams, tables, wrapper elements, or explanatory text.
 - Never move content between fields, create/remove/merge fields, or place prose in numbers, labels, axes, coordinates, or headings.
 - Return raw HTML only from <!DOCTYPE html> through </html>. Do not use Markdown code fences.
@@ -140,7 +138,7 @@ ${semanticWorkbookHtml}
 ${LIGHTWEIGHT_TEMPLATE_END}
 
 [FINAL CHECK]
-Replace every [[F]] and [[P]], leave no literal [[...]], retain exactly 40 .full-slide sections, and include no Appendix. Return the raw complete HTML now.`;
+Replace every [[FIELD:...]] and [[POSITION:...]], leave no literal [[...]], retain exactly 40 .full-slide sections, and include no Appendix. Return the raw complete HTML now.`;
 }
 
 function fieldSelector(key: string): string {
@@ -194,7 +192,7 @@ function returnedFields(
       throw new Error(`${definition.key} 필드가 승인 페이지 #${definition.pageId} 밖으로 이동했다.`);
     }
     const value = element.textContent || '';
-    if (COMPACT_FIELD_TOKEN.test(value) || LEGACY_FIELD_TOKEN.test(value)) {
+    if (FIELD_TOKEN.test(value)) {
       throw new Error(`조사 내용으로 교체되지 않은 의미 필드가 남았다: ${definition.key}`);
     }
     assertAllowedFieldMarkup(element, definition.kind, definition.key);
@@ -246,7 +244,7 @@ export function compileSemanticHtmlReportV6(
     const target = expandedDocument.querySelector<HTMLElement>(`data[data-report-coordinate-field="${key}"]`);
     if (!source || !target) throw new Error(`P18 좌표 필드가 누락됐다: ${key}`);
     const value = (source.textContent || '').trim();
-    if (COMPACT_POSITION_TOKEN.test(value) || LEGACY_POSITION_TOKEN.test(value)) {
+    if (POSITION_TOKEN.test(value)) {
       throw new Error(`P18 좌표 필드가 교체되지 않았다: ${key}`);
     }
     target.textContent = value;
