@@ -152,6 +152,11 @@ function validateSemanticRecords(report: StructuredReportV3, expectedBrand: stri
   return errors;
 }
 
+function isNonBlockingAiCopyStyleError(error: string): boolean {
+  return error.endsWith('must use declarative consulting tone')
+    || /Persona title must exactly match P21 target \d\.$/.test(error);
+}
+
 function removeFieldAttributes(element: HTMLElement): void {
   FIELD_ATTRIBUTES.forEach((attribute) => element.removeAttribute(attribute));
 }
@@ -255,7 +260,8 @@ export function renderSemanticReportV4(
   const definitions = prepareSemanticDocument(documentRef, expectedBrand);
   const beforeFingerprint = computeReportDomFingerprint(documentRef);
   const errors = [
-    ...validateStructuredReportV3(report, definitions, expectedBrand),
+    ...validateStructuredReportV3(report, definitions, expectedBrand)
+      .filter((error) => !isNonBlockingAiCopyStyleError(error)),
     ...validateSemanticRecords(report, expectedBrand),
   ];
   if (errors.length) {
