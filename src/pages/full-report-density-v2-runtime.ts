@@ -80,15 +80,11 @@ function applyFullReportV2(): void {
   document.querySelectorAll<HTMLElement>('.persona-index').forEach((index) => index.classList.add('persona-index-v3'));
   document.querySelector<HTMLElement>('#creative-insight .creative-gap-layout')?.classList.add('creative-gap-v3');
 
-  const map = document.querySelector<HTMLElement>('#positioning .position-map');
-  if (map && !map.querySelector('.positioning-arrow-v2')) {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'positioning-arrow-v2');
-    svg.setAttribute('viewBox', '0 0 100 100');
-    svg.setAttribute('preserveAspectRatio', 'none');
-    svg.innerHTML = '<defs><marker id="posArrow" markerWidth="8" markerHeight="8" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="currentColor"/></marker></defs><line x1="38" y1="47" x2="79" y2="20" marker-end="url(#posArrow)"/>';
-    map.appendChild(svg);
-  }
+  // P18 movement arrow is owned by the semantic compiler so that the vector
+  // is always bound to the returned AS-IS / TO-BE coordinates. The older
+  // fixed-position V2 overlay is intentionally retired to avoid duplicate
+  // arrows and HTML/PDF drift.
+  document.querySelector<HTMLElement>('#positioning .positioning-arrow-v2')?.remove();
 }
 
 window.addEventListener('DOMContentLoaded', () => window.setTimeout(applyFullReportV2, 350));
