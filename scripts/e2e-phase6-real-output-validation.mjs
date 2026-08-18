@@ -131,17 +131,17 @@ try {
 
   const approvedBase = await page.evaluate(() => `<!DOCTYPE html>\n${document.documentElement.outerHTML}`);
   await page.addScriptTag({ url: new URL('__phase6-semantic-test.js', appUrl).toString() });
-
-  const result = await page.evaluate(({ approvedBase, brand, targets }) => {
+  const template = await page.evaluate(({ approvedBase, brand }) => {
     const api = window.Phase6Semantic;
-    if (!api?.createSemanticHtmlTemplateV5 || !api?.compileSemanticHtmlReportV5) {
-      throw new Error('Phase6Semantic browser test bundle is unavailable.');
-    }
+    if (!api?.createSemanticHtmlTemplateV5) throw new Error('Phase6Semantic template API unavailable.');
+    return api.createSemanticHtmlTemplateV5(approvedBase, brand).html;
+  }, { approvedBase, brand });
+  const validExternal = fillTemplate(template);
 
-    const template = api.createSemanticHtmlTemplateV5(approvedBase, brand).html;
-    const fill = window.__phase6FillTemplate;
-    if (typeof fill !== 'function') throw new Error('fill helper missing');
-    const validExternal = fill(template);
+  const result = await page.evaluate(({ approvedBase, brand, targets, validExternal }) => {
+    const api = window.Phase6Semantic;
+    if (!api?.compileSemanticHtmlReportV5) throw new Error('Phase6Semantic compiler API unavailable.');
+
     const compiled = api.compileSemanticHtmlReportV5(validExternal, approvedBase, brand);
     const compiledDoc = new DOMParser().parseFromString(compiled, 'text/html');
 
@@ -186,7 +186,7 @@ try {
       personaError,
       unsafeError,
     };
-  }, { approvedBase, brand, targets });
+  }, { approvedBase, brand, targets, validExternal });
 
   assert.equal(result.pageCount, 40);
   assert.ok(Number(result.recovered) >= 1, 'Expected b/strong markup to be recovered to mark.');
