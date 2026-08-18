@@ -96,6 +96,7 @@ function applyFullReportV4() {
   });
   document.querySelector<HTMLElement>('#creative-method .history-scope')?.remove();
   document.documentElement.dataset.fullReportV4Ready = 'true';
+  document.body.dataset.fullReportV4Ready = 'true';
 }
 
 window.addEventListener('DOMContentLoaded', () => window.setTimeout(applyFullReportV4, 520));
