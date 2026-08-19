@@ -47,6 +47,7 @@ ${EXTERNAL_AI_EXECUTION_MESSAGE}
 
 [OUTPUT QUALITY BLOCKERS]
 - 서로 다른 의미 필드에 같은 문장을 복사하지 마십시오. 한 페이지에서 동일한 장문이 4개 이상 필드에 반복되면 실패입니다.
+- P22–24 Persona의 Brand Role과 SO WHAT은 반드시 다른 질문에 답해야 합니다. Brand Role은 “브랜드가 이 Persona에게 구체적으로 해줄 일”, SO WHAT은 “그래서 제품·경험·커뮤니케이션이 어떻게 달라져야 하는가”를 작성하십시오. Brand Role 문장에 접두어만 붙여 SO WHAT으로 반복하면 실패입니다.
 - P25 JTBD의 Job Type / Desired Progress / Current Alternative / Limitation / Brand Opportunity는 서로 다른 질문에 답해야 합니다.
 - Creative History status는 verified-verbatim / source-found-copy-unverified / not-found 중 하나만 사용하십시오. UNVERIFIED, VERIFIED, COPY UNVERIFIED 같은 임의 상태를 쓰지 마십시오.
 - raw URL을 노출하지 마십시오. Source는 발행처 · 자료명 · 연도 형식으로 작성하십시오.
