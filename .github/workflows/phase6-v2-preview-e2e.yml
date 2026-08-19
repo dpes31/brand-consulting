@@ -63,10 +63,17 @@ jobs:
           icon_code=$?
 
           if [ "$icon_code" = "0" ]; then
-            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-real-output-validation.mjs > phase6-v2-e2e-artifacts/real-output-validation.log 2>&1
+            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-coway-external-fixture.mjs > phase6-v2-e2e-artifacts/coway-external-fixture.log 2>&1
+            coway_fixture_code=$?
+          else
+            coway_fixture_code=$icon_code
+          fi
+
+          if [ "$coway_fixture_code" = "0" ]; then
+            PREVIEW_URL="$LOCAL_E2E_URL" node scripts/e2e-phase6-real-output-validation.mjs > phase6-v2-e2e-artifacts/synthetic-output-validation.log 2>&1
             real_output_code=$?
           else
-            real_output_code=$icon_code
+            real_output_code=$coway_fixture_code
           fi
 
           if [ "$real_output_code" = "0" ]; then
@@ -86,7 +93,8 @@ jobs:
           kill "$server_pid" || true
           echo "$code" > phase6-v2-e2e-artifacts/local-e2e.exit
           tail -n 180 phase6-v2-e2e-artifacts/material-symbols-e2e.log
-          if [ -f phase6-v2-e2e-artifacts/real-output-validation.log ]; then tail -n 220 phase6-v2-e2e-artifacts/real-output-validation.log; fi
+          if [ -f phase6-v2-e2e-artifacts/coway-external-fixture.log ]; then tail -n 260 phase6-v2-e2e-artifacts/coway-external-fixture.log; fi
+          if [ -f phase6-v2-e2e-artifacts/synthetic-output-validation.log ]; then tail -n 220 phase6-v2-e2e-artifacts/synthetic-output-validation.log; fi
           if [ -f phase6-v2-e2e-artifacts/pdf-button-routing.log ]; then tail -n 220 phase6-v2-e2e-artifacts/pdf-button-routing.log; fi
           if [ -f phase6-v2-e2e-artifacts/full-report-e2e.log ]; then tail -n 260 phase6-v2-e2e-artifacts/full-report-e2e.log; fi
           exit 0
