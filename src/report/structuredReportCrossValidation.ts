@@ -1,4 +1,5 @@
 import type { StructuredReportV3 } from './structuredReportV3';
+import { validateThreatRankingScoreContract } from './threatRankingScoreContract';
 
 const STRUCTURAL_COMPETITOR_VALUES = new Set([
   'COMPETITOR',
@@ -107,6 +108,7 @@ export function validateStructuredReportCrossPage(report: StructuredReportV3): s
   const errors: string[] = [
     ...validateObjectiveFieldQuality(report),
     ...validatePersonaRoleSoWhatDistinctness(report),
+    ...validateThreatRankingScoreContract(report),
   ];
   const candidates = [1, 2, 3, 4, 5]
     .map((index) => value(report, 'comp-landscape', `comp-landscape.candidate${index}.name`))
