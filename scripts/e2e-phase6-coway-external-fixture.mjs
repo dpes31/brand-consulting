@@ -48,21 +48,56 @@ try {
 
   const result = await page.evaluate(({ approvedBase, brand, externalHtml, repairedPersonaSoWhats, sourceTruthByCompetitor }) => {
     const api = window.Phase6Semantic;
-    if (!api?.compileSemanticHtmlReportV5) throw new Error('Phase6Semantic compiler API unavailable.');
+    if (!api?.compileSemanticHtmlReportV5 || !api?.createSemanticHtmlTemplateV5) {
+      throw new Error('Phase6Semantic compiler/template API unavailable.');
+    }
 
-    const rawDoc = new DOMParser().parseFromString(externalHtml, 'text/html');
-    const rawBreadcrumb = rawDoc.querySelector('#creative-history-target .full-breadcrumb');
-    const rawArrow = rawDoc.querySelector('#positioning .map-arrow-vector .map-arrow-line');
-    const coordinate = (key) => rawDoc.querySelector(`data[data-report-coordinate-field="${key}"]`)?.textContent?.trim() || '';
+    const historicalDoc = new DOMParser().parseFromString(externalHtml, 'text/html');
+    const rawBreadcrumb = historicalDoc.querySelector('#creative-history-target .full-breadcrumb');
+    const rawArrow = historicalDoc.querySelector('#positioning .map-arrow-vector .map-arrow-line');
+    const coordinate = (key) => historicalDoc.querySelector(`data[data-report-coordinate-field="${key}"]`)?.textContent?.trim() || '';
+
+    // This historical external file was generated from an earlier fixed DOM revision.
+    // Rebase its semantic values onto the current approved template so the regression
+    // measures content recovery/validation rather than intentionally stale fixed DOM.
+    const currentTemplate = api.createSemanticHtmlTemplateV5(approvedBase, brand).html;
+    const rebasedDoc = new DOMParser().parseFromString(currentTemplate, 'text/html');
+    const missingFields = [];
+    rebasedDoc.querySelectorAll('[data-report-field]').forEach((node) => {
+      const key = node.getAttribute('data-report-field') || '';
+      const historical = historicalDoc.querySelector(`[data-report-field="${key}"]`);
+      if (!historical) {
+        missingFields.push(key);
+        return;
+      }
+      node.innerHTML = historical.innerHTML;
+    });
+    if (missingFields.length) throw new Error(`Historical Coway fixture missing fields: ${missingFields.slice(0, 8).join(', ')}`);
+
+    rebasedDoc.querySelectorAll('data[data-report-coordinate-field]').forEach((node) => {
+      const key = node.getAttribute('data-report-coordinate-field') || '';
+      const historical = historicalDoc.querySelector(`data[data-report-coordinate-field="${key}"]`);
+      if (historical) node.textContent = historical.textContent || '';
+    });
+    const rebasedBreadcrumb = rebasedDoc.querySelector('#creative-history-target .full-breadcrumb');
+    if (rebasedBreadcrumb && rawBreadcrumb) rebasedBreadcrumb.textContent = rawBreadcrumb.textContent || '';
+    const rebasedArrow = rebasedDoc.querySelector('#positioning .map-arrow-vector .map-arrow-line');
+    if (rebasedArrow && rawArrow) {
+      ['x1', 'y1', 'x2', 'y2'].forEach((name) => {
+        const value = rawArrow.getAttribute(name);
+        if (value !== null) rebasedArrow.setAttribute(name, value);
+      });
+    }
+    const rebasedExternalHtml = `<!DOCTYPE html>\n${rebasedDoc.documentElement.outerHTML}`;
 
     let rawBlockingError = '';
     try {
-      api.compileSemanticHtmlReportV5(externalHtml, approvedBase, brand);
+      api.compileSemanticHtmlReportV5(rebasedExternalHtml, approvedBase, brand);
     } catch (error) {
       rawBlockingError = error instanceof Error ? error.message : String(error);
     }
 
-    const repairedDoc = new DOMParser().parseFromString(externalHtml, 'text/html');
+    const repairedDoc = new DOMParser().parseFromString(rebasedExternalHtml, 'text/html');
     Object.entries(repairedPersonaSoWhats).forEach(([key, value]) => {
       const node = repairedDoc.querySelector(`[data-report-field="${key}"]`);
       if (!node) throw new Error(`Missing fixture field: ${key}`);
@@ -87,8 +122,8 @@ try {
 
     return {
       raw: {
-        pageCount: rawDoc.querySelectorAll('.full-slide').length,
-        contentState: rawDoc.body.dataset.contentState || '',
+        pageCount: historicalDoc.querySelectorAll('.full-slide').length,
+        contentState: historicalDoc.body.dataset.contentState || '',
         targetBreadcrumb: rawBreadcrumb?.textContent?.trim() || '',
         targetBreadcrumbFixed: rawBreadcrumb?.getAttribute('data-report-fixed') || '',
         coordinates: {
