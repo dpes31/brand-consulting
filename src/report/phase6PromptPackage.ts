@@ -45,6 +45,19 @@ ${EXTERNAL_AI_EXECUTION_MESSAGE}
 - 40개의 section만 나열하거나 data-report-field 요소만 남긴 입력용 워크북을 반환하지 마십시오.
 - 최종 파일을 브라우저에서 직접 열었을 때 승인된 40페이지 보고서 양식이 보여야 합니다.
 
+[P12 THREAT RANKING SCORE CONTRACT — BLOCKING]
+- P12의 penetration / growth / preference / campaign / inflection / evidence / total은 설명문이 아니라 점수 필드입니다.
+- 모든 점수 셀에는 단위, %, /25, /100, 근거 문장 없이 정수 숫자 하나만 입력하십시오.
+- penetration: 0~25 정수.
+- growth: 0~20 정수.
+- preference: 0~20 정수.
+- campaign: 0~15 정수.
+- inflection: 0~15 정수.
+- evidence: 0~5 정수. 이 필드는 “근거 신뢰도 점수”이며 근거 문장을 적는 칸이 아닙니다.
+- total: 위 6개 점수의 합계이며 0~100 정수여야 합니다.
+- P12의 실제 근거 설명은 P13~15 Deep Dive Evidence/Source에서 작성하십시오.
+- Step 2에 이미 Threat Ranking 점수가 있으면 그 값을 그대로 사용하고 임의 재채점하지 마십시오.
+
 [OUTPUT QUALITY BLOCKERS]
 - 서로 다른 의미 필드에 같은 문장을 복사하지 마십시오. 한 페이지에서 동일한 장문이 4개 이상 필드에 반복되면 실패입니다.
 - P22–24 Persona의 Brand Role과 SO WHAT은 반드시 다른 질문에 답해야 합니다. Brand Role은 “브랜드가 이 Persona에게 구체적으로 해줄 일”, SO WHAT은 “그래서 제품·경험·커뮤니케이션이 어떻게 달라져야 하는가”를 작성하십시오. Brand Role 문장에 접두어만 붙여 SO WHAT으로 반복하면 실패입니다.
