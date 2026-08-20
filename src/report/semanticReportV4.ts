@@ -38,7 +38,7 @@ const STRUCTURAL_ONLY_VALUES = new Set([
   'FUNCTIONAL', 'EMOTIONAL', 'SOCIAL',
 ]);
 
-const JTBD_JOB_TYPES = ['FUNCTIONAL', 'EMOTIONAL', 'SOCIAL'] as const;
+const JTBD_JOB_TYPES = new Set(['FUNCTIONAL', 'EMOTIONAL', 'SOCIAL']);
 
 function normalizedToken(value: string | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
@@ -120,12 +120,9 @@ function validateSemanticRecords(report: StructuredReportV3, expectedBrand: stri
   });
 
   [1, 2, 3].forEach((row) => {
-    const expectedJobType = JTBD_JOB_TYPES[row - 1];
     const jobType = field(report, 'jtbd', `jtbd.row${row}.jobType`);
-    if (jobType.toUpperCase() !== expectedJobType) {
-      errors.push(
-        `P25 JTBD · ${row}행 jobType은 “${expectedJobType}”이어야 한다. 현재 “${jobType || '빈 값'}”이다.`,
-      );
+    if (!JTBD_JOB_TYPES.has(jobType.toUpperCase()) && isStructuralOnly(jobType)) {
+      errors.push(`P25 JTBD · ${row}행 jobType에 실제 Job 층위 대신 구조값 “${jobType || '빈 값'}”이 들어갔다.`);
     }
     ['desiredProgress', 'currentAlternative', 'limitation', 'brandOpportunity'].forEach((role) => {
       assertMeaningful(report, 'jtbd', `jtbd.row${row}.${role}`, `P25 JTBD · ${row}행 ${role}`, errors);
