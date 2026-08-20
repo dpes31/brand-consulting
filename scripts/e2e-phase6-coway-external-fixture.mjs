@@ -24,6 +24,11 @@ const repairedPersonaSoWhats = {
   'persona-2.soWhat': '다제품 관계를 하나의 운영 화면과 전환 원칙으로 통합해 계약 복잡성을 경쟁장벽으로 바꿔야 한다.',
   'persona-3.soWhat': '설명 가능한 근거와 선택권을 모든 접점의 기본 UX 원칙으로 고정해야 한다.',
 };
+const sourceTruthByCompetitor = {
+  'LG전자': { penetration: '23', growth: '20', preference: '18', campaign: '14', inflection: '13', evidence: '4', total: '92' },
+  '쿠쿠홈시스': { penetration: '21', growth: '17', preference: '17', campaign: '11', inflection: '12', evidence: '5', total: '83' },
+  '삼성전자': { penetration: '18', growth: '19', preference: '17', campaign: '14', inflection: '10', evidence: '2', total: '80' },
+};
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
@@ -41,7 +46,7 @@ try {
   const approvedBase = await page.evaluate(() => `<!DOCTYPE html>\n${document.documentElement.outerHTML}`);
   await page.addScriptTag({ url: new URL('__phase6-semantic-test.js', appUrl).toString() });
 
-  const result = await page.evaluate(({ approvedBase, brand, externalHtml, repairedPersonaSoWhats }) => {
+  const result = await page.evaluate(({ approvedBase, brand, externalHtml, repairedPersonaSoWhats, sourceTruthByCompetitor }) => {
     const api = window.Phase6Semantic;
     if (!api?.compileSemanticHtmlReportV5) throw new Error('Phase6Semantic compiler API unavailable.');
 
@@ -63,6 +68,16 @@ try {
       if (!node) throw new Error(`Missing fixture field: ${key}`);
       node.textContent = value;
     });
+    for (let rank = 1; rank <= 3; rank += 1) {
+      const name = repairedDoc.querySelector(`[data-report-field="comp-ranking.rank${rank}.name"]`)?.textContent?.trim() || '';
+      const scores = sourceTruthByCompetitor[name];
+      if (!scores) throw new Error(`No P12 source-truth score fixture for ${name}`);
+      Object.entries(scores).forEach(([role, value]) => {
+        const node = repairedDoc.querySelector(`[data-report-field="comp-ranking.rank${rank}.${role}"]`);
+        if (!node) throw new Error(`Missing P12 fixture field: rank${rank}.${role}`);
+        node.textContent = value;
+      });
+    }
     const repairedExternalHtml = `<!DOCTYPE html>\n${repairedDoc.documentElement.outerHTML}`;
     const compiled = api.compileSemanticHtmlReportV5(repairedExternalHtml, approvedBase, brand);
     const compiledDoc = new DOMParser().parseFromString(compiled, 'text/html');
@@ -106,7 +121,7 @@ try {
         unresolvedToken: /\[\[(?:FIELD|POSITION):/i.test(compiledDoc.body.textContent || ''),
       },
     };
-  }, { approvedBase, brand, externalHtml, repairedPersonaSoWhats });
+  }, { approvedBase, brand, externalHtml, repairedPersonaSoWhats, sourceTruthByCompetitor });
 
   assert.equal(result.raw.pageCount, 40);
   assert.equal(result.raw.contentState, 'template');
