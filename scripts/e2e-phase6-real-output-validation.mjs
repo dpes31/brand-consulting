@@ -20,6 +20,11 @@ const coordinates = {
   'positioning.targetToBe.x': 82,
   'positioning.targetToBe.y': 19,
 };
+const threatScores = [
+  { penetration: 23, growth: 20, preference: 18, campaign: 14, inflection: 13, evidence: 4, total: 92 },
+  { penetration: 21, growth: 17, preference: 17, campaign: 11, inflection: 12, evidence: 5, total: 83 },
+  { penetration: 18, growth: 19, preference: 17, campaign: 14, inflection: 10, evidence: 2, total: 80 },
+];
 
 function valueFor(key) {
   const candidate = key.match(/^comp-landscape\.candidate([1-5])\.name$/);
@@ -27,6 +32,8 @@ function valueFor(key) {
 
   const rankName = key.match(/^comp-ranking\.rank([1-3])\.(name|summaryName)$/);
   if (rankName) return core[Number(rankName[1]) - 1];
+  const rankScore = key.match(/^comp-ranking\.rank([1-3])\.(penetration|growth|preference|campaign|inflection|evidence|total)$/);
+  if (rankScore) return String(threatScores[Number(rankScore[1]) - 1][rankScore[2]]);
 
   const deepTitle = key.match(/^deep-dive-([1-3])\.title$/);
   if (deepTitle) return `${core[Number(deepTitle[1]) - 1]}가 핵심 위협이다`;
@@ -89,9 +96,10 @@ function valueFor(key) {
   if (/^strategy-routes\.route[A-D]\.(differentiation|expansion|execution)$/.test(key)) return '상';
 
   if (/^persona-[1-3]\.situation\d+$/.test(key)) return '가족의 생활환경을 확인하고 선택해야 하는 실제 상황';
-  if (/^persona-[1-3]\.(surfaceNeed|realJob|fear1|fear2|asIsIdentity|toBeIdentity|brandRole)$/.test(key)) {
+  if (/^persona-[1-3]\.(surfaceNeed|realJob|fear1|fear2|asIsIdentity|toBeIdentity)$/.test(key)) {
     return '관리 불안을 줄이고 근거를 확인해 안심하고 선택한다';
   }
+  if (/^persona-[1-3]\.brandRole$/.test(key)) return '브랜드가 관리 결과를 먼저 확인해 선택 부담을 줄인다';
 
   if (/^jtbd\.row\d+\.(jobType|desiredProgress|currentAlternative|limitation|brandOpportunity)$/.test(key)) {
     return '검증 가능한 관리 근거로 더 나은 선택을 완성한다';
@@ -99,10 +107,9 @@ function valueFor(key) {
   if (/^aipl\.stage\d+\.(action|evidence|state)$/.test(key)) return '관리 근거를 확인하고 다음 행동으로 이동한다';
   if (/^market-context\.force\d+\.type$/.test(key)) return '관리 기준 변화';
   if (/^pain-needs\.row\d+\.priority$/.test(key)) return 'HIGH';
-  if (/^comp-ranking\.rank[1-3]\.evidence$/.test(key)) return '공식자료·외부DB';
-  if (/^comp-ranking\.rank[1-3]\.(penetration|growth|preference|campaign|inflection|total)$/.test(key)) return '85';
   if (/\.(score|rating|value)$/.test(key)) return '85';
   if (/\.title$/.test(key)) return `${brand}의 핵심 전략 판단입니다`;
+  if (/^persona-[1-3]\.soWhat$/.test(key)) return '제품·경험·커뮤니케이션은 선택 전 관리 결과를 증명하는 구조로 달라져야 한다';
   if (/\.soWhat$/.test(key)) return '<b>검증된 관리 근거를 하나의 소비자 결과로 연결해야 합니다</b>';
   if (/\.period$/.test(key)) return '2026';
   if (/\.label$/.test(key)) return '핵심 근거';
@@ -172,6 +179,26 @@ try {
       unsafeError = error instanceof Error ? error.message : String(error);
     }
 
+    const scoreDoc = new DOMParser().parseFromString(validExternal, 'text/html');
+    const scoreMutations = {
+      'comp-ranking.rank1.campaign': '18',
+      'comp-ranking.rank1.inflection': '19',
+      'comp-ranking.rank1.evidence': '가전 구독 매출 2조4,800억·약 29% 성장',
+      'comp-ranking.rank2.evidence': '국내 렌탈 계정 300만 돌파',
+      'comp-ranking.rank3.evidence': '출시 초기 구독 판매 비중 30%',
+    };
+    Object.entries(scoreMutations).forEach(([key, value]) => {
+      const element = scoreDoc.querySelector(`[data-report-field="${key}"]`);
+      if (!element) throw new Error(`${key} missing`);
+      element.textContent = value;
+    });
+    let scoreError = '';
+    try {
+      api.compileSemanticHtmlReportV5(`<!DOCTYPE html>\n${scoreDoc.documentElement.outerHTML}`, approvedBase, brand);
+    } catch (error) {
+      scoreError = error instanceof Error ? error.message : String(error);
+    }
+
     return {
       pageCount: compiledDoc.querySelectorAll('.full-slide').length,
       recovered,
@@ -185,6 +212,7 @@ try {
       } : null,
       personaError,
       unsafeError,
+      scoreError,
     };
   }, { approvedBase, brand, targets, validExternal });
 
@@ -197,6 +225,11 @@ try {
   assert.match(result.personaError, new RegExp(targets[3]));
   assert.match(result.unsafeError, /executive\.soWhat/);
   assert.match(result.unsafeError, /<span>/);
+  assert.match(result.scoreError, /comp-ranking\.rank1\.campaign/);
+  assert.match(result.scoreError, /comp-ranking\.rank1\.inflection/);
+  assert.match(result.scoreError, /comp-ranking\.rank1\.evidence/);
+  assert.match(result.scoreError, /comp-ranking\.rank2\.evidence/);
+  assert.match(result.scoreError, /comp-ranking\.rank3\.evidence/);
 
   console.log(JSON.stringify(result, null, 2));
 } finally {
