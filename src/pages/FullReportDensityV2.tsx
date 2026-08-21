@@ -16,26 +16,6 @@ const SELECTOR_EXCEPTIONS = [
   '.history-now',
 ];
 
-function installPositioningArrow(): void {
-  const map = document.querySelector<HTMLElement>('#positioning .position-map');
-  if (!map || map.querySelector('.positioning-arrow-v2')) return;
-
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('class', 'positioning-arrow-v2');
-  svg.setAttribute('viewBox', '0 0 100 100');
-  svg.setAttribute('preserveAspectRatio', 'none');
-  svg.setAttribute('aria-hidden', 'true');
-  svg.innerHTML = `
-    <defs>
-      <marker id="positioningArrowHead" markerWidth="8" markerHeight="8" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
-        <path d="M0,0 L0,7 L7,3.5 z" fill="currentColor" />
-      </marker>
-    </defs>
-    <line x1="38" y1="47" x2="79" y2="20" marker-end="url(#positioningArrowHead)" />
-  `;
-  map.appendChild(svg);
-}
-
 function syncBrandName(): void {
   const query = new URLSearchParams(window.location.search);
   const brandName = query.get('brand')?.trim() || '비즈넵';
@@ -143,7 +123,6 @@ export default function FullReportDensityV2() {
       syncBrandName();
       improveTerminology();
       convertSwotToLight();
-      installPositioningArrow();
       window.requestAnimationFrame(() => renderAuditBadge(runAudit()));
     };
 
