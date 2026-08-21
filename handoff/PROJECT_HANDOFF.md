@@ -1,241 +1,201 @@
 # Brand Consulting Generator — Project Handoff
 
-## Current checkpoint
+## Current checkpoint — 2026-08-21
 
 - Repository: `dpes31/brand-consulting`
 - Production branch: `main`
-- Production commit before PR #24: `96f12ac5bde92a53a97a12ea01ae9c3db921c7fe`
+- Current production commit: `d45d7f16b4d5f305d10e28b8f80a158c7073c37b`
 - Production URL: `https://brand-consulting.vercel.app/`
-- Active branch: `fix/phase6-main40-final-html-semantic-v5`
-- Draft PR: `#24 Restore Phase 6 complete HTML output with semantic field locking`
-- Validated implementation head before documentation updates: `351c4247c4a9bf713955985c8963d2ddb0eb4257`
-- Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
-- Preview CI run `30888643138`: PASS
-- LG browser/PDF E2E run `30888643175`: PASS
-- Vercel: success
-- `main`: unchanged and unmerged
-- PR #24 remains Draft.
-- Protected rollback branches and Legacy `public/template.html` remain untouched.
+- Active branch: `fix/phase6-coway-real-output-validation-v1`
+- Draft PR: `#26 Harden Phase 6 real HTML validation and PDF parity`
+- Implementation head before final documentation commits: `88d64a4ea6801479e78c54879b81b9234e331355`
+- Preview: `https://brand-consulting-git-fix-phase6-coway-r-2e3260-dpes31s-projects.vercel.app`
+- Phase 6 Color Correction Preview CI run `32437175392`: PASS
+- Phase 6 PDF Runtime E2E run `32437175313`: PASS
+- Vercel Preview: Ready
+- Owner final Coway Preview test: PASS
+  - same latest Coway HTML uploaded without blocking error
+  - P4 Viewer: `계정 → 매출 → 해외 → 비렉스`
+  - P4 PDF: same output
+- PR #26 is open, mergeable, Draft, and unmerged.
+- `main`, protected backup branches, and Legacy `public/template.html` remain untouched.
 
 ## Critical current truth
 
-The V6 lightweight semantic-workbook experiment is rejected.
+The Phase 6 architecture is no longer the old PR #24-only checkpoint described in older handoff entries. Production `main` already contains PR #24 at `d45d7f...`; PR #26 is the active hardening line.
 
-Owner testing produced `LG_퓨리케어_40페이지_전략리포트.html`, which contained 40 sections and semantic fields but no CSS, navigation, tables, diagrams, images, or approved visual report format. It also contained repeated JTBD content, `UNVERIFIED` statuses, and raw URLs.
+Current product contract:
 
-Do not restore or describe the lightweight workbook as a finished report.
+`Step 0–5 research`
+→ `complete styled 40-page HTML prompt`
+→ `external AI returns one complete standalone styled 40-page HTML`
+→ `paste/upload`
+→ `sanitization + identity + semantic + DOM + cross-page validation`
+→ `app-owned fixed presentation correction`
+→ `Viewer / save / reopen / native PDF`
 
-Rejected active identifiers:
+External AI output is HTML, not JSON and not a semantic workbook.
 
-- `createSemanticHtmlWorkbookV6`
-- `buildSemanticHtmlPromptV6`
-- `compileSemanticHtmlReportV6`
-- `phase6_lightweight_html_prompt_<brand>.txt`
-- `완성 HTML 프롬프트 다운로드 (경량)`
+## What PR #26 fixes
 
-Full audit: `handoff/PHASE6_LIGHTWEIGHT_HTML_TIMEOUT_MITIGATION_2026-08-04.md`.
+PR #26 was created after real Coway external-AI output exposed sequential hidden failures that synthetic tests alone did not cover.
+
+Implemented corrections:
+
+- safe rich-markup recovery: external `<b>/<strong>` → `<mark>`;
+- disallowed rich tags such as `<span>` remain blocking;
+- possible blocking errors are collected instead of first-error fail-fast where practical;
+- P12 Threat Ranking score fields are typed/ranged and totalled explicitly;
+- Persona P22–24 must match P21 target 1–3 in order;
+- Persona `Brand Role` and `SO WHAT` excessive duplication is rejected;
+- P18 uses one app-owned semantic coordinate-linked SVG vector;
+- legacy `positioning-arrow-v2` overlay is removed;
+- P29 target Creative History breadcrumb is app-owned as `IV. CREATIVE > TARGET BRAND HISTORY`;
+- P4 FACTS fixed connector defect is normalized to `계정 → 매출 → 해외 → 비렉스` across approved base, cached base, external HTML, and final output;
+- actual Coway external-output fixtures are part of regression testing instead of relying only on synthetic fill-template tests.
+
+## P12 Threat Ranking score contract
+
+The score fields are numeric scores, not evidence prose:
+
+- penetration 0–25
+- growth 0–20
+- preference 0–20
+- campaign 0–15
+- inflection 0–15
+- evidence 0–5
+- total = exact sum, 0–100
+
+A prior Coway output put prose such as subscription sales evidence into `evidence`; that must remain blocking rather than being silently coerced.
+
+## Persona contract
+
+- P21 defines target 1–5.
+- P22 = target 1, P23 = target 2, P24 = target 3.
+- Conclusion-led titles are allowed.
+- Substituting target 4/5 or another target identity is blocking.
+- `Brand Role` answers what the brand does for the Persona.
+- `SO WHAT` answers how product/experience/communication strategy should change; near-duplicate copy across these roles is a quality error.
+
+## P18 Positioning contract
+
+- External AI writes only ten semantic coordinates and semantic labels/axes.
+- Coordinates are integer 0–100.
+- The app creates one `.map-arrow-vector` and binds it to target AS-IS / TO-BE coordinates.
+- `.positioning-arrow-v2` must not be restored.
+- HTML and PDF use the same vector/positions.
+
+## P29 Creative History contract
+
+The target-brand page breadcrumb is app-owned:
+
+`IV. CREATIVE > TARGET BRAND HISTORY`
+
+Competitor history remains separate on P30–32.
+
+## P4 fixed presentation contract
+
+P4 FACTS KPI flow must render:
+
+`계정 → 매출 → 해외 → 비렉스`
+
+This is fixed DOM, not AI-authored research content. Legacy `?` must be auto-repaired in:
+
+- approved Pilot/base sanitization;
+- previously cached approved bases;
+- external HTML normalization;
+- final identity/presentation pass.
+
+## Real Coway end-to-end validation
+
+The owner reused the same Step 0–5 research, downloaded the latest Phase 6 prompt, generated a new Coway HTML, uploaded it to Preview, opened Viewer, and exported PDF.
+
+Verified on the real output:
+
+- exactly 40 pages;
+- 757 semantic fields, duplicate 0;
+- unresolved token 0;
+- generic `.contentN` 0;
+- P12 score values valid and totals correct: LG전자 92 / 쿠쿠홈시스 83 / 삼성전자 80;
+- P21 → P22–24 Persona order correct;
+- P18 one coordinate-linked connector;
+- P29 final Viewer/PDF target breadcrumb correct;
+- PDF 40 pages, 960×540pt, Pretendard;
+- final P4 correction re-test in Viewer and PDF: PASS.
+
+This is the acceptance evidence for PR #26. Do not demand another full 40-page user round-trip unless a later code change touches the report contract or a regression appears.
+
+## Automated acceptance evidence
+
+At implementation head `88d64a4ea6801479e78c54879b81b9234e331355`:
+
+- Phase 6 Color Correction Preview CI `32437175392`: PASS
+- Phase 6 PDF Runtime E2E `32437175313`: PASS
+- actual Coway external fixture regression: PASS
+- latest Coway semantic fixture regression: PASS
+- synthetic semantic regression: PASS
+- P12 score error regression: PASS
+- P4 approved runtime / legacy cached base / legacy external output auto-repair: PASS
+- Viewer save → reload → reopen: PASS
+- repeated Export PDF: PASS
+- Ctrl+P / Cmd+P routing: PASS
+- PDF 40 pages / 960×540pt / embedded Pretendard: PASS
+- P18 / P29 regression: PASS
 
 ## Owner-approved output contract
 
-- External AI returns one complete standalone **styled visual HTML report**, not JSON and not a semantic workbook.
-- The returned file must directly display the approved report when opened in a browser.
-- Preserve approved CSS, 1280×720 page DOM, layout hierarchy, tables, diagrams, navigation, classes, IDs, and data attributes.
-- Main Deck: exactly 40 pages.
-- Appendix: 0 pages.
+- One complete standalone styled visual HTML report.
+- Exactly 40 Main Deck pages, zero Appendix.
 - Page 40: Decision Receipt / Close.
-- Native PDF: 40 pages, 960×540pt.
-- Exact user-entered brand name; no translation or arbitrary abbreviation.
-- Raw source URLs prohibited.
-- Only `verified-verbatim` advertising copy may use quotation marks.
+- Logical canvas 1280×720.
+- Native PDF 960×540pt.
+- Exact target brand spelling.
+- No raw URLs in final semantic fields.
+- Creative History state is one of:
+  - `verified-verbatim`
+  - `source-found-copy-unverified`
+  - `not-found`
+- Only `verified-verbatim` copy may be quoted.
 
-## Active Phase 6 journey
+## Active implementation
 
-`Step 0–5 research`
-→ `phase6_complete_html_prompt_<brand>.txt`
-→ `external AI returns complete styled 40-page HTML`
-→ `paste or .html/.htm/.txt upload`
-→ `active-content / User Brief / Report Identity / semantic-field / DOM / cross-page / P18 validation`
-→ `approved DOM reassembly`
-→ `Viewer / save / reopen / Export PDF`
+Core files include:
 
-Active implementation uses:
-
-- `createSemanticHtmlTemplateV5`
-- `buildSemanticHtmlPromptV5`
-- `compileSemanticHtmlReportV5`
-
-External and internal API paths both use this V5 contract.
-
-## Timeout status
-
-The original external-chat timeout is unresolved.
-
-Measured previous owner Biznup prompt:
-
-- total: 647,215 bytes
-- approved visual template: approximately 449,802 bytes
-- Step 0–5 research: approximately 194,109 bytes
-
-Restoring the correct visual artifact also restores a larger prompt. Do not claim the timeout is solved.
-
-A deterministic page-batch generation and merge workflow is a possible next direction, but it changes the user journey and is not implemented or approved. Do not silently split, remove visual format, restore JSON, or concatenate unvalidated outputs.
-
-## User Brief Lock
-
-The application preserves a brand-keyed Brief containing:
-
-- exact target brand
-- mandatory competitor review seeds
-- strategic opponent/category convention
-- client need/campaign direction
-- reference note
-- attachment manifest
-
-The Brief is injected into every Step 0–5 prompt and Phase 6, persisted by brand, and restored when the same brand is reopened.
-
-A sentence such as `브랜드가 아니라 위생이라는 단어 자체` is a strategic opponent, not a competitor identity.
-
-## Report Identity Lock
-
-The app owns:
-
-- target brand display name
-- core competitor 1–3 ranking order
-- canonical names
-- display names
-- aliases
-- Landscape candidates
-
-Apply across P11, P12, P13–16, P18, and P29–33. Aliases such as `삼성전자` and `삼성 비스포크 정수기` resolve to one entity.
-
-## Approved sample leakage protection
-
-The Biznup source supplies layout only.
-
-Neutralize:
-
-- Cover `BIZNUP` → `BRAND REPORT`
-- P25 `비즈넵 기회` → `브랜드 기회`
-- Persona role label → exact target brand
-- navigation, toolbar, title, and errors → exact target brand
-
-Block unapproved sample identities such as 비즈넵/BIZNUP, 삼쩜삼, 더낸세금/혜움, SSEM/쌤157.
-
-## External AI execution package
-
-Current copied execution sentence:
-
-`첨부한 파일은 참고자료가 아니라 실행 지시문입니다. 파일 전체를 읽고 승인된 CSS·레이아웃·도식·표·내비게이션을 그대로 보존한 완성 40페이지 HTML만 즉시 생성하십시오. 계획·설명·확인 질문 없이 바로 작업하고, 결과 파일에는 <!DOCTYPE html>부터 </html>까지의 HTML만 저장하십시오.`
-
-The prompt includes:
-
-- Visual Artifact Lock
-- complete-report prohibition against workbook output
-- P25 role separation
-- duplicate generic filler prohibition
-- canonical Creative History status requirement
-- raw URL prohibition
-- fabrication prohibition
-
-## Semantic and security contract
-
-- Stable `data-report-field` keys replace DOM-order slots.
-- `[[CONTENT:Pxx:TAG:nnn]]` and generic `.contentN` are prohibited.
-- Every `[[FIELD:semantic.key]]` and `[[POSITION:semantic.key]]` token must be replaced.
-- Rich fields allow only `<mark>` and `<br>`.
-- Scripts, handlers, JavaScript URLs, redirects, forms, embeds, and autoplay media are removed or rejected.
-- Returned field set must match the approved field set.
-- Approved DOM fingerprint must remain unchanged.
-- Runtime blocks raw URLs and noncanonical Creative History status values.
-
-## Fixed 40-page plan
-
-1. Cover
-2. 핵심 진단
-3. Brand Identity
-4. FACTS
-5. Category & Target
-6. Growth Story
-7. Core Inflection
-8. Product USP & Best Self
-9. Market Context
-10. Category Shift
-11. Competitive Landscape
-12. Threat Ranking
-13–15. Deep Dive 1–3
-16. Product Matrix
-17. Category Clichés
-18. Positioning
-19. Consumer Executive Conclusion
-20. Trends
-21. Core Target
-22–24. Persona 1–3
-25. JTBD & Identity Alignment
-26. Pain Points & Unmet Needs
-27. AIPL Bottleneck
-28. Purchase to Loyalty
-29. Target Brand Creative History
-30–32. Competitor Creative History 1–3
-33. Message Trajectory
-34. Creative Insight
-35. SWOT
-36. GAP & Root Cause
-37. STP
-38. Four Strategic Directions
-39. Final Choice
-40. Decision Receipt / Close
-
-Creative Methodology and Appendix A1–A7 are excluded.
-
-## LG 퓨리케어 regression validation
-
-Fixture:
-
-- target: `LG 퓨리케어 정수기`
-- seeds: 코웨이 / 삼성 비스포크 정수기 / SK매직 / 쿠쿠
-- Registry core: 코웨이 / 삼성전자 / SK매직
-- strategic opponent: `위생이라는 단어 자체`
-- client need: `위생의 격이 다른 정수기`
-
-Validated at code head `351c4247c4a9bf713955985c8963d2ddb0eb4257`:
-
-- complete styled prompt path: PASS
-- V6 workbook inactive in external/internal paths: PASS
-- 40 pages / 40 navigation links / Appendix 0: PASS
-- CSS, navigation, tables, and diagrams present: PASS
-- User Brief / Identity / alias correction: PASS
-- sample leakage: 0
-- scripts: 0 after sanitization
-- P18 labels, axes, coordinates, movement: PASS
-- 1280×720 and overflow 0: PASS
-- save → reload → reopen: PASS
-- repeated Export PDF / Ctrl+P / Cmd+P: PASS
-- native PDF: 40 pages, 960×540pt
-
-The QA fixture copy is not owner content-quality approval.
-
-## Active implementation files
-
-- `src/lib/userBriefContract.ts`
-- `src/lib/installUserBriefInputNormalizer.ts`
-- `src/report/reportIdentityLock.ts`
-- `src/report/phase6PromptPackage.ts`
-- `src/report/semanticHtmlReportV5.ts`
 - `src/lib/installFullReportPhase6Bridge.ts`
-- `src/lib/geminiCompiler.ts`
+- `src/report/semanticHtmlReportV5.ts`
 - `src/report/semanticReportV4.ts`
 - `src/report/structuredReportCrossValidation.ts`
+- `src/report/threatRankingScoreContract.ts`
+- `src/report/reportIdentityLock.ts`
 - `src/report/reportDomSafety.ts`
-- `scripts/test-full-report-contract.mjs`
-- `scripts/test-full-report-runtime.mjs`
+- `src/report/phase6PromptPackage.ts`
+- `src/pages/full-report-density-v2-runtime.ts`
+- `src/pages/full-report-v4-runtime.ts`
+- `scripts/e2e-phase6-coway-latest-semantic-fixture.mjs`
+- `scripts/e2e-phase6-coway-external-fixture.mjs`
+- `scripts/e2e-phase6-real-output-validation.mjs`
+- `scripts/e2e-phase6-p4-kpi-arrow.mjs`
 - `scripts/e2e-phase6-five-competitor-native-print.mjs`
 
-`src/report/semanticHtmlReportV6.ts` may remain only as rejected audit code until an explicit cleanup decision. It must not be imported by active Phase 6 paths.
+## Rejected paths that must stay rejected
 
-## Remaining gate
+- JSON-only Phase 6 external workflow
+- V6 lightweight semantic workbook
+- `feature-visualization-engine-v1` / PR #6
+- discarded PR #8, #9, #10
+- superseded PR #18–#23 product implementations
 
-- PR #24 is not approved for merge.
-- The correct visual format has been restored.
-- The timeout constraint remains unresolved.
-- The next architecture decision is whether to approve a deterministic batch-generation workflow that preserves the complete visual artifact.
-- Do not merge to `main` without explicit owner approval.
+The historical large attachment/message timeout remains a known transport risk. It is not a reason to remove the approved visual artifact or restore JSON/workbook output.
+
+## Merge gate
+
+PR #26 is technically and user-validated, but it must remain unmerged until the owner explicitly approves `main` merge after final documentation CI is green.
+
+When approval is given:
+
+1. confirm PR #26 head has not moved unexpectedly;
+2. confirm both CI workflows and Vercel are green at that head;
+3. use regular merge, not squash;
+4. verify the resulting `main` merge commit;
+5. verify Production `https://brand-consulting.vercel.app/` deploys successfully;
+6. do not delete the test/audit branch unless separately approved.
