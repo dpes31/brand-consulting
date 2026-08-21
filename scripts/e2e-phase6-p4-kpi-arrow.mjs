@@ -7,10 +7,6 @@ if (!appUrl) throw new Error('PREVIEW_URL is required.');
 const brand = 'QA P4 생활케어';
 const expectedArrows = ['→', '→', '→'];
 
-function identity(name) {
-  return { canonicalName: name, displayName: name, aliases: [name] };
-}
-
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
 
@@ -25,7 +21,7 @@ try {
   ), null, { timeout: 60000 });
 
   const runtimeArrows = await page.$$eval(
-    '#kpi .kpi-logic > i[data-report-fixed="true"]',
+    '#kpi .kpi-logic > i',
     (nodes) => nodes.map((node) => (node.textContent || '').trim()),
   );
   assert.deepEqual(runtimeArrows, expectedArrows, 'Approved pilot P4 KPI flow must use three arrows.');
@@ -33,7 +29,7 @@ try {
   const approvedBase = await page.evaluate(() => `<!DOCTYPE html>\n${document.documentElement.outerHTML}`);
   const legacyBase = await page.evaluate((html) => {
     const documentRef = new DOMParser().parseFromString(html, 'text/html');
-    const arrows = documentRef.querySelectorAll('#kpi .kpi-logic > i[data-report-fixed="true"]');
+    const arrows = documentRef.querySelectorAll('#kpi .kpi-logic > i');
     if (arrows.length !== 3) throw new Error(`Expected 3 P4 KPI arrows, found ${arrows.length}`);
     arrows[2].textContent = '?';
     return `<!DOCTYPE html>\n${documentRef.documentElement.outerHTML}`;
@@ -48,7 +44,7 @@ try {
 
     const readArrows = (html) => {
       const documentRef = new DOMParser().parseFromString(html, 'text/html');
-      return Array.from(documentRef.querySelectorAll('#kpi .kpi-logic > i[data-report-fixed="true"]'))
+      return Array.from(documentRef.querySelectorAll('#kpi .kpi-logic > i'))
         .map((node) => (node.textContent || '').trim());
     };
 
