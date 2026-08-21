@@ -30,7 +30,7 @@ function semanticInflectionMarkup(): string {
 }
 
 function normalizeKpiFlowArrows(): void {
-  document.querySelectorAll<HTMLElement>('#kpi .kpi-logic > i[data-report-fixed="true"]').forEach((arrow) => {
+  document.querySelectorAll<HTMLElement>('#kpi .kpi-logic > i').forEach((arrow) => {
     arrow.textContent = '→';
   });
 }
