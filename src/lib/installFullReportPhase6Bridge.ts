@@ -28,7 +28,7 @@ const ACTIVE_BRAND_SESSION_KEYS = [
   'brand-consulting:brand-name',
 ] as const;
 const REQUIRED_PHASE_STEPS = ['0', '1', '2', '3', '4', '5'] as const;
-const BASE_KEY_PREFIX = 'brand-consulting:phase6-semantic-html-v5:';
+const BASE_KEY_PREFIX = 'brand-consulting:phase6-semantic-html-v5-p18-vector-v1:';
 const MAX_HTML_FILE_BYTES = 20 * 1024 * 1024;
 
 let installed = false;

@@ -101,7 +101,7 @@ AI fills research content but may not redesign the meaning of Persona, AIPL, Cre
 
 ## D-014 — Consulting tone
 
-Titles, conclusions, and SO WHAT statements use decisive Korean endings: `~한다`, `~이다`, `~다`.
+Titles, conclusions, and SO WHAT statements should use decisive Korean endings: `~한다`, `~이다`, `~다`.
 
 ## D-015 — Final Choice layout
 
@@ -133,7 +133,7 @@ Use stable role keys such as `comp-ranking.rank1.name`, not `[[CONTENT:Pxx:TAG:n
 
 ## D-021 — Rich text uses safe HTML
 
-Rich fields permit only `<mark>` and `<br>`. Literal `[[...]]`, unresolved field tokens, and unresolved position tokens are blocking errors.
+Rich fields permit only `<mark>` and `<br>` in the final contract. Safe external `<b>/<strong>` may be normalized to `<mark>`. Literal `[[...]]`, unresolved field tokens, and unresolved position tokens are blocking errors.
 
 ## D-022 — P18 uses semantic axes and coordinates
 
@@ -149,15 +149,15 @@ Stored and rendered values are exactly:
 
 Common humanized variants may be normalized on import. New prompts must demand canonical values.
 
-## D-024 — Active implementation line
+## D-024 — Historical PR #24 implementation line
 
-Continue only on `fix/phase6-main40-final-html-semantic-v5`, Draft PR #24. Do not merge without explicit owner approval.
+PR #24 used `fix/phase6-main40-final-html-semantic-v5` and restored the complete styled HTML contract.
+
+**Status:** Historical. PR #24 was later merged to `main`; active hardening moved to PR #26. Superseded for current-branch routing by D-048.
 
 ## D-025 — User Brief is a persistent project contract
 
 A brand-keyed User Brief preserves target brand, mandatory competitor review seeds, strategic opponent/category convention, client need/campaign direction, reference note, and attachment manifest.
-
-The Brief is injected into every Step 0–5 prompt and Phase 6, and persists in session and brand-keyed local storage.
 
 ## D-026 — Strategic opponent is not a competitor identity
 
@@ -173,19 +173,19 @@ The approved Biznup source may supply layout but not visible content. Neutralize
 
 ## D-029 — Attachment execution requires a chat-level command
 
-The prompt file remains self-contained, but the app also copies and displays a short chat-level execution message. The output artifact must be raw HTML from `<!DOCTYPE html>` through `</html>`, without Markdown fences, instructions, research outside pages, or analysis notes.
+The prompt file remains self-contained, but the app also copies and displays a short chat-level execution message. The output artifact must be raw HTML from `<!DOCTYPE html>` through `</html>`, without instructions, research outside pages, or analysis notes.
 
 ## D-030 — HTML upload and paste share one path
 
 Phase 6 accepts `.html`, `.htm`, and `.txt` up to 20MB. File upload and paste use the identical Sanitizer, Identity, semantic, Viewer, persistence, and PDF path.
 
-## D-031 — LG 퓨리케어 is the current non-sample regression fixture
+## D-031 — LG 퓨리케어 remains a non-sample regression fixture
 
 The fixture uses target `LG 퓨리케어 정수기`, seeds 코웨이 / 삼성 비스포크 정수기 / SK매직 / 쿠쿠, Registry core 코웨이 / 삼성전자 / SK매직, strategic opponent `위생이라는 단어 자체`, and client need `위생의 격이 다른 정수기`.
 
 ## D-032 — Large-payload diagnosis
 
-The measured owner Biznup prompt was 647,215 bytes, including approximately 449,802 bytes of fixed visual template. Repeated external-chat send timeouts are a real unresolved constraint.
+The measured owner Biznup prompt was 647,215 bytes, including approximately 449,802 bytes of fixed visual template. Repeated external-chat send timeouts are a real transport constraint observed historically.
 
 ## D-033 — Lightweight semantic HTML experiment
 
@@ -195,7 +195,7 @@ A V6 compact workbook was implemented to reduce payload while retaining HTML rat
 
 ## D-034 — Compact semantic field metadata
 
-The rejected V6 workbook used compact `data-k`, `data-m`, `data-e`, and `data-y` metadata.
+The rejected V6 workbook used compact metadata.
 
 **Status:** Audit history only. It is not an active output contract.
 
@@ -205,59 +205,94 @@ A deterministic page-batch generation/merge workflow is a possible fallback, but
 
 ## D-036 — Historical lightweight approval snapshot
 
-The earlier automated V6 Renderer/PDF tests passed because the app expanded the workbook after import.
+Earlier automated V6 Renderer/PDF tests passed because the app expanded the workbook after import.
 
-**Status:** Not owner acceptance. Superseded by the owner’s actual external-output test.
+**Status:** Not owner acceptance. Superseded by actual external-output testing.
 
 ## D-037 — Lightweight workbook is rejected
 
 **Decision:** The V6 lightweight workbook must not be active or described as a finished HTML report.
 
-Owner testing produced a field-list HTML with no CSS, navigation, tables, diagrams, or approved visual report format. The output also contained repeated JTBD text, `UNVERIFIED` statuses, and raw URLs.
-
-This decision supersedes D-033, D-034, and the approval implication recorded in D-036.
-
-Prohibited active identifiers:
-
-- `createSemanticHtmlWorkbookV6`
-- `buildSemanticHtmlPromptV6`
-- `compileSemanticHtmlReportV6`
-- `phase6_lightweight_html_prompt_<brand>.txt`
-- `완성 HTML 프롬프트 다운로드 (경량)`
-
 ## D-038 — Complete HTML means a directly viewable visual artifact
 
-**Decision:** External AI output must include the approved CSS, 1280×720 page DOM, hierarchy, tables, diagrams, navigation, IDs, classes, and data attributes.
+**Decision:** External AI output must include approved CSS, 1280×720 page DOM, hierarchy, tables, diagrams, navigation, IDs, classes, and data attributes.
 
-A file with 40 sections and semantic fields but no visual report format is not accepted as complete HTML.
-
-The active implementation uses:
-
-- `createSemanticHtmlTemplateV5`
-- `buildSemanticHtmlPromptV5`
-- `compileSemanticHtmlReportV5`
-- `phase6_complete_html_prompt_<brand>.txt`
+The active implementation uses V5 complete styled HTML functions and `phase6_complete_html_prompt_<brand>.txt`.
 
 ## D-039 — Objective output-quality blockers
 
-**Decision:** Runtime validation blocks raw URLs and noncanonical Creative History statuses. Prompt-level rules prohibit copied generic filler, especially across P25 JTBD roles.
+**Decision:** Runtime validation blocks raw URLs, invalid Creative History statuses, generic semantic keys, invalid role content, and other contract violations. Do not invent facts, figures, dates, scores, campaigns, copy, axes, coordinates, or sources to fill empty fields.
 
-Do not invent facts, figures, dates, scores, campaigns, advertising copy, axes, coordinates, or sources to fill empty fields.
+## D-040 — Timeout status is independent from visual contract
 
-## D-040 — Timeout remains unresolved
+**Decision:** Do not weaken the visual artifact contract to address transport limits. Historical timeout risk is tracked separately; a successful single round-trip does not by itself constitute a new transport architecture.
 
-**Decision:** Restoring the correct visual artifact also restores the larger prompt. The original external-chat timeout is not solved.
+## D-041 — Historical PR #24 approval snapshot
 
-Do not claim that format restoration solves transmission limits. Any deterministic batch workflow requires explicit owner approval and must preserve the complete visual report contract.
+The old Draft PR #24 checkpoint is retained only as history. Production later advanced to merge commit `d45d7f16b4d5f305d10e28b8f80a158c7073c37b`.
 
-## D-041 — Current approval state
+## D-042 — Real external-AI output is a required regression source
 
-- Draft PR: #24
-- Validated implementation head before documentation: `351c4247c4a9bf713955985c8963d2ddb0eb4257`
-- Preview: `https://brand-consulting-git-fix-phase6-main40-c77bea-dpes31s-projects.vercel.app/`
-- Preview CI run `30888643138`: PASS
-- LG browser/PDF E2E run `30888643175`: PASS
-- active Phase 6: V5 complete styled HTML
-- `main`: unmodified
+**Decision:** Synthetic `fillTemplate()` validation alone is insufficient evidence for Phase 6 completion.
 
-Keep Draft and unmerged. Owner approval is not granted, and the external-chat timeout still requires a separately approved solution.
+When a real external-AI output exposes a new contract failure, preserve a deterministic fixture/snapshot and include it in CI where practical. PR #26 includes Coway real-output regression coverage.
+
+## D-043 — P12 Threat Ranking scores are typed numeric fields
+
+**Decision:** P12 uses these hard score ranges:
+
+- penetration: 0–25
+- growth: 0–20
+- preference: 0–20
+- campaign: 0–15
+- inflection: 0–15
+- evidence: 0–5
+- total: exact sum, 0–100
+
+`evidence` is a score, not prose. Do not increase maxLength or weaken validation to accommodate evidence sentences in score cells.
+
+## D-044 — Blocking validation should expose the error set, not a hidden chain
+
+**Decision:** Where validation stages can safely continue, collect all detectable blocking errors and present them together. Avoid repeated user cycles caused only by first-error fail-fast behavior.
+
+Duplicate reports for the same underlying field violation should be deduplicated when practical.
+
+## D-045 — Persona cross-page identity and role separation are blocking quality contracts
+
+**Decision:** P22, P23, and P24 analyze P21 target 1, 2, and 3 respectively. Conclusion-led titles are allowed, but target 4/5 substitution is blocking.
+
+`Brand Role` and `SO WHAT` must not be near-duplicate filler; they answer different strategic questions.
+
+## D-046 — P18 and P29 presentation elements are app-owned
+
+**Decision:**
+
+- P18 uses one semantic coordinate-linked `.map-arrow-vector`.
+- Legacy `.positioning-arrow-v2` must not be restored.
+- P29 target-brand breadcrumb is `IV. CREATIVE > TARGET BRAND HISTORY`.
+
+External AI supplies semantic values and coordinates, not these fixed presentation structures.
+
+## D-047 — P4 FACTS connector glyphs are app-owned and self-healing
+
+**Decision:** P4 fixed KPI flow is exactly:
+
+`계정 → 매출 → 해외 → 비렉스`
+
+All three connectors are `→`. A legacy `?` must be normalized in approved-base sanitization, external HTML normalization, and final presentation/identity policy. This correction must not require regeneration of otherwise valid external HTML.
+
+## D-048 — PR #26 is the current merge candidate
+
+**Decision:** Active branch is `fix/phase6-coway-real-output-validation-v1`; Draft PR #26 is the current Phase 6 hardening merge candidate.
+
+Acceptance evidence at implementation head `88d64a4ea6801479e78c54879b81b9234e331355`:
+
+- Color Correction Preview CI `32437175392`: PASS
+- PDF Runtime E2E `32437175313`: PASS
+- Vercel Preview: Ready
+- actual Coway external-output regression: PASS
+- P12 / Persona / P18 / P29 / P4 regressions: PASS
+- Viewer save/reopen and repeated native PDF: PASS
+- owner final Coway test: same HTML upload, P4 Viewer, P4 PDF all PASS
+
+PR #26 remains unmerged until documentation commits are green and the owner explicitly approves a regular `main` merge. Squash merge is prohibited unless separately approved.

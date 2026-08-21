@@ -50,6 +50,7 @@ const FINGERPRINT_DYNAMIC_CLASSES = new Set([
   'selected',
   'is-selected',
 ]);
+const FINGERPRINT_APP_OWNED_SELECTOR = '.map-arrow-vector';
 
 function parseHtml(source: string): Document {
   if (typeof DOMParser === 'undefined') throw new Error('HTML parser is unavailable.');
@@ -240,14 +241,19 @@ export function sanitizeCompatibleFullReportHtml(source: string, brandName?: str
 function fingerprintNode(node: Element): string {
   const field = node.getAttribute('data-report-field') || '';
   // Field containers may change text, inline highlights, and visual status
-  // classes. The fingerprint locks the field key and surrounding components.
+  // classes. App-owned decorative geometry is re-created after validation.
   const classes = field
     ? ''
     : Array.from(node.classList)
         .filter((className) => !FINGERPRINT_DYNAMIC_CLASSES.has(className))
         .sort()
         .join('.');
-  const children = field ? '' : Array.from(node.children).map(fingerprintNode).join('');
+  const children = field
+    ? ''
+    : Array.from(node.children)
+        .filter((child) => !child.matches(FINGERPRINT_APP_OWNED_SELECTOR))
+        .map(fingerprintNode)
+        .join('');
   return `<${node.tagName.toLowerCase()}#${node.id}.${classes}[${field}]>${children}</${node.tagName.toLowerCase()}>`;
 }
 

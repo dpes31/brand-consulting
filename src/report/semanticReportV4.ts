@@ -38,6 +38,8 @@ const STRUCTURAL_ONLY_VALUES = new Set([
   'FUNCTIONAL', 'EMOTIONAL', 'SOCIAL',
 ]);
 
+const JTBD_JOB_TYPES = new Set(['FUNCTIONAL', 'EMOTIONAL', 'SOCIAL']);
+
 function normalizedToken(value: string | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim();
 }
@@ -118,7 +120,11 @@ function validateSemanticRecords(report: StructuredReportV3, expectedBrand: stri
   });
 
   [1, 2, 3].forEach((row) => {
-    ['jobType', 'desiredProgress', 'currentAlternative', 'limitation', 'brandOpportunity'].forEach((role) => {
+    const jobType = field(report, 'jtbd', `jtbd.row${row}.jobType`);
+    if (!JTBD_JOB_TYPES.has(jobType.toUpperCase()) && isStructuralOnly(jobType)) {
+      errors.push(`P25 JTBD · ${row}행 jobType에 실제 Job 층위 대신 구조값 “${jobType || '빈 값'}”이 들어갔다.`);
+    }
+    ['desiredProgress', 'currentAlternative', 'limitation', 'brandOpportunity'].forEach((role) => {
       assertMeaningful(report, 'jtbd', `jtbd.row${row}.${role}`, `P25 JTBD · ${row}행 ${role}`, errors);
     });
   });
@@ -150,6 +156,11 @@ function validateSemanticRecords(report: StructuredReportV3, expectedBrand: stri
   });
 
   return errors;
+}
+
+function isNonBlockingAiCopyStyleError(error: string): boolean {
+  return error.endsWith('must use declarative consulting tone')
+    || /Persona title must exactly match P21 target \d\.$/.test(error);
 }
 
 function removeFieldAttributes(element: HTMLElement): void {
@@ -255,7 +266,8 @@ export function renderSemanticReportV4(
   const definitions = prepareSemanticDocument(documentRef, expectedBrand);
   const beforeFingerprint = computeReportDomFingerprint(documentRef);
   const errors = [
-    ...validateStructuredReportV3(report, definitions, expectedBrand),
+    ...validateStructuredReportV3(report, definitions, expectedBrand)
+      .filter((error) => !isNonBlockingAiCopyStyleError(error)),
     ...validateSemanticRecords(report, expectedBrand),
   ];
   if (errors.length) {

@@ -1,6 +1,7 @@
 import {
   STRUCTURED_REPORT_VERSION,
   annotateStructuredReportDocument,
+  validateStructuredReportV3,
   type StructuredFieldDefinition,
   type StructuredFieldKind,
   type StructuredReportV3,
@@ -17,7 +18,7 @@ import {
   sanitizeCompatibleFullReportHtml,
   serializeReportDocument,
 } from './reportDomSafety';
-import { assertStructuredReportCrossPage } from './structuredReportCrossValidation';
+import { validateStructuredReportCrossPage } from './structuredReportCrossValidation';
 import { renderSemanticReportV4 } from './semanticReportV4';
 
 const FIELD_ATTRIBUTES = [
@@ -34,6 +35,9 @@ const UNRESOLVED_FIELD_TOKEN = /\[\[FIELD:[a-z0-9.-]+\]\]/i;
 const POSITION_TOKEN = /^\[\[POSITION:([a-z0-9.-]+)\]\]$/i;
 const UNRESOLVED_POSITION_TOKEN = /\[\[POSITION:[a-z0-9.-]+\]\]/i;
 const LITERAL_HIGHLIGHT = /\[\[[\s\S]*?\]\]/;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const TARGET_HISTORY_BREADCRUMB = 'IV. CREATIVE > TARGET BRAND HISTORY';
+const RECOVERABLE_RICH_TAGS = new Set(['B', 'STRONG']);
 
 const POSITIONING_COORDINATES = [
   { key: 'positioning.competitor1.x', defaultValue: 24 },
@@ -50,6 +54,17 @@ const POSITIONING_COORDINATES = [
 
 type PositioningCoordinateKey = typeof POSITIONING_COORDINATES[number]['key'];
 type PositioningCoordinates = Record<PositioningCoordinateKey, number>;
+
+type ReportExtraction = {
+  report: StructuredReportV3;
+  errors: string[];
+  recoveredMarkupCount: number;
+};
+
+type PositioningReadResult = {
+  coordinates: PositioningCoordinates;
+  errors: string[];
+};
 
 const POSITIONING_POINTS = [
   { selector: '.map-dot.sam', x: 'positioning.competitor1.x', y: 'positioning.competitor1.y' },
@@ -75,6 +90,63 @@ function cleanResearch(raw: string): string {
   return raw.replace(/\[cite.*?\]|\\cite.*?|\[cite_start\]/g, '');
 }
 
+function ensurePositioningVectorArrow(documentRef: Document): void {
+  const map = documentRef.querySelector<HTMLElement>('#positioning .position-map');
+  if (!map) return;
+
+  map.querySelectorAll('.map-arrow,.map-arrow-vector').forEach((node) => node.remove());
+
+  const defaults = Object.fromEntries(
+    POSITIONING_COORDINATES.map(({ key, defaultValue }) => [key, defaultValue]),
+  ) as PositioningCoordinates;
+  const svg = documentRef.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', 'map-arrow-vector');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('data-report-fixed', 'true');
+  svg.setAttribute(
+    'style',
+    'position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;color:var(--full-accent);',
+  );
+
+  const defs = documentRef.createElementNS(SVG_NS, 'defs');
+  const marker = documentRef.createElementNS(SVG_NS, 'marker');
+  marker.setAttribute('id', 'phase6-positioning-arrowhead');
+  marker.setAttribute('markerWidth', '7');
+  marker.setAttribute('markerHeight', '7');
+  marker.setAttribute('refX', '6');
+  marker.setAttribute('refY', '3.5');
+  marker.setAttribute('orient', 'auto');
+  marker.setAttribute('markerUnits', 'strokeWidth');
+  const markerPath = documentRef.createElementNS(SVG_NS, 'path');
+  markerPath.setAttribute('d', 'M0,0 L7,3.5 L0,7 Z');
+  markerPath.setAttribute('fill', 'currentColor');
+  marker.appendChild(markerPath);
+  defs.appendChild(marker);
+
+  const line = documentRef.createElementNS(SVG_NS, 'line');
+  line.setAttribute('class', 'map-arrow-line');
+  line.setAttribute('x1', String(defaults['positioning.targetAsIs.x']));
+  line.setAttribute('y1', String(defaults['positioning.targetAsIs.y']));
+  line.setAttribute('x2', String(defaults['positioning.targetToBe.x']));
+  line.setAttribute('y2', String(defaults['positioning.targetToBe.y']));
+  line.setAttribute('stroke', 'currentColor');
+  line.setAttribute('stroke-width', '2');
+  line.setAttribute('vector-effect', 'non-scaling-stroke');
+  line.setAttribute('marker-end', 'url(#phase6-positioning-arrowhead)');
+  svg.append(defs, line);
+  map.appendChild(svg);
+}
+
+function applyFixedPresentationCorrections(documentRef: Document): void {
+  const targetHistoryBreadcrumb = documentRef.querySelector<HTMLElement>(
+    '#creative-history-target .full-breadcrumb',
+  );
+  if (targetHistoryBreadcrumb) targetHistoryBreadcrumb.textContent = TARGET_HISTORY_BREADCRUMB;
+  ensurePositioningVectorArrow(documentRef);
+}
+
 function removeFieldAttributes(element: HTMLElement): void {
   FIELD_ATTRIBUTES.forEach((attribute) => element.removeAttribute(attribute));
 }
@@ -83,6 +155,7 @@ function prepareSemanticDocument(
   documentRef: Document,
   brandName: string,
 ): StructuredFieldDefinition[] {
+  applyFixedPresentationCorrections(documentRef);
   const rawDefinitions = annotateStructuredReportDocument(documentRef, brandName);
   const generic = rawDefinitions.filter((definition) => isGenericOrderField(definition.key));
   if (generic.length) {
@@ -207,11 +280,11 @@ ${cleanResearch(rawResearch)}
 - P18 positioning.targetToBe must start exactly with “${brandName} TO-BE · ”.
 - P18 axis poles must be meaningful, mutually distinct attributes grounded in Step 2. Never write literal X축 or Y축.
 - P18 coordinate values use x=0 at the left pole, x=100 at the right pole, y=0 at the top pole, and y=100 at the bottom pole. Place every brand from the stated axis logic, not from the sample position.
-- P22–24 Persona titles must exactly match the first three target names on P21.
+- P22–24 must analyze P21 target 1, 2, and 3 in that exact order. Titles may be conclusion-led, but never substitute target 4/5 or another target identity.
 - P27 keeps A → I → P1 → P2 → L and keeps action, evidence, and state separate.
 - P37 keeps Segmentation → Targeting → Positioning.
 - P38 keeps A/B/C/D route boundaries. P39 is the final choice. P40 compresses P39 into one governing decision.
-- In data-report-kind="rich" fields, use <mark>important phrase</mark> for a short highlight. Never output literal [[important phrase]].
+- In data-report-kind="rich" fields, use only <mark>important phrase</mark> and <br>. Never use <b>, <strong>, <span>, <em>, or literal [[important phrase]].
 - In text, source, and status fields, use plain text only. Do not add HTML tags.
 - Respect each data-report-max-length as a hard limit. Summarize instead of shrinking type.
 - Raw URLs are prohibited. Use publisher · material title · year.
@@ -226,7 +299,7 @@ ${semanticTemplateHtml}
 [IMMUTABLE 40-PAGE SEMANTIC HTML TEMPLATE — END]
 
 [FINAL CHECK]
-Confirm that every [[FIELD:...]] and [[POSITION:...]] token is replaced, no literal [[...]] highlight syntax remains, no structure is changed, and the result contains exactly 40 .full-slide elements and no Appendix. Return the complete HTML now.`;
+Confirm that every [[FIELD:...]] and [[POSITION:...]] token is replaced, no literal [[...]] highlight syntax remains, no structure is changed, P22–24 use P21 targets 1–3 in order, and the result contains exactly 40 .full-slide elements and no Appendix. Return the complete HTML now.`;
 }
 
 function richTextValue(element: HTMLElement): string {
@@ -240,18 +313,40 @@ function richTextValue(element: HTMLElement): string {
   return Array.from(element.childNodes).map(visit).join('').replace(/\n{3,}/g, '\n\n').trim();
 }
 
-function assertAllowedFieldMarkup(element: HTMLElement, definition: StructuredFieldDefinition): void {
-  const descendants = Array.from(element.querySelectorAll<HTMLElement>('*'));
-  const invalid = descendants.find((node) => {
-    if (definition.kind !== 'rich') return true;
-    return node.tagName !== 'MARK' && node.tagName !== 'BR';
-  });
-  if (invalid) {
-    throw new Error(
-      `${definition.key} 필드에 허용되지 않은 <${invalid.tagName.toLowerCase()}> 태그가 들어갔다. `
-      + (definition.kind === 'rich' ? 'rich 필드는 mark와 br만 허용한다.' : '이 필드는 일반 텍스트만 허용한다.'),
-    );
+function normalizeRecoverableFieldMarkup(
+  element: HTMLElement,
+  definition: StructuredFieldDefinition,
+): { recovered: number; errors: string[] } {
+  if (definition.kind !== 'rich') {
+    const descendants = Array.from(element.querySelectorAll<HTMLElement>('*'));
+    if (!descendants.length) return { recovered: 0, errors: [] };
+    const tags = [...new Set(descendants.map((node) => node.tagName.toLowerCase()))];
+    return {
+      recovered: 0,
+      errors: [`${definition.key} 일반 텍스트 필드에 허용되지 않은 태그가 들어갔다: ${tags.map((tag) => `<${tag}>`).join(', ')}`],
+    };
   }
+
+  let recovered = 0;
+  Array.from(element.querySelectorAll<HTMLElement>('b,strong')).forEach((node) => {
+    if (!RECOVERABLE_RICH_TAGS.has(node.tagName)) return;
+    const mark = element.ownerDocument.createElement('mark');
+    while (node.firstChild) mark.appendChild(node.firstChild);
+    node.replaceWith(mark);
+    recovered += 1;
+  });
+
+  const invalid = Array.from(element.querySelectorAll<HTMLElement>('*'))
+    .filter((node) => node.tagName !== 'MARK' && node.tagName !== 'BR');
+  if (!invalid.length) return { recovered, errors: [] };
+  const tags = [...new Set(invalid.map((node) => node.tagName.toLowerCase()))];
+  return {
+    recovered,
+    errors: [
+      `${definition.key} rich 필드에 허용되지 않은 태그가 들어갔다: ${tags.map((tag) => `<${tag}>`).join(', ')}. `
+      + 'rich 필드는 mark와 br만 허용한다.',
+    ],
+  };
 }
 
 function fieldValue(element: HTMLElement, kind: StructuredFieldKind): string {
@@ -311,20 +406,28 @@ function reportFromReturnedHtml(
   returnedDocument: Document,
   definitions: StructuredFieldDefinition[],
   brandName: string,
-): StructuredReportV3 {
+): ReportExtraction {
   const byKey = assertFieldSetsMatch(returnedDocument, definitions);
   const values = new Map<string, string>();
+  const errors: string[] = [];
+  let recoveredMarkupCount = 0;
 
   definitions.forEach((definition) => {
     const element = byKey.get(definition.key);
-    if (!element) throw new Error(`의미 필드를 읽을 수 없다: ${definition.key}`);
-    assertAllowedFieldMarkup(element, definition);
+    if (!element) {
+      errors.push(`의미 필드를 읽을 수 없다: ${definition.key}`);
+      return;
+    }
+    const markup = normalizeRecoverableFieldMarkup(element, definition);
+    recoveredMarkupCount += markup.recovered;
+    errors.push(...markup.errors);
+
     let value = fieldValue(element, definition.kind);
     if (FIELD_TOKEN.test(value) || UNRESOLVED_FIELD_TOKEN.test(value)) {
-      throw new Error(`조사 내용으로 교체되지 않은 의미 필드가 남았다: ${definition.key}`);
+      errors.push(`조사 내용으로 교체되지 않은 의미 필드가 남았다: ${definition.key}`);
     }
     if (definition.kind !== 'rich' && LITERAL_HIGHLIGHT.test(value)) {
-      throw new Error(`${definition.key} 일반 텍스트 필드에 [[...]] 표기가 남았다.`);
+      errors.push(`${definition.key} 일반 텍스트 필드에 [[...]] 표기가 남았다.`);
     }
     if (definition.kind === 'status') value = normalizeCreativeStatus(value);
     if (definition.key === 'positioning.targetAsIs' || definition.key === 'positioning.targetToBe') {
@@ -334,22 +437,26 @@ function reportFromReturnedHtml(
   });
 
   return {
-    version: STRUCTURED_REPORT_VERSION,
-    brand: brandName,
-    generatedAt: new Date().toISOString(),
-    pages: FULL_REPORT_PAGE_IDS.map((id, index) => ({
-      page: index + 1,
-      id,
-      fields: Object.fromEntries(
-        definitions
-          .filter((definition) => definition.pageId === id)
-          .map((definition) => [definition.key, values.get(definition.key) || '']),
-      ),
-    })),
+    report: {
+      version: STRUCTURED_REPORT_VERSION,
+      brand: brandName,
+      generatedAt: new Date().toISOString(),
+      pages: FULL_REPORT_PAGE_IDS.map((id, index) => ({
+        page: index + 1,
+        id,
+        fields: Object.fromEntries(
+          definitions
+            .filter((definition) => definition.pageId === id)
+            .map((definition) => [definition.key, values.get(definition.key) || '']),
+        ),
+      })),
+    },
+    errors,
+    recoveredMarkupCount,
   };
 }
 
-function readPositioningCoordinates(documentRef: Document): PositioningCoordinates {
+function readPositioningCoordinates(documentRef: Document): PositioningReadResult {
   const coordinates = {} as PositioningCoordinates;
   const errors: string[] = [];
 
@@ -358,24 +465,29 @@ function readPositioningCoordinates(documentRef: Document): PositioningCoordinat
     const raw = (node?.textContent || String(defaultValue)).trim();
     if (POSITION_TOKEN.test(raw) || UNRESOLVED_POSITION_TOKEN.test(raw)) {
       errors.push(`P18 Positioning · 좌표 ${key}가 교체되지 않았다.`);
+      coordinates[key] = defaultValue;
       return;
     }
     if (!/^(?:100|\d{1,2})$/.test(raw)) {
       errors.push(`P18 Positioning · 좌표 ${key}는 0~100 정수여야 한다. 현재 “${raw}”이다.`);
+      coordinates[key] = defaultValue;
       return;
     }
     coordinates[key] = Number(raw);
   });
 
-  if (errors.length) throw new Error(`P18 Positioning 좌표 검증 오류\n${errors.join('\n')}`);
-  return coordinates;
+  return { coordinates, errors };
 }
 
 function reportValue(report: StructuredReportV3, pageId: string, key: string): string {
   return report.pages.find((item) => item.id === pageId)?.fields[key]?.trim() || '';
 }
 
-function assertPositioningContract(report: StructuredReportV3, coordinates: PositioningCoordinates): void {
+function validatePositioningContract(
+  report: StructuredReportV3,
+  coordinates: PositioningCoordinates,
+  brandName: string,
+): string[] {
   const errors: string[] = [];
   const axes = [
     ['positioning.axis.xLeft', reportValue(report, 'positioning', 'positioning.axis.xLeft')],
@@ -394,10 +506,56 @@ function assertPositioningContract(report: StructuredReportV3, coordinates: Posi
   const dx = coordinates['positioning.targetToBe.x'] - coordinates['positioning.targetAsIs.x'];
   const dy = coordinates['positioning.targetToBe.y'] - coordinates['positioning.targetAsIs.y'];
   if (Math.hypot(dx, dy) < 12) {
-    errors.push('P18 Positioning · 비즈넵 AS-IS와 TO-BE 좌표가 사실상 동일하다. 전략적 이동 거리를 확보해야 한다.');
+    errors.push(`P18 Positioning · ${brandName} AS-IS와 TO-BE 좌표가 사실상 동일하다. 전략적 이동 거리를 확보해야 한다.`);
   }
 
-  if (errors.length) throw new Error(`P18 Positioning 의미 검증 오류\n${errors.join('\n')}`);
+  return errors;
+}
+
+function normalizeIdentityToken(value: string): string {
+  return value.toLowerCase().replace(/[\s·,.'"“”‘’()[\]{}\-_/]/g, '');
+}
+
+function validatePersonaTargetConflicts(report: StructuredReportV3): string[] {
+  const targetPage = report.pages.find((page) => page.id === 'consumer-target');
+  if (!targetPage) return [];
+  const targets = [1, 2, 3, 4, 5].map((index) => (
+    targetPage.fields[`consumer-target.target${index}.name`]?.trim() || ''
+  ));
+  const errors: string[] = [];
+
+  [1, 2, 3].forEach((index) => {
+    const persona = report.pages.find((page) => page.id === `persona-${index}`);
+    if (!persona) return;
+    const title = persona.fields[`persona-${index}.title`]?.trim() || '';
+    const normalizedTitle = normalizeIdentityToken(title);
+    targets.forEach((targetName, targetIndex) => {
+      if (!targetName || targetIndex === index - 1) return;
+      const normalizedTarget = normalizeIdentityToken(targetName);
+      if (normalizedTarget.length < 3 || !normalizedTitle.includes(normalizedTarget)) return;
+      errors.push(
+        `P${21 + index} Persona ${index}가 P21 ${index}순위 “${targets[index - 1] || '미확인'}” 대신 `
+        + `${targetIndex + 1}순위 “${targetName}” 정체성을 사용한다. 타깃 순서를 바꿀 수 없다.`,
+      );
+    });
+  });
+
+  return errors;
+}
+
+function isNonBlockingStructuredError(error: string): boolean {
+  return error.endsWith('must use declarative consulting tone')
+    || /Persona title must exactly match P21 target \d\.$/.test(error);
+}
+
+function formatBlockingValidationError(errors: string[]): Error {
+  const unique = [...new Set(errors.filter(Boolean))];
+  const shown = unique.slice(0, 80);
+  return new Error(
+    `검증에서 ${unique.length}건의 수정 필요 항목을 확인했다.\n`
+    + shown.map((error, index) => `${index + 1}. ${error}`).join('\n')
+    + (unique.length > shown.length ? `\n외 ${unique.length - shown.length}건` : ''),
+  );
 }
 
 function applyPositioningCoordinates(documentRef: Document, coordinates: PositioningCoordinates): void {
@@ -409,6 +567,15 @@ function applyPositioningCoordinates(documentRef: Document, coordinates: Positio
     node.dataset.positionX = String(coordinates[x]);
     node.dataset.positionY = String(coordinates[y]);
   });
+
+  const line = documentRef.querySelector<SVGLineElement>('#positioning .map-arrow-vector .map-arrow-line');
+  if (line) {
+    line.setAttribute('x1', String(coordinates['positioning.targetAsIs.x']));
+    line.setAttribute('y1', String(coordinates['positioning.targetAsIs.y']));
+    line.setAttribute('x2', String(coordinates['positioning.targetToBe.x']));
+    line.setAttribute('y2', String(coordinates['positioning.targetToBe.y']));
+  }
+
   const map = documentRef.querySelector<HTMLElement>('#positioning .position-map');
   if (map) map.dataset.positioningCoordinateContract = 'semantic-0-100-v1';
 }
@@ -446,18 +613,30 @@ export function compileSemanticHtmlReportV5(
     throw new Error('외부 HTML의 의미 필드 순서 또는 역할이 승인 템플릿과 다르다.');
   }
 
-  const report = reportFromReturnedHtml(returnedDocument, approvedDefinitions, brandName);
-  const coordinates = readPositioningCoordinates(returnedDocument);
-  assertStructuredReportCrossPage(report);
-  assertPositioningContract(report, coordinates);
+  const extraction = reportFromReturnedHtml(returnedDocument, approvedDefinitions, brandName);
+  const positioning = readPositioningCoordinates(returnedDocument);
+  const structuredValidation = validateStructuredReportV3(extraction.report, approvedDefinitions, brandName);
+  const nonBlockingWarnings = structuredValidation.filter(isNonBlockingStructuredError);
+  const blockingErrors = [
+    ...extraction.errors,
+    ...positioning.errors,
+    ...structuredValidation.filter((error) => !isNonBlockingStructuredError(error)),
+    ...validateStructuredReportCrossPage(extraction.report),
+    ...validatePersonaTargetConflicts(extraction.report),
+    ...validatePositioningContract(extraction.report, positioning.coordinates, brandName),
+  ];
+  if (blockingErrors.length) throw formatBlockingValidationError(blockingErrors);
 
-  const finalHtml = renderSemanticReportV4(approvedBaseHtml, report, brandName);
+  const finalHtml = renderSemanticReportV4(approvedBaseHtml, extraction.report, brandName);
   const finalDocument = parseReportHtml(finalHtml);
-  applyPositioningCoordinates(finalDocument, coordinates);
+  applyFixedPresentationCorrections(finalDocument);
+  applyPositioningCoordinates(finalDocument, positioning.coordinates);
   hideUnusedLandscapeRows(finalDocument);
   finalDocument.body.dataset.contentContract = 'semantic-html-v5';
   finalDocument.body.dataset.contentState = 'compiled';
   finalDocument.body.dataset.reportAppendixCount = '0';
+  finalDocument.body.dataset.phase6RecoveredMarkupCount = String(extraction.recoveredMarkupCount);
+  finalDocument.body.dataset.phase6NonBlockingWarningCount = String(nonBlockingWarnings.length);
 
   const finalText = finalDocument.body.textContent || '';
   if (UNRESOLVED_FIELD_TOKEN.test(finalText) || UNRESOLVED_POSITION_TOKEN.test(finalText) || LITERAL_HIGHLIGHT.test(finalText)) {

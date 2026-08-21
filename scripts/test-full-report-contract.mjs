@@ -16,6 +16,7 @@ const approvedCss = read('public/full-report-approved-v1.css');
 const pilotCss = read('src/pages/BiznupFullIntegrated.css');
 const compiler = read('src/report/fullReportCompilerV3.ts');
 const semanticHtml = read('src/report/semanticHtmlReportV5.ts');
+const semanticRenderer = read('src/report/semanticReportV4.ts');
 const definitionPolicy = read('src/report/structuredDefinitionPolicy.ts');
 const domSafety = read('src/report/reportDomSafety.ts');
 const pagePlan = read('src/lib/installPhase6PagePlanV2.ts');
@@ -77,6 +78,20 @@ check(semanticHtml.includes('computeReportDomFingerprint'), 'Approved DOM finger
 check(semanticHtml.includes('renderSemanticReportV4'), 'Approved DOM reassembly missing.');
 check(semanticHtml.includes("dataset.contentContract = 'semantic-html-v5'"), 'Semantic HTML output marker missing.');
 
+check(semanticHtml.includes("RECOVERABLE_RICH_TAGS = new Set(['B', 'STRONG'])"), 'Safe b/strong rich-markup recovery missing.');
+check(semanticHtml.includes("createElement('mark')"), 'Recovered emphasis is not converted to mark.');
+check(semanticHtml.includes('formatBlockingValidationError'), 'Aggregate validation error reporting missing.');
+check(semanticHtml.includes('validateStructuredReportCrossPage'), 'Cross-page validation is not aggregated.');
+check(semanticHtml.includes('validatePersonaTargetConflicts'), 'Persona target-order conflict guard missing.');
+check(semanticHtml.includes('TARGET BRAND HISTORY'), 'Target-brand Creative History breadcrumb correction missing.');
+check(semanticHtml.includes('map-arrow-vector'), 'P18 coordinate-bound vector arrow missing.');
+check(semanticHtml.includes("line.setAttribute('x1'"), 'P18 vector arrow is not bound to AS-IS coordinates.');
+check(semanticHtml.includes("line.setAttribute('x2'"), 'P18 vector arrow is not bound to TO-BE coordinates.');
+check(semanticHtml.includes('Titles may be conclusion-led'), 'Persona conclusion-led title contract missing.');
+check(semanticHtml.includes('Never use <b>, <strong>, <span>, <em>'), 'External rich-tag prompt guard missing.');
+check(semanticRenderer.includes('isNonBlockingAiCopyStyleError'), 'Semantic Renderer still re-blocks AI copy-style warnings.');
+check(semanticRenderer.includes('validateSemanticRecords'), 'Semantic record validation must remain strict.');
+
 check(definitionPolicy.includes('GENERIC_ORDER_FIELD'), 'Generic order field guard missing.');
 check(definitionPolicy.includes('jtbd.row'), 'JTBD semantic role mapping missing.');
 check(domSafety.includes("querySelectorAll('script,noscript,base')"), 'Script sanitizer missing.');
@@ -104,4 +119,4 @@ check(pdfBridge.includes('FULL_PAGE_COUNT = 40'), 'PDF button bridge must use 40
 check(main.includes('installFullReportPhase6Bridge()'), 'Phase 6 HTML bridge not installed.');
 check(main.includes('installPhase6PagePlanV2()'), 'Restored Phase 6 page plan not installed.');
 
-console.log('FULL report contract PASS: complete styled semantic HTML, deterministic V4 capture, fixed JOB notes, 40 Main pages, zero Appendix, no lightweight workbook, ordinal slot, or external JSON path.');
+console.log('FULL report contract PASS: complete styled semantic HTML, real-output markup recovery and aggregate validation, target/persona identity guard, P18 vector PDF parity, target Creative History label, fixed JOB notes, 40 Main pages, zero Appendix.');

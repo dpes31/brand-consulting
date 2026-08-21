@@ -49,6 +49,12 @@ const coordinates = {
   'positioning.targetToBe.x': 85,
   'positioning.targetToBe.y': 18,
 };
+const threatScores = [
+  { penetration: '22', growth: '18', preference: '17', campaign: '13', inflection: '12', evidence: '4', total: '86' },
+  { penetration: '21', growth: '17', preference: '16', campaign: '12', inflection: '11', evidence: '4', total: '81' },
+  { penetration: '19', growth: '16', preference: '15', campaign: '11', inflection: '10', evidence: '4', total: '75' },
+];
+const jtbdJobTypes = ['FUNCTIONAL', 'EMOTIONAL', 'SOCIAL'];
 
 function competitorOutputName(index) {
   return index === 1 ? '삼성 비스포크 정수기' : core[index];
@@ -64,6 +70,8 @@ function semanticValue(key) {
 
   const rankName = key.match(/^comp-ranking\.rank([1-3])\.(name|summaryName)$/);
   if (rankName) return competitorOutputName(Number(rankName[1]) - 1);
+  const rankScore = key.match(/^comp-ranking\.rank([1-3])\.(penetration|growth|preference|campaign|inflection|evidence|total)$/);
+  if (rankScore) return threatScores[Number(rankScore[1]) - 1][rankScore[2]];
 
   const deepTitle = key.match(/^deep-dive-([1-3])\.title$/);
   if (deepTitle) return `${competitorOutputName(Number(deepTitle[1]) - 1)}이 핵심 위협이다`;
@@ -128,15 +136,15 @@ function semanticValue(key) {
     return '막연한 위생 불안을 줄이고 근거를 확인해 안심하고 선택한다';
   }
 
-  if (/^jtbd\.row\d+\.(jobType|desiredProgress|currentAlternative|limitation|brandOpportunity)$/.test(key)) {
+  const jtbdJobType = key.match(/^jtbd\.row([1-3])\.jobType$/);
+  if (jtbdJobType) return jtbdJobTypes[Number(jtbdJobType[1]) - 1];
+  if (/^jtbd\.row\d+\.(desiredProgress|currentAlternative|limitation|brandOpportunity)$/.test(key)) {
     return '검증 가능한 위생 근거로 더 나은 선택과 지속 안심을 완성한다';
   }
 
   if (/^aipl\.stage\d+\.(action|evidence|state)$/.test(key)) return '위생 근거를 확인하고 다음 선택 행동으로 이동한다';
   if (/^market-context\.force\d+\.type$/.test(key)) return '위생 기준 변화';
   if (/^pain-needs\.row\d+\.priority$/.test(key)) return 'HIGH';
-  if (/^comp-ranking\.rank[1-3]\.evidence$/.test(key)) return '공식자료·외부DB';
-  if (/^comp-ranking\.rank[1-3]\.(penetration|growth|preference|campaign|inflection|total)$/.test(key)) return '85';
   if (/\.(score|rating|value)$/.test(key)) return '85';
   if (/\.title$/.test(key)) return `${brand}의 핵심 전략 판단`;
   if (/\.soWhat$/.test(key)) return '검증된 위생 근거를 하나의 선택과 브랜드 기준으로 연결해야 한다';
@@ -220,6 +228,7 @@ try {
   assert.match(prompt, /Main Deck: exactly 40 pages/);
   assert.match(prompt, /Appendix: 0 pages/);
   assert.match(prompt, /P12 selects the core three/);
+  assert.match(prompt, /evidence.*0.?5/i);
   assert.match(prompt, /P18 positioning\.targetAsIs must start exactly/);
   assert.match(prompt, /Replace every \[\[POSITION:semantic\.key\]\]/);
   assert.match(prompt, /<mark>important phrase<\/mark>/);
@@ -293,6 +302,14 @@ try {
   assert.doesNotMatch(allText, /추가 후보 없음/);
   for (let index = 0; index < core.length; index += 1) {
     assert.match(await frame.locator(`#deep-dive-${index + 1}`).innerText(), new RegExp(core[index]));
+  }
+  for (let rank = 1; rank <= 3; rank += 1) {
+    for (const [role, expected] of Object.entries(threatScores[rank - 1])) {
+      assert.equal(
+        (await frame.locator(`[data-report-field="comp-ranking.rank${rank}.${role}"]`).textContent())?.trim(),
+        expected,
+      );
+    }
   }
   assert.equal((await frame.locator('[data-report-field="product-matrix.column1.name"]').textContent())?.trim(), brand);
   assert.equal((await frame.locator('[data-report-field="creative-trajectory.brand1.name"]').textContent())?.trim(), brand);

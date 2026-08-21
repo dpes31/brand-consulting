@@ -1,6 +1,6 @@
 # FULL Report Template Specification
 
-## Status
+## Status — 2026-08-21
 
 Approved Phase 6 production target for the Brand Consulting Generator.
 
@@ -18,17 +18,24 @@ Approved Phase 6 production target for the Brand Consulting Generator.
 
 The approved Biznup Pilot supplies layout only. Its sample wording is not a valid content source.
 
+Current validated hardening line:
+
+- branch: `fix/phase6-coway-real-output-validation-v1`
+- Draft PR: #26
+- implementation head before final documentation commits: `88d64a4ea6801479e78c54879b81b9234e331355`
+- Preview: `https://brand-consulting-git-fix-phase6-coway-r-2e3260-dpes31s-projects.vercel.app`
+
 ## Phase 6 production journey
 
 `Step 0–5 research`
 → `phase6_complete_html_prompt_<brand>.txt`
 → `external AI returns one complete styled 40-page HTML`
 → `paste or HTML file upload`
-→ `active-content / User Brief / Report Identity / semantic-field / DOM / cross-page / P18 validation`
-→ `approved DOM reassembly`
+→ `active-content / User Brief / Report Identity / semantic-field / DOM / cross-page / P12 / Persona / P18 validation`
+→ `approved DOM reassembly and app-owned presentation normalization`
 → `Viewer / save / reopen / native PDF`
 
-Active functions:
+Active functions include:
 
 - `createSemanticHtmlTemplateV5`
 - `buildSemanticHtmlPromptV5`
@@ -38,11 +45,7 @@ The external file must open directly as the approved visual report. A field list
 
 ## Rejected lightweight-workbook path
 
-The V6 compact semantic workbook is rejected after owner round-trip testing.
-
-The rejected result contained 40 sections and semantic fields but no CSS, navigation, tables, diagrams, images, or approved report format. It also contained repeated JTBD content, `UNVERIFIED` statuses, and raw URLs.
-
-The following must not be active:
+The V6 compact semantic workbook is rejected after owner round-trip testing. Do not activate:
 
 - `createSemanticHtmlWorkbookV6`
 - `buildSemanticHtmlPromptV6`
@@ -50,19 +53,7 @@ The following must not be active:
 - `phase6_lightweight_html_prompt_<brand>.txt`
 - `완성 HTML 프롬프트 다운로드 (경량)`
 
-`src/report/semanticHtmlReportV6.ts` may remain only as rejected audit code until an explicit cleanup decision.
-
-## Timeout status
-
-Measured previous owner Biznup prompt:
-
-- total: 647,215 bytes
-- fixed visual template: approximately 449,802 bytes
-- Step 0–5 research: approximately 194,109 bytes
-
-The attachment timeout remains unresolved. Do not solve it by deleting the output format, reverting to JSON, removing research, or manually concatenating unvalidated outputs.
-
-A deterministic page-batch workflow may be considered only after explicit owner approval because it changes the user journey.
+The historical large-message timeout remains a transport risk and is not a reason to remove the visual artifact, revert to JSON, or weaken validation.
 
 ## Complete visual artifact contract
 
@@ -78,92 +69,30 @@ The external HTML must preserve:
 
 The file:
 
-- starts with `<!DOCTYPE html>`;
-- ends with `</html>`;
+- starts with `<!DOCTYPE html>` and ends with `</html>`;
 - contains exactly 40 `.full-slide` sections in approved ID order;
 - contains all required `data-report-field` and P18 coordinate fields;
-- contains no Markdown fences or explanatory text outside the HTML;
+- contains no explanatory text outside the HTML;
 - displays the approved report when opened directly in a browser.
 
-## User Brief Lock
+## User Brief and Report Identity Lock
 
-A brand-keyed User Brief contains:
+The app owns and preserves:
 
-- `targetBrand`
-- `mandatoryReviewSeeds`
-- `strategicOpponent / categoryConvention`
-- `clientNeed / campaignDirection`
-- `referenceNote`
-- attachment manifest
-
-Requirements:
-
-- Inject into every Step 0–5 prompt and Phase 6.
-- Persist in session storage and brand-keyed local storage.
-- Restore for the same brand.
-- Preserve exact user wording.
-- Treat client need as a strategic constraint, not fabricated evidence.
-- Treat strategic opponent as a category convention, not a company competitor.
-
-## Report Identity Lock
-
-The application owns:
-
-- exact target brand display name
-- core competitor 1–3 rank order
-- canonical competitor name
-- display name
-- aliases
+- exact target brand
+- mandatory competitor review seeds
+- strategic opponent/category convention
+- client need/campaign direction
+- attachment context
+- core competitor 1–3 order
+- canonical competitor names / display names / aliases
 - Landscape candidates
 
-Identity is fixed on P11, P12, P13–16, P18, and P29–33.
+External AI may write analysis but may not translate, abbreviate, replace, duplicate, or reorder locked identities.
 
-Aliases representing one entity must be merged. Example:
+Strategic opponent/category convention is not a competitor brand.
 
-- canonical: `삼성전자`
-- aliases: `삼성 비스포크 정수기`, `비스포크 정수기`
-
-External AI may not abbreviate, translate, replace, duplicate, or reorder locked identities.
-
-## Approved sample leakage policy
-
-Neutralize fixed sample labels before prompt generation and after compilation:
-
-- Cover `BIZNUP` → `BRAND REPORT`
-- P25 `비즈넵 기회` → `브랜드 기회`
-- Persona role label → `<exact brand>의 역할`
-- navigation, toolbar, and title → exact target brand
-- brand-specific error copy → current target brand
-
-Reject unapproved visible sample identities such as 비즈넵/BIZNUP, 삼쩜삼, 더낸세금/혜움, SSEM/쌤157.
-
-## External AI attachment package
-
-Current copied execution message:
-
-`첨부한 파일은 참고자료가 아니라 실행 지시문입니다. 파일 전체를 읽고 승인된 CSS·레이아웃·도식·표·내비게이션을 그대로 보존한 완성 40페이지 HTML만 즉시 생성하십시오. 계획·설명·확인 질문 없이 바로 작업하고, 결과 파일에는 <!DOCTYPE html>부터 </html>까지의 HTML만 저장하십시오.`
-
-The package contains:
-
-- User Brief Lock
-- Report Identity Lock
-- compiler instructions
-- Step 0–5 research
-- immutable complete 40-page semantic HTML template
-- Visual Artifact Lock
-- output quality blockers
-
-Output quality blockers:
-
-- Do not return a data workbook or flattened field list.
-- Do not delete CSS, layout, diagrams, tables, navigation, IDs, classes, or page wrappers.
-- Do not copy one generic sentence into distinct semantic fields.
-- P25 Job Type / Desired Progress / Current Alternative / Limitation / Brand Opportunity must answer different questions.
-- Creative History status must be exactly `verified-verbatim`, `source-found-copy-unverified`, or `not-found`.
-- Do not expose raw URLs; use `발행처 · 자료명 · 연도`.
-- Do not invent facts, figures, dates, models, scores, campaigns, copy, axes, coordinates, or sources.
-
-## HTML file upload
+## HTML upload
 
 Phase 6 supports `.html`, `.htm`, and `.txt`, up to 20MB.
 
@@ -175,8 +104,11 @@ Upload and paste use one identical path:
 - semantic-field validation
 - approved DOM fingerprint
 - cross-page validation
+- P12 score validation
+- Persona validation
 - P18 validation
 - sample leakage gate
+- app-owned fixed presentation normalization
 - Viewer / save / reopen / PDF
 
 A separate relaxed renderer is prohibited.
@@ -189,9 +121,42 @@ A separate relaxed renderer is prohibited.
 - Returned and approved field sets must match exactly.
 - Missing, duplicated, added, or moved roles block compilation.
 - `[[FIELD:semantic.key]]` and `[[POSITION:semantic.key]]` tokens must all be replaced.
-- Rich fields allow only `<mark>` and `<br>`.
+- Final rich fields allow only `<mark>` and `<br>`.
+- Safe external `<b>/<strong>` may be normalized to `<mark>`.
+- Other rich tags remain blocking.
 - Plain text, source, and status fields allow no child markup.
 - Literal `[[...]]` is rejected.
+- Raw URLs are prohibited in semantic fields.
+
+## Blocking-error collection
+
+Where validation can safely continue, collect all detectable blocking errors rather than stopping at the first field. The user should receive the actionable error set in one cycle.
+
+Do not weaken a valid type/range/semantic rule merely to make an old external HTML pass.
+
+## P12 Threat Ranking score contract
+
+P12 ranking score cells contain integers only:
+
+- `penetration`: 0–25
+- `growth`: 0–20
+- `preference`: 0–20
+- `campaign`: 0–15
+- `inflection`: 0–15
+- `evidence`: 0–5
+- `total`: exact sum of the six components, 0–100
+
+`evidence` means evidence-confidence score. Evidence prose belongs elsewhere and must not be inserted into the score cell.
+
+## Persona contract
+
+- P21 defines targets 1–5.
+- P22 analyzes target 1.
+- P23 analyzes target 2.
+- P24 analyzes target 3.
+- Conclusion-led Persona titles are permitted if the underlying target identity remains correct.
+- Target 4/5 substitution or another target identity is blocking.
+- `Brand Role` and `SO WHAT` must perform distinct strategic roles; excessive near-duplicate filler is rejected.
 
 ## Approved DOM and security
 
@@ -199,34 +164,44 @@ A separate relaxed renderer is prohibited.
 2. Remove scripts, noscript, base, refresh redirects, event handlers, and JavaScript URLs.
 3. Reject forms, inputs, embeds, objects, iframes, and autoplay media.
 4. Canonicalize to the 40-page contract.
-5. Compare the returned DOM fingerprint with the approved fingerprint.
-6. Read only validated semantic values and P18 coordinates.
-7. Apply User Brief and Report Identity locks.
-8. Re-render into the approved base DOM.
-9. Run cross-page, P18, factuality, raw-URL, status, and sample-leakage validation.
+5. Normalize app-owned fixed presentation elements that are allowed to self-heal.
+6. Compare returned DOM fingerprint with the approved fingerprint.
+7. Read only validated semantic values and P18 coordinates.
+8. Apply User Brief and Report Identity locks.
+9. Re-render into the approved base DOM.
+10. Run cross-page, P12, Persona, P18, factuality, raw-URL, status, and sample-leakage validation.
 
 External structural changes never become final report structure.
 
-## Blocking validation
+## App-owned fixed presentation
 
-Reject when:
+### P4 FACTS
 
-- slide count is not 40;
-- any Appendix or Creative Methodology page remains;
-- page IDs, order, or required structures differ;
-- any unresolved field, position, literal bracket, or legacy content token remains;
-- field set differs from the approved set;
-- a field contains disallowed markup;
-- approved DOM fingerprint changes;
-- exact target brand is absent or altered;
-- locked competitor identity/order is inconsistent;
-- a strategic opponent is used as a competitor brand;
-- unapproved sample-brand text remains;
-- P18 labels, axes, coordinates, or movement fail;
-- Creative History status is invalid;
-- raw URLs remain;
-- active content remains;
-- logical 1280×720 geometry is missing.
+The fixed KPI flow is exactly:
+
+`계정 → 매출 → 해외 → 비렉스`
+
+All three connector glyphs are `→`. Legacy `?` is automatically normalized in approved base, cached base, external HTML normalization, and final output. Regenerating otherwise valid research HTML is not required for this fixed defect.
+
+### P11 / P25 JOB note
+
+Exact note:
+
+`JOB : 고객이 특정 상황에서 달성하고 싶어 하는 근본적인 목표나 해결하고자 하는 일을 뜻함`
+
+It appears exactly twice: below P11 `CATEGORY JOB` and immediately above P25 `Job 층위`.
+
+### P18 Positioning vector
+
+P18 uses one app-owned `.map-arrow-vector` connected to semantic target AS-IS/TO-BE coordinates. Legacy `.positioning-arrow-v2` must not exist.
+
+### P29 Creative History breadcrumb
+
+Target brand page uses:
+
+`IV. CREATIVE > TARGET BRAND HISTORY`
+
+P30–32 remain competitor history pages.
 
 ## Fixed Main Deck
 
@@ -271,23 +246,7 @@ Reject when:
 39. Final Choice
 40. Decision Receipt / Close
 
-Creative Methodology and Appendix A1–A7 are excluded.
-
-## Page grammar
-
-- P2: `핵심 진단`
-- P4: `FACTS`
-- P5: `CATEGORY & TARGET`
-- P10: `CATEGORY SHIFT`, `LEVEL 1`–`LEVEL 5`
-- Persona: Situation / JTBD / identity shift / exact-brand role
-- P26: Pain / current problem / Unmet Need / priority
-- P27: approved AIPL friction-flow
-- Creative History: centered six-year cards without NOW circles
-- P34: Current Copy / Missing Character
-- P37: Segmentation → Targeting → Positioning
-- P38: A/B/C/D and 차별/확장/실행
-- P39: two-column Selection Criteria / Final Choice
-- P40: Decision Receipt / Close
+Creative Methodology and Appendix are excluded.
 
 ## Competitor rules
 
@@ -295,7 +254,6 @@ Creative Methodology and Appendix A1–A7 are excluded.
 - P12 selects the core three.
 - P13–16, P18, and P30–33 use the same core three in rank order.
 - Do not invent competitors to fill capacity.
-- Strategic opponent/category convention is not a competitor identity.
 - Product Matrix and Positioning use defensible common axes only.
 
 ## P18 Positioning
@@ -324,43 +282,27 @@ Creative Methodology and Appendix A1–A7 are excluded.
 - Exactly 40 pages, all Main Deck.
 - MediaBox: 960×540pt.
 - Embedded font objects required.
-- No 2560×1440 full-page image rows.
 - Viewer, saved HTML, reopened project, and PDF use the same report.
 - Export PDF, Ctrl+P, and Cmd+P target the active FULL Viewer iframe.
 
-## Active implementation
-
-- `src/lib/userBriefContract.ts`
-- `src/lib/installUserBriefInputNormalizer.ts`
-- `src/report/reportIdentityLock.ts`
-- `src/report/phase6PromptPackage.ts`
-- `src/report/semanticHtmlReportV5.ts`
-- `src/lib/installFullReportPhase6Bridge.ts`
-- `src/lib/geminiCompiler.ts`
-- `src/report/semanticReportV4.ts`
-- `src/report/structuredDefinitionPolicy.ts`
-- `src/report/structuredReportCrossValidation.ts`
-- `src/report/reportDomSafety.ts`
-- `src/lib/installFullReportRuntimeCompatibility.ts`
-- `src/lib/installFullReportPdfButtonBridge.ts`
-- `scripts/test-full-report-contract.mjs`
-- `scripts/test-full-report-runtime.mjs`
-- `scripts/e2e-phase6-five-competitor-native-print.mjs`
-
 ## Current validation evidence
 
-Validated implementation head before documentation updates:
+At implementation head `88d64a4ea6801479e78c54879b81b9234e331355`:
 
-`351c4247c4a9bf713955985c8963d2ddb0eb4257`
+- Phase 6 Color Correction Preview CI run `32437175392`: PASS
+- Phase 6 PDF Runtime E2E run `32437175313`: PASS
+- actual Coway external-output regression: PASS
+- latest Coway semantic fixture: PASS
+- synthetic semantic regression: PASS
+- P12 numeric/range/total regression: PASS
+- Persona target-order and role-duplication regression: PASS
+- P18 single vector / P29 target breadcrumb: PASS
+- P4 runtime / legacy cached base / external HTML auto-repair: PASS
+- 40 pages / 40 navigation links / overflow 0: PASS
+- save → reload → reopen: PASS
+- repeated PDF export / Ctrl+P / Cmd+P: PASS
+- PDF 40 pages / 960×540pt / embedded Pretendard: PASS
+- Vercel Preview: Ready
+- owner final Preview re-test: same HTML upload / P4 Viewer / P4 PDF all PASS
 
-- Preview CI run `30888643138`: PASS
-- PDF Runtime E2E run `30888643175`: PASS
-- V5 complete styled prompt path: PASS
-- active V6 workbook imports: absent
-- CSS, navigation, tables, and diagrams present: PASS
-- 40 pages / 40 navigation links / Appendix 0: PASS
-- 1280×720 / overflow 0: PASS
-- save / reopen / repeated PDF export: PASS
-- PDF: 40 pages, 960×540pt
-
-PR #24 remains Draft and unmerged. The visual contract is restored; the attachment-timeout strategy is not approved or solved.
+PR #26 remains Draft and unmerged pending final documentation CI and explicit owner `main` merge approval.

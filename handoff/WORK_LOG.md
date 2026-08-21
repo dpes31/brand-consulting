@@ -42,7 +42,6 @@
 - Restored Competitive Landscape, Category Clichés, and Creative Insight.
 - Defined candidate-five to core-three competitor logic.
 - Restored fixed page grammar for Persona, AIPL, Creative History, STP, Four Directions, and Final Choice.
-- Validated 40 pages, native PDF, save/reopen, and zero overflow on the superseded PR #20 line.
 
 ## 2026-07-20 to 2026-08-03 — Architecture audit
 
@@ -53,110 +52,139 @@
 - Identified DOM text-order `CONTENT SLOT` mapping as the content-mixing root cause.
 - Retained PR #21–#23 as audit records and prohibited merging them.
 
-## 2026-08-03 — PR #24 semantic HTML restoration
+## 2026-08-03 to 2026-08-04 — PR #24 semantic HTML restoration
 
-- Created `fix/phase6-main40-final-html-semantic-v5` and Draft PR #24.
-- Restored Step 0–5 research, complete HTML prompt download, external AI complete 40-page HTML, validation, approved-DOM reassembly, Viewer, persistence, and PDF.
+- Created `fix/phase6-main40-final-html-semantic-v5` and PR #24.
+- Restored Step 0–5 research → complete HTML prompt → external AI complete 40-page HTML → validation → approved-DOM reassembly → Viewer → persistence → PDF.
 - Removed JSON-only external instructions.
-- Moved Step 0–5 research before the large HTML template.
 - Replaced text-order slots with stable `data-report-field` keys.
 - Added semantic-field-set, DOM fingerprint, cross-page, security, and P18 coordinate validation.
-- Added `<mark>` rich text contract, literal token rejection, Creative History normalization, and unused candidate row hiding.
+- Added User Brief, Report Identity Lock, sample leakage blocking, executable attachment package, and `.html/.htm/.txt` upload.
+- Rejected the V6 lightweight semantic workbook after owner testing showed a field-list artifact without approved visual format.
+- Restored V5 complete styled HTML as the active contract.
 
-## 2026-08-04 — User Brief / Identity / upload correction
+## 2026-08-04 — PR #24 completed and merged
 
-- Added persistent User Brief for target brand, review seeds, strategic opponent, client need, reference note, and attachments.
-- Injected Brief into every Step 0–5 prompt and Phase 6.
-- Added strategic-opponent separation and immediate UI normalization.
-- Added Report Identity Lock across P11–18 and P29–33.
-- Added Samsung alias canonicalization and exact target-brand correction.
-- Neutralized Biznup sample content and added sample leakage blocking.
-- Added executable attachment package and raw-HTML-only output contract.
-- Added `.html/.htm/.txt` upload up to 20MB using the same validation path as paste.
-- Updated internal API for Brief and Identity parity.
-- Removed duplicate inactive implementations.
+- PR #24 was later owner-approved and merged to `main` with preserved history.
+- Current production baseline after PR #24: `d45d7f16b4d5f305d10e28b8f80a158c7073c37b`.
+- Known P18/P29 parity items remained tracked for later hardening.
 
-## 2026-08-04 — External-message timeout experiment
+## 2026-08-18 to 2026-08-21 — PR #26 real Coway output hardening
 
-### Reproduction
+### Trigger
 
-- Owner repeatedly received `메시지 전송 시간이 초과되었습니다. 다시 시도해 주세요`.
-- Measured owner Biznup prompt: 647,215 bytes.
-- Fixed visual template: approximately 449,802 bytes.
-- Step 0–5 research: approximately 194,109 bytes.
+A real Coway external-AI 40-page HTML exposed defects that synthetic tests had not fully covered:
 
-### V6 lightweight workbook attempt
+- rich SO WHAT fields used `<b>` although the contract allowed only `<mark>/<br>`;
+- Persona target identity could drift across P21 → P22–24;
+- Persona Brand Role and SO WHAT could duplicate the same sentence;
+- P18 still had legacy fixed-arrow ownership conflicts;
+- P29 target-brand Creative History breadcrumb could remain `COMPETITOR HISTORY` in raw external HTML;
+- P12 Threat Ranking score cells could contain out-of-range values or prose instead of numeric scores;
+- the approved P4 FACTS flow contained a fixed `?` connector that survived into PDF.
 
-- Added `src/report/semanticHtmlReportV6.ts`.
-- Removed final CSS, navigation, visual wrappers, tables, diagrams, and decorative DOM from the external attachment.
-- Kept 40 page sections, semantic fields, compact metadata, and P18 coordinates.
-- Intended app-side expansion into the approved V5 Renderer.
-- Reduced LG fixture prompt to 129,638 bytes.
-- Automated Renderer/PDF tests passed because the app expanded the workbook after import.
+### Branch / PR
 
-### Owner round-trip failure
+- Created/continued `fix/phase6-coway-real-output-validation-v1`.
+- Draft PR #26: `Harden Phase 6 real HTML validation and PDF parity`.
+- Kept `main` untouched during correction.
 
-The owner’s external AI returned `LG_퓨리케어_40페이지_전략리포트.html`.
+### Validation architecture correction
 
-Direct inspection found:
+- Changed relevant validation from first-error fail-fast to collect multiple blocking errors where practical.
+- Added safe normalization of `<b>/<strong>` in rich fields to `<mark>`.
+- Kept unsupported rich tags blocking.
+- Added actual Coway external-AI output regression fixtures rather than relying only on synthetic token filling.
+- Preserved the approved DOM fingerprint and app-owned reassembly model.
 
-- 40 sections and 757 semantic fields
-- CSS 0
-- navigation 0
-- tables 0
-- SVG/images 0
-- approved report format absent
-- P25 same sentence repeated across 17 fields
-- `UNVERIFIED` repeated across 24 status fields
-- repeated generic source wording
-- raw URLs exposed
+### P12 Threat Ranking correction
 
-The experiment solved payload size by deleting the artifact the owner expected. It was therefore rejected.
+Locked score semantics:
 
-## 2026-08-04 — V5 complete styled HTML restoration
+- penetration 0–25
+- growth 0–20
+- preference 0–20
+- campaign 0–15
+- inflection 0–15
+- evidence 0–5
+- total exact sum, 0–100
 
-### Code restoration
+Prompt and validator now agree that `evidence` is a 0–5 evidence-confidence score, not evidence prose.
 
-- Restored `src/lib/installFullReportPhase6Bridge.ts` to:
-  - `createSemanticHtmlTemplateV5`
-  - `buildSemanticHtmlPromptV5`
-  - `compileSemanticHtmlReportV5`
-- Restored filename `phase6_complete_html_prompt_<brand>.txt`.
-- Removed active `경량` labels and workbook instructions.
-- Restored internal `src/lib/geminiCompiler.ts` to the same V5 complete styled HTML contract.
-- Updated static/runtime contract tests so active V6 workbook references fail CI.
-- Strengthened `src/report/phase6PromptPackage.ts` with:
-  - Visual Artifact Lock
-  - CSS/layout/diagram/table/navigation preservation
-  - data-workbook prohibition
-  - duplicate generic content prohibition
-  - P25 role separation
-  - canonical Creative History statuses
-  - raw URL and fabrication prohibition
-- Added objective runtime blocking for raw URLs and noncanonical Creative History status values.
+### Persona correction
 
-### Validation
+- P22 / P23 / P24 must analyze P21 target 1 / 2 / 3 respectively.
+- Conclusion-led Persona titles are allowed.
+- Target 4/5 substitution remains blocking.
+- Added Brand Role ↔ SO WHAT duplication detection.
 
-Validated implementation head before documentation updates:
+### P18 / P29 correction
 
-`351c4247c4a9bf713955985c8963d2ddb0eb4257`
+- Removed legacy fixed `positioning-arrow-v2` overlay.
+- P18 now uses one app-owned `.map-arrow-vector` bound to semantic AS-IS/TO-BE coordinates.
+- P29 target-brand breadcrumb is normalized to `IV. CREATIVE > TARGET BRAND HISTORY`.
+- DOM fingerprint handling treats app-owned P18 vector consistently.
 
-- Preview CI run `30888643138`: PASS
-- PDF Runtime E2E run `30888643175`: PASS
-- complete styled prompt fixture: approximately 493KB
-- generated styled HTML fixture: approximately 470KB
-- CSS/style structures present
-- navigation present
-- tables and diagrams present
-- 40 pages / 40 navigation links / Appendix 0: PASS
-- Viewer / save / reopen / repeated PDF export: PASS
-- PDF: 40 pages, 960×540pt: PASS
+### P4 fixed connector correction
 
-### Current truth
+Owner PDF inspection found:
 
-- The approved report format is restored.
-- The V6 lightweight workbook is rejected and must not be reactivated.
-- The original large-attachment timeout is not solved.
-- A page-batch generation/merge workflow would change the user journey and is not implemented or approved.
-- PR #24 remains Draft and unmerged.
-- `main`, Legacy template, and protected backup branches remain unchanged.
+`계정 → 매출 → 해외 ? 비렉스`
+
+This was a fixed template/runtime defect, not an external-AI semantic-field error.
+
+Implemented normalization to:
+
+`계정 → 매출 → 해외 → 비렉스`
+
+The correction applies to:
+
+- approved Pilot runtime;
+- sanitized/cached approved base;
+- external HTML normalization before compile;
+- final identity/presentation policy.
+
+Added `scripts/e2e-phase6-p4-kpi-arrow.mjs` to verify current runtime and legacy `?` auto-repair paths.
+
+### Real Coway owner round-trip
+
+The owner reused the same Step 0–5 research, generated a new HTML from the latest Phase 6 prompt, uploaded it to Preview, opened Viewer, and exported PDF.
+
+Verified:
+
+- exactly 40 pages;
+- 757 semantic fields, duplicate 0;
+- unresolved token 0;
+- `.contentN` 0;
+- P12 LG전자 92 / 쿠쿠홈시스 83 / 삼성전자 80 with valid score ranges/totals;
+- P21 → P22–24 Persona mapping correct;
+- P18 single semantic coordinate-linked connector;
+- P29 final Viewer/PDF target breadcrumb correct;
+- PDF 40 pages / 960×540pt / Pretendard.
+
+After P4 correction, the owner re-uploaded the exact same HTML and confirmed all three requested checks:
+
+1. Viewer opened without a blocking validation error.
+2. P4 Viewer displayed `계정 → 매출 → 해외 → 비렉스`.
+3. P4 PDF displayed the same flow.
+
+### Automated evidence at implementation head `88d64a4ea6801479e78c54879b81b9234e331355`
+
+- Phase 6 Color Correction Preview CI `32437175392`: PASS
+- Phase 6 PDF Runtime E2E `32437175313`: PASS
+- actual Coway external fixture: PASS
+- latest Coway semantic fixture: PASS
+- synthetic semantic regression: PASS
+- P4 runtime / cached legacy base / legacy external HTML repair: PASS
+- Viewer save → reload → reopen: PASS
+- repeated PDF export: PASS
+- Ctrl+P / Cmd+P: PASS
+- PDF 40 pages / 960×540pt / embedded Pretendard: PASS
+- Vercel Preview: Ready
+
+### Current state after owner validation
+
+- PR #26 is technically and user-validated.
+- Documentation is being updated on the PR branch before merge approval.
+- PR remains Draft and unmerged until final documentation CI is green and the owner explicitly approves `main` merge.
+- `main`, `public/template.html`, and protected backup branches remain unchanged.

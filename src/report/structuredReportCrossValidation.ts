@@ -1,4 +1,5 @@
 import type { StructuredReportV3 } from './structuredReportV3';
+import { validateThreatRankingScoreContract } from './threatRankingScoreContract';
 
 const STRUCTURAL_COMPETITOR_VALUES = new Set([
   'COMPETITOR',
@@ -79,8 +80,36 @@ function validateObjectiveFieldQuality(report: StructuredReportV3): string[] {
   return errors;
 }
 
+function validatePersonaRoleSoWhatDistinctness(report: StructuredReportV3): string[] {
+  const errors: string[] = [];
+
+  [1, 2, 3].forEach((index) => {
+    const pageId = `persona-${index}`;
+    const role = value(report, pageId, `${pageId}.brandRole`);
+    const soWhat = value(report, pageId, `${pageId}.soWhat`);
+    if (!role || !soWhat) return;
+
+    const roleToken = normalized(role);
+    const soWhatToken = normalized(soWhat);
+    if (roleToken.length < 12 || soWhatToken.length < 12) return;
+
+    if (soWhatToken.includes(roleToken) || roleToken.includes(soWhatToken)) {
+      errors.push(
+        `P${21 + index} Persona ${index} · Brand Role과 SO WHAT이 같은 판단을 반복한다. `
+        + 'Brand Role은 브랜드가 이 Persona에게 해줄 일, SO WHAT은 제품·경험·커뮤니케이션이 어떻게 달라져야 하는지로 분리해야 한다.',
+      );
+    }
+  });
+
+  return errors;
+}
+
 export function validateStructuredReportCrossPage(report: StructuredReportV3): string[] {
-  const errors: string[] = [...validateObjectiveFieldQuality(report)];
+  const errors: string[] = [
+    ...validateObjectiveFieldQuality(report),
+    ...validatePersonaRoleSoWhatDistinctness(report),
+    ...validateThreatRankingScoreContract(report),
+  ];
   const candidates = [1, 2, 3, 4, 5]
     .map((index) => value(report, 'comp-landscape', `comp-landscape.candidate${index}.name`))
     .filter(Boolean);
@@ -135,7 +164,7 @@ export function validateStructuredReportCrossPage(report: StructuredReportV3): s
     }
     const historyId = `creative-history-${rank}`;
     if (!includesName(value(report, historyId, `${historyId}.title`), name)) {
-      errors.push(`P${29 + rank} Creative History 제목에 P12 ${rank}위 “${name}”이 반영되지 않았다.`);
+      errors.push(`P${29 + rank} Creative History 제목에 P12 ${rank}위 경쟁사 “${name}”이 반영되지 않았다.`);
     }
     const trajectoryName = value(report, 'creative-trajectory', `creative-trajectory.brand${rank + 1}.name`);
     if (normalized(trajectoryName) !== normalized(name)) {
