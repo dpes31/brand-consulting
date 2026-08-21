@@ -44,6 +44,7 @@ ${EXTERNAL_AI_EXECUTION_MESSAGE}
 - 제공된 CSS, 1280×720 페이지 DOM, 레이아웃, 표, 도식, 내비게이션, 클래스, ID와 장식 구조를 삭제·평탄화·단순화하지 마십시오.
 - 40개의 section만 나열하거나 data-report-field 요소만 남긴 입력용 워크북을 반환하지 마십시오.
 - 최종 파일을 브라우저에서 직접 열었을 때 승인된 40페이지 보고서 양식이 보여야 합니다.
+- P18 Positioning의 SVG 화살표는 앱 소유 고정 컴포넌트입니다. .map-arrow-vector를 삭제·교체·재작성하거나 과거 .positioning-arrow-v2를 새로 만들지 마십시오. 외부 AI는 P18의 [[POSITION:...]] 값만 작성하십시오.
 
 [P12 THREAT RANKING SCORE CONTRACT — BLOCKING]
 - P12의 penetration / growth / preference / campaign / inflection / evidence / total은 설명문이 아니라 점수 필드입니다.
