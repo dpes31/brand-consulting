@@ -272,7 +272,7 @@ function applyIdentityFields(documentRef: Document, lock: ReportIdentityLock): v
 }
 
 function normalizeFixedPresentation(documentRef: Document): void {
-  documentRef.querySelectorAll<HTMLElement>('#kpi .kpi-logic > i[data-report-fixed="true"]').forEach((arrow) => {
+  documentRef.querySelectorAll<HTMLElement>('#kpi .kpi-logic > i').forEach((arrow) => {
     arrow.textContent = '→';
   });
 }
