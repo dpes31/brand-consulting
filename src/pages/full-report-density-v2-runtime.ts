@@ -29,6 +29,12 @@ function semanticInflectionMarkup(): string {
   `;
 }
 
+function normalizeKpiFlowArrows(): void {
+  document.querySelectorAll<HTMLElement>('#kpi .kpi-logic > i[data-report-fixed="true"]').forEach((arrow) => {
+    arrow.textContent = '→';
+  });
+}
+
 function applyFullReportV2(): void {
   if (!new URLSearchParams(window.location.search).get('pilot')?.includes('full-integrated')) return;
 
@@ -79,6 +85,8 @@ function applyFullReportV2(): void {
   document.querySelector<HTMLElement>('#consumer-target .target-spectrum')?.classList.add('target-spectrum-v3');
   document.querySelectorAll<HTMLElement>('.persona-index').forEach((index) => index.classList.add('persona-index-v3'));
   document.querySelector<HTMLElement>('#creative-insight .creative-gap-layout')?.classList.add('creative-gap-v3');
+
+  normalizeKpiFlowArrows();
 
   // P18 movement arrow is owned by the semantic compiler so that the vector
   // is always bound to the returned AS-IS / TO-BE coordinates. The older
