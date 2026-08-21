@@ -271,7 +271,14 @@ function applyIdentityFields(documentRef: Document, lock: ReportIdentityLock): v
   });
 }
 
+function normalizeFixedPresentation(documentRef: Document): void {
+  documentRef.querySelectorAll<HTMLElement>('#kpi .kpi-logic > i[data-report-fixed="true"]').forEach((arrow) => {
+    arrow.textContent = '→';
+  });
+}
+
 function neutralizeFixedSampleLabels(documentRef: Document, brandName: string): void {
+  normalizeFixedPresentation(documentRef);
   const coverTag = documentRef.querySelector<HTMLElement>('#cover .full-tag');
   if (coverTag) coverTag.textContent = 'BRAND REPORT';
   const jtbdOpportunity = documentRef.querySelector<HTMLElement>('#jtbd thead th:last-child');
